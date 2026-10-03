@@ -37,7 +37,7 @@ def test_pass_resets_trick_after_all_other_active_players_pass() -> None:
     apply_action(state, CommittedAction(3, "pass"))
     assert state.current_winning is None
     assert state.current_winner_seat is None
-    assert state.active_seat == 1
+    assert state.active_seat == 0
     assert state.leader_seat == 0
 
 

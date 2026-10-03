@@ -230,15 +230,20 @@ def _assignment_products(
     return tuple(dict.fromkeys(results))
 
 
+def _window_rank_value(rank: Rank) -> int:
+    return WINDOW_RANKS.index(Rank(rank))
+
+
 def _ordinary_comparison_key(kind: CombinationKind, size: int, rank: Rank, level_rank: Rank) -> tuple[int, ...]:
-    return (0, _KIND_ORDER[kind], size, effective_rank_value(rank, level_rank))
+    value = _window_rank_value(rank) if kind in {CombinationKind.STRAIGHT, CombinationKind.PAIR_SEQUENCE, CombinationKind.TRIPLE_SEQUENCE} else effective_rank_value(rank, level_rank)
+    return (0, _KIND_ORDER[kind], size, value)
 
 
 def _bomb_comparison_key(kind: CombinationKind, size: int, rank: Rank, level_rank: Rank) -> tuple[int, ...]:
     if kind is CombinationKind.FOUR_KINGS:
         return (9,)
     if kind is CombinationKind.STRAIGHT_FLUSH:
-        return (3, effective_rank_value(rank, level_rank))
+        return (3, _window_rank_value(rank))
     if size == 4:
         bomb_class = 1
     elif size == 5:
@@ -646,8 +651,8 @@ def compare_combinations(left: Combination, right: Combination) -> int:
         raise IncomparableCombinationsError(
             f"{left.kind.value}/{left.size} cannot be compared with {right.kind.value}/{right.size}"
         )
-    left_value = effective_rank_value(left.comparison_rank, left.level_rank)
-    right_value = effective_rank_value(right.comparison_rank, right.level_rank)
+    left_value = left.comparison_key[-1]
+    right_value = right.comparison_key[-1]
     return (left_value > right_value) - (left_value < right_value)
 
 
