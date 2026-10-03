@@ -1,5 +1,5 @@
 {
-  "version": "profiles-0.1",
+  "version": "profiles-0.2",
   "profiles": {
     "local_fast": {
       "mode": "local",
@@ -11,21 +11,29 @@
       "training": {
         "updates_per_algorithm": 5,
         "rollout_envs": 4,
-        "rollout_steps": 256,
+        "token_steps_per_update": 256,
         "checkpoint_interval": 5,
+        "resume_updates": 1,
         "max_hours": 0.5
       },
       "evaluation": {
-        "games_per_pairing": 4,
-        "seat_swaps": true
-      },
-      "belief": {
-        "samples": 5,
-        "search_budget": 32
+        "deal_groups_per_pairing": 4,
+        "seat_rotations": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "opponents": [
+          "random",
+          "rule",
+          "snapshot"
+        ],
+        "max_hours": 0.5
       }
     },
     "remote_full": {
-      "mode": "kaggle",
+      "mode": "remote",
       "device": "cuda",
       "algorithms": [
         "ippo",
@@ -33,18 +41,26 @@
       ],
       "training": {
         "updates_per_algorithm": 100,
-        "rollout_envs": "auto",
-        "rollout_steps": 1024,
+        "rollout_envs": 8,
+        "token_steps_per_update": 1024,
         "checkpoint_interval": 10,
+        "resume_updates": 2,
         "max_hours": 12
       },
       "evaluation": {
-        "games_per_pairing": 250,
-        "seat_swaps": true
-      },
-      "belief": {
-        "samples": 128,
-        "search_budget": 1024
+        "deal_groups_per_pairing": 250,
+        "seat_rotations": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "opponents": [
+          "random",
+          "rule",
+          "snapshot"
+        ],
+        "max_hours": 12
       }
     }
   }

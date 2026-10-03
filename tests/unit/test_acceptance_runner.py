@@ -28,6 +28,11 @@ def make_fixture(tmp_path: Path, source: str | None = None) -> Path:
     (root / "guandan" / "__init__.py").write_text("# fixture package\n", encoding="utf-8")
     if source is not None:
         (acceptance / "test_a00_specification.py").write_text(source, encoding="utf-8")
+    # 回归夹具也必须提供真实配置，不再依赖缺失配置时静默降级。
+    (root / "configs").mkdir()
+    (root / "configs" / "acceptance_profiles.json").write_bytes(
+        (RUNNER.parents[1] / "configs" / "acceptance_profiles.json").read_bytes()
+    )
     git_command = ["git", "-C", str(root)]
     subprocess.run([*git_command, "init", "-q"], check=True, capture_output=True, text=True)
     subprocess.run([*git_command, "add", "."], check=True, capture_output=True, text=True)

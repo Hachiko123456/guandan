@@ -6,11 +6,12 @@
 
 1. 其实现包含在当前 Git 提交中。
 2. 其所需测试在 `guandan_train` 环境中通过。
-3. 其验收命令输出结果为通过的 JSON 报告。
+3. 其验收命令输出结果为通过的 JSON 报告，且报告包含实际执行证据。
 4. 其文档中规定的不变量和信息边界检查通过。
 5. 主代理已检查差异，并将其与原始要求进行比较。
+6. 对 A05/A06/A07，必须区分 `local_ready` 与 `remote_full` 两道门槛；本机快速结果不能自动产生 `accepted: true`。
 
-`implemented` 与 `tested` 不等同于 `accepted`。
+`implemented` 与 `tested` 不等同于 `accepted`。计划值、预期输出、部分运行、超时不足和硬件自动缩放都不能作为实际通过证据。
 
 ## A00 规范
 
@@ -45,22 +46,34 @@
 
 ## A05 训练集成
 
-- `local_fast` 至少完成每个算法 5 次更新并验证有限损失/梯度、动作掩码和检查点恢复；`remote_full` 才执行每个算法至少 100 次更新的完整稳定性门槛。
-- 已测试检查点保存/加载和恢复。
-- 非法动作概率为零，合法动作概率分布归一化。
+- 实际读取 `profiles-0.2`：`local_fast` 为 IPPO/VRPO 各 5 次更新、4 个环境、每次 256 个跨环境聚合 token steps（64 ticks/环境，1280 steps/算法）、每 5 次 checkpoint、恢复后追加 1 次更新、0.5 小时；`remote_full` 为各 100 次更新、8 个环境、每次 1024 个跨环境聚合 token steps、每 10 次 checkpoint、恢复后追加 2 次更新、12 小时。
+- `local_fast` 至少完成接线、有限 loss/gradient、动作掩码、token/committed step、truncation/reset/GAE 边界、真实 terminal reward 和 checkpoint 恢复验证；`remote_full` 才执行完整稳定性门槛。
+- actor/critic 私有信息边界和玩家/队伍视角保持正确；mean-pooled MLP 不得声称是原始 MARVEL Transformer；VRPO 不得只是 PPO relabel。
+- 非法动作概率为零，合法动作概率分布归一化；不兼容版本会拒绝 checkpoint。
+- 低于目标、超时、未恢复或只有计划没有实际证据时为 `incomplete`/`failed`，不得伪造通过。
 
 ## A06 评估
 
-- `local_fast` 用少量固定 seed/交换座位验证评估管线；`remote_full` 用 profile 规定的完整样本量报告队伍指标和置信度元数据。
-- 训练发牌与评估发牌相互分离。
-- 评估错误不会静默回退到备用代理。
+- 实际读取 profile 并使用四个座位轮换 `[0,1,2,3]`。
+- `local_fast` 对 `random`、`rule`、`snapshot` 各完成 4 × 4 = 16 局；`remote_full` 对每个对手各完成 250 × 4 = 1000 局。
+- 评估发牌与训练发牌相互分离，实际终局、队伍奖励、排名和置信度元数据可追溯。
+- 评估错误不会静默回退到备用代理；未完成局数不能填充为完成。
+- 这些规模不构成胜率或模型强度保证。
 
 ## A07 Kaggle
 
 - 全新环境下的依赖检查、规则冒烟测试、短程训练、定时检查点保存和恢复均可正常工作。
 - 脚本会检测实际的 Python/Torch/GPU 版本，而不是假设硬件环境。
+- 必须有真实的全新 Kaggle 会话证据；没有 Kaggle 访问权限时只能交付 ready package，不能以本机运行替代。
 
 ## A08 信念/搜索（后续）
 
 - 信念标签/样本遵守信息约束和牌守恒。
 - 搜索返回合法动作，遵守预算，并提供与直接策略的比较。
+
+## 两道门槛
+
+- `local_ready`：scoped 的完整 `local_fast` A05/A06、目标依赖测试、实际证据和主代理人工审查均完成。它只允许继续 A05 → A06 → A07 的实现/打包准备，所有相关 `accepted` 仍为 `false`。
+- `remote_full`：profile 目标数量的实际训练/评估证据、主代理差异/需求/报告审查、完整回归和提交均完成后，才可考虑 `accepted: true`。A07 另外必须满足真实 Kaggle 会话门槛。
+
+A02 的 10,000 个随机种子是全量/release 回归要求，不要求每个 A05/A06 小改动都重复；远端/release 仍不得移除安全测试或既有不变量测试。

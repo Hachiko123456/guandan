@@ -12,6 +12,7 @@
 - 未经差异审查、针对性测试、全量测试和需求审查，不得采纳子代理的结论。
 - 自动生成的报告不得设置 `accepted: true`；只有负责监督的主代理可以设置该值。
 - 不得在未说明的情况下自行消解规则歧义。
+- 本轮 A05 启动准备是文档与契约工作；不得把准备工作描述成已实现、已训练或已验收。
 
 ## 依赖关系图
 
@@ -19,7 +20,7 @@
 A00 -> A01 -> A02 -> A03 -> A04 -> A05 -> A06 -> A07 -> A08
 ```
 
-只能推进第一个 `accepted` 字段为 false 的阶段的实现。
+只能推进第一个 `accepted` 字段为 false 的阶段的实现。A00-A04 的既有要求和已接受状态保持不变；本轮不得编辑 `project_status/STATUS.yaml`，也不得通过文档变更替任何阶段授予接受状态。
 
 ## 阶段一览
 
@@ -35,29 +36,71 @@ A00 -> A01 -> A02 -> A03 -> A04 -> A05 -> A06 -> A07 -> A08
 | A07 | Kaggle 安装/训练/保存/恢复 | A05/A06 | 全新 Kaggle 会话中的证据 |
 | A08 | 信念（猜牌）采样与搜索 | A06/A07 | 不泄露信息的样本与预算约束内的合法搜索 |
 
-## 执行 profile：本机快速验证与远端完整运行
+## A05/A06 的本机与远端执行契约
 
-`configs/acceptance_profiles.json` 定义两个执行 profile：
+`configs/acceptance_profiles.json` 的实现目标是 `profiles-0.2`。本轮只更新文档契约，不修改该配置文件；当前工作区若仍为 `profiles-0.1`，这是后续主代理需要先处理的已知缺口，不能把旧字段（例如 `rollout_steps` 或 `rollout_envs: "auto"`）当作本契约已经满足。
 
-- `local_fast`：本机开发使用。只验证接线、状态安全、梯度、检查点和少量评估，不用于判断模型能力。
-- `remote_full`：Kaggle/远程 GPU 使用。执行完整训练更新、大规模评估、保存和恢复。
+### 训练 profile
 
-协议常量（词表、观测长度、动作长度、合法行容量、通道数）不因 profile 改变。profile 只控制更新次数、rollout 规模、评估局数、检查点间隔、运行时限和信念/搜索预算。
+| profile | 算法 | env 数 | 每次更新的 token steps | 更新数/算法 | checkpoint | 恢复后追加 | 时间预算 |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `local_fast` | `ippo`, `vrpo` | 4 | 256，**跨环境聚合总量** | 5 | 每 5 次更新 | 1 次更新 | 0.5 小时 |
+| `remote_full` | `ippo`, `vrpo` | 8 | 1024，**跨环境聚合总量** | 100 | 每 10 次更新 | 2 次更新 | 12 小时 |
 
-A05/A06 命令格式：
+`local_fast` 的 256 是 4 个环境合计，不是每个环境各采集 256：每次更新为每个环境 64 ticks，5 次更新为每个算法合计 1280 token steps。保存第 5 次更新的检查点后，必须实际加载并继续完成 1 次更新。`remote_full` 同理按 8 个环境聚合 1024 steps；每环境每次更新为 128 ticks，完成 100 次更新后按检查点恢复并追加 2 次更新。计数必须来自实际执行证据，不得用计划数、采集请求数或“将要执行”替代。
 
-```powershell
-python scripts/run_acceptance.py --stage A05 --profile local_fast
-python scripts/run_acceptance.py --stage A05 --profile remote_full
-python scripts/run_acceptance.py --stage A06 --profile local_fast
-python scripts/run_acceptance.py --stage A06 --profile remote_full
-```
+### 评估 profile
 
-本机通过 `local_fast` 不等于远端 `remote_full` 通过。报告必须记录实际 profile。
+- `local_fast`：每个 pairing 使用 4 个 deal groups，座位轮换固定为 `[0, 1, 2, 3]`；对 `random`、`rule`、`snapshot` 三个对手分别完成 `4 * 4 = 16` 局。
+- `remote_full`：每个 pairing 使用 250 个 deal groups 和相同的 `[0, 1, 2, 3]` 座位轮换；对每个对手分别完成 `250 * 4 = 1000` 局。
+- 这里的数量是**已完成并计入报告的对局数**，不是计划局数、启动局数或因超时未完成的局数。
+- 两个 profile 的时间预算分别为 0.5 小时和 12 小时。超时且未达到目标数量时，结果为 incomplete，不得伪造通过，也不得由硬件自动缩减目标。
+- 这些规模只规定接线、正确性、稳定性和证据的执行预算，不构成任何胜率、强度、泛化或排名保证。
+
+### Runner 与 profile 传播
+
+`python scripts/run_acceptance.py --profile <name> ...` 必须严格读取并校验 `profiles-0.2`，然后把规范化的 profile 名称和解析后的完整配置分别作为以下 canonical 环境变量转发给测试：
+
+- `GUANDAN_PROFILE=<local_fast|remote_full>`；
+- `GUANDAN_RESOLVED_PROFILE_JSON=<规范化的完整 JSON>`。
+
+Runner 只负责 profile 选择、校验、传播、测试编排和证据记录，不实现 trainer。A05/A06 验收测试必须实际读取这些变量（或 runner 提供的等价 canonical fixture），并按配置执行和记录实际计数。硬件检测只能报告能力或失败，不能自动把 `local_fast` 升级/扩展为远端规模；只有用户/主代理明确指定 `--profile remote_full` 才能执行远端完整 profile。
+
+`--show-profile` 只打印解析后的配置并退出，不运行测试、不创建验收通过证据、不改变任何状态。未知 profile、缺字段、字段类型/范围错误、版本不匹配或 JSON 不合法都必须失败退出；不得静默回退到默认 profile。
+
+## A05 训练集成重点
+
+A05 必须实际覆盖 IPPO 与 VRPO，而不是只检查导入或构造对象。除 profile 计数外，每次验收都要保留更新数、环境数、聚合 steps、checkpoint 保存/加载/恢复、实际运行时间以及 Python/PyTorch/设备/profile/Git 元数据。
+
+- 损失与梯度必须是有限值；合法动作概率归一化，非法动作概率为零。
+- actor 与 critic 的信息边界必须保留：actor 不得看到对手私有牌；若 critic 使用训练专用信息，必须有明确隔离并证明不会进入 actor。玩家视角与队伍视角不得被错误地替换为全知或错误玩家视角。
+- token step、committed game step、`done`、`truncated`、reset 与 GAE/mask 边界必须分别验证。截断不能伪造真实终局奖励；reset 必须清理对应的轨迹与环境状态；真实终局奖励必须来自实际终止事件。
+- 如果实现采用 mean-pooled MLP，报告必须如实称为 mean-pooled MLP，不得声称是原始 MARVEL Transformer 或暗示已复现该架构。
+- VRPO 必须有可审查的、与 PPO 不同的目标/更新语义；不能把“PPO 加改名/重新标注”作为 VRPO 验收。
+- checkpoint 必须拒绝不兼容的规则、动作、环境、编码或模型版本，并在恢复后实际继续更新。
+
+上述项目是正确性和可审查性要求，不是模型强度保证。
+
+## A06 评估重点
+
+A06 必须从 profile 加载对局规模，并实际完成三类对手（`random`、`rule`、`snapshot`）及四个座位轮换。评估发牌/seed 流与训练发牌/seed 流分离；报告要记录每个对手的实际完成局数、队伍胜负/奖励/排名、固定 seed、轮换、模型与协议元数据以及置信度元数据。
+
+模型或环境错误必须显式失败，不能静默回退到备用代理。局数不足、超时、缺失座位轮换或未完成的对局只能标为 incomplete/failed，不能标为 passed。`local_fast` 的 16 局/对手只用于验证管线与边界，`remote_full` 的 1000 局/对手才是完整样本量；两者都不提供强度结论。
+
+## 两道门槛与阶段推进
+
+A05/A06/A07 采用两道独立门槛：
+
+1. **`local_ready` 门槛**：主代理完成 scoped 的 `local_fast` A05/A06 测试、目标依赖测试、实际证据检查和人工需求审查。达到后，允许继续 A05 → A06 → A07 的实现/打包准备，但 A05/A06 的 `accepted` 仍必须为 `false`，也不能因本机通过而声称远端完整验收。
+2. **`remote_full` 门槛**：完成指定的 `remote_full` 训练/评估实际证据，并由主代理完成差异、需求和报告审查后，才可考虑把对应阶段置为 `accepted: true`。A07 还必须在真实全新 Kaggle 会话完成安装、训练、检查点保存/恢复和输出证据；没有 Kaggle 访问权限时，只能停止在 ready package，不能用本机结果替代。
+
+## 测试与回归策略
+
+每次 A05/A06 变更先运行 scoped 的完整 `local_fast` A05/A06 验收及其目标依赖测试，不要求每次变更都重跑 A02 既有的 10,000 个随机种子对局。远端/发布候选阶段再运行完整回归和 release 级测试；任何安全、信息隔离、牌守恒、终局/截断、恢复和不变量测试都不得为缩短时间而删除、跳过或弱化。
 
 ## 通用阶段验收门槛
 
-每个阶段都需要完成实现、针对性测试、适用的性质测试/集成测试、由需求驱动的验收测试、由 `scripts/run_acceptance.py` 生成的报告、主代理差异审查、一次全量测试运行，以及记录在 `project_status/STATUS.yaml` 中的 Git 提交。仅有部分测试通过不等于通过验收。
+每个阶段都需要完成实现、针对性测试、适用的性质测试/集成测试、由需求驱动的验收测试、由 `scripts/run_acceptance.py` 生成的报告、主代理差异审查、一次适用于发布门槛的全量测试运行，以及记录在 `project_status/STATUS.yaml` 中的 Git 提交。仅有部分测试通过不等于通过验收。A05/A06 在 `local_ready` 前后都不得修改状态为 `accepted`；本轮文档编辑不产生提交。
 
 ## 续接规则
 

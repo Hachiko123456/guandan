@@ -77,13 +77,40 @@ stages:
       - project_status/history/20261003T161741407727Z_73b55f6b09e24a6db66adc7a3ac0f5d4/A04/report.json
     blockers: []
   A05_training_integration:
-    status: not_started
-    implementation: none
-    tests: not_run
+    local_ready: false
+    verification:
+      local_fast:
+        status: smoke_passed
+        review_status: pending
+        code_commit: pending
+        report: project_status/history/<run-id>/A05/report.json
+      remote_full:
+        status: not_run
+        review_status: not_reviewed
+        code_commit: null
+        report: null
+    status: in_progress
+    implementation: partial
+    tests: targeted_passed
     accepted: false
-    commit: null
-    blockers: []
+    commit: pending
+    blockers:
+      - complete and independently validate IPPO/VRPO trainer semantics
+      - run the real local_fast five-update profile, not only one-update smoke tests
+      - complete A05 acceptance evidence and checkpoint/resume audit
   A06_evaluation:
+    local_ready: false
+    verification:
+      local_fast:
+        status: not_run
+        review_status: not_reviewed
+        code_commit: null
+        report: null
+      remote_full:
+        status: not_run
+        review_status: not_reviewed
+        code_commit: null
+        report: null
     status: not_started
     implementation: none
     tests: not_run

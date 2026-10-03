@@ -45,24 +45,14 @@ EXCLUDED = {
 }
 ROOT_SUFFIXES = {".py", ".md", ".rst", ".toml", ".txt", ".yaml", ".yml", ".ini", ".cfg", ".lock"}
 COUNT_KEYS = ("passed", "failed", "skipped", "errors", "collected")
-PROFILE_PATH = ROOT / "configs" / "acceptance_profiles.json"
+# 显式将本仓库包目录加入搜索路径；测试夹具根目录稍后单独处理。
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from guandan.execution_profiles import load_execution_profile
 
 
 def load_profile(root: Path, name: str) -> dict:
-    """Load a named execution profile without changing protocol constants."""
-    path = root / "configs" / "acceptance_profiles.json"
-    if not path.exists():
-        # Fixture repositories used by runner regression tests may not carry the
-        # project profile file; keep the report explicit without blocking them.
-        return {"name": name, "source": "missing-fixture-config"}
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-        profiles = payload.get("profiles", {})
-        if name not in profiles:
-            raise ValueError(f"unknown acceptance profile: {name}")
-        return {"name": name, "source": path.relative_to(root).as_posix(), "config": profiles[name]}
-    except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
-        raise ValueError(f"invalid acceptance profile configuration: {exc}") from exc
+    return load_execution_profile(root, name)
 
 
 def write_once(path: Path, content: str) -> None:
@@ -287,7 +277,9 @@ def run_stage(root: Path, run_dir: Path, run_id: str, stage: str, collect_only: 
             completed = subprocess.run(
                 command, cwd=root, capture_output=True, text=True, encoding="utf-8", errors="replace",
                 env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1", "PYTHONIOENCODING": "utf-8",
-                     "TMP": str(temp), "TEMP": str(temp), "TMPDIR": str(temp)},
+                     "TMP": str(temp), "TEMP": str(temp), "TMPDIR": str(temp),
+                     "GUANDAN_PROFILE": profile["name"],
+                     "GUANDAN_RESOLVED_PROFILE_JSON": json.dumps(profile, ensure_ascii=False)},
             )
             stdout, stderr = completed.stdout, completed.stderr
             report["returncode"] = completed.returncode
@@ -386,6 +378,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--stage", choices=[*STAGE_TESTS, "all"], required=True)
     parser.add_argument("--profile", default=os.environ.get("GUANDAN_PROFILE", "local_fast"),
                         help="Execution profile: local_fast for local smoke, remote_full for Kaggle/full runs.")
+    parser.add_argument("--show-profile", action="store_true",
+                        help="Only print resolved configuration; no tests or training; not acceptance.")
     parser.add_argument("--collect-only", action="store_true",
                         help="Collect tests for diagnostics only; never passes (exit 2 or failure).")
     parser.add_argument("--root", type=Path,
@@ -399,6 +393,9 @@ def main(argv: list[str] | None = None) -> int:
         profile = load_profile(root, args.profile)
     except ValueError as exc:
         parser.error(str(exc))
+    if args.show_profile:
+        print(json.dumps({"status": "configuration_only", "accepted": False, "stage": args.stage, "profile": profile}, ensure_ascii=False, indent=2))
+        return 0
     started = time.perf_counter()
     now = datetime.now(timezone.utc)
     run_id = now.strftime("%Y%m%dT%H%M%S%fZ") + "_" + uuid.uuid4().hex
