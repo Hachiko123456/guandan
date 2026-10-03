@@ -69,3 +69,17 @@ python scripts/run_acceptance.py --stage A05 --profile local_fast --show-profile
 ## 审查与状态
 
 自动报告不得设置监督层的 `accepted: true`。主代理必须检查差异、检查实际证据、运行 profile 对应测试和目标依赖测试，并按项目规则安排完整回归。A05 通过 local_fast 后最多进入 `local_ready`，仍保持 `accepted: false`；只有 remote_full 实际证据、主代理需求/差异审查、完整回归和提交都具备时，才可考虑接受。A05 的这些文档要求不改变 A00-A04 已接受状态。
+
+
+## 主代理 local_fast 证据
+
+本机 `local_fast` 已按 `profiles-0.2` 实际运行 IPPO/VRPO：每算法 5 次更新、4
+个真实 108-card 环境、每次 256 aggregate token steps、合计 1280 token steps；
+update 5 checkpoint 后各恢复并追加 1 次更新。报告记录真实终局快照、GAE/Q-boost
+目标类型、动作掩码、玩家/队伍视角、terminal/truncated/reset 边界、有限梯度以及
+resume digest。
+
+证据路径：`project_status/history/20261003T232220411107Z_9c0ae0690d5d491088a43fbf02dc9039/A05/report.json`。
+
+本机 local_ready 不等于远端完整验收；remote_full 未运行，`accepted` 必须保持 false。
+本轮另有前置规则缺陷审计：`docs/prerequisite_defects_A05_A06.md`。

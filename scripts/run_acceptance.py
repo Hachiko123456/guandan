@@ -31,7 +31,10 @@ STAGE_TESTS = {
     "A02": ["tests/acceptance/test_a02_rules.py"],
     "A03": ["tests/acceptance/test_a03_actions.py"],
     "A04": ["tests/acceptance/test_a04_environment.py"],
-    "A05": ["tests/acceptance/test_a05_training.py"],
+    "A05": ["tests/acceptance/test_a05_training.py", "tests/unit/test_estimators.py",
+            "tests/unit/test_training_objectives.py", "tests/unit/test_collector.py",
+            "tests/integration/test_trainer_core.py", "tests/unit/test_training_support.py",
+            "tests/integration/test_training_smoke.py", "tests/unit/test_model.py"],
     "A06": ["tests/acceptance/test_a06_evaluation.py"],
     "A07": ["tests/acceptance/test_a07_kaggle.py"],
     "A08": ["tests/acceptance/test_a08_belief_search.py"],
@@ -279,6 +282,7 @@ def run_stage(root: Path, run_dir: Path, run_id: str, stage: str, collect_only: 
                 env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1", "PYTHONIOENCODING": "utf-8",
                      "TMP": str(temp), "TEMP": str(temp), "TMPDIR": str(temp),
                      "GUANDAN_PROFILE": profile["name"],
+                     "GUANDAN_EVIDENCE_DIR": str(directory / "execution"),
                      "GUANDAN_RESOLVED_PROFILE_JSON": json.dumps(profile, ensure_ascii=False)},
             )
             stdout, stderr = completed.stdout, completed.stderr
@@ -350,6 +354,13 @@ def run_stage(root: Path, run_dir: Path, run_id: str, stage: str, collect_only: 
         report["artifacts"][name] = path.relative_to(root).as_posix() if path.exists() else None
         if path.exists():
             report["artifact_sha256"][name] = sha256(path)
+    execution = directory / "execution"
+    report["execution_artifacts"] = []
+    if execution.is_dir():
+        for path in sorted(execution.rglob("*")):
+            if path.is_file() and contained(path, directory):
+                report["execution_artifacts"].append({"path": path.relative_to(root).as_posix(),
+                    "sha256": sha256(path), "bytes": path.stat().st_size})
     write_json(directory / "report.json", report)
     return report
 
