@@ -1,0 +1,16 @@
+project: guandan
+version: 0.1.0
+last_updated: null
+rules_version: null
+action_protocol_version: null
+observation_protocol_version: null
+stages:
+  A00_specification: {status: in_progress, implementation: partial, tests: not_run, accepted: false, commit: null, blockers: []}
+  A01_cards_and_combinations: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
+  A02_round_rules_engine: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
+  A03_stepwise_action_protocol: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
+  A04_observation_and_batch_environment: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
+  A05_training_integration: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
+  A06_evaluation: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
+  A07_kaggle: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
+  A08_belief_search: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}

@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "guandan-train"
+version = "0.1.0"
+description = "Independent pure-Python GuanDan rules, environment, and training project."
+requires-python = ">=3.12"
+dependencies = [
+  "numpy>=2",
+  "torch",
+  "tqdm",
+  "tyro",
+  "psutil",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-xdist"]
+tracking = ["wandb"]
+notebook = ["ipykernel"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["guandan*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "unit: deterministic unit tests",
+  "property: invariant/property tests",
+  "integration: cross-module tests",
+  "acceptance: stage acceptance tests",
+  "slow: long-running tests",
+]
