@@ -77,27 +77,30 @@ stages:
       - project_status/history/20261003T161741407727Z_73b55f6b09e24a6db66adc7a3ac0f5d4/A04/report.json
     blockers: []
   A05_training_integration:
-    local_ready: false
+    local_ready: true
     verification:
       local_fast:
-        status: smoke_passed
-        review_status: pending
-        code_commit: dcc1cd1
-        report: project_status/history/<run-id>/A05/report.json
+        status: passed
+        review_status: main_reviewed
+        code_commit: 3d2349812fe059ce73ac20f49f605c9de513e3c1
+        report: project_status/history/20261003T233030507872Z_830496ba47d44ad88b0dc0dd66044330/A05/report.json
+        actual_updates_per_algorithm: 5
+        actual_resume_updates_per_algorithm: 1
+        actual_token_steps_per_algorithm: 1280
+        actual_rollout_envs: 4
       remote_full:
         status: not_run
         review_status: not_reviewed
         code_commit: null
         report: null
-    status: in_progress
-    implementation: partial
-    tests: targeted_passed
+    status: verified
+    implementation: complete
+    tests: passed
     accepted: false
-    commit: pending
+    commit: 3d2349812fe059ce73ac20f49f605c9de513e3c1
     blockers:
-      - complete and independently validate IPPO/VRPO trainer semantics
-      - run the real local_fast five-update profile, not only one-update smoke tests
-      - complete A05 acceptance evidence and checkpoint/resume audit
+      - remote_full has not been run; accepted must remain false
+      - A02 prerequisite defects are recorded in docs/prerequisite_defects_A05_A06.md
   A06_evaluation:
     local_ready: false
     verification:
