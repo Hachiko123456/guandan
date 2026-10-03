@@ -35,6 +35,26 @@ A00 -> A01 -> A02 -> A03 -> A04 -> A05 -> A06 -> A07 -> A08
 | A07 | Kaggle 安装/训练/保存/恢复 | A05/A06 | 全新 Kaggle 会话中的证据 |
 | A08 | 信念（猜牌）采样与搜索 | A06/A07 | 不泄露信息的样本与预算约束内的合法搜索 |
 
+## 执行 profile：本机快速验证与远端完整运行
+
+`configs/acceptance_profiles.json` 定义两个执行 profile：
+
+- `local_fast`：本机开发使用。只验证接线、状态安全、梯度、检查点和少量评估，不用于判断模型能力。
+- `remote_full`：Kaggle/远程 GPU 使用。执行完整训练更新、大规模评估、保存和恢复。
+
+协议常量（词表、观测长度、动作长度、合法行容量、通道数）不因 profile 改变。profile 只控制更新次数、rollout 规模、评估局数、检查点间隔、运行时限和信念/搜索预算。
+
+A05/A06 命令格式：
+
+```powershell
+python scripts/run_acceptance.py --stage A05 --profile local_fast
+python scripts/run_acceptance.py --stage A05 --profile remote_full
+python scripts/run_acceptance.py --stage A06 --profile local_fast
+python scripts/run_acceptance.py --stage A06 --profile remote_full
+```
+
+本机通过 `local_fast` 不等于远端 `remote_full` 通过。报告必须记录实际 profile。
+
 ## 通用阶段验收门槛
 
 每个阶段都需要完成实现、针对性测试、适用的性质测试/集成测试、由需求驱动的验收测试、由 `scripts/run_acceptance.py` 生成的报告、主代理差异审查、一次全量测试运行，以及记录在 `project_status/STATUS.yaml` 中的 Git 提交。仅有部分测试通过不等于通过验收。

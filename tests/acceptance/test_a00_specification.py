@@ -21,6 +21,7 @@ def test_a00_required_spec_documents_exist() -> None:
         ROOT / "docs" / "AGENT_EXECUTION_PROTOCOL.md",
         ROOT / "docs" / "CONTINUE_PROMPT.md",
         ROOT / "project_status" / "STATUS_SCHEMA.md",
+        ROOT / "configs" / "acceptance_profiles.json",
         ROOT / "docs" / "acceptance" / "A00_specification.md",
         ROOT / "docs" / "acceptance" / "A01_cards_and_combinations.md",
         ROOT / "docs" / "acceptance" / "A02_round_rules_engine.md",
@@ -39,10 +40,12 @@ def test_a00_documents_have_versioned_contract_markers_and_fixed_v1_choices() ->
     rules = (ROOT / "docs" / "rules.md").read_text(encoding="utf-8")
     environment = (ROOT / "docs" / "environment_contract.md").read_text(encoding="utf-8")
     action = (ROOT / "docs" / "action_protocol.md").read_text(encoding="utf-8")
+    profiles = (ROOT / "configs" / "acceptance_profiles.json").read_text(encoding="utf-8")
 
     assert "GD-RULES-0.1" in rules
     assert "GD-ENV-0.1" in environment
     assert "GD-ACTION-0.1" in action
+    assert "local_fast" in profiles and "remote_full" in profiles
     assert "FOUR_KINGS" in rules and "两张小王" in rules and "两张大王" in rules
     assert "三连对" in rules and "恰好" in rules
     assert "钢板" in rules and "两组" in rules

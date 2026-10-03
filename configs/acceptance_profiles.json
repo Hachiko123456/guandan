@@ -1,0 +1,51 @@
+{
+  "version": "profiles-0.1",
+  "profiles": {
+    "local_fast": {
+      "mode": "local",
+      "device": "auto",
+      "algorithms": [
+        "ippo",
+        "vrpo"
+      ],
+      "training": {
+        "updates_per_algorithm": 5,
+        "rollout_envs": 4,
+        "rollout_steps": 256,
+        "checkpoint_interval": 5,
+        "max_hours": 0.5
+      },
+      "evaluation": {
+        "games_per_pairing": 4,
+        "seat_swaps": true
+      },
+      "belief": {
+        "samples": 5,
+        "search_budget": 32
+      }
+    },
+    "remote_full": {
+      "mode": "kaggle",
+      "device": "cuda",
+      "algorithms": [
+        "ippo",
+        "vrpo"
+      ],
+      "training": {
+        "updates_per_algorithm": 100,
+        "rollout_envs": "auto",
+        "rollout_steps": 1024,
+        "checkpoint_interval": 10,
+        "max_hours": 12
+      },
+      "evaluation": {
+        "games_per_pairing": 250,
+        "seat_swaps": true
+      },
+      "belief": {
+        "samples": 128,
+        "search_budget": 1024
+      }
+    }
+  }
+}

@@ -45,6 +45,24 @@ EXCLUDED = {
 }
 ROOT_SUFFIXES = {".py", ".md", ".rst", ".toml", ".txt", ".yaml", ".yml", ".ini", ".cfg", ".lock"}
 COUNT_KEYS = ("passed", "failed", "skipped", "errors", "collected")
+PROFILE_PATH = ROOT / "configs" / "acceptance_profiles.json"
+
+
+def load_profile(root: Path, name: str) -> dict:
+    """Load a named execution profile without changing protocol constants."""
+    path = root / "configs" / "acceptance_profiles.json"
+    if not path.exists():
+        # Fixture repositories used by runner regression tests may not carry the
+        # project profile file; keep the report explicit without blocking them.
+        return {"name": name, "source": "missing-fixture-config"}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        profiles = payload.get("profiles", {})
+        if name not in profiles:
+            raise ValueError(f"unknown acceptance profile: {name}")
+        return {"name": name, "source": path.relative_to(root).as_posix(), "config": profiles[name]}
+    except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"invalid acceptance profile configuration: {exc}") from exc
 
 
 def write_once(path: Path, content: str) -> None:
@@ -226,7 +244,7 @@ def read_junit(path: Path) -> dict:
     return result
 
 
-def run_stage(root: Path, run_dir: Path, run_id: str, stage: str, collect_only: bool) -> dict:
+def run_stage(root: Path, run_dir: Path, run_id: str, stage: str, collect_only: bool, profile: dict) -> dict:
     started = time.perf_counter()
     now = datetime.now(timezone.utc)
     directory = run_dir / stage
@@ -246,6 +264,7 @@ def run_stage(root: Path, run_dir: Path, run_id: str, stage: str, collect_only: 
                str(root), str(evidence_path), *pytest_args]
     report = {
         "schema_version": 1, "run_id": run_id, "stage": stage,
+        "profile": profile,
         "status": "blocked", "accepted": False, "exit_code": 2,
         "timestamp_utc": now.isoformat(), "timestamp_local": now.astimezone(SHANGHAI).isoformat(),
         "timezone": "Asia/Shanghai", "collect_only_requested": collect_only,
@@ -365,6 +384,8 @@ def resolve_root(parser: argparse.ArgumentParser, override: Path | None) -> Path
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=[*STAGE_TESTS, "all"], required=True)
+    parser.add_argument("--profile", default=os.environ.get("GUANDAN_PROFILE", "local_fast"),
+                        help="Execution profile: local_fast for local smoke, remote_full for Kaggle/full runs.")
     parser.add_argument("--collect-only", action="store_true",
                         help="Collect tests for diagnostics only; never passes (exit 2 or failure).")
     parser.add_argument("--root", type=Path,
@@ -374,19 +395,24 @@ def main(argv: list[str] | None = None) -> int:
                         "This is path validation, not a sandbox for untrusted test code.")
     args = parser.parse_args(argv)
     root = resolve_root(parser, args.root)
+    try:
+        profile = load_profile(root, args.profile)
+    except ValueError as exc:
+        parser.error(str(exc))
     started = time.perf_counter()
     now = datetime.now(timezone.utc)
     run_id = now.strftime("%Y%m%dT%H%M%S%fZ") + "_" + uuid.uuid4().hex
     run_dir = root / "project_status" / "history" / run_id
     run_dir.mkdir(parents=True, exist_ok=False)
     stages = list(STAGE_TESTS) if args.stage == "all" else [args.stage]
-    results = [run_stage(root, run_dir, run_id, stage, args.collect_only) for stage in stages]
+    results = [run_stage(root, run_dir, run_id, stage, args.collect_only, profile) for stage in stages]
     exit_code = 1 if any(result["exit_code"] == 1 for result in results) else (
         2 if any(result["exit_code"] == 2 for result in results) else 0)
     status = ("failed" if exit_code == 1 else "passed" if exit_code == 0 else
               "collected_only" if all(item["status"] == "collected_only" for item in results) else "blocked")
     summary = {
         "schema_version": 1, "run_id": run_id, "stage": args.stage,
+        "profile": profile,
         "status": status, "accepted": False, "exit_code": exit_code,
         "root": str(root), "timestamp_utc": now.isoformat(),
         "timestamp_local": now.astimezone(SHANGHAI).isoformat(), "timezone": "Asia/Shanghai",

@@ -7,6 +7,8 @@
 
 使用 C:\Users\yhx\.conda\envs\guandan_train\python.exe。不得修改 D:\project\doudizhu 或 D:\project\FableDan。不得使用或复制 FableDan。保持项目为纯 Python。
 
+执行 A05/A06 时读取 `configs/acceptance_profiles.json`：本机默认使用 `local_fast`，Kaggle/远程 GPU 使用 `remote_full`。`local_fast` 只验证接线和正确性，不能替代 `remote_full` 的完整训练/评估；报告必须记录实际 profile。
+
 找到第一个 accepted=false 的阶段，并且只继续推进该阶段。为子代理分配互不重叠的可写文件集合。检查每个子代理的差异，运行针对性测试，执行阶段验收命令，并运行完整测试套件。不得通过自动化将阶段标记为 accepted；只有在完成主代理审查和一次 Git 提交之后，才能更新 STATUS.yaml。不得重新开始已验收通过的阶段，也不得跳过未通过的验收门槛。仅在确实存在尚未解决的产品/规则决策或需要外部权限时提问。
 
 报告阶段、文件、测试、证据、提交、阻塞问题，以及是否可以开始下一阶段。
