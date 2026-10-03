@@ -102,24 +102,29 @@ stages:
       - remote_full has not been run; accepted must remain false
       - A02 prerequisite defects are recorded in docs/prerequisite_defects_A05_A06.md
   A06_evaluation:
-    local_ready: false
+    local_ready: true
     verification:
       local_fast:
-        status: not_run
-        review_status: not_reviewed
-        code_commit: null
-        report: null
+        status: passed
+        review_status: main_reviewed
+        code_commit: 0e5c1a1
+        report: project_status/history/20261003T234059912104Z_20b39d6f25a54aea85b628d8237012a8/A06/report.json
+        actual_games_per_opponent: 16
+        actual_total_games: 48
+        seat_rotations: [0, 1, 2, 3]
       remote_full:
         status: not_run
         review_status: not_reviewed
         code_commit: null
         report: null
-    status: not_started
-    implementation: none
-    tests: not_run
+    status: verified
+    implementation: complete
+    tests: passed
     accepted: false
-    commit: null
-    blockers: []
+    commit: 0e5c1a1
+    blockers:
+      - remote_full has not been run; accepted must remain false
+      - A06 is pipeline correctness evidence, not a model-strength claim
   A07_kaggle:
     status: not_started
     implementation: none
