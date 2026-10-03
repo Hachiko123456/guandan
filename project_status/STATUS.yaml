@@ -82,7 +82,7 @@ stages:
       local_fast:
         status: smoke_passed
         review_status: pending
-        code_commit: pending
+        code_commit: dcc1cd1
         report: project_status/history/<run-id>/A05/report.json
       remote_full:
         status: not_run
@@ -131,5 +131,6 @@ stages:
     accepted: false
     commit: null
     blockers: []
+
 
 
