@@ -31,12 +31,17 @@ stages:
       - project_status/history/<run-id>/A01/report.json
     blockers: []
   A02_round_rules_engine:
-    status: not_started
-    implementation: none
-    tests: not_run
+    status: in_progress
+    implementation: partial
+    tests: passed
     accepted: false
-    commit: null
-    blockers: []
+    commit: b65beed9d70a7de7f735c6bdb8cf5db1b6e13cc7
+    blockers:
+      - complete atomic action enumeration
+      - tribute/anti-tribute/return phases
+      - finished-seat skipping and complete 接风
+      - terminal ranking and reward fixtures
+      - demand-driven A02 acceptance suite
   A03_stepwise_action_protocol:
     status: not_started
     implementation: none
