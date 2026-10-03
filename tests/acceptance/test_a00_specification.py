@@ -15,6 +15,19 @@ def test_a00_required_spec_documents_exist() -> None:
         ROOT / "docs" / "rules.md",
         ROOT / "docs" / "environment_contract.md",
         ROOT / "docs" / "action_protocol.md",
+        ROOT / "docs" / "MASTER_EXECUTION_PLAN.md",
+        ROOT / "docs" / "AGENT_EXECUTION_PROTOCOL.md",
+        ROOT / "docs" / "CONTINUE_PROMPT.md",
+        ROOT / "project_status" / "STATUS_SCHEMA.md",
+        ROOT / "docs" / "acceptance" / "A00_specification.md",
+        ROOT / "docs" / "acceptance" / "A01_cards_and_combinations.md",
+        ROOT / "docs" / "acceptance" / "A02_round_rules_engine.md",
+        ROOT / "docs" / "acceptance" / "A03_stepwise_action_protocol.md",
+        ROOT / "docs" / "acceptance" / "A04_observation_and_batch_environment.md",
+        ROOT / "docs" / "acceptance" / "A05_training_integration.md",
+        ROOT / "docs" / "acceptance" / "A06_evaluation.md",
+        ROOT / "docs" / "acceptance" / "A07_kaggle.md",
+        ROOT / "docs" / "acceptance" / "A08_belief_search.md",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert not missing, f"missing A00 specification files: {missing}"
@@ -37,7 +50,19 @@ def test_a00_documents_have_versioned_contract_markers_and_fixed_v1_choices() ->
     assert "unresolved variants remain open decisions" not in rules
 
 
+def test_a00_master_plan_covers_all_stages_and_continuation() -> None:
+    plan = (ROOT / "docs" / "MASTER_EXECUTION_PLAN.md").read_text(encoding="utf-8")
+    protocol = (ROOT / "docs" / "AGENT_EXECUTION_PROTOCOL.md").read_text(encoding="utf-8")
+    prompt = (ROOT / "docs" / "CONTINUE_PROMPT.md").read_text(encoding="utf-8")
+    for stage in ("A00", "A01", "A02", "A03", "A04", "A05", "A06", "A07", "A08"):
+        assert stage in plan
+    assert "accepted=false" in prompt or "accepted=false" in plan
+    assert "diff" in protocol.lower()
+    assert "full test suite" in protocol.lower()
+
+
 def test_a00_does_not_reference_fabledan_as_runtime_dependency() -> None:
     for path in (ROOT / "guandan").rglob("*.py"):
         text = path.read_text(encoding="utf-8").lower()
         assert "fabledan" not in text, f"runtime dependency reference in {path}"
+
