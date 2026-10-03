@@ -1,5 +1,5 @@
-# A06 Evaluation
+# A06 评估
 
-Command: `python scripts/run_acceptance.py --stage A06`.
+命令：`python scripts/run_acceptance.py --stage A06`。
 
-Implement fixed-seed and seat-swapped team evaluation, rule/random/snapshot baselines, team win/reward/ranking metrics, training/evaluation separation, and reports containing model/rules/protocol/seed/Git metadata. Model errors must not silently fall back.
+实现固定随机种子和交换座位的队伍评估、基于规则/随机策略/策略快照的基线、队伍胜负/奖励/排名指标，以及训练与评估分离；报告必须包含模型/规则/协议/随机种子/Git 元数据。发生模型错误时不得静默回退。

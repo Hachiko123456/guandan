@@ -1,5 +1,5 @@
-# A08 Belief and Search
+# A08 信念与搜索
 
-Command: `python scripts/run_acceptance.py --stage A08`.
+命令：`python scripts/run_acceptance.py --stage A08`。
 
-Require information-safe belief labels/samples, public-card and conservation constraints, legal reconstructed worlds, budgeted legal search, timeout fallback, and direct-policy versus search comparison.
+要求信念标签/样本遵守信息边界，满足公开牌和牌守恒约束，保证重构的世界状态合法，在规定预算内进行合法搜索，支持超时回退，并比较直接使用策略与使用搜索的表现。

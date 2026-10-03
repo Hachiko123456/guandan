@@ -1,216 +1,216 @@
-# GuanDan First-Version Game Specification
+# 掼蛋首版游戏规范
 
-- **Document ID:** GD-RULES-0.1
-- **Status:** proposed specification for implementation
-- **Scope:** one four-player, two-team GuanDan hand; a match wrapper is explicitly out of scope for the first engine milestone.
-- **Implementation constraint:** this document is a standalone specification. It does not reuse or depend on any other GuanDan implementation.
+- **文档 ID：** GD-RULES-0.1
+- **状态：** 供实现采用的规范提案
+- **范围：** 一场四人、两队的单副牌局；比赛封装层明确不在引擎首个里程碑的范围内。
+- **实现约束：** 本文档是一份独立规范，不复用或依赖任何其他掼蛋实现。
 
-## 1. Purpose and rule baseline
+## 1. 目的与规则基线
 
-The project needs a deterministic, testable rule set rather than an ambiguous collection of regional conventions. This first version uses the common competitive GuanDan baseline associated with the *竞技掼蛋竞赛规则（试行）* published by the General Administration of Sport of China, Chess and Card Sports Administrative Center. Regional and event supplements differ; therefore every point below is an explicit project rule for GD-RULES-0.1.
+本项目需要一套确定、可测试的规则，而不是含糊混杂的地方惯例。首版采用与国家体育总局棋牌运动管理中心发布的*竞技掼蛋竞赛规则（试行）*相对应的通行竞技掼蛋规则基线。各地和各项赛事的补充规定存在差异，因此下文每一项都是 GD-RULES-0.1 明确规定的项目规则。
 
-The implementation must not silently add a local variant. Any behavior not specified here is an open decision and must block acceptance until resolved.
+实现不得擅自加入地方变体。本文未规定的任何行为均属于待决事项，在明确之前必须阻止验收通过。
 
-## 2. Players, seats, teams, and direction
+## 2. 玩家、座位、队伍与行进方向
 
-- There are exactly four seats: 0, 1, 2, 3.
-- Seats form a ring. The next seat is (seat + 1) mod 4; this is the engine's clockwise/action order.
-- Teams are fixed: team 0 is seats 0 and 2; team 1 is seats 1 and 3.
-- A player's partner is the seat two steps away. The other two seats are opponents.
-- A hand has a designated leader_seat. In a standalone first hand the default leader is seat 0; tests may override it.
-- Seat numbering and direction are engine conventions.
+- 座位恰好有四个：0, 1, 2, 3。
+- 座位构成一个环。下一个座位为 (seat + 1) mod 4；这就是引擎的顺时针方向/行动顺序。
+- 队伍固定：队伍 0 由座位 0 和 2 组成；队伍 1 由座位 1 和 3 组成。
+- 玩家的对家位于相隔两个位置的座位。另外两个座位的玩家为对手。
+- 每局指定一个 leader_seat。独立的首个单副牌局默认由座位 0 先出牌；测试可以覆盖此设置。
+- 座位编号和方向均为引擎约定。
 
-## 3. Cards, two decks, and physical identity
+## 3. 牌、双副牌与实体牌身份
 
-### 3.1 Physical deck
+### 3.1 实体牌组
 
-The game uses two standard 54-card decks, 108 physical cards total:
+游戏使用两副标准的 54 张牌，共 108 张实体牌：
 
-- Suits: clubs, diamonds, hearts, spades.
-- Printed ranks: 3,4,5,6,7,8,9,10,J,Q,K,A,2.
-- There are two small jokers and two big jokers in total.
-- Every physical card has a stable card_id in 0..107. Duplicate printed cards remain distinct in serialization.
-- A hand starts with 27 cards per player after a uniform deal of all 108 cards.
+- 花色：clubs（梅花）、diamonds（方块）、hearts（红桃）、spades（黑桃）。
+- 牌面点数：3,4,5,6,7,8,9,10,J,Q,K,A,2。
+- 共有两张小王和两张大王。
+- 每张实体牌都有一个稳定的 card_id，范围为 0..107。牌面相同的牌在序列化中仍保持可区分。
+- 将全部 108 张牌均匀发出后，每位玩家以 27 张手牌开始一场单副牌局。
 
-### 3.2 Current level
+### 3.2 当前级牌
 
-- level_rank is one of 3,4,5,6,7,8,9,10,J,Q,K,A; the special starting value is rank 2.
-- Ordinary single-card order from low to high is: 2 < 3 < 4 < ... < A < level_rank < small joker < big joker.
-- If level_rank == 2, the printed 2 is the level position above A; there is no second effective level rank.
-- The level remains a printed rank and a special high ordinary rank. The engine stores printed_rank and effective_rank where needed.
-- Suits do not break ordinary or same-size rank-bomb ties.
+- level_rank 为 3,4,5,6,7,8,9,10,J,Q,K,A 之一；特殊起始值为点数 2。
+- 普通单牌从小到大的顺序为：2 < 3 < 4 < ... < A < level_rank < 小王 < 大王。
+- 若 level_rank == 2，则牌面为 2 的牌位于 A 之上的级牌位置；不存在第二个有效级牌点数。
+- 级牌既保留其牌面点数，也作为一种特殊的高位普通点数。引擎在需要时保存 printed_rank 和 effective_rank。
+- 普通牌型或同张数的同点数炸弹比较结果相同时，不以花色判定高低。
 
-### 3.3 Wild card (逢人配)
+### 3.3 逢人牌
 
-- Every heart card whose printed rank equals level_rank is a wild card; there are two physical wild cards.
-- A wild may represent any non-joker printed card, including chosen suit and rank, when a declared combination needs it.
-- A wild may be used naturally as its printed heart-level card.
-- A wild may not represent a small or big joker.
-- A declaration records whether each wild is natural or its non-joker substitution.
-- Physical identity never changes; substitution belongs to the committed action.
+- 牌面点数等于 level_rank 的每张红桃牌都是逢人牌；共有两张实体逢人牌。
+- 当声明的组合需要时，逢人牌可代表任何非王牌面，包括选定的花色和点数。
+- 逢人牌也可以按其本来的红桃级牌牌面使用。
+- 逢人牌不得代表小王或大王。
+- 声明须记录每张逢人牌是按本牌使用，还是替代某张非王牌。
+- 实体牌身份永不改变；替代信息属于已提交动作。
 
-## 4. Approved combination families
+## 4. 允许的牌型类别
 
-Only these committed play families are legal. Other families, including four-with-two, airplanes with wings, arbitrary mixed groups, and unlisted local patterns, are illegal.
+只有以下已提交出牌的牌型类别合法。其他牌型，包括四带二、飞机带翅膀、任意混合牌组以及未列出的地方牌型，均不合法。
 
-| Family ID | Name | Length/shape | Comparison key |
+| 牌型 ID | 名称 | 长度/结构 | 比较键 |
 |---|---|---|---|
-| SINGLE | 单牌 | exactly 1 card | effective rank |
-| PAIR | 对子 | exactly 2 cards of one declared rank | declared rank |
-| TRIPLE | 三同张 | exactly 3 cards of one declared rank | declared rank |
-| FULL_HOUSE | 三带二 | one triple plus one pair, 5 cards | triple rank only |
-| STRAIGHT | 顺子 | exactly 5 consecutive natural ranks | highest natural rank of window |
-| PAIR_SEQUENCE | 三连对 | exactly 3 consecutive rank pairs (6 cards) | highest natural rank of window |
-| TRIPLE_SEQUENCE | 二连三/钢板 | exactly 2 consecutive rank triples (6 cards) | highest natural rank of window |
-| RANK_BOMB | 炸弹 | 4 to 10 cards of one declared rank | bomb length, then rank |
-| STRAIGHT_FLUSH | 同花顺 | exactly 5 consecutive ranks of one suit | highest natural rank of window |
-| FOUR_KINGS | 天王炸 | exactly two small + two big jokers | highest bomb class |
+| SINGLE | 单牌 | 恰好 1 张牌 | 有效点数 |
+| PAIR | 对子 | 恰好 2 张声明点数相同的牌 | 声明点数 |
+| TRIPLE | 三同张 | 恰好 3 张声明点数相同的牌 | 声明点数 |
+| FULL_HOUSE | 三带二 | 一组三同张加一副对子，共 5 张牌 | 仅比较三同张的点数 |
+| STRAIGHT | 顺子 | 恰好 5 个连续的自然点数 | 点数窗口中的最高自然点数 |
+| PAIR_SEQUENCE | 三连对 | 恰好 3 副点数连续的对子（6 张牌） | 点数窗口中的最高自然点数 |
+| TRIPLE_SEQUENCE | 二连三/钢板 | 恰好 2 组点数连续的三同张（6 张牌） | 点数窗口中的最高自然点数 |
+| RANK_BOMB | 炸弹 | 4 至 10 张声明点数相同的牌 | 先比较炸弹张数，再比较点数 |
+| STRAIGHT_FLUSH | 同花顺 | 恰好 5 张点数连续且花色相同的牌 | 点数窗口中的最高自然点数 |
+| FOUR_KINGS | 天王炸 | 恰好两张小王 + 两张大王 | 最高炸弹类别 |
 
-### 4.1 Natural rank windows
+### 4.1 自然点数窗口
 
-- A window is a sequence of distinct printed non-joker ranks.
-- A straight, pair sequence, or triple sequence uses exactly its fixed v1 length; it is not an arbitrary-length run.
-- Normal windows use consecutive natural ranks 2,3,4,5,6,7,8,9,10,J,Q,K,A.
-- The low-A window A,2,3,4,5 is also allowed.
-- J,Q,K,A,2 and other wrap-around windows are not allowed.
-- A level rank does not create an extra rank; it participates through its printed rank.
-- Wilds may fill missing ranks, but the final window has no duplicate rank.
-- In a straight flush, a wild must be assigned to the same declared suit.
+- 窗口是由互不相同的非王牌面点数组成的序列。
+- 顺子、三连对或二连三必须采用 v1 规定的固定长度；不允许任意长度的连续组合。
+- 普通窗口采用连续的自然点数 2,3,4,5,6,7,8,9,10,J,Q,K,A。
+- 也允许 A 作为低位的窗口 A,2,3,4,5。
+- 不允许 J,Q,K,A,2 及其他首尾循环衔接的窗口。
+- 级牌点数不会增加额外的点数；级牌按其牌面点数参与。
+- 逢人牌可补齐缺失的点数，但最终窗口中不能有重复点数。
+- 在同花顺中，逢人牌必须被指定为相同的声明花色。
 
-### 4.2 Family-specific legality
+### 4.2 各牌型的合法性
 
-- PAIR, TRIPLE, and repeated groups inside other families compare after wild substitution. Two small jokers or two big jokers may form a pair; jokers cannot form a triple or rank sequence.
-- FULL_HOUSE may use wilds in either group, but resolves to one triple and one pair with different ranks.
-- PAIR_SEQUENCE is exactly three consecutive rank pairs; it contains six cards.
-- TRIPLE_SEQUENCE is exactly two consecutive rank triples; it contains six cards.
-- RANK_BOMB resolves four or more cards to one rank; maximum length is ten.
-- STRAIGHT_FLUSH has exactly five cards and one declared suit; it is bomb-class.
-- FOUR_KINGS / 天王炸 requires exactly two small jokers and two big jokers. It cannot use wilds or any non-joker card.
+- PAIR、TRIPLE 以及其他牌型内的同点数组在百搭替代后进行比较。两张小王或两张大王可以组成对子；王牌不能组成三同张或连续点数序列。
+- FULL_HOUSE 的任一牌组都可使用逢人牌，但最终必须构成点数不同的一组三同张和一副对子。
+- PAIR_SEQUENCE 恰好是三副点数连续的对子，即三连对；共六张牌。
+- TRIPLE_SEQUENCE 恰好是两组点数连续的三同张，即钢板；共六张牌。
+- RANK_BOMB 将四张或更多牌解析为同一点数；最大长度为十张。
+- STRAIGHT_FLUSH 恰好有五张牌，且只有一种声明花色；属于炸弹类。
+- FOUR_KINGS / 天王炸必须恰好由两张小王和两张大王组成，不得使用逢人牌或任何非王牌。
 
-## 5. Comparison and following
+## 5. 比较与跟牌
 
-### 5.1 Ordinary families
+### 5.1 普通牌型
 
-- An ordinary action beats only the same family with the same card count.
-- FULL_HOUSE compares only its triple rank.
-- STRAIGHT, PAIR_SEQUENCE, TRIPLE_SEQUENCE, and STRAIGHT_FLUSH compare the highest rank of their declared window using window order.
-- Ordinary actions cannot beat bomb-class actions.
+- 普通出牌只能压过牌型相同且张数相同的出牌。
+- FULL_HOUSE 只比较其三同张的点数。
+- STRAIGHT、PAIR_SEQUENCE、TRIPLE_SEQUENCE 和 STRAIGHT_FLUSH 按窗口顺序比较各自声明窗口中的最高点数。
+- 普通出牌不能压过炸弹类出牌。
 
-### 5.2 Bomb classes
+### 5.2 炸弹类别
 
-From low to high: rank bomb length 4; rank bomb length 5; five-card straight flush; rank bombs length 6, 7, 8, 9, 10; four kings.
+从小到大的顺序为：4 张同点数炸弹；5 张同点数炸弹；五张同花顺；6, 7, 8, 9, 10 张同点数炸弹；天王炸。
 
-Same-length rank bombs compare by declared rank. Straight flushes compare by their highest declared rank against other straight flushes; suit does not break a tie. Four kings always wins.
+同张数的同点数炸弹按声明点数比较。同花顺之间按其最高声明点数比较；点数相同时，不以花色判定高低。天王炸始终最大。
 
-### 5.3 Legal response set
+### 5.3 合法响应集合
 
-When a current winning play exists, the active player may pass or commit a play that beats it. A bomb-class play may beat any ordinary family; a stronger bomb-class play may beat a weaker bomb-class play. Passing never changes the winning play.
+存在当前领先出牌时，当前行动玩家可以过牌，或提交能够压过该出牌的出牌。炸弹类出牌可以压过任何普通牌型；更强的炸弹类出牌可以压过更弱的炸弹类出牌。过牌不会改变当前领先出牌。
 
-## 6. Trick, pass, reset, and 接风
+## 6. 轮次、过牌、重置与接风
 
-- A trick begins when a player leads any legal non-pass play.
-- Following players act in seat order, skipping players who have emptied their hands.
-- Pass is legal only when a current winning play exists; it is committed and consumes no cards.
-- A trick resets when every other active player has passed since the last non-pass play. The last player who committed a non-pass play becomes the next leader.
-- If that last play emptied a player and all other active players pass, the emptied player's partner receives the next lead. This is 接风. The emptied player leaves active rotation.
-- If the partner is already empty, the next active seat after the emptied player becomes leader.
-- A player's finishing rank is recorded immediately when their hand empties.
+- 玩家领出任意合法的非过牌出牌时，一个轮次开始。
+- 后续玩家按座位顺序行动，跳过已经出完手牌的玩家。
+- 仅在存在当前领先出牌时才允许过牌；过牌属于已提交动作，不消耗任何牌。
+- 自最后一次非过牌出牌后，当所有其他仍在行动序列中的玩家都已过牌，轮次重置。最后提交非过牌出牌的玩家成为下一轮的领出者。
+- 若最后一次出牌使某位玩家出完手牌，且其他所有仍在行动序列中的玩家都过牌，则由该玩家的对家获得下一轮领出权。这称为接风。出完手牌的玩家退出行动轮转。
+- 若其对家也已出完手牌，则由该出完手牌的玩家之后的下一个仍在行动序列中的座位领出。
+- 玩家出完手牌时，立即记录其完牌名次。
 
-## 7. Tribute, return, and hand start
+## 7. 进贡、还贡与开局
 
-Tribute applies only when a previous hand result exists. A standalone first hand has no tribute.
+仅在存在上一副牌局结果时才适用进贡。独立的首个单副牌局不进贡。
 
-### 7.1 Ranking and outcome class
+### 7.1 名次与结果类别
 
-- First player to empty receives rank 1; the second distinct finisher receives rank 2; then ranks 3 and 4.
-- If ranks 1 and 2 are the same team, outcome_class is DOUBLE_DOWN. The remaining two seats are assigned ranks 3 and 4 by next-seat order after the rank-2 finisher, without further play. This serialization tie-break does not change the outcome class.
-- Otherwise outcome_class is HEAD_THIRD when the winner's team has ranks 1 and 3, or HEAD_LAST when it has ranks 1 and 4.
-- The team of rank 1 is the hand winner.
+- 第一个出完手牌的玩家为第 1 名；第二个出完手牌的不同玩家为第 2 名；随后是第 3 和第 4 名。
+- 若第 1 和第 2 名属于同一队伍，则 outcome_class 为 DOUBLE_DOWN。无需继续出牌，剩余两个座位按第 2 名完牌者之后的座位顺序分配第 3 和第 4 名。这一用于序列化的并列处理规则不会改变结果类别。
+- 否则，若获胜队伍占据第 1 和第 3 名，则 outcome_class 为 HEAD_THIRD；若占据第 1 和第 4 名，则为 HEAD_LAST。
+- 第 1 名所在队伍为本局获胜方。
 
-### 7.2 Tribute obligations
+### 7.2 进贡义务
 
-- For HEAD_THIRD or HEAD_LAST, rank 4 gives one tribute card to rank 1.
-- For DOUBLE_DOWN, ranks 3 and 4 each give one tribute card. The higher tribute goes to rank 1 and the lower to rank 2.
-- A tribute card is the donor's highest eligible non-wild physical card under single-card order. A heart-level wild is never eligible. Equal ranks use lowest card_id as deterministic tie-break.
-- In DOUBLE_DOWN, equal tribute ranks pair to rank 1 for the donor closer to rank 1 in action order; the other pairs to rank 2.
-- Anti-tribute: if any required donor holds both big jokers in the new hand, the entire tribute/return stage is canceled. This is the only anti-tribute condition in v1.
-- If canceled, the previous rank-1 player leads the new hand.
+- 对于 HEAD_THIRD 或 HEAD_LAST，第 4 名向第 1 名进贡一张牌。
+- 对于 DOUBLE_DOWN，第 3 和第 4 名各进贡一张牌。较大的贡牌交给第 1 名，较小的交给第 2 名。
+- 贡牌是进贡者按单牌大小顺序持有的、符合条件的最大非百搭实体牌。红桃级牌逢人牌永远不能作为贡牌。点数相同时，以最小 card_id 作为确定性的并列判定依据。
+- 在 DOUBLE_DOWN 中，若贡牌点数相同，则按行动顺序离第 1 名更近的进贡者与第 1 名配对；另一位与第 2 名配对。
+- 抗贡：若任一需要进贡的玩家在新的单副牌局手牌中持有两张大王，则取消整个进贡/还贡阶段。这是 v1 中唯一的抗贡条件。
+- 若取消进贡，则由上一副牌局第 1 名玩家领出新的单副牌局。
 
-### 7.3 Return obligations
+### 7.3 还贡义务
 
-- A recipient returns one card to each donor from whom they received tribute.
-- A return card is a natural non-joker with printed rank 2..10; heart-level wild is excluded and no substitution is allowed.
-- The recipient chooses the return card; it need not be the lowest.
-- In a non-double-down outcome, rank 1 returns to rank 4. In DOUBLE_DOWN, rank 1 returns to the higher-tribute donor and rank 2 to the lower-tribute donor.
-- After returns, the donor associated with the higher tribute leads. In the non-double-down case this is the sole donor. If canceled, rank 1 leads.
-- Tribute/return card identities become public after the whole exchange resolves; unfinished choices are private.
+- 受贡者须向每位向其进贡的玩家各还一张牌。
+- 还贡牌必须是牌面点数为 2..10 的非王本牌；不包括红桃级牌逢人牌，且不允许替代。
+- 还贡牌由受贡者选择，不必是最小的牌。
+- 在非双下结果中，第 1 名向第 4 名还贡。在 DOUBLE_DOWN 中，第 1 名向贡牌较大的进贡者还贡，第 2 名向贡牌较小的进贡者还贡。
+- 还贡后，由贡牌较大的进贡者领出。在非双下情况下，即由唯一的进贡者领出。若取消进贡，则由第 1 名领出。
+- 整个交换结算完成后，进贡/还贡的牌身份才公开；未完成的选择属于私有信息。
 
-## 8. Terminal reward for one hand
+## 8. 单副牌局终局奖励
 
-The environment uses shared zero-sum terminal reward:
+环境采用队内共享的零和终局奖励：
 
-- each player on the hand-winning team receives +1.0;
-- each player on the other team receives -1.0;
-- all non-terminal steps receive 0.0.
+- 本局获胜队伍的每位玩家获得 +1.0；
+- 另一队伍的每位玩家获得 -1.0；
+- 所有非终局步骤均获得 0.0。
 
-Terminal output includes ranking[4], winner_team, outcome_class, team_reward[2], finish_token_step, and finish_committed_step. No shaped reward is part of the first-version contract.
+终局输出包括 ranking[4]、winner_team、outcome_class、team_reward[2]、finish_token_step 和 finish_committed_step。首版契约不包含任何奖励塑形。
 
-## 9. Public and private information
+## 9. 公开与私有信息
 
-### 9.1 Public
+### 9.1 公开信息
 
-Seat/team mapping; level; phase and active seat; all committed play/pass actions; current trick lead and winner; remaining-card counts; finished status/ranks; resolved tribute/return transfers; public history and indices.
+座位/队伍映射；级牌；阶段和当前行动座位；所有已提交的出牌/过牌动作；当前轮次的领出者和领先者；剩余牌数；完牌状态/名次；已结算的进贡/还贡转移；公开历史及索引。
 
-### 9.2 Acting player's private information
+### 9.2 当前行动玩家的私有信息
 
-The acting player's physical hand; unfinished prefix; their uncommitted tribute/return choice; explicitly protected debugging state. Opponent hands are never policy observations.
+当前行动玩家的实体手牌；未完成的前缀；其尚未提交的进贡/还贡选择；受到明确保护的调试状态。对手手牌绝不能成为策略观测。
 
-### 9.3 Training-only full information
+### 9.3 仅供训练使用的完整信息
 
-A centralized critic, oracle test harness, or belief-label generator may receive the complete deal through a separate full-state channel. It must never be concatenated into the policy observation.
+集中式价值评估器、提供真值的测试框架或信念标签生成器可以通过独立的完整状态通道接收整副发牌信息。这些信息绝不能拼接到策略观测中。
 
-## 10. Single-hand boundary and open match decisions
+## 10. 单副牌局边界与待定的比赛决策
 
-The first engine milestone is a single-hand environment with caller-supplied level_rank and optional previous-hand outcome for tribute tests. A multi-hand match manager is not required for the first engine milestone.
+引擎首个里程碑是单副牌局环境，由调用方提供 level_rank，并可选提供上一副牌局结果以进行进贡测试。引擎首个里程碑不要求实现多副牌局比赛管理器。
 
-Open for a later match specification: exact level advancement; whether level A has a special win condition; match length/time limit and ties; whether a completed match carries the leader; event-specific conversion to match points.
+留待后续比赛规范决定的事项包括：具体升级方式；级牌 A 是否有特殊获胜条件；比赛长度/时限与平局；已结束的比赛是否延续领出者；特定赛事的比赛积分换算方式。
 
-## 11. V1 decisions and non-blocking future scope
+## 11. V1 决策与不阻塞当前里程碑的未来范围
 
-The following are fixed for the first single-hand training milestone:
+以下内容在首个单副牌局训练里程碑中固定：
 
-1. V1 omits human-table reporting of a hand of ten or fewer cards.
-2. V1 has no timeout, forfeit, or match-level termination.
-3. V1 uses the explicit project rules in this document; regional/event supplements are not silently mixed in.
-4. Diagnostic tie displays use card_id only for serialization; no game result depends on that ordering.
+1. V1 不包含线下牌桌中手牌剩余十张或更少时的报牌要求。
+2. V1 没有超时、弃权或比赛级终止。
+3. V1 使用本文明确规定的项目规则；不得擅自混入地方/赛事补充规定。
+4. 诊断中的并列展示仅为序列化使用 card_id；任何游戏结果均不依赖该顺序。
 
-The following are explicitly deferred and do not block the single-hand milestone:
+以下内容明确推迟，且不阻塞单副牌局里程碑：
 
-5. Multi-hand level advancement, match length, level-A match termination, and match-point conversion.
-6. Platform-specific protocol fields and tournament-only supplements.
+5. 多局升级、比赛长度、级牌 A 的比赛终止条件以及比赛积分换算。
+6. 平台专用协议字段和仅用于锦标赛的补充规定。
 
-## 12. Reference note
+## 12. 参考说明
 
-This is the project's explicit GD-RULES-0.1 profile. It is not a claim that every regional or event supplement is identical. The explicit project rules above control implementation; deferred match-level variants do not block the single-hand milestone.
+这是本项目明确规定的 GD-RULES-0.1 规则配置，并非声称所有地方或赛事补充规定都相同。实现以以上明确的项目规则为准；推迟处理的比赛级变体不阻塞单副牌局里程碑。
 
-## 12. Source status and project policy
+## 12. 来源情况与项目政策
 
-The following publicly accessible rule texts were used as research references, not as a claim that all regional/event variants are identical:
+以下公开可访问的规则文本用作研究参考，并不意味着所有地方/赛事变体都相同：
 
-- Nanjing Sport University rule summary: https://www.nsi.edu.cn/jgzj/09/70/c1954a67952/page.htm?PageSpeed=noscript
-- Changzhou Institute of Industry and Vocational Technology event rule summary: https://gh.ciit.edu.cn/2022/0923/c4494a105163/page.htm
+- 南京体育学院规则摘要：https://www.nsi.edu.cn/jgzj/09/70/c1954a67952/page.htm?PageSpeed=noscript
+- 常州工业职业技术学院赛事规则摘要：https://gh.ciit.edu.cn/2022/0923/c4494a105163/page.htm
 
-The project must keep a source/clause table in the acceptance report. Where the two public summaries differ, GD-RULES-0.1 uses the following explicit v1 policy so the engine is deterministic:
+项目必须在验收报告中保留来源/条款对照表。在这两份公开摘要存在差异之处，GD-RULES-0.1 采用以下明确的 v1 政策，以确保引擎具有确定性：
 
-1. The first milestone is a single hand. Match progression and the special multi-hand “过 A” victory condition are separate future work.
-2. A straight is exactly five cards; a pair sequence is exactly three consecutive pairs; a triple sequence/steel plate is exactly two consecutive triples.
-3. Natural windows are 2-3-4-5-6 through 9-10-J-Q-K, 10-J-Q-K-A, and A-2-3-4-5. J-Q-K-A-2 is invalid. The same window policy applies to pair sequences and triple sequences after expanding each rank group.
-4. A pair may be two small jokers or two big jokers. A mixed small-plus-big pair is invalid. Four kings is exactly two small plus two big jokers.
-5. A heart level card is wild only when it is used inside a multi-card declaration; as a standalone card it is its natural printed card. A wild cannot represent a joker. A declaration records the physical wild assignment.
-6. Bomb order is four-rank bomb, five-rank bomb, five-card straight flush, six-rank bomb through ten-rank bomb, then four kings. Wilds may complete a rank bomb up to ten cards, subject to physical cards and non-joker substitution.
-7. For tribute, the v1 anti-tribute condition is evaluated over the required losing donor side: one losing player in a non-double-down hand, or both losing players together in a double-down hand. The condition is possession of two big jokers in that donor side before tribute.
-8. A return card is a chosen natural card with printed rank 2 through 10, excluding the current level card and A. The v1 engine does not use a fixed “smallest return” heuristic; return is a player action.
-9. If tribute sizes tie, the lower seat number among the eligible donor/recipient pair is used as the deterministic tie-break for assignment and lead. This is an engine serialization policy, not a claim about all tables.
-10. Reporting a hand of ten or fewer cards, clocks, forfeits, and platform protocol fields are out of scope for the single-hand engine and are not silently simulated.
+1. 首个里程碑是单副牌局。比赛进程以及多副牌局比赛中特殊的“过 A”获胜条件属于独立的后续工作。
+2. 顺子恰好为五张牌；三连对恰好为三副点数连续的对子；二连三/钢板恰好为两组点数连续的三同张。
+3. 自然点数窗口为从 2-3-4-5-6 到 9-10-J-Q-K 的各窗口，以及 10-J-Q-K-A 和 A-2-3-4-5。J-Q-K-A-2 无效。将每个点数组展开后，同一窗口政策也适用于三连对和二连三。
+4. 两张小王或两张大王可以组成对子。一张小王加一张大王的混合对子无效。天王炸恰好为两张小王加两张大王。
+5. 红桃级牌仅在多张牌声明中使用时才是逢人牌；单独出牌时，它就是其自然牌面对应的本牌。逢人牌不能代表王牌。声明须记录实体逢人牌的替代指定。
+6. 炸弹顺序为四张同点数炸弹、五张同点数炸弹、五张同花顺、六张至十张同点数炸弹，最后是天王炸。在实体牌数量及只能替代非王牌的约束下，逢人牌可补成最多十张的同点数炸弹。
+7. 对于进贡，v1 抗贡条件按需要进贡的败方整体判断：非双下局为一名败方玩家，双下局则合并考察两名败方玩家。条件是进贡前该进贡方持有两张大王。
+8. 还贡牌是从牌面点数 2 至 10 中选择的一张本牌，但排除当前级牌和 A。v1 引擎不采用固定的“最小牌还贡”启发式规则；还贡是玩家动作。
+9. 若贡牌大小相同，则在符合条件的进贡者/受贡者配对中，使用较小的座位编号作为配对和领出的确定性并列判定依据。这是引擎的序列化政策，并非声称所有牌桌都如此规定。
+10. 手牌剩余十张或更少时的报牌、计时、弃权以及平台协议字段均不在单副牌局引擎范围内，也不得擅自模拟。
 
-The v1 profile is accepted only after the source/clause table and the rules tests agree with this section. Changing any item requires a new rules version and invalidates incompatible checkpoints.
+只有当来源/条款对照表及规则测试与本节一致时，v1 规则配置才可通过验收。更改任何一项都必须使用新的规则版本，并使不兼容的检查点失效。

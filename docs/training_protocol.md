@@ -1,19 +1,19 @@
-# Training protocol
+# 训练协议
 
-## Initial order
+## 初始顺序
 
-1. Validate A00-A04 with deterministic and property tests.
-2. Run policy forward/rollout smoke tests with compile disabled.
-3. Run IPPO smoke training.
-4. Run VRPO smoke training.
-5. Validate checkpoint save/load and resume.
-6. Benchmark environment, model and learner separately.
-7. Package the same commands for Kaggle.
+1. 使用确定性测试和性质测试验证 A00-A04。
+2. 在禁用 compile 的情况下运行策略前向计算/轨迹采样冒烟测试。
+3. 运行 IPPO 冒烟训练。
+4. 运行 VRPO 冒烟训练。
+5. 验证检查点保存/加载和恢复。
+6. 分别对环境、模型和学习器进行基准测试。
+7. 将相同的命令打包用于 Kaggle。
 
-## Step accounting
+## 步骤记账
 
-The environment distinguishes `token_step` from `committed_game_step`. Prefix extension has zero immediate game reward and does not advance the public turn. A commit may advance the trick/turn and may deliver terminal team rewards. The training adapter must document how GAE and masks treat both kinds of rows.
+环境区分 `token_step` 和 `committed_game_step`。前缀扩展不会产生即时游戏奖励，也不会推进公开回合。一次提交可以推进轮次/回合，并可能产生终局队伍奖励。训练适配器必须说明 GAE 和掩码如何处理这两类行。
 
-## Reproducibility
+## 可复现性
 
-Every smoke/acceptance report records the Python executable, package versions, game/rules/action/observation protocol versions, seed, Git commit and command line.
+每份冒烟/验收报告都记录 Python 可执行文件、包版本、游戏/规则/动作/观测协议版本、seed、Git 提交和命令行。

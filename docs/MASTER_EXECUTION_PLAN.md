@@ -1,44 +1,44 @@
-# Master Execution Plan
+# 总体执行计划
 
-## Mission
+## 任务目标
 
-Complete the independent pure-Python GuanDan training project in this repository. The rules and model pipeline must not import, copy, or depend on FableDan. The final target is reproducible Kaggle training with optional belief/search extensions.
+完成本仓库中独立实现的纯 Python 掼蛋训练项目。规则和模型流水线不得导入、复制或依赖 FableDan。最终目标是在 Kaggle 上实现可复现的训练，并可选扩展信念（猜牌）建模/搜索功能。
 
-## Non-negotiable constraints
+## 不可妥协的约束
 
-- Python/PyTorch only; no C++ backend unless the user explicitly changes this requirement.
-- Keep `D:\project\doudizhu` and `D:\project\FableDan` untouched.
-- Use `C:\Users\yhx\.conda\envs\guandan_train\python.exe` for local validation.
-- Never accept a subagent conclusion without diff review, focused tests, full tests, and requirements review.
-- Automated reports never set `accepted: true`; only the supervising main agent may do that.
-- Never silently resolve a rule ambiguity.
+- 仅使用 Python/PyTorch；除非用户明确更改此要求，否则不得使用 C++ 后端。
+- 不得修改 `D:\project\doudizhu` 和 `D:\project\FableDan`。
+- 使用 `C:\Users\yhx\.conda\envs\guandan_train\python.exe` 进行本地验证。
+- 未经差异审查、针对性测试、全量测试和需求审查，不得采纳子代理的结论。
+- 自动生成的报告不得设置 `accepted: true`；只有负责监督的主代理可以设置该值。
+- 不得在未说明的情况下自行消解规则歧义。
 
-## Dependency graph
+## 依赖关系图
 
 ```text
 A00 -> A01 -> A02 -> A03 -> A04 -> A05 -> A06 -> A07 -> A08
 ```
 
-Only the first stage whose `accepted` field is false should be actively implemented.
+只能推进第一个 `accepted` 字段为 false 的阶段的实现。
 
-## Stage map
+## 阶段一览
 
-| Stage | Scope | Depends on | Gate |
+| 阶段 | 范围 | 依赖阶段 | 验收门槛 |
 |---|---|---|---|
-| A00 | Rules, protocols, governance, evidence runner | none | Versioned specifications and governance tests |
-| A01 | Cards, levels, wilds, ten combinations | A00 | Conservation, declaration, comparison and wild tests |
-| A02 | Atomic round engine, trick, 接风, tribute/return, ranking/reward | A01 | Directed rules, random rounds, invariants, terminal tests |
-| A03 | Scheme B prefix state and COMMIT | A02 | Complete prefixes, canonical actions, counters |
-| A04 | Policy observations and batch environment | A02/A03 | Shapes, masks, batch equivalence, no information leak |
-| A05 | IPPO/VRPO integration | A04 | Smoke updates, finite gradients, checkpoint resume |
-| A06 | Fixed-deal evaluation | A05 | Seat-swapped metrics and baselines |
-| A07 | Kaggle install/train/save/resume | A05/A06 | Clean Kaggle session evidence |
-| A08 | Belief sampling and search | A06/A07 | Information-safe samples and legal budgeted search |
+| A00 | 规则、协议、治理与证据运行器 | 无 | 纳入版本管理的规范与治理测试 |
+| A01 | 牌、级别、逢人牌与十种牌型 | A00 | 牌张守恒、声明、比较与逢人牌测试 |
+| A02 | 原子化单局引擎、出牌轮次、接风、进贡/还贡、排名/奖励 | A01 | 定向规则测试、随机对局测试、不变量测试与终局测试 |
+| A03 | 方案 B 前缀状态与 COMMIT | A02 | 完整前缀、规范动作与计数器 |
+| A04 | 策略观测与批量环境 | A02/A03 | 形状、掩码、批量等价性与无信息泄露 |
+| A05 | IPPO/VRPO 集成 | A04 | 训练更新冒烟测试、梯度值有限与检查点恢复 |
+| A06 | 固定发牌评估 | A05 | 换座指标与基线 |
+| A07 | Kaggle 安装/训练/保存/恢复 | A05/A06 | 全新 Kaggle 会话中的证据 |
+| A08 | 信念（猜牌）采样与搜索 | A06/A07 | 不泄露信息的样本与预算约束内的合法搜索 |
 
-## Universal stage gate
+## 通用阶段验收门槛
 
-Each stage requires implementation, focused tests, property/integration tests where relevant, a demand-driven acceptance test, a report from `scripts/run_acceptance.py`, main-agent diff review, a full test run, and a Git commit recorded in `project_status/STATUS.yaml`. A passing subset is not acceptance.
+每个阶段都需要完成实现、针对性测试、适用的性质测试/集成测试、由需求驱动的验收测试、由 `scripts/run_acceptance.py` 生成的报告、主代理差异审查、一次全量测试运行，以及记录在 `project_status/STATUS.yaml` 中的 Git 提交。仅有部分测试通过不等于通过验收。
 
-## Continuation rule
+## 续接规则
 
-At every new turn, read `project_status/STATUS.yaml`, locate the first unaccepted stage, read its acceptance document, and continue that stage. Do not restart accepted stages or require a new user prompt for each stage. Stop only for a genuine unresolved product/rule decision, external permission, or repeated blocker with evidence.
+每个新轮次都应读取 `project_status/STATUS.yaml`，找到第一个尚未验收通过的阶段，阅读其验收文档，并继续推进该阶段。不得重新开始已验收通过的阶段，也不得要求用户为每个阶段重新提供提示。只有在确实存在尚未解决的产品/规则决策、需要外部权限，或有证据表明阻塞问题反复出现时，才可停止。

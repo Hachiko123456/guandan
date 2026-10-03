@@ -1,60 +1,34 @@
-# A02 round rules engine — acceptance record
+# A02 牌局规则引擎 — 验收记录
 
-## Scope
+## 范围
 
-A02 implements one deterministic four-seat, two-team, two-deck GuanDan hand. It
-is an atomic committed-action layer only; Scheme-B prefix/token construction
-starts at A03 and is not imported into this engine.
+A02 实现确定性的四座位、两队、双副牌掼蛋单副牌局。它仅处理已提交的原子动作；方案 B 的前缀/token 构造从 A03 开始，不会导入到本引擎。
 
-## Implemented requirements
+## 已实现要求
 
-- deterministic 108-card deal, physical-card conservation, transactional clone/
-  validate/commit updates, and deterministic serialization/replay;
-- complete canonical non-pass play enumeration for all A01 families, including
-  all physical selections, wild assignment declarations, lead/follow filtering,
-  bomb ladder, four-kings, and PASS in follow states;
-- active-seat progression, finished-seat skipping, trick reset, and 接风 to the
-  emptied player's partner (or the next active seat when the partner is empty);
-- prior-hand `HEAD_THIRD`, `HEAD_LAST`, and `DOUBLE_DOWN` tribute setup;
-  donor-side anti-tribute, mandatory highest eligible natural tribute, lower-seat
-  deterministic tie break, explicit return choices, and resolved public
-  transfers;
-- immediate finish ranking, cyclic deterministic assignment of implicit losing
-  ranks under double-down/three-finish termination, terminal outcome class,
-  winner team, player/team +/-1 reward, and finish-step metadata;
-- forged declarations, duplicate/missing cards, wrong seats, invalid phases,
-  illegal passes, and post-terminal actions fail without mutating the state.
+- 确定性的 108 张牌发牌、实体牌守恒、按克隆/验证/提交（clone/validate/commit）执行的事务式更新，以及确定性的序列化/回放；
+- 完整枚举 A01 所有牌型类别的规范化非过牌出牌，涵盖所有实体牌选取方式、逢人牌分配声明、领出/跟牌筛选、炸弹强弱层级和四王，并在跟牌状态中包含 PASS；
+- 推进至下一个仍有手牌的座位、跳过已出完牌的座位、重置一轮出牌，并由出完牌玩家的队友接风（若队友也已出完牌，则由下一个仍有手牌的座位接风）；
+- 根据上一副牌的 `HEAD_THIRD`、`HEAD_LAST` 和 `DOUBLE_DOWN` 结果设置进贡；以进贡方为准判定抗贡、强制进贡符合条件且强度最高的自然牌、平局时确定性地优先选择座位编号较小者、显式选择还贡牌，以及公开已确定的牌转移；
+- 在玩家出完牌时立即确定名次；因双下或三家出完牌而终止时，按座位循环顺序确定性地分配隐含的落败名次；提供终局结果类别、获胜队伍、玩家/队伍 +/-1 奖励，以及出完牌所在步的元数据；
+- 伪造声明、重复/缺失牌、错误座位、无效阶段、非法过牌和终局后的动作都会失败，且不会改变状态。
 
-## Demand-driven evidence
+## 需求驱动的证据
 
-- `tests/unit/test_round.py` covers deal, turn, pass/reset, conservation,
-  invalid-action atomicity, finished-seat skipping, 接风, ranking, terminal
-  reward, tribute, anti-tribute, return, and phase guards.
-- `tests/property/test_round_invariants.py` covers seeded conservation and
-  10,000 seeded bounded legal one-trick trajectories. The property loop uses
-  the complete physical deck and checks invariants after every committed step.
-- `tests/acceptance/test_a02_rules.py` contains more than 100 independently
-  named v1 rule-case IDs and executes demand-driven family, follow, ranking,
-  reward, tribute, return, conservation, invalid-action, and replay checks.
-- A01 acceptance remains green after the A02 sequence-window comparison fix:
-  sequences compare by natural window order, while rank groups retain level
-  strength ordering.
+- `tests/unit/test_round.py` 覆盖发牌、行动轮次、过牌/重置、守恒、非法动作的原子性、跳过已出完牌的座位、接风、排名、终局奖励、进贡、抗贡、还贡和阶段校验。
+- `tests/property/test_round_invariants.py` 覆盖指定随机种子下的守恒检查，以及 10,000 条指定随机种子、长度有界且合法的单轮出牌轨迹。属性测试循环使用完整的实体牌堆，并在每个提交步之后检查不变量。
+- `tests/acceptance/test_a02_rules.py` 包含超过 100 个独立命名的 v1 规则用例 ID，并执行由需求驱动的牌型类别、跟牌、排名、奖励、进贡、还贡、守恒、非法动作和回放检查。
+- A01 验收在 A02 的连牌窗口比较修复后仍保持通过：连牌按自然窗口顺序比较大小，而同点数牌组仍按级牌强度排序。
 
-## Explicit v1 policy applied
+## 已应用的明确 v1 规则约定
 
-The implementation follows the final policy in `docs/rules.md`: exact fixed
-sequence windows, no JQKA2/KA234 wrap, heart-level wilds only, no wildcard
-jokers, the documented bomb ladder, donor-side anti-tribute, natural return
-cards in printed ranks 2..10 with heart-level wilds excluded, deterministic
-seat tie breaks, and shared zero-sum terminal reward.
+实现遵循 `docs/rules.md` 中的最终规则约定：严格使用固定的连牌窗口；不允许 JQKA2/KA234 这类跨越首尾的连牌；仅红桃级牌可作为逢人牌，且逢人牌不能替代王牌；使用文档规定的炸弹强弱层级；以进贡方为准判定抗贡；还贡必须使用牌面点数为 2..10 的自然牌，并排除红桃级牌；平局时按座位确定性地决胜；采用共享的零和终局奖励。
 
-## Acceptance commands
+## 验收命令
 
 ```powershell
 C:\Users\yhx\.conda\envs\guandan_train\python.exe -m pytest -q
 C:\Users\yhx\.conda\envs\guandan_train\python.exe scripts/run_acceptance.py --stage A02
 ```
 
-The automated report's `accepted` field remains false by design. The supervising
-agent sets the formal stage status only after inspecting the final diff,
-requirements, tests, and this record.
+按设计，自动化报告的 `accepted` 字段仍为 false。监督代理只有在检查最终差异、要求、测试和本记录之后，才设置正式的阶段状态。

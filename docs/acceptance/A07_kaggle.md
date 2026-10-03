@@ -1,5 +1,5 @@
-# A07 Kaggle
+# A07 Kaggle 部署验收
 
-Command: `python scripts/run_acceptance.py --stage A07`; the final gate runs the Kaggle notebook/script in a clean session.
+命令：`python scripts/run_acceptance.py --stage A07`；最终验收门槛是在干净的会话中运行 Kaggle 笔记本/脚本。
 
-Require no Windows-only path or C++ build, runtime hardware detection, rules smoke test, short GPU training, timed checkpoint save, new-session resume, and correct Kaggle output handling.
+要求不得使用 Windows 专用路径，也不得进行 C++ 构建；在运行时检测硬件；进行规则冒烟测试和短时 GPU 训练；定时保存检查点；在新会话中恢复；正确处理 Kaggle 输出。

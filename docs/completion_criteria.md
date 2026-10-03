@@ -1,66 +1,66 @@
-# Completion criteria
+# 完成标准
 
-## Global acceptance rule
+## 全局验收规则
 
-A stage is accepted only when all of the following are true:
+只有满足以下全部条件时，一个阶段才算通过：
 
-1. Its implementation is present in the current Git commit.
-2. Its required tests pass in the `guandan_train` environment.
-3. Its acceptance command emits a passing JSON report.
-4. Its documented invariants and information-boundary checks pass.
-5. The supervising agent has inspected the diff and compared it with the original requirements.
+1. 其实现包含在当前 Git 提交中。
+2. 其所需测试在 `guandan_train` 环境中通过。
+3. 其验收命令输出结果为通过的 JSON 报告。
+4. 其文档中规定的不变量和信息边界检查通过。
+5. 主代理已检查差异，并将其与原始要求进行比较。
 
-`implemented` and `tested` are not equivalent to `accepted`.
+`implemented` 与 `tested` 不等同于 `accepted`。
 
-## A00 Specification
+## A00 规范
 
-- Rules, public-information boundaries, action protocol, observation protocol, and reward semantics are documented.
-- Open rule decisions are explicitly listed; none are silently guessed.
+- 已记录规则、公开信息边界、动作协议、观测协议和奖励语义。
+- 已明确列出待决规则；没有任何规则被静默猜测。
 
-## A01 Cards and combinations
+## A01 牌与牌型
 
-- Two-deck card identity/counting is lossless.
-- All approved GuanDan combination families have deterministic recognition and comparison.
-- Invalid combinations are rejected.
-- Independent reference enumeration agrees with the production combination layer on exhaustive small-card fixtures.
+- 双副牌的牌身份/计数无损。
+- 所有获准的掼蛋牌型类别都有确定性的识别和比较。
+- 非法牌型会被拒绝。
+- 在小牌集穷举测试夹具上，独立的参考枚举与生产牌型层一致。
 
-## A02 Round rules engine
+## A02 牌局规则引擎
 
-- Deal, play, pass, lead, follow, trick reset, tribute/return, team ranking, and terminal rewards are implemented.
-- Card conservation and deterministic replay pass.
-- At least 100 directed rule cases and 10,000 seeded legal random rounds pass without invariant violations.
+- 发牌、出牌、过牌、领出、跟牌、轮次重置、进贡/还贡、队伍排名和终局奖励均已实现。
+- 牌守恒与确定性重放检查通过。
+- 至少 100 个定向规则用例和 10,000 个使用 seed 的合法随机牌局通过，且没有违反不变量。
 
-## A03 Stepwise action protocol
+## A03 逐步动作协议
 
-- Every accepted action prefix can reach at least one legal committed action.
-- No legal committed action is omitted or duplicated by canonical encoding.
-- Prefix actions do not mutate public state until commit.
-- Token-step versus committed-game-step accounting is explicit.
+- 每个被接受的动作前缀都至少可以到达一个合法的已提交动作。
+- 规范编码不会遗漏或重复任何合法的已提交动作。
+- 在提交之前，前缀动作不修改公开状态。
+- 已明确 token 步与已提交游戏步的记账方式。
 
-## A04 Observation and batch environment
+## A04 观测与批环境
 
-- Single environment and batch environment agree under identical seeds/actions.
-- Policy observations never expose opponents' private cards.
-- Shapes, dtypes, masks, and terminal reset semantics are validated.
+- 在相同 seed/动作下，单环境与批环境一致。
+- 策略观测绝不暴露对手的私有牌。
+- 形状、dtypes、掩码和终局重置语义已验证。
 
-## A05 Training integration
+## A05 训练集成
 
-- IPPO and VRPO smoke runs complete at least 100 updates with finite loss/gradients.
-- Checkpoint save/load and resume are tested.
-- Invalid-action probability is zero and legal probability distributions normalize.
+- IPPO 和 VRPO 冒烟运行至少完成 100 次更新，且损失/梯度为有限值。
+- 已测试检查点保存/加载和恢复。
+- 非法动作概率为零，合法动作概率分布归一化。
 
-## A06 Evaluation
+## A06 评估
 
-- Fixed-seed, seat-swapped evaluation reports team metrics and confidence metadata.
-- Training and evaluation deals are separated.
-- Evaluation errors do not silently fall back to an alternate agent.
+- 固定 seed、交换座位的评估会报告队伍指标和置信度元数据。
+- 训练发牌与评估发牌相互分离。
+- 评估错误不会静默回退到备用代理。
 
 ## A07 Kaggle
 
-- Clean-environment dependency check, rules smoke test, short training, timed checkpoint save, and resume all work.
-- The script detects actual Python/Torch/GPU versions rather than assuming hardware.
+- 全新环境下的依赖检查、规则冒烟测试、短程训练、定时检查点保存和恢复均可正常工作。
+- 脚本会检测实际的 Python/Torch/GPU 版本，而不是假设硬件环境。
 
-## A08 Belief/search (later)
+## A08 信念/搜索（后续）
 
-- Belief labels/samples obey information constraints and card conservation.
-- Search returns legal actions, obeys budget, and has a direct-policy comparison.
+- 信念标签/样本遵守信息约束和牌守恒。
+- 搜索返回合法动作，遵守预算，并提供与直接策略的比较。

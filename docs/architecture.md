@@ -1,20 +1,20 @@
-# Architecture
+# 架构
 
-## Runtime layers
+## 运行时分层
 
-1. `guandan.cards` and `guandan.combos` own card identity, counts, recognition and comparison.
-2. `guandan.state` owns one complete omniscient game state.
-3. `guandan.action_state` exposes only the active player's stepwise action-prefix state and commits complete actions.
-4. `guandan.environment` provides one environment; `guandan.env_batch` provides a fixed-size batch adapter.
-5. `guandan.encoding` converts observations and available actions into fixed-size integer/float arrays.
-6. `training` consumes the environment contract and owns policy/value learning.
+1. `guandan.cards` 和 `guandan.combos` 负责牌身份、计数、识别与比较。
+2. `guandan.state` 负责一个完整的全知游戏状态。
+3. `guandan.action_state` 仅暴露当前行动玩家的逐步动作前缀状态，并提交完整动作。
+4. `guandan.environment` 提供单环境；`guandan.env_batch` 提供固定大小的批适配器。
+5. `guandan.encoding` 将观测和可用动作转换为固定大小的整数/浮点数组。
+6. `training` 使用环境契约，并负责策略/价值学习。
 
-The policy observation is a projection of the omniscient state. The omniscient state is never passed to the policy. Training-only labels are kept in a separate path.
+策略观测是全知状态的一个投影。全知状态绝不会传给策略。仅供训练使用的标签保存在独立路径中。
 
-## Backend boundary
+## 后端边界
 
-The first backend is pure Python. The environment interface must remain backend-neutral so that a future optimized backend can replace only the rules/environment layer.
+首个后端是纯 Python。环境接口必须保持与后端无关，以便未来的优化后端只替换规则/环境层。
 
-## Stepwise action boundary
+## 逐步动作边界
 
-A token step may extend an action prefix. Only a committed action mutates public game state, consumes cards, and advances turn/trick state. Training code must record both token steps and committed game steps.
+token 步可以扩展动作前缀。只有已提交动作会修改公开游戏状态、消耗牌并推进行动/轮次状态。训练代码必须同时记录 token 步和已提交游戏步。

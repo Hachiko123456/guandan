@@ -1,10 +1,10 @@
-# STATUS.yaml Schema
+# STATUS.yaml 模式定义
 
-Each stage records `status`, `implementation`, `tests`, `accepted`, `commit`, `evidence`, and `blockers`.
+每个阶段都记录 `status`、`implementation`、`tests`、`accepted`、`commit`、`evidence` 和 `blockers`。
 
-Rules:
+规则：
 
-- `accepted: true` requires `status: accepted`, a full Git SHA, and evidence paths.
-- Automated reports always keep `accepted: false`.
-- Partial code remains `accepted: false` even when focused tests pass.
-- Blockers must be concrete and reproducible.
+- `accepted: true` 要求同时具备 `status: accepted`、完整的 Git SHA 和证据路径。
+- 自动生成的报告始终保持 `accepted: false`。
+- 即使针对性测试通过，未完成的代码仍须保持 `accepted: false`。
+- 阻塞问题必须具体且可复现。

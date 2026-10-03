@@ -1,16 +1,16 @@
-# Observation protocol
+# 观测协议
 
-This document describes the intended adapter shape. Concrete dimensions are fixed only after A00 rules decisions are accepted.
+本文档描述预期的适配器形态。只有在 A00 规则决策通过后，具体维度才会固定。
 
-A batch step exposes NumPy-compatible arrays:
+一次批处理步骤会暴露兼容 NumPy 的数组：
 
-- `observations.tokens`: `[B, P, L_obs]`, integer token IDs per viewer.
-- `observations.channels`: `[B, P, C]`, public/self state channels.
-- `player_ids`: `[B]`, active player or negative chance/administrative ID.
-- `available_actions.tokens`: `[B, A, L_act]`.
-- `available_actions.weights`: `[B, A]`, legal-action prior/weight.
-- `available_actions.is_commit`: `[B, A]`, whether selecting this action commits a complete move.
-- `rewards`: `[B, P]`, team-aligned reward vector.
-- `is_terminal`: `[B]`.
+- `observations.tokens`：`[B, P, L_obs]`，每个观测者对应的整数 token ID。
+- `observations.channels`：`[B, P, C]`，公开/自身状态通道。
+- `player_ids`：`[B]`，当前行动玩家，或表示机会事件/管理操作的负数 ID。
+- `available_actions.tokens`：`[B, A, L_act]`。
+- `available_actions.weights`：`[B, A]`，合法动作先验/权重。
+- `available_actions.is_commit`：`[B, A]`，选择该动作是否会提交一个完整动作。
+- `rewards`：`[B, P]`，按队伍对齐的奖励向量。
+- `is_terminal`：`[B]`。
 
-The policy view may include the active player's hand and all public information, but never opponent or teammate private cards. The central critic and training-only belief labels are separate from the policy observation.
+策略视图可以包含当前行动玩家的手牌和全部公开信息，但绝不能包含对手或队友的私有牌。集中式价值评估器和仅供训练使用的信念标签与策略观测分离。

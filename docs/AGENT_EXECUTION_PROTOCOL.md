@@ -1,28 +1,28 @@
-# Main/Subagent Execution Protocol
+# 主代理/子代理执行协议
 
-## Main agent
+## 主代理
 
-The main agent owns requirements, integration, Git, and acceptance. For every subagent result it must inspect the exact diff, reject out-of-scope files, run focused tests, run the stage acceptance command, run the full test suite, compare with the requirements, and only then update `STATUS.yaml`.
+主代理负责需求、集成、Git 和验收。对于每一份子代理结果，主代理必须检查具体差异，拒绝超出范围的文件改动，运行针对性测试，执行阶段验收命令，运行完整测试套件，并对照需求进行审查；完成这些步骤后才能更新 `STATUS.yaml`。
 
-## Subagents
+## 子代理
 
-- Use disjoint write sets.
-- Do not edit `STATUS.yaml` or mark stages accepted.
-- Do not broaden scope.
-- Report exact files, commands, tests, assumptions, and gaps.
-- Do not use or copy FableDan.
+- 使用互不重叠的可写文件集合。
+- 不得编辑 `STATUS.yaml`，也不得将阶段标记为已验收通过。
+- 不得扩大工作范围。
+- 报告具体的文件、命令、测试、假设及尚存缺口。
+- 不得使用或复制 FableDan。
 
-## Status meanings
+## 状态含义
 
-- `not_started`: no accepted implementation;
-- `in_progress`: active implementation/review;
-- `verified`: implementation/tests pass, main review pending;
-- `accepted`: all gates and main review pass;
-- `blocked`: concrete repeated blocker;
-- `rejected`: reviewed implementation failed its gate.
+- `not_started`：尚无已验收通过的实现；
+- `in_progress`：正在实现/审查；
+- `verified`：实现/测试已通过，等待主代理审查；
+- `accepted`：所有验收门槛及主代理审查均已通过；
+- `blocked`：存在具体且反复出现的阻塞问题；
+- `rejected`：经审查，实现未达到验收门槛。
 
-A pytest pass is not the same as supervisory acceptance.
+pytest 通过不等于监督验收通过。
 
-## Failure protocol
+## 失败处理协议
 
-When returning work, the main agent gives the failing test, violated requirement, expected behavior, allowed files, and exact re-test command. The same subagent is reused where practical.
+退回工作时，主代理应提供失败的测试、违反的需求、预期行为、允许修改的文件，以及准确的复测命令。在可行的情况下，继续由同一子代理处理。
