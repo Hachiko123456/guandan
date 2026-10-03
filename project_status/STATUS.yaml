@@ -31,17 +31,18 @@ stages:
       - project_status/history/<run-id>/A01/report.json
     blockers: []
   A02_round_rules_engine:
-    status: in_progress
-    implementation: partial
+    status: accepted
+    implementation: complete
     tests: passed
-    accepted: false
-    commit: b65beed125c0ad042c50633e7f1bece9d48cdbcb
-    blockers:
-      - complete atomic action enumeration
-      - tribute/anti-tribute/return phases
-      - finished-seat skipping and complete 接风
-      - terminal ranking and reward fixtures
-      - demand-driven A02 acceptance suite
+    accepted: true
+    commit: 9ea667704073dde77db4069ec2cdc6fad7592c71
+    evidence:
+      - docs/acceptance/A02_round_rules_engine.md
+      - tests/acceptance/test_a02_rules.py
+      - tests/unit/test_round.py
+      - tests/property/test_round_invariants.py
+      - project_status/history/20261003T075919335171Z_662f7394a3ae4231949f3a03969eaed4/A02/report.json
+    blockers: []
   A03_stepwise_action_protocol:
     status: not_started
     implementation: none
