@@ -44,11 +44,18 @@ stages:
       - project_status/history/20261003T075919335171Z_662f7394a3ae4231949f3a03969eaed4/A02/report.json
     blockers: []
   A03_stepwise_action_protocol:
-    status: not_started
-    implementation: none
-    tests: not_run
-    accepted: false
-    commit: null
+    status: accepted
+    implementation: complete
+    tests: passed
+    accepted: true
+    commit: 2b0ed5becd83a0e4cdbefb1d27d3c43eddea5e3a
+    evidence:
+      - docs/acceptance/A03_stepwise_action_protocol.md
+      - guandan/action_state.py
+      - tests/acceptance/test_a03_actions.py
+      - tests/unit/test_action_protocol.py
+      - tests/property/test_action_protocol_property.py
+      - project_status/history/20261003T093925210165Z_5d7ae8d5d0de4cce9dc54b60f5a865c1/A03/report.json
     blockers: []
   A04_observation_and_batch_environment:
     status: not_started
