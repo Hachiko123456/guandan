@@ -45,3 +45,11 @@ python scripts/run_acceptance.py --stage A06 --profile local_fast --show-profile
 ## 测试与回归
 
 每次 A06 变更先运行完整 scoped `local_fast` A06 及目标依赖测试；不要求每次改动都重跑 A02 既有 10,000 个随机种子对局。远端/release 阶段运行完整回归和发布测试，不得删除或弱化安全、牌守恒、终局/截断、reset、信息边界和错误不静默回退测试。
+
+## 本机 local_fast 证据
+
+主代理本机运行 `local_fast`，实际完成每个对手 16 局，`random`、`rule`、`snapshot` 各 16 局，总计 48 局。每局记录真实终局、排名、队伍奖励、玩家零和奖励、座位轮换、deal group 和 seed。报告：
+
+`project_status/history/20261003T234059912104Z_20b39d6f25a54aea85b628d8237012a8/A06/report.json`
+
+本机通过只表示评估管线的 `local_ready`；不证明模型强度，不运行 `remote_full`，也不设置 `accepted: true`。
