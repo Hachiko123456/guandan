@@ -1,16 +1,81 @@
 project: guandan
 version: 0.1.0
-last_updated: null
-rules_version: null
-action_protocol_version: null
-observation_protocol_version: null
+last_updated: 2026-10-03
+rules_version: GD-RULES-0.1
+action_protocol_version: GD-ACTION-0.1
+observation_protocol_version: GD-ENV-0.1
 stages:
-  A00_specification: {status: in_progress, implementation: partial, tests: not_run, accepted: false, commit: null, blockers: []}
-  A01_cards_and_combinations: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
-  A02_round_rules_engine: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
-  A03_stepwise_action_protocol: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
-  A04_observation_and_batch_environment: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
-  A05_training_integration: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
-  A06_evaluation: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
-  A07_kaggle: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
-  A08_belief_search: {status: not_started, implementation: none, tests: not_run, accepted: false, commit: null, blockers: []}
+  A00_specification:
+    status: accepted
+    implementation: complete
+    tests: passed
+    accepted: true
+    commit: d8706d4c713b85a52662777db043cae26a72b212
+    evidence:
+      - docs/acceptance/A00_specification.md
+      - tests/acceptance/test_a00_specification.py
+      - project_status/history/<run-id>/A00/report.json
+    blockers: []
+  A01_cards_and_combinations:
+    status: accepted
+    implementation: complete
+    tests: passed
+    accepted: true
+    commit: d8706d4c713b85a52662777db043cae26a72b212
+    evidence:
+      - docs/acceptance/A01_cards_and_combinations.md
+      - tests/acceptance/test_a01_cards.py
+      - tests/unit/test_cards.py
+      - tests/unit/test_combos.py
+      - tests/property/test_card_conservation.py
+      - project_status/history/<run-id>/A01/report.json
+    blockers: []
+  A02_round_rules_engine:
+    status: not_started
+    implementation: none
+    tests: not_run
+    accepted: false
+    commit: null
+    blockers: []
+  A03_stepwise_action_protocol:
+    status: not_started
+    implementation: none
+    tests: not_run
+    accepted: false
+    commit: null
+    blockers: []
+  A04_observation_and_batch_environment:
+    status: not_started
+    implementation: none
+    tests: not_run
+    accepted: false
+    commit: null
+    blockers: []
+  A05_training_integration:
+    status: not_started
+    implementation: none
+    tests: not_run
+    accepted: false
+    commit: null
+    blockers: []
+  A06_evaluation:
+    status: not_started
+    implementation: none
+    tests: not_run
+    accepted: false
+    commit: null
+    blockers: []
+  A07_kaggle:
+    status: not_started
+    implementation: none
+    tests: not_run
+    accepted: false
+    commit: null
+    blockers: []
+  A08_belief_search:
+    status: not_started
+    implementation: none
+    tests: not_run
+    accepted: false
+    commit: null
+    blockers: []
