@@ -58,11 +58,23 @@ stages:
       - project_status/history/20261003T093925210165Z_5d7ae8d5d0de4cce9dc54b60f5a865c1/A03/report.json
     blockers: []
   A04_observation_and_batch_environment:
-    status: not_started
-    implementation: none
-    tests: not_run
-    accepted: false
-    commit: null
+    status: accepted
+    implementation: complete
+    tests: passed
+    accepted: true
+    commit: c49fb51a9f9a62625a8d5c2125399ef99e0524ea
+    evidence:
+      - docs/acceptance/A04_observation_and_batch_environment.md
+      - docs/encoding_layout.md
+      - guandan/environment.py
+      - guandan/environment_types.py
+      - guandan/encoding.py
+      - guandan/env_batch.py
+      - tests/acceptance/test_a04_environment.py
+      - tests/unit/test_encoding.py
+      - tests/unit/test_environment.py
+      - tests/unit/test_env_batch.py
+      - project_status/history/20261003T161741407727Z_73b55f6b09e24a6db66adc7a3ac0f5d4/A04/report.json
     blockers: []
   A05_training_integration:
     status: not_started
