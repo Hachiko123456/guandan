@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import platform
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -23,6 +24,49 @@ STAGE_TESTS = {
 }
 
 
+def git(*args: str) -> str | None:
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(ROOT), *args],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return completed.stdout.strip()
+
+
+def runtime_metadata() -> dict[str, object]:
+    metadata: dict[str, object] = {
+        "python": sys.executable,
+        "python_version": platform.python_version(),
+        "platform": platform.platform(),
+        "git_commit": git("rev-parse", "HEAD"),
+        "git_worktree_clean": git("status", "--porcelain") == "",
+    }
+    try:
+        import numpy
+        import torch
+
+        metadata.update(
+            {
+                "numpy": numpy.__version__,
+                "torch": torch.__version__,
+                "torch_cuda": torch.version.cuda,
+                "cuda_available": bool(torch.cuda.is_available()),
+                "cuda_device_count": int(torch.cuda.device_count()),
+                "cuda_devices": [
+                    torch.cuda.get_device_name(index)
+                    for index in range(torch.cuda.device_count())
+                ],
+            }
+        )
+    except Exception as exc:  # pragma: no cover - diagnostics must survive import failures
+        metadata["runtime_import_error"] = repr(exc)
+    return metadata
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", choices=[*STAGE_TESTS, "all"], required=True)
@@ -34,21 +78,32 @@ def main() -> int:
     command = [sys.executable, "-m", "pytest", "-q", *tests]
     if args.collect_only:
         command.append("--collect-only")
-    if missing:
-        result = {"status": "blocked", "missing_tests": missing, "command": command}
-        print(json.dumps(result, indent=2))
-        return 2
-    completed = subprocess.run(command, cwd=ROOT, text=True)
-    report = {
-        "status": "passed" if completed.returncode == 0 else "failed",
+
+    report: dict[str, object] = {
+        "status": "blocked" if missing else "not_run",
+        "accepted": False,
         "stage": args.stage,
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-        "python": sys.executable,
         "command": command,
-        "returncode": completed.returncode,
+        "runtime": runtime_metadata(),
     }
+    if missing:
+        report["missing_tests"] = missing
+        REPORT_DIR.mkdir(parents=True, exist_ok=True)
+        (REPORT_DIR / f"{args.stage}_latest.json").write_text(
+            json.dumps(report, indent=2), encoding="utf-8"
+        )
+        print(json.dumps(report, indent=2))
+        return 2
+
+    completed = subprocess.run(command, cwd=ROOT, text=True)
+    report["status"] = "passed" if completed.returncode == 0 else "failed"
+    report["returncode"] = completed.returncode
+    report["tests"] = tests
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    (REPORT_DIR / f"{args.stage}_latest.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    (REPORT_DIR / f"{args.stage}_latest.json").write_text(
+        json.dumps(report, indent=2), encoding="utf-8"
+    )
     print(json.dumps(report, indent=2))
     return completed.returncode
 
