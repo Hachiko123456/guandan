@@ -10,3 +10,4 @@ wandb/
 *.pt
 *.pth
 *.npz
+project_status/history/
