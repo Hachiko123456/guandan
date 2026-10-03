@@ -356,11 +356,16 @@ class GuandanEnv:
 
     def serialize(self) -> bytes:
         protocol = self._require_protocol()
+        protocol_data = json.loads(protocol.serialize())
+        # A02 preserves physical ownership but tribute/return append order is
+        # intentionally not a wire-format guarantee. Canonicalize hand IDs so
+        # serialize -> deserialize -> serialize is byte-stable.
+        protocol_data["round_state"]["hands"] = [sorted(hand) for hand in protocol_data["round_state"]["hands"]]
         data = dict(
             serialization_version=SERIALIZATION_VERSION, rules_version=RULES_VERSION,
             environment_version=ENV_VERSION, action_version=ACTION_VERSION, encoding_version=ENCODING_VERSION,
             config=_config_dict(self.config), observation_spec=asdict(self.observation_spec),
-            protocol=json.loads(protocol.serialize()), rng_state=self._rng.bit_generator.state,
+            protocol=protocol_data, rng_state=self._rng.bit_generator.state,
             reset_count=self._reset_count,
         )
         return json.dumps(data, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")

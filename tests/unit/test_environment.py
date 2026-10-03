@@ -9,7 +9,7 @@ from guandan.action_state import COMMIT_TOKEN, PASS_TOKEN, StepwiseActionState, 
 from guandan.cards import Rank, cards_for_rank, full_deck
 from guandan.combos import CombinationKind
 from guandan.environment import GameConfig, GuandanEnv, ObservationSpec, ProtocolError
-from guandan.state import EpisodeTerminatedError, IllegalActionError, RoundState
+from guandan.state import EpisodeTerminatedError, IllegalActionError, PreviousHandResult, RoundState
 
 
 def checkpoint():
@@ -273,3 +273,17 @@ def test_cached_candidates_invalidate_after_private_hand_permutation():
     paths = {sequence for sequence, _ in protocol._candidate_sequences()}
     reference = {canonical_tokens(action) for action in enumerate_legal_actions(protocol.round_state)}
     assert paths == reference and paths != original
+
+
+def test_serialize_roundtrip_is_byte_stable_after_tribute_return_commits():
+    previous = PreviousHandResult((1, 3, 2, 4), 0, "DOUBLE_DOWN")
+    env = GuandanEnv(GameConfig(level_rank=Rank.SIX, seed=0, previous_result=previous))
+    env.reset()
+    for _ in range(4):
+        token = int(env.legal_tokens()[0])
+        env.step(token)
+        if env.done:
+            break
+    # At each exchange boundary, checkpoint bytes must be canonical.
+    restored = GuandanEnv.deserialize(env.serialize())
+    assert restored.serialize() == env.serialize()
