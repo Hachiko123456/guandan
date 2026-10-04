@@ -20,6 +20,35 @@ RESUME_MANIFEST = Path("/kaggle/input/REPLACE_CHECKPOINT_BUNDLE/manifest.json")
 CANDIDATE_CHECKPOINT = Path("/kaggle/input/REPLACE_CANDIDATE/candidate.pt")
 SNAPSHOT_CHECKPOINT = Path("/kaggle/input/REPLACE_SNAPSHOT/snapshot.pt")
 
+
+def _kaggle_layout_available():
+    return Path("/kaggle/input").is_dir() and Path("/kaggle/working").is_dir()
+
+
+def _require_under(path, root, label):
+    resolved = Path(path).expanduser().resolve()
+    base = Path(root).resolve()
+    if resolved == base or not resolved.is_relative_to(base):
+        raise ValueError(f"{label} must be under {base}")
+    return resolved
+
+
+def _validate_kaggle_paths(*, source=None, root=None, resume=None, candidate=None, snapshot=None):
+    if not _kaggle_layout_available():
+        return
+    input_root = Path("/kaggle/input")
+    working_root = Path("/kaggle/working")
+    if source is not None:
+        _require_under(source, input_root, "source root")
+    if root is not None:
+        resolved = Path(root).expanduser().resolve()
+        if not (resolved.is_relative_to(input_root.resolve()) or resolved.is_relative_to(working_root.resolve())):
+            raise ValueError("session source root must be under /kaggle/input or /kaggle/working")
+    for value, label in ((resume, "resume manifest"), (candidate, "candidate checkpoint"),
+                         (snapshot, "snapshot checkpoint")):
+        if value is not None:
+            _require_under(value, input_root, label)
+
 # %% [markdown]
 # ## 1. 安装源码是显式的复制操作，不是上传
 # 下列函数只在调用时执行。默认不安装依赖；需要时手动设置 install_deps=True。
@@ -29,6 +58,7 @@ SNAPSHOT_CHECKPOINT = Path("/kaggle/input/REPLACE_SNAPSHOT/snapshot.pt")
 def bootstrap_source(*, install_deps=False, dry_run=True):
     import runpy
 
+    _validate_kaggle_paths(source=SOURCE_ROOT, root=WORK_ROOT)
     checker = SOURCE_ROOT / "scripts" / "kaggle_environment_check.py"
     api = runpy.run_path(str(checker))
     return api["install_source"](SOURCE_ROOT, WORK_ROOT, install_deps=install_deps, dry_run=dry_run)
@@ -47,6 +77,8 @@ def bootstrap_source(*, install_deps=False, dry_run=True):
 def session_command(action="plan", *, execute=False, algorithm="ippo", resume=None,
                     candidate_checkpoint=None, snapshot_checkpoint=None, root=None):
     source = Path(root) if root is not None else WORK_ROOT
+    _validate_kaggle_paths(root=source, resume=resume, candidate=candidate_checkpoint,
+                           snapshot=snapshot_checkpoint)
     command = [sys.executable, "-B", str(source / "scripts" / "kaggle_entry.py"),
                "--action", action, "--profile", "remote_full", "--algorithm", algorithm,
                "--output-root", str(OUTPUT_ROOT), "--session-hours", "10",

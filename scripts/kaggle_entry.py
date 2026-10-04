@@ -8,12 +8,18 @@ import sys
 def bootstrap_root() -> Path:
     """Use this script's repository, never the caller's cwd or an input guess."""
     root = Path(__file__).resolve().parents[1]
-    required = (
+    required = [
         root / "pyproject.toml",
         root / "configs" / "acceptance_profiles.json",
         root / "guandan" / "__init__.py",
         root / "guandan" / "deployment" / "session.py",
-    )
+    ]
+    # A real Kaggle source/working mount must carry the checker alongside the
+    # session entrypoint. Tiny temporary roots remain an explicit local test
+    # seam for this bootstrap module.
+    kaggle_roots = (Path("/kaggle/input").resolve(), Path("/kaggle/working").resolve())
+    if any(root == base or root.is_relative_to(base) for base in kaggle_roots):
+        required.append(root / "scripts" / "kaggle_environment_check.py")
     if any(not path.is_file() or not path.resolve().is_relative_to(root) for path in required):
         raise RuntimeError("incomplete source package: expected the deployment session and profile beside this script")
     # A notebook may already have imported a different mounted source tree.

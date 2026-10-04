@@ -14,6 +14,34 @@ import uuid
 from .provenance import sha256, source_provenance
 
 ROOT = Path(__file__).resolve().parents[2]
+KAGGLE_INPUT = Path("/kaggle/input")
+KAGGLE_WORKING = Path("/kaggle/working")
+
+
+def _kaggle_production_context() -> bool:
+    root = ROOT.resolve()
+    return (KAGGLE_INPUT.is_dir() and KAGGLE_WORKING.is_dir()
+            and (root.is_relative_to(KAGGLE_INPUT.resolve())
+                 or root.is_relative_to(KAGGLE_WORKING.resolve())))
+
+
+def _require_input_path(path: Path, label: str) -> Path:
+    resolved = Path(path).expanduser().resolve()
+    root = KAGGLE_INPUT.resolve()
+    if resolved == root or not resolved.is_relative_to(root):
+        raise ValueError(f"{label} must be under /kaggle/input")
+    return resolved
+
+
+def _validate_production_paths(args) -> None:
+    _output_directory(args.output_root)
+    for value, label in (
+        (args.resume, "resume manifest"),
+        (args.candidate_checkpoint, "candidate checkpoint"),
+        (args.snapshot_checkpoint, "snapshot checkpoint"),
+    ):
+        if value is not None:
+            _require_input_path(value, label)
 
 
 def _profile():
@@ -130,18 +158,55 @@ def smoke_environment() -> dict:
             'level_rank':int(Rank.FIVE),'previous_result':None,'kaggle_verified':False}
 
 
-def run(args, *, runtime_check=None) -> dict:
+def _verify_training_completion(result, plan: dict, algorithm: str) -> dict:
+    """Re-read the durable artifact before claiming a production phase complete."""
+    goal = plan["goal_update"]
+    settings = plan["profile"]["config"]["training"]
+    expected_steps = goal * settings["token_steps_per_update"]
+    if getattr(result, "durable_updates", None) != goal:
+        raise ValueError("complete training has incorrect durable update counter")
+    if getattr(result, "durable_token_steps", None) != expected_steps:
+        raise ValueError("complete training has incorrect durable token counter")
+    manifest_name = getattr(result, "recovery_manifest", None)
+    if not manifest_name:
+        raise ValueError("complete training did not produce a recovery manifest")
+    manifest_path = Path(manifest_name).expanduser().resolve()
+    if not manifest_path.is_file():
+        raise ValueError("complete training recovery manifest is missing")
+    resolved = resolve_recovery(manifest_path, algorithm=algorithm)
+    if resolved["durable_updates"] != goal or resolved["durable_token_steps"] != expected_steps:
+        raise ValueError("recovery manifest durable counters do not reach the training target")
+    checkpoint_name = getattr(result, "checkpoint", None)
+    if not checkpoint_name:
+        raise ValueError("complete training did not produce a checkpoint")
+    checkpoint = Path(checkpoint_name).expanduser().resolve()
+    if checkpoint != Path(resolved["checkpoint_path"]).resolve():
+        raise ValueError("training result checkpoint differs from recovery manifest")
+    if sha256(checkpoint) != resolved["checkpoint_sha256"]:
+        raise ValueError("training result checkpoint digest mismatch")
+    return resolved
+
+
+def run(args, *, runtime_check=None, production=False) -> dict:
     # Lazy imports keep --help and plan usable without torch/dependency installation.
     from scripts.kaggle_environment_check import inspect_environment, require_remote_runtime
+    production = bool(production or _kaggle_production_context())
     profile = _profile()
     if args.profile != 'remote_full':
         raise ValueError('A07 remote entry only accepts remote_full')
+    if production:
+        _validate_production_paths(args)
     recovery = resolve_recovery(args.resume,algorithm=args.algorithm) if args.resume is not None else None
     plan = training_plan(args.algorithm,recovery)
     if args.action=='plan':
         return {'status':'configuration_only','plan':plan,'upload':False,'executed':False,'accepted':False,'kaggle_verified':False}
     system = inspect_environment()
     if args.action=='system':
+        # A direct local run remains an observation-only diagnostic. The real
+        # CLI enters production mode in a Kaggle input/working layout; tests
+        # may explicitly inject runtime_check as the sole local seam.
+        if production or runtime_check is not None:
+            (runtime_check or require_remote_runtime)(system)
         return {'status':'environment_inspected','system':system,'executed_training':False,'accepted':False,'kaggle_verified':False}
     if not args.execute:
         raise ValueError('--execute is required for smoke/train/evaluate; no automatic launch')
@@ -184,7 +249,11 @@ def run(args, *, runtime_check=None) -> dict:
                            'resume':None if recovery is None else recovery['checkpoint_path']}
                 result = train(**options)
                 record['training'] = asdict(result)
-                record['status']='phase_complete' if result.status=='complete' and result.lifetime_updates==plan['goal_update'] else 'incomplete'
+                complete = result.status == 'complete' and result.lifetime_updates == plan['goal_update']
+                if complete and production:
+                    verified = _verify_training_completion(result, plan, args.algorithm)
+                    record['durable_verification'] = verified
+                record['status']='phase_complete' if complete else 'incomplete'
                 record['recovery_manifest'] = result.recovery_manifest
                 record['new_session_resume'] = args.resume is not None
             elif args.action=='evaluate':
@@ -235,7 +304,7 @@ def parser():
 def main(argv=None):
     args=parser().parse_args(argv)
     try:
-        result=run(args)
+        result=run(args, production=_kaggle_production_context())
         print(json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False))
         return 2 if result['status']=='incomplete' else 0
     except Exception as exc:

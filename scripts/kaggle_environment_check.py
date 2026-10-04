@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import importlib
 import importlib.metadata
+import hashlib
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -25,6 +26,28 @@ KAGGLE_INPUT = Path("/kaggle/input")
 KAGGLE_WORKING = Path("/kaggle/working")
 KAGGLE_MARKERS = ("KAGGLE_KERNEL_RUN_TYPE", "KAGGLE_URL_BASE", "KAGGLE_KERNEL_INTEGRATIONS")
 SOURCE_MANIFEST = "SOURCE_MANIFEST.json"
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _under(path: Path, root: Path, *, label: str, allow_root: bool = False) -> Path:
+    resolved = Path(path).expanduser().resolve()
+    base = Path(root).expanduser().resolve()
+    if not (resolved == base if allow_root else resolved.is_relative_to(base)):
+        raise ValueError(f"{label} must be under {base}")
+    if not allow_root and resolved == base:
+        raise ValueError(f"{label} must be a named subdirectory of {base}")
+    return resolved
+
+
+def _kaggle_layout_available() -> bool:
+    return KAGGLE_INPUT.is_dir() and KAGGLE_WORKING.is_dir()
 
 
 def inspect_environment() -> dict:
@@ -127,11 +150,20 @@ def _is_link(path: Path) -> bool:
 
 
 def _export_files(root: Path) -> tuple[dict, list[str]]:
-    """Validate copy boundaries; canonical provenance validation stays upstream."""
+    """Validate the complete source export before any destination is created."""
     manifest_path = root / SOURCE_MANIFEST
     if not manifest_path.is_file():
         raise ValueError("install_source requires an extracted source export with SOURCE_MANIFEST.json; export with guandan.deployment.package first")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest.get("format") != "guandan-source-v1":
+        raise ValueError("source manifest format must be guandan-source-v1")
+    if manifest.get("profile") != "remote_full":
+        raise ValueError("source manifest profile must be remote_full")
+    for field in ("accepted", "uploaded", "kaggle_verified"):
+        # Older local fixtures omitted uploaded; absence is the only tolerated
+        # legacy spelling and is treated as the required false value.
+        if manifest.get(field, False) is not False:
+            raise ValueError(f"source manifest {field} must be false")
     files = manifest.get("files")
     if not isinstance(files, dict) or not files:
         raise ValueError("source manifest files must be a nonempty mapping")
@@ -146,15 +178,26 @@ def _export_files(root: Path) -> tuple[dict, list[str]]:
             raise ValueError(f"source file missing or outside source root: {name}")
         if any(_is_link(parent) for parent in (path, *path.parents) if parent.is_relative_to(root)):
             raise ValueError(f"linked source file is not portable: {name}")
+        if name != SOURCE_MANIFEST:
+            expected = files.get(name)
+            if not isinstance(expected, str) or len(expected) != 64:
+                raise ValueError(f"source hash/path mismatch: invalid digest for {name}")
+            try:
+                int(expected, 16)
+            except ValueError as exc:
+                raise ValueError(f"source hash/path mismatch: invalid digest for {name}") from exc
+            if _file_sha256(path) != expected.lower():
+                raise ValueError(f"source hash/path mismatch: {name}")
     required = {"pyproject.toml", "configs/acceptance_profiles.json", "guandan/__init__.py",
-                "guandan/deployment/provenance.py", "guandan/deployment/session.py",
-                "scripts/kaggle_entry.py", "scripts/kaggle_environment_check.py"}
+                "guandan/deployment/provenance.py", "guandan/deployment/control.py",
+                "guandan/deployment/session.py", "scripts/kaggle_entry.py",
+                "scripts/kaggle_environment_check.py"}
     if not required.issubset(files):
         raise ValueError(f"incomplete source export: {sorted(required.difference(files))}")
     return manifest, names
 
 
-def install_source(source_root, dest_root, install_deps=False, dry_run=False) -> dict:
+def install_source(source_root, dest_root, install_deps=False, dry_run=False, enforce_kaggle_paths=None) -> dict:
     """Copy a verified extracted export to a NEW writable source directory.
 
     Source is read-only input; checkpoint bundles are not installation sources.
@@ -164,6 +207,11 @@ def install_source(source_root, dest_root, install_deps=False, dry_run=False) ->
     """
     source = _root(source_root)
     destination = Path(dest_root).expanduser().resolve()
+    if enforce_kaggle_paths is None:
+        enforce_kaggle_paths = _kaggle_layout_available()
+    if enforce_kaggle_paths:
+        _under(source, KAGGLE_INPUT, label="source root")
+        _under(destination, KAGGLE_WORKING, label="installation destination")
     if destination.is_relative_to(source) or source.is_relative_to(destination):
         raise ValueError("source and destination must be separate, non-nested directories")
     if destination.is_relative_to(KAGGLE_INPUT.resolve()):
@@ -231,7 +279,8 @@ def main(argv=None) -> int:
         parser.error("--source-root requires --dest-root")
     try:
         if args.source_root is not None:
-            report = install_source(args.source_root, args.dest_root, args.install_deps, args.dry_run)
+            enforce_paths = bool(args.require_remote or _kaggle_layout_available())
+            report = install_source(args.source_root, args.dest_root, args.install_deps, args.dry_run, enforce_paths)
             code = report["dependency_returncode"] or 0
         elif args.check_dependencies:
             report = check_dependencies(_root(Path(__file__).resolve().parents[1]))

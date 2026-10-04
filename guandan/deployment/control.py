@@ -24,7 +24,13 @@ class CheckpointController:
         self.started = self.clock()
         self.hard_seconds = session_hours*3600
         self.soft_seconds = self.hard_seconds-save_margin_seconds
+        self.hard_deadline = self.started + self.hard_seconds
+        self.soft_deadline = self.started + self.soft_seconds
         self.interval = checkpoint_seconds
+        # Before the first completed update there is no observation-based
+        # duration. Reserve at least one checkpoint interval (and one minute)
+        # so a fresh session cannot start work with no save margin at all.
+        self.initial_update_seconds = max(60.0, self.interval)
         self.last_checkpoint = self.started
         self.reason = None
         self.completed_update_seconds = []
@@ -35,19 +41,28 @@ class CheckpointController:
     def check(self, **_):
         if self.reason is not None:
             raise SessionStop(self.reason)
-        if self.clock()-self.started>=self.soft_seconds:
+        elapsed = self.clock() - self.started
+        if elapsed >= self.hard_seconds:
+            self.reason = 'session_hard_deadline'
+            raise SessionStop(self.reason)
+        if elapsed >= self.soft_seconds:
             self.reason = 'session_save_margin'
             raise SessionStop(self.reason)
 
     def before_update(self):
         self.check()
-        estimate = max(self.completed_update_seconds,default=0.0)*1.5
+        estimate = max(self.completed_update_seconds, default=self.initial_update_seconds) * 1.5
         if self.clock()-self.started+estimate>=self.soft_seconds:
             self.reason='insufficient_time_for_next_update'
             raise SessionStop(self.reason)
 
     def after_update(self, elapsed):
-        self.completed_update_seconds.append(float(elapsed))
+        if isinstance(elapsed, bool) or not isinstance(elapsed, (int, float)):
+            raise ValueError('update elapsed time must be a finite non-negative number')
+        elapsed = float(elapsed)
+        if not math.isfinite(elapsed) or elapsed < 0:
+            raise ValueError('update elapsed time must be a finite non-negative number')
+        self.completed_update_seconds.append(elapsed)
 
     def checkpoint_due(self):
         return self.clock()-self.last_checkpoint>=self.interval
