@@ -1,6 +1,7 @@
 """A06 evaluation acceptance: real fixed groups, rotations and baselines."""
 from __future__ import annotations
 import json
+import os
 from pathlib import Path
 import numpy as np
 import pytest
@@ -9,7 +10,8 @@ from guandan.execution_profiles import load_execution_profile
 
 @pytest.mark.acceptance
 def test_a06_local_fast_completes_48_real_terminal_games(tmp_path: Path):
-    result = evaluate_profile(profile="local_fast", evidence_path=tmp_path / "evaluation.json")
+    evidence = Path(os.environ.get("GUANDAN_EVIDENCE_DIR", str(tmp_path))) / "evaluation_summary.json"
+    result = evaluate_profile(profile="local_fast", evidence_path=evidence)
     assert result.status == "complete"
     assert result.total_games == 48
     assert result.completed_games_per_opponent == {"random": 16, "rule": 16, "snapshot": 16}
@@ -18,7 +20,7 @@ def test_a06_local_fast_completes_48_real_terminal_games(tmp_path: Path):
     assert {record.seat_rotation for record in result.records} == {0,1,2,3}
     assert all(sum(record.rewards) == 0 for record in result.records)
     assert all(set(record.ranking) == {1,2,3,4} for record in result.records)
-    assert (tmp_path / "evaluation.json").is_file()
+    assert evidence.is_file()
 
 @pytest.mark.acceptance
 def test_a06_repeatability_and_training_eval_seed_separation():
