@@ -194,7 +194,8 @@ def _export_files(root: Path) -> tuple[dict, list[str]]:
                 raise ValueError(f"source hash/path mismatch: {name}")
     required = {"pyproject.toml", "configs/acceptance_profiles.json", "guandan/__init__.py",
                 "guandan/deployment/provenance.py", "guandan/deployment/control.py",
-                "guandan/deployment/session.py", "scripts/kaggle_entry.py",
+                "guandan/deployment/session.py", "guandan/deployment/workflow.py",
+                "notebooks/kaggle_unified_bootstrap.py", "scripts/kaggle_entry.py",
                 "scripts/kaggle_environment_check.py"}
     if not required.issubset(files):
         raise ValueError(f"incomplete source export: {sorted(required.difference(files))}")

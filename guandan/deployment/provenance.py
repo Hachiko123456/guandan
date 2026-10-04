@@ -25,6 +25,8 @@ DEPLOYMENT_REQUIRED_FILES = frozenset({
     "guandan/deployment/package.py",
     "guandan/deployment/control.py",
     "guandan/deployment/session.py",
+    "guandan/deployment/workflow.py",
+    "notebooks/kaggle_unified_bootstrap.py",
     "scripts/kaggle_entry.py",
     "scripts/kaggle_environment_check.py",
 })

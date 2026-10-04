@@ -324,7 +324,7 @@ def test_cached_evaluation_with_nonempty_errors_is_rejected(tmp_path):
 
 
 def test_parent_chain_rejects_candidate_from_unrelated_update100_branch(tmp_path):
-    profile, source, controller, calls, executor = harness(tmp_path)[:5]
+    profile, source, controller, calls, clock, executor = harness(tmp_path)
     flow = w.Workflow(tmp_path/'flow', profile, source, controller,
                       executor=executor, resolver=fake_resolver)
     parent = {'durable_updates': 100, 'checkpoint_sha256': 'a' * 64,
