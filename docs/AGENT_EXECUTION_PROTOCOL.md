@@ -43,7 +43,7 @@ A05/A06 采用 review loop：每轮都按“差异审查 → scoped 测试 → p
 - `blocked`：存在具体且反复出现的阻塞问题；
 - `rejected`：经审查，实现未达到验收门槛。
 
-pytest 通过不等于监督验收通过。`local_fast` 通过不等于 `local_ready`，`local_ready` 也不等于 `accepted`；`accepted` 还不能由自动生成报告自行设置。
+pytest 通过不等于监督验收通过。 主代理必须在验收前运行完整测试套件。`local_fast` 通过不等于 `local_ready`，`local_ready` 也不等于 `accepted`；`accepted` 还不能由自动生成报告自行设置。
 
 ## 失败处理协议
 

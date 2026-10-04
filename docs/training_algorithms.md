@@ -1,4 +1,4 @@
-# A05 training algorithms: fixed-seat IPPO and VRPO
+# A05 训练算法：固定座位 IPPO 与 VRPO
 
 ## Scope and source
 
