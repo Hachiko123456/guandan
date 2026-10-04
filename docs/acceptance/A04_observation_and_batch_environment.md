@@ -23,7 +23,7 @@ A04 验收 `guandan.environment` 的策略安全观测、单环境、批环境�
 
 ### A04-T03：合法 next-token 集合完整且不可静默截断
 
-证据必须覆盖：lead/follow/tribute/return 各阶段、PASS/COMMIT 标记、PAD/保留区/非法阶段 token 不得出现、无效填充行全零且 mask 为 false、合法 token 无重复、返回牌集合与 A02 `return_cards_for` 精确相等（包括 `Rank.TWO`）、容量不足必须报 `ProtocolError` 而非 top-N 过滤。对应测试：A04_012–A04_017、A04_057–A04_060。
+证据必须覆盖：lead/follow/tribute/return 各阶段、PASS/COMMIT 标记、PAD/保留区/非法阶段 token 不得出现、无效填充行全零且 mask 为 false、合法 token 无重复、返回牌集合与 A02 `return_cards_for` 精确相等（包括 `Rank.TWO`，并排除所有当前级牌而不只是红桃级牌）、容量不足必须报 `ProtocolError` 而非 top-N 过滤。对应测试：A04_012–A04_017、A04_057–A04_060。
 
 ### A04-T04：隐藏信息与贡还回执隐私
 

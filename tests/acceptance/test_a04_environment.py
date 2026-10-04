@@ -402,20 +402,21 @@ def test_A04_015_legal_mask_is_complete_for_single_card_prefix(api):
     assert _masked(env.observe()).tolist() == expected
 
 
-def test_A04_016_tribute_mask_is_exact_and_has_no_wildcard(api):
+def test_A04_016_tribute_mask_is_exact_and_includes_eligible_jokers(api):
     env = _exchange_env(api)
     state = RoundState.from_serialized(env.full_state()["round_state"])
     expected = tribute_card_for(state, 1)
     assert expected is not None
     assert _masked(env.observe()).tolist() == [TokenCodec.card(expected.card_id)]
-    assert not expected.is_joker and not expected.is_level_wild(Rank.SIX)
+    assert expected.is_joker
+    assert not expected.is_level_wild(Rank.SIX)
     assert not env.observe().legal_next_is_commit.any()
     prefix = env.step(TokenCodec.card(expected.card_id))
     assert _masked(prefix.observation).tolist() == [COMMIT_TOKEN]
     assert prefix.observation.legal_next_is_commit[prefix.observation.legal_next_mask].tolist() == [True]
 
 
-def test_A04_017_return_mask_is_the_complete_natural_2_to_10_set(api):
+def test_A04_017_return_mask_is_the_complete_natural_2_to_10_set_excluding_current_level(api):
     env = _return_env(api)
     obs = env.observe()
     assert (obs.phase, obs.player_id) == ("RETURN", 0)
@@ -423,7 +424,7 @@ def test_A04_017_return_mask_is_the_complete_natural_2_to_10_set(api):
     ranks = {Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX,
              Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN}
     expected = sorted(TokenCodec.card(c.card_id) for c in state.hands[0]
-                      if c.rank in ranks and not c.is_level_wild(Rank.SIX))
+                      if c.rank in ranks and c.rank is not Rank.SIX and not c.is_level_wild(Rank.SIX))
     assert expected and any(c.rank is Rank.TWO for c in return_cards_for(state, 0))
     assert expected == sorted(TokenCodec.card(c.card_id) for c in return_cards_for(state, 0))
     assert _masked(obs).tolist() == env.legal_tokens().tolist() == expected
@@ -490,7 +491,7 @@ def test_A04_023_unresolved_tribute_receipt_redacts_card_identity(api):
     _policy_safe(result)
 
 def test_A04_024_unresolved_tribute_hidden_worlds_have_identical_results(api):
-    state = _deal_state(seed=0, previous=PREVIOUS)
+    state = _deal_state(seed=2, previous=PREVIOUS)
     first = tribute_card_for(state, 1)
     assert first is not None
     other = next(card for card in state.hands[0] if card.rank is first.rank and not card.is_level_wild(Rank.SIX))
