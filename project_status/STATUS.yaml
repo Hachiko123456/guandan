@@ -138,9 +138,9 @@ stages:
       local_package:
         status: passed
         review_status: main_reviewed
-        code_commit: 06681705d2e8bd054f059b81df700e0d33fa41ee
-        report: project_status/history/20261004T083133364579Z_094f7b3bb5034a9ba072460741ae245a/report.json
-        tests_passed: 60
+        code_commit: 8c6e1f4e7ca782fc0867b6f2354e0c9b7418d75f
+        report: project_status/history/20261004T160209907998Z_96583f243d484dbd8b7702abdac9c9d2/report.json
+        tests_passed: 124
         remote_executed: false
         kaggle_verified: false
       remote_kaggle:
@@ -152,7 +152,7 @@ stages:
     implementation: complete
     tests: passed
     accepted: false
-    commit: 06681705d2e8bd054f059b81df700e0d33fa41ee
+    commit: 8c6e1f4e7ca782fc0867b6f2354e0c9b7418d75f
     blockers:
       - no real fresh Kaggle GPU session was run; local package evidence is not Kaggle acceptance
       - remote_full A05/A06 and Kaggle recovery remain unverified
