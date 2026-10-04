@@ -35,7 +35,8 @@ STAGE_TESTS = {
             "tests/unit/test_training_objectives.py", "tests/unit/test_collector.py",
             "tests/integration/test_trainer_core.py", "tests/unit/test_training_support.py",
             "tests/integration/test_training_smoke.py", "tests/unit/test_model.py"],
-    "A06": ["tests/acceptance/test_a06_evaluation.py"],
+    "A06": ["tests/acceptance/test_a06_evaluation.py", "tests/unit/test_evaluation.py",
+            "tests/unit/test_evaluation_agents.py", "tests/unit/test_evaluation_stats.py"],
     "A07": ["tests/acceptance/test_a07_kaggle.py"],
     "A08": ["tests/acceptance/test_a08_belief_search.py"],
 }

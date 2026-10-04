@@ -108,7 +108,7 @@ stages:
         status: passed
         review_status: main_reviewed
         code_commit: bcdc310
-        report: project_status/history/20261004T015030756341Z_84e3447bcf4b4a08a735f1493e657ac5/A06/report.json
+        report: project_status/history/20261004T023636288767Z_9a52bbabb2be477a852f5015b7884239/A06/report.json
         actual_games_per_opponent: 16
         actual_total_games: 48
         seat_rotations: [0, 1, 2, 3]
@@ -142,6 +142,3 @@ stages:
     accepted: false
     commit: null
     blockers: []
-
-
-
