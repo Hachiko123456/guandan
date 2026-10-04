@@ -11,6 +11,7 @@ from .execution_profiles import load_execution_profile
 from .round import RoundState
 from .state import TEAM_OF
 from .training.runtime import EVALUATION_SEED_BASE
+from .evaluation_stats import summarize_games
 class EvaluationIncomplete(RuntimeError):
  def __init__(self,report): self.report=report;super().__init__(str(report))
 @dataclass(frozen=True)
@@ -44,7 +45,7 @@ def evaluate_profile(*,profile='local_fast',seed=EVALUATION_SEED_BASE,max_hours=
    for rot in rots:
     if time.monotonic()-start>=budget*3600:raise EvaluationIncomplete({'status':'incomplete','completed':len(records),'target':target*len(ops)})
     records.append(play_game(opponent=op,deal_group=group,seat_rotation=rot,seed=int(seed+group*100),snapshot_path=snap))
- counts={op:sum(x.opponent==op for x in records) for op in ops};res=EvaluationResult(profile,'complete',target,counts,len(records),tuple(records),time.monotonic()-start,int(seed))
+ counts={op:sum(x.opponent==op for x in records) for op in ops};summary=summarize_games([asdict(x) for x in records]);res=EvaluationResult(profile,'complete',target,counts,len(records),tuple(records),time.monotonic()-start,int(seed),summary)
  if evidence_path:Path(evidence_path).write_text(json.dumps(res.as_dict(),ensure_ascii=False,indent=2)+'\n',encoding='utf8')
  return res
 __all__=['EvaluationIncomplete','EvaluationResult','GameRecord','evaluate_profile','play_game','EVALUATION_SEED_BASE']
