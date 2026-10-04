@@ -59,6 +59,8 @@ def fixture_repo(tmp_path):
         "guandan/deployment/package.py": "SOURCE = 'fixture'\n",
         "guandan/deployment/control.py": "SOURCE = 'fixture'\n",
         "guandan/deployment/session.py": "SOURCE = 'fixture'\n",
+        "guandan/deployment/workflow.py": "SOURCE = 'fixture'\n",
+        "notebooks/kaggle_unified_bootstrap.py": "SOURCE = 'fixture'\n",
         "scripts/kaggle_entry.py": "SOURCE = 'fixture'\n",
         "scripts/kaggle_environment_check.py": "SOURCE = 'fixture'\n",
     }

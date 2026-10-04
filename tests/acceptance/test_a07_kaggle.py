@@ -24,6 +24,44 @@ ROOT = Path(__file__).resolve().parents[2]
 STATUS = ROOT / "project_status" / "STATUS.yaml"
 
 
+def _synthetic_evaluation_checkpoint(update, algorithm="ippo"):
+    """Synthetic counters, NOT a trained model or remote execution evidence."""
+    profile = session._profile()
+    cfg = profile["config"]["training"]
+    steps = update * cfg["token_steps_per_update"]
+    return SimpleNamespace(
+        metadata=SimpleNamespace(profile="remote_full", algorithm=algorithm,
+                                 update_count=update, git_commit="a" * 40),
+        training_state={
+            "compatibility": {"profile_sha256": profile["sha256"],
+                              "envs": cfg["rollout_envs"],
+                              "token_steps_per_update": cfg["token_steps_per_update"]},
+            "engine": {"algorithm": algorithm, "update_count": update,
+                       "collector": {"total_token_steps": steps,
+                                     "envs": [b"synthetic-not-an-environment"] * cfg["rollout_envs"],
+                                     "ticks_per_env": [steps // cfg["rollout_envs"]] * cfg["rollout_envs"],
+                                     "incomplete": False}},
+        },
+    )
+
+
+def _synthetic_evaluation_report():
+    """Canonical-sized synthetic records only; no real games are played."""
+    cfg = session._profile()["config"]["evaluation"]
+    per_opponent = cfg["deal_groups_per_pairing"] * len(cfg["seat_rotations"])
+    return {"profile": "remote_full", "status": "complete",
+            "target_games_per_opponent": per_opponent,
+            "completed_games_per_opponent": {name: per_opponent for name in cfg["opponents"]},
+            "total_games": per_opponent * len(cfg["opponents"]),
+            "records": [{"opponent": opponent, "deal_group": group, "seat_rotation": rotation,
+                         "done": True, "terminal": True, "truncated": False}
+                        for opponent in cfg["opponents"]
+                        for group in range(cfg["deal_groups_per_pairing"])
+                        for rotation in cfg["seat_rotations"]],
+            "errors": [], "kaggle_verified": False,
+            "fixture_scope": "SYNTHETIC COUNTERS AND RECORDS; NOT REAL TRAINING OR EVALUATION"}
+
+
 def parsed_args(*tokens: str):
     return session.parser().parse_args(tokens)
 
@@ -208,7 +246,7 @@ def test_evaluate_requires_explicit_candidate_and_snapshot_without_remote_run(tm
 
     class FakeEvaluation:
         def as_dict(self):
-            return {"status": "complete", "total_games": 0, "kaggle_verified": False}
+            return _synthetic_evaluation_report()
 
     def fake_evaluate_profile(**kwargs):
         calls.update(kwargs)
@@ -218,8 +256,8 @@ def test_evaluate_requires_explicit_candidate_and_snapshot_without_remote_run(tm
 
     def fake_load(path, *, expected_profile, **kwargs):
         assert expected_profile == "remote_full"
-        return SimpleNamespace(metadata=SimpleNamespace(
-            algorithm="ippo", update_count=102 if Path(path).name == "candidate.pt" else 100))
+        assert kwargs["expected_algorithm"] == "ippo" and kwargs["map_location"] == "cpu"
+        return _synthetic_evaluation_checkpoint(102 if Path(path).name == "candidate.pt" else 100)
 
     monkeypatch.setattr("guandan.training.checkpoint.load_checkpoint", fake_load)
     result = session.run(
@@ -357,6 +395,8 @@ def test_mocked_new_session_resume_passes_copied_checkpoint_and_remaining_target
 ):
     copied_manifest = tmp_path / "different_input" / "manifest.json"
     copied_checkpoint = copied_manifest.with_name("copied.pt")
+    # Explicit simulated input mount, not evidence of an actual new session.
+    monkeypatch.setattr(session, "KAGGLE_INPUT", copied_manifest.parent)
     recovery = {
         "durable_updates": start, "checkpoint_path": str(copied_checkpoint),
         "source_git_commit": "a" * 40, "model_config": {"hidden_dim": 32},
@@ -422,8 +462,7 @@ def test_evaluation_soft_deadline_records_incomplete(local_session, monkeypatch)
 
     monkeypatch.setattr(session, "smoke_environment", lambda: {"status": "mocked"})
     monkeypatch.setattr("guandan.training.checkpoint.load_checkpoint", lambda path, **kw:
-                        SimpleNamespace(metadata=SimpleNamespace(
-                            algorithm="ippo", update_count=102 if Path(path).name == "candidate.pt" else 100)))
+                        _synthetic_evaluation_checkpoint(102 if Path(path).name == "candidate.pt" else 100))
 
     def expired(**kwargs):
         raise SessionStop("session_save_margin")
@@ -445,8 +484,7 @@ def test_evaluation_refuses_noncanonical_candidate_snapshot_counts(
 ):
     monkeypatch.setattr(session, "smoke_environment", lambda: {"status": "mocked"})
     monkeypatch.setattr("guandan.training.checkpoint.load_checkpoint", lambda path, **kw:
-                        SimpleNamespace(metadata=SimpleNamespace(
-                            algorithm="ippo", update_count=candidate_update if Path(path).name == "candidate.pt" else snapshot_update)))
+                        _synthetic_evaluation_checkpoint(candidate_update if Path(path).name == "candidate.pt" else snapshot_update))
     with pytest.raises(ValueError, match="update102 candidate and update100 frozen snapshot"):
         session.run(parsed_args("--action", "evaluate", "--execute", "--candidate-checkpoint", "candidate.pt",
                                 "--snapshot-checkpoint", "snapshot.pt"), runtime_check=lambda _: None)
@@ -608,3 +646,393 @@ def test_verify_training_completion_rejects_checkpoint_source_or_sha_mismatch(
     with pytest.raises(ValueError, match="source commit"):
         session._verify_training_completion(
             result, plan, "ippo", source, checkpoint_root=artifact_root)
+
+
+@pytest.fixture
+def workflow_mounts(tmp_path, monkeypatch):
+    input_root = tmp_path / "input"
+    working_root = tmp_path / "working"
+    input_root.mkdir()
+    working_root.mkdir()
+    monkeypatch.setattr(session, "KAGGLE_INPUT", input_root)
+    monkeypatch.setattr(session, "KAGGLE_WORKING", working_root)
+    return input_root, working_root
+
+
+def test_workflow_scope_requires_verified_output_and_allows_only_input_or_scope(
+    workflow_mounts, monkeypatch,
+):
+    input_root, working_root = workflow_mounts
+    output = working_root / "flow"
+    output.mkdir()
+    recovery_manifest = input_root / "mounted" / "manifest.json"
+    recovery_manifest.parent.mkdir()
+    recovery_manifest.write_text("synthetic", encoding="utf-8")
+    monkeypatch.setattr(session, "resolve_recovery", lambda path, *, algorithm: {
+        "durable_updates": 99, "source_git_commit": "a" * 40,
+        "compatibility": {}, "checkpoint_path": str(recovery_manifest.with_suffix(".pt")),
+        "model_config": {},
+    })
+    result = session.run(
+        parsed_args("--action", "plan", "--resume", str(recovery_manifest),
+                    "--output-root", str(output)),
+        runtime_check=lambda _: None, working_artifacts_root=output,
+    )
+    assert result["recovery_origin"] == "mounted_input"
+    assert result["new_session_resume"] is True
+    assert result["genuine_new_kaggle_session_verified"] is False
+    with pytest.raises(ValueError, match="working_artifacts_root"):
+        session.run(parsed_args("--action", "plan", "--output-root", str(output)),
+                    runtime_check=lambda _: None, working_artifacts_root=working_root)
+    with pytest.raises(ValueError, match="under /kaggle/input or the explicit working artifact scope"):
+        session.run(parsed_args("--action", "plan", "--resume", str(Path("/tmp/manifest.json")),
+                               "--output-root", str(output)),
+                    runtime_check=lambda _: None, working_artifacts_root=output)
+
+
+def test_workflow_current_output_resume_is_not_new_session(workflow_mounts, monkeypatch):
+    _input_root, working_root = workflow_mounts
+    output = working_root / "flow"
+    output.mkdir()
+    manifest = output / "manifest.json"
+    manifest.write_text("synthetic", encoding="utf-8")
+    monkeypatch.setattr(session, "resolve_recovery", lambda path, *, algorithm: {
+        "durable_updates": 100, "source_git_commit": "a" * 40,
+        "compatibility": {}, "checkpoint_path": str(output / "checkpoint.pt"),
+        "model_config": {},
+    })
+    result = session.run(
+        parsed_args("--action", "plan", "--resume", str(manifest),
+                    "--output-root", str(output)),
+        runtime_check=lambda _: None, working_artifacts_root=output,
+    )
+    assert result["recovery_origin"] == "current_working_output"
+    assert result["new_session_resume"] is False
+    assert result["genuine_new_kaggle_session_verified"] is False
+
+
+def test_workflow_reuses_shared_checkpoint_controller(workflow_mounts, monkeypatch):
+    _input_root, working_root = workflow_mounts
+    output = working_root / "flow"
+    monkeypatch.setattr(session, "source_provenance", lambda root: {
+        "git_commit": "a" * 40, "git_worktree_clean": True,
+    })
+    monkeypatch.setattr(session, "smoke_environment", lambda: {"status": "synthetic"})
+    shared = CheckpointController(clock=lambda: 0.0)
+    calls = {}
+
+    def synthetic_train(**kwargs):
+        calls.update(kwargs)
+        return TrainingResult(
+            algorithm="ippo", profile="remote_full", updates=0,
+            total_token_steps=0, last_loss=None, checkpoint=None,
+            status="incomplete", lifetime_updates=0, lifetime_token_steps=0,
+            target_updates=100, rollout_envs=8, token_steps_per_update=1024,
+            profile_counts_match=False, durable_updates=0, durable_token_steps=0,
+            recovery_manifest=None,
+        )
+
+    monkeypatch.setattr("guandan.training.trainer.train", synthetic_train)
+    result = session.run(
+        parsed_args("--action", "train", "--execute", "--output-root", str(output)),
+        runtime_check=lambda _: None, checkpoint_controller=shared,
+        working_artifacts_root=output,
+    )
+    assert calls["checkpoint_controller"] is shared
+    assert result["checkpoint_controller_reused"] is True
+    assert result["working_artifacts_root"] == str(output.resolve())
+
+
+def test_evaluation_checkpoint_and_report_reject_wrong_source_and_actual_counts(monkeypatch):
+    profile = session._profile()
+    loaded = _synthetic_evaluation_checkpoint(102)
+    with pytest.raises(ValueError, match="source commit"):
+        session._verify_evaluation_checkpoint(
+            loaded, label="candidate", update=102, algorithm="ippo",
+            profile=profile, source={"git_commit": "b" * 40},
+        )
+    broken = _synthetic_evaluation_checkpoint(102)
+    broken.training_state["engine"]["collector"]["total_token_steps"] -= 1
+    with pytest.raises(ValueError, match="token counter"):
+        session._verify_evaluation_checkpoint(
+            broken, label="candidate", update=102, algorithm="ippo",
+            profile=profile, source={"git_commit": "a" * 40},
+        )
+    report = _synthetic_evaluation_report()
+    report["total_games"] -= 1
+    with pytest.raises(ValueError, match="total_games"):
+        session._verify_evaluation_result(report, profile)
+
+
+@pytest.mark.parametrize("scope_kind", ["whole_working", "outside", "other_scope"])
+def test_workflow_scope_cannot_expand_output_boundary(workflow_mounts, scope_kind):
+    _input_root, working = workflow_mounts
+    output = working / "one-flow"
+    scopes = {"whole_working": working, "outside": working.parent / "tmp",
+              "other_scope": working / "different-flow"}
+    with pytest.raises(ValueError, match="working_artifacts_root"):
+        session.run(parsed_args("--action", "plan", "--output-root", str(output)),
+                    runtime_check=lambda _: None, working_artifacts_root=scopes[scope_kind])
+    assert not output.exists()
+
+
+@pytest.mark.parametrize("field", ["--resume", "--candidate-checkpoint", "--snapshot-checkpoint"])
+def test_workflow_rejects_inputs_outside_scope_including_resolved_parent_traversal(workflow_mounts, field):
+    _input_root, working = workflow_mounts
+    output = working / "one-flow"
+    output.mkdir()
+    outside = output / ".." / "another-flow" / "artifact.pt"
+    with pytest.raises(ValueError, match="explicit working artifact scope"):
+        session.run(parsed_args("--action", "plan", field, str(outside),
+                                "--output-root", str(output)),
+                    runtime_check=lambda _: None, working_artifacts_root=output)
+    assert list(output.iterdir()) == []
+
+
+@pytest.mark.parametrize("field", ["--resume", "--candidate-checkpoint", "--snapshot-checkpoint"])
+def test_standalone_still_refuses_working_artifacts_without_explicit_scope(workflow_mounts, field):
+    _input_root, working = workflow_mounts
+    output = working / "one-flow"
+    with pytest.raises(ValueError, match="/kaggle/input"):
+        session.run(parsed_args("--action", "plan", field, str(output / "artifact.pt"),
+                                "--output-root", str(output)))
+    assert not output.exists()
+
+
+def test_workflow_checks_resolved_link_targets_not_lexical_prefix(workflow_mounts, monkeypatch):
+    """Mock only OS link resolution: does not require Windows symlink privileges."""
+    _input_root, working = workflow_mounts
+    output = working / "one-flow"
+    output.mkdir()
+    alias = output / "linked-input.pt"
+    escaped = working.parent / "outside.pt"
+    resolve = Path.resolve
+
+    def simulated_link(path, *args, **kwargs):
+        return resolve(escaped, *args, **kwargs) if path == alias else resolve(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "resolve", simulated_link)
+    with pytest.raises(ValueError, match="explicit working artifact scope"):
+        session.run(parsed_args("--action", "plan", "--candidate-checkpoint", str(alias),
+                                "--output-root", str(output)),
+                    runtime_check=lambda _: None, working_artifacts_root=output)
+    assert list(output.iterdir()) == []
+
+
+def test_workflow_scope_and_shared_controller_are_not_cli_bypass_flags():
+    for tokens in (("--working-artifacts-root", "/tmp"), ("--checkpoint-controller", "fake")):
+        with pytest.raises(SystemExit) as error:
+            parsed_args(*tokens)
+        assert error.value.code == 2
+
+
+def test_expired_shared_budget_stops_next_stage_without_restart(workflow_mounts, monkeypatch):
+    from guandan.deployment.control import SessionStop
+
+    _input_root, working = workflow_mounts
+    output = working / "budget-flow"
+    now = [100.0]
+    shared = CheckpointController(session_hours=1, save_margin_seconds=60, clock=lambda: now[0])
+    started = shared.started
+    monkeypatch.setattr(session, "source_provenance", lambda root: {
+        "git_commit": "a" * 40, "git_worktree_clean": True,
+    })
+    monkeypatch.setattr(session, "smoke_environment", lambda: {"fixture": "synthetic smoke"})
+    first = session.run(parsed_args("--action", "smoke", "--execute", "--output-root", str(output)),
+                        runtime_check=lambda _: None, checkpoint_controller=shared,
+                        working_artifacts_root=output)
+    assert first["checkpoint_controller_reused"] is True
+    assert first["session_hours"] == 1  # Injected budget, not args' default 10 hours.
+    now[0] += shared.soft_seconds
+    monkeypatch.setattr(session, "smoke_environment", lambda: pytest.fail("expired budget started new work"))
+    with pytest.raises(SessionStop, match="session_save_margin"):
+        session.run(parsed_args("--action", "smoke", "--execute", "--output-root", str(output)),
+                    runtime_check=lambda _: None, checkpoint_controller=shared,
+                    working_artifacts_root=output)
+    assert shared.started == started
+    failure = json.loads(next(output.rglob("session_failure.json")).read_text(encoding="utf-8"))
+    assert failure["status"] == "incomplete"
+    assert failure["genuine_new_kaggle_session_verified"] is False
+
+
+@pytest.mark.parametrize("side", ["candidate", "snapshot"])
+@pytest.mark.parametrize("field,value", [
+    ("profile", "local_fast"), ("algorithm", "vrpo"), ("git_commit", "b" * 40),
+    ("update_count", True), ("profile_sha256", "wrong-profile-hash"),
+    ("envs", 4), ("envs", True), ("token_steps_per_update", 256),
+    ("engine_algorithm", "vrpo"), ("engine_update", 99), ("engine_update", True),
+    ("total_token_steps", 102399), ("total_token_steps", True),
+    ("collector_envs", []), ("ticks_per_env", [True] * 8), ("incomplete", True),
+])
+def test_evaluation_rejects_checkpoint_provenance_and_numeric_forgery(
+    local_session, monkeypatch, side, field, value,
+):
+    checkpoints = {"candidate": _synthetic_evaluation_checkpoint(102),
+                   "snapshot": _synthetic_evaluation_checkpoint(100)}
+    loaded = checkpoints[side]
+    state = loaded.training_state
+    if field in ("profile", "algorithm", "git_commit", "update_count"):
+        setattr(loaded.metadata, field, value)
+    elif field in ("profile_sha256", "envs", "token_steps_per_update"):
+        state["compatibility"][field] = value
+    elif field in ("engine_algorithm", "engine_update"):
+        state["engine"]["algorithm" if field == "engine_algorithm" else "update_count"] = value
+    else:
+        state["engine"]["collector"]["envs" if field == "collector_envs" else field] = value
+    monkeypatch.setattr(session, "smoke_environment", lambda: {"fixture": "synthetic smoke"})
+    monkeypatch.setattr("guandan.training.checkpoint.load_checkpoint",
+                        lambda path, **kwargs: checkpoints[Path(path).stem])
+    with pytest.raises(ValueError):
+        session.run(parsed_args("--action", "evaluate", "--execute",
+                                "--candidate-checkpoint", "candidate.pt",
+                                "--snapshot-checkpoint", "snapshot.pt"), runtime_check=lambda _: None)
+    # The autouse guard prohibits the evaluator: rejection must precede it.
+    failure = json.loads(next(local_session.rglob("session_failure.json")).read_text(encoding="utf-8"))
+    assert failure["status"] == "failed"
+    assert failure["genuine_new_kaggle_session_verified"] is False
+    assert not list(local_session.rglob("session_result.json"))
+
+
+@pytest.mark.parametrize("bad_field", [
+    "profile", "status", "errors", "total_games", "total_bool", "target_games_per_opponent",
+    "completed_games_per_opponent", "missing_opponent", "count_bool", "record_count",
+    "nonterminal", "truncated", "duplicate", "group_bool", "rotation_outside",
+])
+def test_evaluation_cannot_claim_completion_with_inconsistent_game_counts(
+    local_session, monkeypatch, bad_field,
+):
+    report = _synthetic_evaluation_report()
+    if bad_field == "profile": report["profile"] = "local_fast"
+    elif bad_field == "status": report["status"] = "incomplete"
+    elif bad_field == "errors": report["errors"] = ["synthetic evaluation error"]
+    elif bad_field == "total_games": report["total_games"] -= 1
+    elif bad_field == "total_bool": report["total_games"] = True
+    elif bad_field == "target_games_per_opponent": report[bad_field] -= 1
+    elif bad_field == "completed_games_per_opponent": report[bad_field]["random"] -= 1
+    elif bad_field == "missing_opponent": report["completed_games_per_opponent"].pop("snapshot")
+    elif bad_field == "count_bool": report["completed_games_per_opponent"]["random"] = True
+    elif bad_field == "record_count": report["records"].pop()
+    elif bad_field == "nonterminal": report["records"][0]["terminal"] = False
+    elif bad_field == "truncated": report["records"][0]["truncated"] = True
+    elif bad_field == "duplicate": report["records"][1] = dict(report["records"][0])
+    elif bad_field == "group_bool": report["records"][0]["deal_group"] = True
+    elif bad_field == "rotation_outside": report["records"][0]["seat_rotation"] = 4
+    monkeypatch.setattr(session, "smoke_environment", lambda: {"fixture": "synthetic smoke"})
+    monkeypatch.setattr("guandan.training.checkpoint.load_checkpoint", lambda path, **kwargs:
+                        _synthetic_evaluation_checkpoint(102 if Path(path).stem == "candidate" else 100))
+    monkeypatch.setattr("guandan.evaluation.evaluate_profile", lambda **kwargs:
+                        SimpleNamespace(as_dict=lambda: report))
+    with pytest.raises(ValueError, match="evaluation"):
+        session.run(parsed_args("--action", "evaluate", "--execute",
+                                "--candidate-checkpoint", "candidate.pt",
+                                "--snapshot-checkpoint", "snapshot.pt"), runtime_check=lambda _: None)
+    failure = json.loads(next(local_session.rglob("session_failure.json")).read_text(encoding="utf-8"))
+    assert failure["status"] == "failed"
+    assert failure["accepted"] is False
+    assert not list(local_session.rglob("session_result.json"))
+
+
+def test_same_workflow_shares_budget_across_both_algorithms_base_resume_and_evaluation(
+    workflow_mounts, monkeypatch,
+):
+    """Orchestration-only mock: canonical COUNTERS, not real training/games."""
+    _input_root, working = workflow_mounts
+    output = working / "run-all-flow"
+    clock = [50.0]
+    shared = CheckpointController(clock=lambda: clock[0])
+    started = shared.started
+    calls = []
+    monkeypatch.setattr(session, "source_provenance", lambda root: {
+        "git_commit": "a" * 40, "git_worktree_clean": True,
+        "source_kind": "SYNTHETIC WORKFLOW ONLY",
+    })
+    monkeypatch.setattr(session, "smoke_environment", lambda: {"fixture": "synthetic smoke"})
+
+    def synthetic_resolver(path, *, algorithm):
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+        assert data["fixture"] == "SYNTHETIC COUNTERS NOT REAL TRAINING"
+        assert data["algorithm"] == algorithm
+        checkpoint = Path(path).with_name(data["checkpoint_filename"])
+        assert session.sha256(checkpoint) == data["checkpoint_sha256"]
+        return {**data, "checkpoint_path": str(checkpoint)}
+
+    def synthetic_train(**kwargs):
+        assert kwargs["checkpoint_controller"] is shared
+        assert kwargs["profile"] == "remote_full" and kwargs["device"] == "cuda"
+        assert "rollout_steps" not in kwargs and "rollout_envs" not in kwargs
+        algorithm = kwargs["algorithm"]
+        resumed = None if kwargs["resume"] is None else synthetic_resolver(
+            Path(kwargs["resume"]).with_suffix(".recovery.json"), algorithm=algorithm)
+        start = 0 if resumed is None else resumed["durable_updates"]
+        updates = kwargs["updates"]
+        assert (start, updates) in ((0, 100), (100, 2))
+        goal = start + updates
+        calls.append((algorithm, start, goal))
+        root = Path(kwargs["checkpoint_dir"])
+        root.mkdir(parents=True)
+        checkpoint = root / f"{algorithm}_{goal}.pt"
+        checkpoint.write_bytes(b"SYNTHETIC fixture: never trained")
+        manifest = checkpoint.with_suffix(".recovery.json")
+        data = {"fixture": "SYNTHETIC COUNTERS NOT REAL TRAINING", "algorithm": algorithm,
+                "durable_updates": goal, "durable_token_steps": goal * 1024,
+                "source_git_commit": "a" * 40, "model_config": {"hidden_dim": 32},
+                "compatibility": {"seed": kwargs["seed"], "epochs": 2, "gamma": 1.0, "gae_lambda": 0.95},
+                "checkpoint_filename": checkpoint.name, "checkpoint_sha256": session.sha256(checkpoint)}
+        manifest.write_text(json.dumps(data), encoding="utf-8")
+        clock[0] += 1
+        shared.after_update(1.0)
+        shared.checkpoint_saved()
+        return TrainingResult(
+            algorithm=algorithm, profile="remote_full", updates=updates, total_token_steps=updates * 1024,
+            last_loss=None, checkpoint=str(checkpoint), status="complete", start_update=start,
+            target_updates=updates, lifetime_updates=goal, lifetime_token_steps=goal * 1024,
+            rollout_envs=8, token_steps_per_update=1024, profile_counts_match=True,
+            durable_updates=goal, durable_token_steps=goal * 1024, recovery_manifest=str(manifest))
+
+    def synthetic_load(path, *, expected_profile, expected_algorithm, map_location):
+        assert expected_profile == "remote_full" and map_location == "cpu"
+        data = synthetic_resolver(Path(path).with_suffix(".recovery.json"), algorithm=expected_algorithm)
+        return _synthetic_evaluation_checkpoint(data["durable_updates"], expected_algorithm)
+
+    def synthetic_evaluate(**kwargs):
+        assert kwargs["deadline"] is shared
+        assert kwargs["profile"] == "remote_full" and kwargs["device"] == "cuda"
+        clock[0] += 1
+        return SimpleNamespace(as_dict=_synthetic_evaluation_report)
+
+    monkeypatch.setattr(session, "resolve_recovery", synthetic_resolver)
+    monkeypatch.setattr("guandan.training.trainer.train", synthetic_train)
+    monkeypatch.setattr("guandan.training.checkpoint.load_checkpoint", synthetic_load)
+    monkeypatch.setattr("guandan.evaluation.evaluate_profile", synthetic_evaluate)
+
+    def stage(action, algorithm, *tokens):
+        return session.run(parsed_args("--action", action, "--execute", "--algorithm", algorithm,
+                                       "--output-root", str(output), *tokens),
+                           runtime_check=lambda _: None, checkpoint_controller=shared,
+                           working_artifacts_root=output)
+
+    records = []
+    for algorithm in ("ippo", "vrpo"):
+        base = stage("train", algorithm)
+        resumed = stage("train", algorithm, "--resume", base["recovery_manifest"])
+        evaluated = stage("evaluate", algorithm,
+                          "--candidate-checkpoint", resumed["training"]["checkpoint"],
+                          "--snapshot-checkpoint", base["training"]["checkpoint"])
+        assert base["status"] == resumed["status"] == "phase_complete"
+        assert base["recovery_origin"] == "none"
+        assert resumed["recovery_origin"] == "current_working_output"
+        assert resumed["new_session_resume"] is False
+        assert evaluated["status"] == "evaluation_complete"
+        assert evaluated["evaluation"]["total_games"] == 3000
+        assert evaluated["evaluation"]["completed_games_per_opponent"] == {
+            "random": 1000, "rule": 1000, "snapshot": 1000}
+        records.extend((base, resumed, evaluated))
+    assert calls == [("ippo", 0, 100), ("ippo", 100, 102), ("vrpo", 0, 100), ("vrpo", 100, 102)]
+    assert shared.started == started and clock[0] > started
+    assert shared.completed_update_seconds == [1.0] * 4
+    assert len(list(output.rglob("session_result.json"))) == 6
+    for report in records:
+        assert report["checkpoint_controller_reused"] is True
+        assert report["genuine_new_kaggle_session_verified"] is False
+        assert report["new_session_resume"] is False
+        assert report["accepted"] is report["kaggle_verified"] is False

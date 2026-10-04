@@ -18,15 +18,32 @@ KAGGLE_INPUT = Path("/kaggle/input")
 KAGGLE_WORKING = Path("/kaggle/working")
 
 
-def _require_input_path(path: Path, label: str) -> Path:
+def _require_input_path(path: Path, label: str, *, working_artifacts_root=None) -> Path:
     resolved = Path(path).expanduser().resolve()
-    root = KAGGLE_INPUT.resolve()
-    if resolved == root or not resolved.is_relative_to(root):
-        raise ValueError(f"{label} must be under /kaggle/input")
+    roots = [KAGGLE_INPUT.resolve()]
+    if working_artifacts_root is not None:
+        roots.append(Path(working_artifacts_root).resolve())
+    if not any(resolved != root and resolved.is_relative_to(root) for root in roots):
+        raise ValueError(f"{label} must be under /kaggle/input or the explicit working artifact scope")
     return resolved
 
 
-def _validate_production_paths(args) -> None:
+def _workflow_scope(args, working_artifacts_root):
+    if working_artifacts_root is None:
+        return None
+    scope = Path(working_artifacts_root).expanduser().resolve()
+    working = KAGGLE_WORKING.resolve()
+    # Check independently of the local _output_directory test seam. Tests may
+    # explicitly substitute simulated mounts, never disable scope validation.
+    if scope == working or not scope.is_relative_to(working):
+        raise ValueError('working_artifacts_root must be a named subdirectory of /kaggle/working')
+    output = _output_directory(args.output_root)
+    if scope != output or scope != Path(args.output_root).expanduser().resolve():
+        raise ValueError('working_artifacts_root must equal the verified output-root')
+    return scope
+
+
+def _validate_production_paths(args, *, working_artifacts_root=None) -> None:
     _output_directory(args.output_root)
     for value, label in (
         (args.resume, "resume manifest"),
@@ -34,7 +51,20 @@ def _validate_production_paths(args) -> None:
         (args.snapshot_checkpoint, "snapshot checkpoint"),
     ):
         if value is not None:
-            _require_input_path(value, label)
+            _require_input_path(value, label, working_artifacts_root=working_artifacts_root)
+
+
+def _recovery_origin(resume, working_artifacts_root):
+    if resume is None:
+        return 'none'
+    path = Path(resume).expanduser().resolve()
+    if working_artifacts_root is not None and path.is_relative_to(working_artifacts_root):
+        return 'current_working_output'
+    if path.is_relative_to(KAGGLE_INPUT.resolve()):
+        return 'mounted_input'
+    # Only an explicitly injected runtime seam can supply an unscoped local
+    # fixture. Do not label that fixture as evidence of a new Kaggle session.
+    return 'none'
 
 
 def _profile():
@@ -234,12 +264,94 @@ def _verify_training_completion(result, plan: dict, algorithm: str, source: dict
     return resolved
 
 
-def run(args, *, runtime_check=None) -> dict:
+def _verify_evaluation_checkpoint(loaded, *, label, update, algorithm, profile, source):
+    """Verify persisted provenance and engine counters, not filenames/flags."""
+    metadata = loaded.metadata
+    if metadata.profile != 'remote_full' or metadata.algorithm != algorithm:
+        raise ValueError(f'{label} checkpoint profile/algorithm differs from requested evaluation')
+    if type(metadata.update_count) is not int or metadata.update_count != update:
+        raise ValueError('remote evaluation requires update102 candidate and update100 frozen snapshot')
+    if not source.get('git_commit') or metadata.git_commit != source['git_commit']:
+        raise ValueError(f'{label} checkpoint source commit differs from current source')
+    settings = profile['config']['training']
+    state = loaded.training_state
+    compatibility = state.get('compatibility', {})
+    if compatibility.get('profile_sha256') != profile['sha256']:
+        raise ValueError(f'{label} checkpoint profile hash differs from canonical profile')
+    for field, expected in (('envs', settings['rollout_envs']),
+                            ('token_steps_per_update', settings['token_steps_per_update'])):
+        value = compatibility.get(field)
+        if type(value) is not int or value != expected:
+            raise ValueError(f'{label} checkpoint canonical compatibility {field} differs')
+    engine = state.get('engine', {})
+    if engine.get('algorithm') != algorithm:
+        raise ValueError(f'{label} engine algorithm differs from checkpoint')
+    if type(engine.get('update_count')) is not int or engine['update_count'] != update:
+        raise ValueError(f'{label} engine update counter differs from checkpoint')
+    collector = engine.get('collector', {})
+    expected_steps = update * settings['token_steps_per_update']
+    if type(collector.get('total_token_steps')) is not int or collector['total_token_steps'] != expected_steps:
+        raise ValueError(f'{label} engine token counter differs from canonical completed updates')
+    envs, ticks = collector.get('envs'), collector.get('ticks_per_env')
+    count = settings['rollout_envs']
+    if not isinstance(envs, (list, tuple)) or len(envs) != count:
+        raise ValueError(f'{label} collector environment count differs from canonical profile')
+    if (not isinstance(ticks, (list, tuple)) or len(ticks) != count
+            or any(type(tick) is not int or tick != expected_steps // count for tick in ticks)
+            or sum(ticks) != expected_steps or collector.get('incomplete') is not False):
+        raise ValueError(f'{label} collector token counters are incomplete or inconsistent')
+    return {'profile': metadata.profile, 'algorithm': metadata.algorithm,
+            'source_git_commit': metadata.git_commit, 'updates': update,
+            'engine_token_steps': expected_steps, 'rollout_envs': count}
+
+
+def _verify_evaluation_result(report, profile):
+    config = profile['config']['evaluation']
+    opponents = config['opponents']
+    rotations = config['seat_rotations']
+    per_opponent = config['deal_groups_per_pairing'] * len(rotations)
+    total = per_opponent * len(opponents)
+    if report.get('profile') != 'remote_full' or report.get('status') != 'complete' or report.get('errors'):
+        raise ValueError('evaluation did not return a complete remote_full result')
+    for name, expected in (('target_games_per_opponent', per_opponent), ('total_games', total)):
+        if type(report.get(name)) is not int or report[name] != expected:
+            raise ValueError(f'evaluation {name} differs from canonical profile')
+    counts = report.get('completed_games_per_opponent')
+    if (not isinstance(counts, dict) or set(counts) != set(opponents)
+            or any(type(value) is not int or value != per_opponent for value in counts.values())
+            or sum(counts.values()) != total):
+        raise ValueError('evaluation completed_games_per_opponent differs from total/profile')
+    records = report.get('records')
+    if not isinstance(records, (list, tuple)) or len(records) != total:
+        raise ValueError('evaluation completed game records differ from reported total')
+    observed = {opponent: 0 for opponent in opponents}
+    seen = set()
+    for row in records:
+        if (not isinstance(row, dict) or row.get('done') is not True
+                or row.get('terminal') is not True or row.get('truncated') is not False):
+            raise ValueError('evaluation contains a non-completed game record')
+        opponent, group, rotation = row.get('opponent'), row.get('deal_group'), row.get('seat_rotation')
+        if (opponent not in opponents or type(group) is not int
+                or not 0 <= group < config['deal_groups_per_pairing']
+                or type(rotation) is not int or rotation not in rotations):
+            raise ValueError('evaluation game identity is outside the canonical profile')
+        key = (opponent, group, rotation)
+        if key in seen:
+            raise ValueError('evaluation contains duplicate completed game identities')
+        seen.add(key)
+        observed[opponent] += 1
+    if observed != counts:
+        raise ValueError('evaluation actual completed games disagree with reported counts')
+
+
+def run(args, *, runtime_check=None, checkpoint_controller=None, working_artifacts_root=None) -> dict:
     """Fail-closed remote entry; only an explicit callback supplies a local seam.
 
     runtime_check permits simulated runtime facts and local paths, but never
     bypasses durable completion verification. The production CLI cannot supply
     this callback. plan remains configuration-only and never requires a GPU.
+    A workflow may explicitly share its controller and its exact output-root
+    scope. This never implies a new Kaggle session or resets the shared clock.
     """
     # Reject missing consent before runtime imports, checkpoint reads or writes.
     if args.action not in ('plan', 'system', 'smoke', 'train', 'evaluate'):
@@ -250,8 +362,9 @@ def run(args, *, runtime_check=None) -> dict:
         raise ValueError('A07 remote entry only accepts remote_full')
     if runtime_check is not None and not callable(runtime_check):
         raise TypeError('runtime_check must be an explicitly injected callable')
-    if runtime_check is None:
-        _validate_production_paths(args)
+    scope = _workflow_scope(args, working_artifacts_root)
+    if runtime_check is None or scope is not None:
+        _validate_production_paths(args, working_artifacts_root=scope)
     # Lazy imports keep --help and an unresumed plan independent of Torch.
     from scripts.kaggle_environment_check import inspect_environment, require_remote_runtime
     profile = _profile()
@@ -261,15 +374,20 @@ def run(args, *, runtime_check=None) -> dict:
         (require_remote_runtime if runtime_check is None else runtime_check)(system)
     recovery = resolve_recovery(args.resume,algorithm=args.algorithm) if args.resume is not None else None
     plan = training_plan(args.algorithm,recovery)
+    origin = _recovery_origin(args.resume, scope)
+    recovery_evidence = {'recovery_origin': origin,
+                         'new_session_resume': origin == 'mounted_input',
+                         'genuine_new_kaggle_session_verified': False}
     if args.action=='plan':
-        return {'status':'configuration_only','plan':plan,'upload':False,'executed':False,'accepted':False,'kaggle_verified':False}
+        return {'status':'configuration_only','plan':plan,'upload':False,'executed':False,'accepted':False,'kaggle_verified':False,**recovery_evidence}
     if args.action=='system':
-        return {'status':'environment_inspected','system':system,'executed_training':False,'accepted':False,'kaggle_verified':False}
+        return {'status':'environment_inspected','system':system,'executed_training':False,'accepted':False,'kaggle_verified':False,**recovery_evidence}
     # The local seam may monkeypatch _output_directory for a temporary fixture;
     # production still uses the same /kaggle/working boundary check.
     output = _output_directory(args.output_root)
     from .control import CheckpointController
-    controller = CheckpointController(args.session_hours,args.save_margin_seconds,args.checkpoint_seconds)
+    controller = (CheckpointController(args.session_hours,args.save_margin_seconds,args.checkpoint_seconds)
+                  if checkpoint_controller is None else checkpoint_controller)
     source = source_provenance(ROOT)
     if not source.get('git_worktree_clean'):
         raise ValueError('remote execution requires clean committed/exported source')
@@ -279,17 +397,22 @@ def run(args, *, runtime_check=None) -> dict:
     directory = output / session_id
     directory.mkdir(parents=True, exist_ok=False)
     record = {'session_id':session_id,'action':args.action,'system':system,'source':source,
-              'profile':profile,'plan':plan,'session_hours':args.session_hours,
-              'save_margin_seconds':args.save_margin_seconds,'checkpoint_seconds':args.checkpoint_seconds,
+              'profile':profile,'plan':plan,'session_hours':controller.hard_seconds / 3600,
+              'save_margin_seconds':controller.hard_seconds - controller.soft_seconds,
+              'checkpoint_seconds':controller.interval,
+              'checkpoint_controller_reused':checkpoint_controller is not None,
+              'working_artifacts_root':None if scope is None else str(scope),
               'outputs':str(directory),'kaggle_verified':False,'accepted':False,
-              'new_session_resume':args.resume is not None,
+              **recovery_evidence,
               'limitations_document':'docs/prerequisite_defects_A05_A06.md',
               'origin':'executed_session; location indicators are not supervisory acceptance'}
     from ..training.runtime import write_evidence
     write_evidence(directory/'session_started.json',record)
     try:
         with canonical_profile(profile), controller.signal_handlers():
+            controller.check(stage='session_start')
             record['smoke'] = smoke_environment()
+            controller.check(stage='smoke_complete')
             if args.action=='smoke':
                 record['status']='smoke_complete'
             elif args.action=='train':
@@ -315,24 +438,30 @@ def run(args, *, runtime_check=None) -> dict:
                     raise ValueError(f"trainer returned unsuccessful status: {result.status!r}")
                 record['status']='phase_complete' if complete else 'incomplete'
                 record['recovery_manifest'] = result.recovery_manifest
-                record['new_session_resume'] = args.resume is not None
             elif args.action=='evaluate':
                 from ..evaluation import evaluate_profile
                 if args.candidate_checkpoint is None or args.snapshot_checkpoint is None:
                     raise ValueError('remote evaluation requires explicit candidate and frozen snapshot checkpoint paths')
                 from ..training.checkpoint import load_checkpoint
-                candidate = load_checkpoint(args.candidate_checkpoint,expected_profile='remote_full')
-                frozen = load_checkpoint(args.snapshot_checkpoint,expected_profile='remote_full')
-                if candidate.metadata.algorithm != frozen.metadata.algorithm:
-                    raise ValueError('candidate and frozen snapshot must use the same algorithm')
+                candidate = load_checkpoint(args.candidate_checkpoint, expected_profile='remote_full',
+                                            expected_algorithm=args.algorithm, map_location='cpu')
+                frozen = load_checkpoint(args.snapshot_checkpoint, expected_profile='remote_full',
+                                         expected_algorithm=args.algorithm, map_location='cpu')
                 required_base = profile['config']['training']['updates_per_algorithm']
                 required_resume = profile['config']['training']['resume_updates']
-                if candidate.metadata.update_count != required_base+required_resume or frozen.metadata.update_count != required_base:
-                    raise ValueError('remote evaluation requires update102 candidate and update100 frozen snapshot')
+                record['evaluation_checkpoints'] = {
+                    'candidate': _verify_evaluation_checkpoint(
+                        candidate, label='candidate', update=required_base + required_resume,
+                        algorithm=args.algorithm, profile=profile, source=source),
+                    'snapshot': _verify_evaluation_checkpoint(
+                        frozen, label='snapshot', update=required_base,
+                        algorithm=args.algorithm, profile=profile, source=source),
+                }
                 result=evaluate_profile(profile='remote_full',candidate_checkpoint=args.candidate_checkpoint,
                                         snapshot_checkpoint=args.snapshot_checkpoint,
                                         evidence_path=directory/'evaluation'/'summary.json',deadline=controller,device='cuda')
                 record['evaluation']=result.as_dict()
+                _verify_evaluation_result(record['evaluation'], profile)
                 record['status']='evaluation_complete'
         write_evidence(directory/'session_result.json',record)
         return record

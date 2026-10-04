@@ -153,3 +153,19 @@ C:\Users\yhx\.conda\envs\guandan_train\python.exe -B scripts/run_acceptance.py `
 - session 的 cooperative policy 只覆盖可观测的 soft timeout 和 SIGINT/SIGTERM；不能对进程被强制杀死作无证据承诺。
 - A05/A06 的已知前置缺陷仍适用，见 `docs/prerequisite_defects_A05_A06.md`；本轮不修改 A00-A04 或前置规则结论。
 - `accepted=false` 是正确的当前状态；只有主代理在获得实际 remote_full 证据后，才能单独审查并更新阶段状态。
+
+## 统一 Notebook 增量验收
+
+- `guandan/deployment/workflow.py` 仅编排已有 trainer/evaluator，不替换训练算法。
+- 一个共享 controller 覆盖 smoke、两个算法的100+2更新和两份3000局评估。
+- 当前 working 的 checkpoint 必须限定在明确的 workflow output-root；standalone
+  input-only 门禁保留；临时目录或符号链接逃逸必须失败。
+- same-session reload 不能标成 genuine-new-Kaggle-session verified。
+- durable update102 才允许跳过训练；update100 frozen snapshot 必须保留。
+- completed evaluation 只有在 digest、checkpoint元数据、逐局排名/reward/终局、
+  opponent/group/rotation 覆盖都通过时可跳过；不完整评估不累计充数。
+- 进度包路径相对化，manifest与每个文件SHA256验证后写入全新working目录。
+- 以前失败的 gate 不默认重试；不恢复自动 accepted 状态。
+- 离线测试使用显式标注的 synthetic records，不是远端训练/对局证据。
+- 增量测试：`tests/unit/test_kaggle_workflow.py` 和 A07 session workflow scoped tests。
+- A02/A03 历史前置缺陷继续适用，不修改或移除既有缺陷记录。

@@ -163,3 +163,40 @@ GPU、完整 remote_full 训练、完整 A06 或跨真实会话恢复。测试�
 上传、远程执行或验收证据。
 `python scripts/run_acceptance.py --stage A07` 的验收套件由主任务负责；本 worker
 不编辑该 runner 或 acceptance 文件。
+
+## 单 Notebook 自动流水线（2026-10-04）
+
+统一入口为 `python -B -m guandan.deployment.workflow --execute`。
+`scripts/prepare_kaggle_unified.py --output <新的交付目录>` 从干净提交导出：
+
+- `guandan-source.zip`：上传为一个私有 Dataset；
+- `guandan_all_in_one.ipynb`：只需导入一份，点击 Run All；
+- `PACKAGE_METADATA.json` 与使用说明。
+
+默认顺序：环境检查和 A04 smoke → IPPO base100 → checkpoint 重载到102 →
+VRPO base100 → 重载到102 → IPPO A06 3000局 → VRPO A06 3000局。
+计数来自同一份 profiles-0.2，不能降采样后称为 remote_full。
+
+全流程共用一个 CheckpointController，总预算不是每个阶段单独10小时。
+Notebook 的源码准备时间也从总预算扣除；同一 kernel 重跑不重置起始时间。
+预算不足为 incomplete，不承诺单次 Kaggle 会话一定跑完。
+
+只有工作流显式提供、且与 output-root 解析后相等的 `/kaggle/working` 子目录，
+才可作为已产出 checkpoint 的输入范围；普通单阶段 CLI 仍只接受 `/kaggle/input`。
+这不是 runtime_check 绕过，也不改变 A00-A04 的规则、动作或环境。
+
+同会话重载记录 `recovery_origin=current_working_output` 和 `new_session_resume=false`。
+`genuine_new_kaggle_session_verified`、`accepted`、`kaggle_verified` 始终为 false；
+本流水线不能凭一次 Run All 满足真实新 Kaggle 会话恢复验收。
+
+每个完整阶段后及可捕获退出时，自动写本地 `guandan-unified-progress.zip`；
+它包含相对路径、SHA256、update100 snapshot、update102 candidate、会话JSON报告与状态。
+Notebook 的 stdout 日志另存于 `/kaggle/working/guandan-unified-logs`，请一并下载。
+新的 Kaggle 会话挂载该进度包和**同一源码 ZIP**，仍用同一个 Notebook 运行。
+可读取进度 ZIP 或已展开的进度 Dataset，不自动上传，不覆盖已有进度。
+已完成阶段须验证实际 checkpoint/逐局记录再跳过；未知失败默认拒绝继续，
+只有修复后显式 `--retry-failed` 才可重试。
+
+当前不支持 A06 半份评估逐局续跑：保留其已完成局的诊断记录，但未完成算法的
+评估从头重跑；不会合并两次局数充当一次完整评估。完整完成的另一算法评估可跳过。
+强制断电/强杀时只能依赖此前已保存的文件，不能承诺最后的进度 ZIP 一定更新。

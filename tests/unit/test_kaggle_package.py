@@ -55,7 +55,8 @@ def exported_source(tmp_path):
     source = tmp_path / "input mount" / "source"
     shutil.copytree(ROOT / "guandan", source / "guandan", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
     for name in ("scripts/kaggle_entry.py", "scripts/kaggle_environment_check.py",
-                 "notebooks/kaggle_training.py", "pyproject.toml", "configs/acceptance_profiles.json"):
+                 "notebooks/kaggle_training.py", "notebooks/kaggle_unified_bootstrap.py",
+                 "pyproject.toml", "configs/acceptance_profiles.json"):
         target = source / name
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / name, target)
@@ -80,7 +81,7 @@ def package_fixture_repo(tmp_path):
     git_fixture(root, "config", "user.email", "package@example.invalid")
     shutil.copytree(ROOT / "guandan", root / "guandan", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
     for name in ("scripts/kaggle_entry.py", "scripts/kaggle_environment_check.py",
-                 "pyproject.toml", "configs/acceptance_profiles.json"):
+                 "notebooks/kaggle_unified_bootstrap.py", "pyproject.toml", "configs/acceptance_profiles.json"):
         target = root / name
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / name, target)
