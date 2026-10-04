@@ -18,13 +18,6 @@ KAGGLE_INPUT = Path("/kaggle/input")
 KAGGLE_WORKING = Path("/kaggle/working")
 
 
-def _kaggle_production_context() -> bool:
-    root = ROOT.resolve()
-    return (KAGGLE_INPUT.is_dir() and KAGGLE_WORKING.is_dir()
-            and (root.is_relative_to(KAGGLE_INPUT.resolve())
-                 or root.is_relative_to(KAGGLE_WORKING.resolve())))
-
-
 def _require_input_path(path: Path, label: str) -> Path:
     resolved = Path(path).expanduser().resolve()
     root = KAGGLE_INPUT.resolve()
@@ -121,7 +114,7 @@ def training_plan(algorithm, recovery=None):
 
 def _output_directory(output_root: Path) -> Path:
     output_root = Path(output_root).resolve()
-    kaggle_working = Path('/kaggle/working').resolve()
+    kaggle_working = KAGGLE_WORKING.resolve()
     if not output_root.is_relative_to(kaggle_working) or output_root==kaggle_working:
         raise ValueError('execution output-root must be a named subdirectory of /kaggle/working')
     return output_root
@@ -158,28 +151,73 @@ def smoke_environment() -> dict:
             'level_rank':int(Rank.FIVE),'previous_result':None,'kaggle_verified':False}
 
 
-def _verify_training_completion(result, plan: dict, algorithm: str) -> dict:
-    """Re-read the durable artifact before claiming a production phase complete."""
+def _verify_training_completion(result, plan: dict, algorithm: str, source: dict,
+                                *, checkpoint_root: Path) -> dict:
+    """Verify every complete result, including injected/local simulations.
+
+    TrainingResult.updates and total_token_steps are the actual counts for this
+    invocation; lifetime and durable counts include the recovered prefix.
+    No status/counter claim substitutes for re-reading the durable checkpoint.
+    """
     goal = plan["goal_update"]
+    start = plan["start_update"]
     settings = plan["profile"]["config"]["training"]
-    expected_steps = goal * settings["token_steps_per_update"]
-    if getattr(result, "durable_updates", None) != goal:
-        raise ValueError("complete training has incorrect durable update counter")
-    if getattr(result, "durable_token_steps", None) != expected_steps:
-        raise ValueError("complete training has incorrect durable token counter")
+    per_update = settings["token_steps_per_update"]
+    actual_updates = goal - start
+    actual_token_steps = actual_updates * per_update
+    lifetime_steps = goal * per_update
+    if result.algorithm != algorithm or result.profile != 'remote_full':
+        raise ValueError("complete training has incompatible profile/algorithm")
+    if plan['updates_this_session_if_time_allows'] != actual_updates:
+        raise ValueError("training plan update counters disagree")
+    expected = {
+        "start_update": start,
+        "target_updates": actual_updates,
+        "updates": actual_updates,
+        "total_token_steps": actual_token_steps,
+        "lifetime_updates": goal,
+        "lifetime_token_steps": lifetime_steps,
+        "durable_updates": goal,
+        "durable_token_steps": lifetime_steps,
+        "rollout_envs": settings["rollout_envs"],
+        "token_steps_per_update": per_update,
+        "profile_counts_match": True,
+        "discarded_partial_steps": 0,
+        "discarded_optimizer_steps": 0,
+    }
+    # If a result adapter also exposes explicitly named actual counters, these
+    # must agree with TrainingResult's canonical fields, not override them.
+    for name, value in (("actual_updates", actual_updates),
+                        ("actual_token_steps", actual_token_steps)):
+        if hasattr(result, name):
+            expected[name] = value
+    for name, value in expected.items():
+        observed = getattr(result, name, None)
+        if type(observed) is not int or observed != value:
+            raise ValueError(f"complete training {name} counter disagrees with plan: {observed!r} != {value}")
     manifest_name = getattr(result, "recovery_manifest", None)
     if not manifest_name:
         raise ValueError("complete training did not produce a recovery manifest")
     manifest_path = Path(manifest_name).expanduser().resolve()
+    artifact_root = Path(checkpoint_root).resolve()
+    if not manifest_path.is_relative_to(artifact_root):
+        raise ValueError("complete training recovery manifest escapes session checkpoint directory")
     if not manifest_path.is_file():
         raise ValueError("complete training recovery manifest is missing")
+    # resolve_recovery checks the manifest SHA against file bytes, checkpoint
+    # metadata/engine counters, model/protocol compatibility and source commit.
     resolved = resolve_recovery(manifest_path, algorithm=algorithm)
-    if resolved["durable_updates"] != goal or resolved["durable_token_steps"] != expected_steps:
-        raise ValueError("recovery manifest durable counters do not reach the training target")
+    for name, value in (("durable_updates", goal), ("durable_token_steps", lifetime_steps)):
+        if type(resolved.get(name)) is not int or resolved[name] != value:
+            raise ValueError(f"recovery manifest {name} does not reach the training target")
+    if not source.get('git_commit') or resolved['source_git_commit'] != source['git_commit']:
+        raise ValueError("completed checkpoint source commit differs from session source")
     checkpoint_name = getattr(result, "checkpoint", None)
     if not checkpoint_name:
         raise ValueError("complete training did not produce a checkpoint")
     checkpoint = Path(checkpoint_name).expanduser().resolve()
+    if not checkpoint.is_relative_to(artifact_root):
+        raise ValueError("complete training checkpoint escapes session checkpoint directory")
     if checkpoint != Path(resolved["checkpoint_path"]).resolve():
         raise ValueError("training result checkpoint differs from recovery manifest")
     if sha256(checkpoint) != resolved["checkpoint_sha256"]:
@@ -187,31 +225,39 @@ def _verify_training_completion(result, plan: dict, algorithm: str) -> dict:
     return resolved
 
 
-def run(args, *, runtime_check=None, production=False) -> dict:
-    # Lazy imports keep --help and plan usable without torch/dependency installation.
-    from scripts.kaggle_environment_check import inspect_environment, require_remote_runtime
-    production = bool(production or _kaggle_production_context())
-    profile = _profile()
+def run(args, *, runtime_check=None) -> dict:
+    """Fail-closed remote entry; only an explicit callback supplies a local seam.
+
+    runtime_check permits simulated runtime facts and local paths, but never
+    bypasses durable completion verification. The production CLI cannot supply
+    this callback. plan remains configuration-only and never requires a GPU.
+    """
+    # Reject missing consent before runtime imports, checkpoint reads or writes.
+    if args.action not in ('plan', 'system', 'smoke', 'train', 'evaluate'):
+        raise ValueError('unknown session action')
+    if args.action in ('smoke', 'train', 'evaluate') and not args.execute:
+        raise ValueError('--execute is required for smoke/train/evaluate; no automatic launch')
     if args.profile != 'remote_full':
         raise ValueError('A07 remote entry only accepts remote_full')
-    if production:
+    if runtime_check is not None and not callable(runtime_check):
+        raise TypeError('runtime_check must be an explicitly injected callable')
+    if runtime_check is None:
         _validate_production_paths(args)
+    # Lazy imports keep --help and an unresumed plan independent of Torch.
+    from scripts.kaggle_environment_check import inspect_environment, require_remote_runtime
+    profile = _profile()
+    system = None
+    if args.action != 'plan':
+        system = inspect_environment()
+        (require_remote_runtime if runtime_check is None else runtime_check)(system)
     recovery = resolve_recovery(args.resume,algorithm=args.algorithm) if args.resume is not None else None
     plan = training_plan(args.algorithm,recovery)
     if args.action=='plan':
         return {'status':'configuration_only','plan':plan,'upload':False,'executed':False,'accepted':False,'kaggle_verified':False}
-    system = inspect_environment()
     if args.action=='system':
-        # A direct local run remains an observation-only diagnostic. The real
-        # CLI enters production mode in a Kaggle input/working layout; tests
-        # may explicitly inject runtime_check as the sole local seam.
-        if production or runtime_check is not None:
-            (runtime_check or require_remote_runtime)(system)
         return {'status':'environment_inspected','system':system,'executed_training':False,'accepted':False,'kaggle_verified':False}
-    if not args.execute:
-        raise ValueError('--execute is required for smoke/train/evaluate; no automatic launch')
-    # Test-only seam used with fake runtime; CLI never exposes a bypass flag.
-    (runtime_check or require_remote_runtime)(system)
+    # The local seam may monkeypatch _output_directory for a temporary fixture;
+    # production still uses the same /kaggle/working boundary check.
     output = _output_directory(args.output_root)
     from .control import CheckpointController
     controller = CheckpointController(args.session_hours,args.save_margin_seconds,args.checkpoint_seconds)
@@ -227,6 +273,7 @@ def run(args, *, runtime_check=None, production=False) -> dict:
               'profile':profile,'plan':plan,'session_hours':args.session_hours,
               'save_margin_seconds':args.save_margin_seconds,'checkpoint_seconds':args.checkpoint_seconds,
               'outputs':str(directory),'kaggle_verified':False,'accepted':False,
+              'new_session_resume':args.resume is not None,
               'limitations_document':'docs/prerequisite_defects_A05_A06.md',
               'origin':'executed_session; location indicators are not supervisory acceptance'}
     from ..training.runtime import write_evidence
@@ -249,10 +296,14 @@ def run(args, *, runtime_check=None, production=False) -> dict:
                            'resume':None if recovery is None else recovery['checkpoint_path']}
                 result = train(**options)
                 record['training'] = asdict(result)
-                complete = result.status == 'complete' and result.lifetime_updates == plan['goal_update']
-                if complete and production:
-                    verified = _verify_training_completion(result, plan, args.algorithm)
+                complete = result.status == 'complete'
+                if complete:
+                    verified = _verify_training_completion(
+                        result, plan, args.algorithm, source,
+                        checkpoint_root=directory/'checkpoints')
                     record['durable_verification'] = verified
+                elif result.status != 'incomplete':
+                    raise ValueError(f"trainer returned unsuccessful status: {result.status!r}")
                 record['status']='phase_complete' if complete else 'incomplete'
                 record['recovery_manifest'] = result.recovery_manifest
                 record['new_session_resume'] = args.resume is not None
@@ -304,7 +355,7 @@ def parser():
 def main(argv=None):
     args=parser().parse_args(argv)
     try:
-        result=run(args, production=_kaggle_production_context())
+        result=run(args)
         print(json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False))
         return 2 if result['status']=='incomplete' else 0
     except Exception as exc:

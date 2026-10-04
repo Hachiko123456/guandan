@@ -148,13 +148,13 @@ def test_expensive_action_without_execute_is_refused(action, exported_source, cl
     assert list(clean_cwd.iterdir()) == []
 
 
-def test_session_system_without_torch_is_observation_only(exported_source, clean_cwd):
+def test_session_system_without_torch_fails_closed(exported_source, clean_cwd):
     result = cli(exported_source / "scripts/kaggle_entry.py", "--action", "system", cwd=clean_cwd)
-    assert result.returncode == 0, result.stderr
-    report = json.loads(result.stdout)
-    assert report["status"] == "environment_inspected"
-    assert report["executed_training"] is False
-    assert report["system"]["torch_status"] == "missing"
+    assert result.returncode != 0
+    report = json.loads(result.stderr)
+    assert report["status"] == "failed"
+    assert report["accepted"] is False
+    assert "PyTorch" in report["error"] or "CUDA" in report["error"] or "Kaggle" in report["error"]
 
 
 def test_entry_delegates_argv_exit_code_and_preserves_environment(tmp_path, clean_cwd):
@@ -251,7 +251,7 @@ def test_install_dry_run_never_copies_or_invokes_pip(checker, exported_source, t
         raise AssertionError("dry-run must not invoke subprocess/pip")
     monkeypatch.setattr(subprocess, "run", forbidden)
     destination = tmp_path / "working" / "source"
-    result = checker.install_source(exported_source, destination, install_deps=True, dry_run=True)
+    result = checker.install_source(exported_source, destination, install_deps=True, dry_run=True, enforce_kaggle_paths=False)
     assert result["status"] == "planned"
     assert not destination.exists()
     command = result["commands"][0]
@@ -268,7 +268,7 @@ def test_install_rejects_extra_unmanifested_files_before_copying(checker, export
     monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: pytest.fail("implicit pip"))
     destination = tmp_path / "writable" / "source"
     with pytest.raises(ValueError, match="file-set mismatch"):
-        checker.install_source(exported_source, destination)
+        checker.install_source(exported_source, destination, enforce_kaggle_paths=False)
     assert not destination.exists()
 
 
@@ -278,7 +278,7 @@ def test_install_explicit_pip_failure_remains_failure(checker, exported_source, 
         calls.append((argv, kwargs))
         return types.SimpleNamespace(returncode=19)
     monkeypatch.setattr(subprocess, "run", fake_run)
-    report = checker.install_source(exported_source, tmp_path / "fresh", install_deps=True)
+    report = checker.install_source(exported_source, tmp_path / "fresh", install_deps=True, enforce_kaggle_paths=False)
     assert len(calls) == 1
     assert report["dependency_returncode"] == 19
     assert report["status"] == "dependency_install_failed"
@@ -290,10 +290,10 @@ def test_install_rejects_modified_or_incomplete_source(checker, exported_source,
     target = tmp_path / "target"
     (exported_source / "guandan/__init__.py").write_text("# modified", encoding="utf-8")
     with pytest.raises(ValueError, match="hash/path mismatch"):
-        checker.install_source(exported_source, target)
+        checker.install_source(exported_source, target, enforce_kaggle_paths=False)
     assert not target.exists()
     with pytest.raises(ValueError, match="incomplete source root"):
-        checker.install_source(tmp_path, target)
+        checker.install_source(tmp_path, target, enforce_kaggle_paths=False)
 
 
 @pytest.mark.parametrize("unsafe", ["../escape.py", "/absolute.py", "C:/host.py", "sub\\host.py"])
@@ -303,19 +303,19 @@ def test_installer_rejects_manifest_path_escape_before_writing(checker, exported
     data["files"][unsafe] = "0" * 64
     manifest_path.write_text(json.dumps(data), encoding="utf-8")
     with pytest.raises(ValueError, match="unsafe source manifest"):
-        checker.install_source(exported_source, tmp_path / "target")
+        checker.install_source(exported_source, tmp_path / "target", enforce_kaggle_paths=False)
     assert not (tmp_path / "target").exists()
 
 
 def test_installer_rejects_nested_input_dest_and_linked_source(checker, exported_source, tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="separate"):
-        checker.install_source(exported_source, exported_source / "copy")
+        checker.install_source(exported_source, exported_source / "copy", enforce_kaggle_paths=False)
     monkeypatch.setattr(checker, "KAGGLE_INPUT", tmp_path / "readonly")
     with pytest.raises(ValueError, match="read-only"):
-        checker.install_source(exported_source, tmp_path / "readonly/copy")
+        checker.install_source(exported_source, tmp_path / "readonly/copy", enforce_kaggle_paths=False)
     monkeypatch.setattr(checker, "_is_link", lambda path: path.name == "pyproject.toml")
     with pytest.raises(ValueError, match="linked source"):
-        checker.install_source(exported_source, tmp_path / "target")
+        checker.install_source(exported_source, tmp_path / "target", enforce_kaggle_paths=False)
 
 
 def test_notebook_commands_are_explicit_and_script_friendly():
@@ -383,7 +383,7 @@ def test_build_package_unzip_install_source_round_trip(checker, tmp_path):
         archive.extractall(unpacked)
     source = unpacked / "guandan"
     destination = tmp_path / "installed source"
-    report = checker.install_source(source, destination)
+    report = checker.install_source(source, destination, enforce_kaggle_paths=False)
     assert report["status"] == "copied"
     assert report["source"]["source_kind"] == "verified_export"
     assert report["uploaded"] is report["accepted"] is report["kaggle_verified"] is False
@@ -391,13 +391,19 @@ def test_build_package_unzip_install_source_round_trip(checker, tmp_path):
     assert (destination / "scripts/kaggle_entry.py").is_file()
 
 
-def test_build_package_rejects_missing_deployment_entry(tmp_path):
+@pytest.mark.parametrize("missing", [
+    "scripts/kaggle_entry.py",
+    "guandan/deployment/control.py",
+])
+def test_build_package_rejects_missing_required_file_before_output(tmp_path, missing):
     root = package_fixture_repo(tmp_path)
-    (root / "scripts/kaggle_entry.py").unlink()
+    (root / missing).unlink()
     git_fixture(root, "add", "-A")
-    git_fixture(root, "commit", "-qm", "remove deployment entry")
+    git_fixture(root, "commit", "-qm", "remove required deployment file")
+    output = tmp_path / "missing.zip"
     with pytest.raises(ValueError, match="incomplete source export"):
-        build_package(root, tmp_path / "missing.zip")
+        build_package(root, output)
+    assert not output.exists()
 
 
 def test_build_package_rejects_non_remote_full_profile(tmp_path):
@@ -408,5 +414,21 @@ def test_build_package_rejects_non_remote_full_profile(tmp_path):
     profile_path.write_text(json.dumps(profile), encoding="utf-8")
     git_fixture(root, "add", "configs/acceptance_profiles.json")
     git_fixture(root, "commit", "-qm", "forge remote profile")
+    output = tmp_path / "profile.zip"
     with pytest.raises(ValueError, match="remote_full"):
-        build_package(root, tmp_path / "profile.zip")
+        build_package(root, output)
+    assert not output.exists()
+
+
+def test_build_package_rejects_wrong_remote_counts_before_output(tmp_path):
+    root = package_fixture_repo(tmp_path)
+    profile_path = root / "configs/acceptance_profiles.json"
+    profile = json.loads(profile_path.read_text(encoding="utf-8"))
+    profile["profiles"]["remote_full"]["training"]["updates_per_algorithm"] = 99
+    profile_path.write_text(json.dumps(profile), encoding="utf-8")
+    git_fixture(root, "add", "configs/acceptance_profiles.json")
+    git_fixture(root, "commit", "-qm", "forge remote counts")
+    output = tmp_path / "counts.zip"
+    with pytest.raises(ValueError, match="remote_full configuration mismatch"):
+        build_package(root, output)
+    assert not output.exists()

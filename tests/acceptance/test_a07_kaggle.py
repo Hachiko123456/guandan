@@ -101,13 +101,25 @@ def test_execute_is_an_explicit_opt_in_for_non_plan_actions(action):
 
 def test_system_action_is_read_only_and_never_starts_training():
     before = STATUS.read_bytes()
-    result = session.run(parsed_args("--action", "system"))
+    # Local tests must explicitly inject the runtime seam; the production CLI
+    # fails closed when CUDA/Kaggle facts are unavailable.
+    result = session.run(parsed_args("--action", "system"), runtime_check=lambda _: None)
     after = STATUS.read_bytes()
     assert result["status"] == "environment_inspected"
     assert result["executed_training"] is False
     assert result["accepted"] is False
     assert result["kaggle_verified"] is False
     assert before == after
+
+
+def test_system_action_without_runtime_seam_fails_closed(monkeypatch):
+    monkeypatch.setattr("scripts.kaggle_environment_check.inspect_environment", lambda: {
+        "python_version_info": [3, 12, 0], "torch_status": "missing",
+        "cuda_available": False, "gpu_count": 0, "gpus": [],
+        "kaggle": {"input_exists": False, "working_exists": False, "working_writable": False},
+    })
+    with pytest.raises(RuntimeError, match="PyTorch|CUDA|Kaggle"):
+        session.run(parsed_args("--action", "system"))
 
 
 def test_output_root_requires_kaggle_working_subdirectory():
@@ -140,7 +152,7 @@ def test_local_smoke_writes_only_session_evidence_and_not_status(tmp_path, monke
     assert result["status"] != "genuine_kaggle"
 
 
-def test_remote_train_path_only_passes_remote_options_to_a_mocked_trainer(tmp_path, monkeypatch, local_session):
+def test_remote_train_path_rejects_mocked_complete_without_durable_evidence(tmp_path, monkeypatch, local_session):
     before = STATUS.read_bytes()
     output = tmp_path / "ready_package"
     monkeypatch.setattr(session, "_output_directory", lambda ignored: output)
@@ -159,25 +171,24 @@ def test_remote_train_path_only_passes_remote_options_to_a_mocked_trainer(tmp_pa
         )
 
     monkeypatch.setattr("guandan.training.trainer.train", fake_train)
-    result = session.run(
-        parsed_args("--action", "train", "--execute", "--algorithm", "ippo",
-                    "--output-root", "/kaggle/working/guandan"),
-        runtime_check=lambda system: None,
-    )
-    assert result["status"] == "phase_complete"
-    assert result["training"]["status"] == "complete"
+    with pytest.raises(ValueError, match="complete training durable_updates"):
+        session.run(
+            parsed_args("--action", "train", "--execute", "--algorithm", "ippo",
+                        "--output-root", "/kaggle/working/guandan"),
+            runtime_check=lambda system: None,
+        )
     assert calls["profile"] == "remote_full"
     assert calls["device"] == "cuda"
     assert calls["updates"] == 100
     assert "rollout_envs" not in calls
     assert "rollout_steps" not in calls
     assert isinstance(calls["checkpoint_controller"], CheckpointController)
-    assert Path(calls["checkpoint_dir"]).is_relative_to(Path(result["outputs"]))
-    assert result["accepted"] is False
-    assert result["kaggle_verified"] is False
+    assert Path(calls["checkpoint_dir"]).is_relative_to(output)
     assert before == STATUS.read_bytes()
+    failure = next(Path(local_session).rglob("session_failure.json"))
+    assert json.loads(failure.read_text(encoding="utf-8"))["accepted"] is False
     assert not any("remote" in str(path).lower() and path.suffix in {".pt", ".pth"}
-                    for path in Path(result["outputs"]).rglob("*"))
+                    for path in Path(local_session).rglob("*"))
 
 
 def test_evaluate_requires_explicit_candidate_and_snapshot_without_remote_run(tmp_path, monkeypatch, local_session):
@@ -368,19 +379,21 @@ def test_mocked_new_session_resume_passes_copied_checkpoint_and_remaining_target
         return TrainingResult(
             algorithm="ippo", profile="remote_full", updates=additional,
             total_token_steps=additional*1024, last_loss=0.25, checkpoint="mock.pt",
-            status="complete", start_update=start, lifetime_updates=start+additional,
-            lifetime_token_steps=(start+additional)*1024,
+            status="complete", start_update=start, target_updates=additional,
+            lifetime_updates=start+additional, lifetime_token_steps=(start+additional)*1024,
         )
 
     monkeypatch.setattr(session, "resolve_recovery", resolve)
     monkeypatch.setattr(session, "smoke_environment", lambda: {"status": "mocked"})
     monkeypatch.setattr("guandan.training.trainer.train", fake_train)
-    result = session.run(parsed_args("--action", "train", "--execute", "--resume", str(copied_manifest)),
-                         runtime_check=lambda _: None)
+    with pytest.raises(ValueError, match="complete training durable_updates"):
+        session.run(parsed_args("--action", "train", "--execute", "--resume", str(copied_manifest)),
+                    runtime_check=lambda _: None)
     assert len(calls) == 1
-    assert result["status"] == "phase_complete"
-    assert result["new_session_resume"] is True
-    assert_not_kaggle_acceptance(result)
+    failure = next(Path(local_session).rglob("session_failure.json"))
+    record = json.loads(failure.read_text(encoding="utf-8"))
+    assert record["new_session_resume"] is True
+    assert_not_kaggle_acceptance(record)
 
 
 def test_runtime_failure_is_recorded_without_status_edits(local_session, monkeypatch):

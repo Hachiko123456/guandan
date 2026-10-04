@@ -23,6 +23,7 @@ DEPLOYMENT_REQUIRED_FILES = frozenset({
     "guandan/deployment/__init__.py",
     "guandan/deployment/provenance.py",
     "guandan/deployment/package.py",
+    "guandan/deployment/control.py",
     "guandan/deployment/session.py",
     "scripts/kaggle_entry.py",
     "scripts/kaggle_environment_check.py",
@@ -31,6 +32,13 @@ DEPLOYMENT_REQUIRED_FILES = frozenset({
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _is_link(path: Path) -> bool:
+    if path.is_symlink():
+        return True
+    is_junction = getattr(path, "is_junction", None)
+    return bool(is_junction is not None and is_junction())
 
 
 def _manifest_path_error(name: object) -> ValueError:
@@ -56,7 +64,7 @@ def _read_verified_manifest(root: Path) -> tuple[dict, str]:
     if not root.is_dir():
         raise ValueError(f"source export root is not a directory: {root}")
     manifest_path = root / MANIFEST
-    if manifest_path.is_symlink() or not manifest_path.is_file():
+    if _is_link(manifest_path) or not manifest_path.is_file():
         raise ValueError("verified source export requires a regular SOURCE_MANIFEST.json")
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -87,7 +95,7 @@ def _read_verified_manifest(root: Path) -> tuple[dict, str]:
 
     actual: set[str] = set()
     for path in root.rglob("*"):
-        if path.is_symlink():
+        if _is_link(path):
             raise ValueError(f"linked source file is not portable: {path.relative_to(root).as_posix()}")
         if path.is_dir():
             continue
@@ -108,7 +116,7 @@ def _read_verified_manifest(root: Path) -> tuple[dict, str]:
 
     for name in sorted(normalized):
         path = root / name
-        if not path.is_file() or path.is_symlink() or sha256(path) != normalized[name]:
+        if not path.is_file() or _is_link(path) or sha256(path) != normalized[name]:
             raise ValueError(f"source manifest hash/path mismatch: {name}")
     return manifest, sha256(manifest_path)
 

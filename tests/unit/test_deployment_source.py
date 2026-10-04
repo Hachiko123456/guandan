@@ -57,6 +57,7 @@ def fixture_repo(tmp_path):
         "guandan/deployment/__init__.py": "\n",
         "guandan/deployment/provenance.py": "SOURCE = 'fixture'\n",
         "guandan/deployment/package.py": "SOURCE = 'fixture'\n",
+        "guandan/deployment/control.py": "SOURCE = 'fixture'\n",
         "guandan/deployment/session.py": "SOURCE = 'fixture'\n",
         "scripts/kaggle_entry.py": "SOURCE = 'fixture'\n",
         "scripts/kaggle_environment_check.py": "SOURCE = 'fixture'\n",
@@ -202,6 +203,17 @@ def test_manifest_rejects_forged_deployment_metadata(tmp_path, field, value):
         source_provenance(exported)
 
 
+@pytest.mark.parametrize("missing", ["profile", "uploaded", "accepted", "kaggle_verified"])
+def test_manifest_rejects_missing_deployment_metadata(tmp_path, missing):
+    exported = unpacked_export(tmp_path, f"missing-{missing}")
+    manifest_path = exported / "SOURCE_MANIFEST.json"
+    data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    data.pop(missing)
+    manifest_path.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(ValueError, match="schema/keys"):
+        source_provenance(exported)
+
+
 def test_manifest_rejects_linked_source(tmp_path):
     exported = unpacked_export(tmp_path, "linked")
     target = exported / "guandan/link.py"
@@ -211,6 +223,27 @@ def test_manifest_rejects_linked_source(tmp_path):
         pytest.skip("symlink creation is unavailable")
     with pytest.raises(ValueError, match="linked source"):
         source_provenance(exported)
+
+
+def test_manifest_rejects_link_seam_without_os_link_permission(tmp_path, monkeypatch):
+    exported = unpacked_export(tmp_path, "link-seam")
+    linked = exported / "guandan/link.py"
+    linked.write_text("link seam", encoding="utf-8")
+    manifest_path = exported / "SOURCE_MANIFEST.json"
+    data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    data["files"]["guandan/link.py"] = hashlib.sha256(linked.read_bytes()).hexdigest()
+    manifest_path.write_text(json.dumps(data), encoding="utf-8")
+    original_symlink = Path.is_symlink
+    monkeypatch.setattr(Path, "is_symlink", lambda path: path == linked or original_symlink(path))
+    with pytest.raises(ValueError, match="linked source"):
+        source_provenance(exported)
+
+    if hasattr(Path, "is_junction"):
+        original_junction = Path.is_junction
+        monkeypatch.setattr(Path, "is_junction", lambda path: path == linked or original_junction(path))
+        monkeypatch.setattr(Path, "is_symlink", original_symlink)
+        with pytest.raises(ValueError, match="linked source"):
+            source_provenance(exported)
 
 
 def test_git_checkout_provenance_is_actual_commit_and_dirty_flag(tmp_path):
