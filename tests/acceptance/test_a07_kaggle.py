@@ -6,6 +6,7 @@ and the separately scoped local_fast recovery tests in test_kaggle_recovery.py.
 """
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 import os
 import subprocess
@@ -493,3 +494,117 @@ def test_a07_runner_reports_only_ready_package_and_never_writes_status(tmp_path,
     # A passed local pytest stage is only a ready-package gate; it is not
     # evidence of a genuine Kaggle execution.
     assert summary["status"] != "genuine_kaggle"
+
+
+
+def _synthetic_complete_result(tmp_path, start_update):
+    """Synthetic counters only: no trainer or remote_full execution occurs."""
+    recovery = None if start_update == 0 else {"durable_updates": start_update}
+    plan = session.training_plan("ippo", recovery)
+    settings = plan["profile"]["config"]["training"]
+    goal = plan["goal_update"]
+    additional = goal - start_update
+    per_update = settings["token_steps_per_update"]
+    artifact_root = tmp_path / f"synthetic-checkpoints-{start_update}"
+    artifact_root.mkdir()
+    checkpoint = artifact_root / "ippo_synthetic.pt"
+    checkpoint.write_bytes(f"synthetic checkpoint {start_update}".encode("ascii"))
+    manifest = artifact_root / "ippo_synthetic.recovery.json"
+    manifest.write_text("synthetic resolver input", encoding="utf-8")
+    result = TrainingResult(
+        algorithm="ippo", profile="remote_full", updates=additional,
+        total_token_steps=additional * per_update, last_loss=None,
+        checkpoint=str(checkpoint), status="complete",
+        lifetime_updates=goal, lifetime_token_steps=goal * per_update,
+        start_update=start_update, target_updates=additional,
+        rollout_envs=settings["rollout_envs"], token_steps_per_update=per_update,
+        profile_counts_match=start_update in (0, 100),
+        durable_updates=goal, durable_token_steps=goal * per_update,
+        discarded_partial_steps=0, discarded_optimizer_steps=0,
+        recovery_manifest=str(manifest),
+    )
+    source = {"git_commit": "synthetic-source-commit"}
+    return plan, result, source, artifact_root, checkpoint, manifest
+
+
+@pytest.mark.parametrize("start_update", [0, 99, 100, 101])
+def test_verify_training_completion_accepts_canonical_and_segmented_continuations(
+    tmp_path, monkeypatch, start_update,
+):
+    plan, result, source, artifact_root, checkpoint, manifest = _synthetic_complete_result(
+        tmp_path, start_update)
+    expected_steps = plan["goal_update"] * plan["profile"]["config"]["training"]["token_steps_per_update"]
+    synthetic_recovery = {
+        "durable_updates": plan["goal_update"],
+        "durable_token_steps": expected_steps,
+        "source_git_commit": source["git_commit"],
+        "checkpoint_path": str(checkpoint),
+        "checkpoint_sha256": session.sha256(checkpoint),
+    }
+
+    def mocked_resolver(manifest_path, *, algorithm):
+        # Synthetic counters are test fixtures, not real training evidence.
+        assert Path(manifest_path) == manifest.resolve()
+        assert algorithm == "ippo"
+        return synthetic_recovery
+
+    monkeypatch.setattr(session, "resolve_recovery", mocked_resolver)
+    verified = session._verify_training_completion(
+        result, plan, "ippo", source, checkpoint_root=artifact_root)
+    assert verified == synthetic_recovery
+    assert session.sha256(checkpoint) == verified["checkpoint_sha256"]
+    assert Path(verified["checkpoint_path"]).resolve().is_relative_to(artifact_root.resolve())
+
+
+@pytest.mark.parametrize(
+    "field,value,match",
+    [
+        ("profile_counts_match", 1, "profile_counts_match must be a bool"),
+        ("updates", True, "updates counter"),
+        ("total_token_steps", 102401, "total_token_steps counter"),
+        ("lifetime_updates", 99, "lifetime_updates counter"),
+        ("durable_updates", 99, "durable_updates counter"),
+        ("durable_token_steps", 102399, "durable_token_steps counter"),
+    ],
+)
+def test_verify_training_completion_rejects_bool_spoof_and_counter_errors(
+    tmp_path, monkeypatch, field, value, match,
+):
+    plan, result, source, artifact_root, checkpoint, manifest = _synthetic_complete_result(tmp_path, 0)
+    expected_steps = plan["goal_update"] * plan["profile"]["config"]["training"]["token_steps_per_update"]
+    monkeypatch.setattr(session, "resolve_recovery", lambda manifest_path, *, algorithm: {
+        "durable_updates": plan["goal_update"],
+        "durable_token_steps": expected_steps,
+        "source_git_commit": source["git_commit"],
+        "checkpoint_path": str(checkpoint),
+        "checkpoint_sha256": session.sha256(checkpoint),
+    })
+    if field == "total_token_steps":
+        value = result.total_token_steps + 1
+    elif field == "lifetime_updates":
+        value = result.lifetime_updates - 1
+    elif field == "durable_updates":
+        value = result.durable_updates - 1
+    elif field == "durable_token_steps":
+        value = result.durable_token_steps - 1
+    forged = replace(result, **{field: value})
+    with pytest.raises(ValueError, match=match):
+        session._verify_training_completion(
+            forged, plan, "ippo", source, checkpoint_root=artifact_root)
+
+
+def test_verify_training_completion_rejects_checkpoint_source_or_sha_mismatch(
+    tmp_path, monkeypatch,
+):
+    plan, result, source, artifact_root, checkpoint, manifest = _synthetic_complete_result(tmp_path, 0)
+    expected_steps = plan["goal_update"] * plan["profile"]["config"]["training"]["token_steps_per_update"]
+    monkeypatch.setattr(session, "resolve_recovery", lambda manifest_path, *, algorithm: {
+        "durable_updates": plan["goal_update"],
+        "durable_token_steps": expected_steps,
+        "source_git_commit": "different-source-commit",
+        "checkpoint_path": str(checkpoint),
+        "checkpoint_sha256": "0" * 64,
+    })
+    with pytest.raises(ValueError, match="source commit"):
+        session._verify_training_completion(
+            result, plan, "ippo", source, checkpoint_root=artifact_root)

@@ -47,6 +47,19 @@ guandan.deployment.session
 
 本机验证时通过 `session.run(args, runtime_check=fake_check)` 注入测试 seam；这不是 CLI 的 runtime bypass，也不改变远端默认门禁。
 
+## Kaggle 上传形态
+
+Kaggle Dataset 可以只包含一个源码 ZIP；当前 A07 入口支持：
+
+```text
+/kaggle/input/<source-dataset>/guandan-source.zip
+```
+
+Notebook 会固定校验交付包的 ZIP SHA-256、manifest commit、manifest SHA-256 和
+环境检查入口 SHA-256，再调用 `install_source_archive()` 在
+`/kaggle/working` 创建新源码副本。ZIP 内部仍必须使用 package builder 生成的
+`guandan/` 前缀和 `SOURCE_MANIFEST.json`，不能手工重打包或编辑文件。
+
 ## Source bundle / ready package
 
 source bundle 必须来自离线、可验证的 source export，包含 `SOURCE_MANIFEST.json` 和 manifest 中的文件哈希；安装脚本只能把它复制到一个新的、非嵌套、可写目录。source manifest 的 `profile` 是 `remote_full`，但它的 `accepted`、`uploaded`、`kaggle_verified` 均必须保持 `false`，直到人工完成远端证据审查。

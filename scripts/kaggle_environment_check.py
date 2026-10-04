@@ -1,7 +1,8 @@
 """Explicit runtime inspection and source-export bootstrap, with no uploads.
 
-Public API: inspect_environment(), require_remote_runtime(system), and
-install_source(source_root, dest_root, install_deps=False, dry_run=False).
+Public API: inspect_environment(), require_remote_runtime(system),
+install_source(source_root, dest_root, install_deps=False, dry_run=False), and
+install_source_archive(archive_path, dest_root, install_deps=False, dry_run=False).
 Importing this module does not import NumPy, Torch, or guandan, inspect hardware,
 install packages, write files, or start a session.
 """
@@ -17,9 +18,12 @@ from pathlib import Path, PurePosixPath
 import platform
 import runpy
 import shutil
+import stat
 import subprocess
 import sys
+import tempfile
 import tomllib
+import zipfile
 
 
 KAGGLE_INPUT = Path("/kaggle/input")
@@ -245,6 +249,91 @@ def install_source(source_root, dest_root, install_deps=False, dry_run=False, en
         report["dependency_returncode"] = completed.returncode
         report["status"] = "installed" if completed.returncode == 0 else "dependency_install_failed"
     return report
+
+
+
+def _zip_member_relative(name: str) -> str:
+    """Return a safe source-relative name from a guandan/ ZIP member."""
+    if not isinstance(name, str) or not name.startswith("guandan/"):
+        raise ValueError("source ZIP members must be under guandan/")
+    relative = name[len("guandan/"):]
+    path = PurePosixPath(relative)
+    if (not relative or "\\" in relative or ":" in relative
+            or path.is_absolute() or ".." in path.parts
+            or str(path) != relative):
+        raise ValueError(f"unsafe source ZIP member: {name!r}")
+    return relative
+
+
+def install_source_archive(archive_path, dest_root, install_deps=False, dry_run=False,
+                           enforce_kaggle_paths=None) -> dict:
+    """Validate a packaged source ZIP, then install it into a fresh working tree.
+
+    Kaggle Dataset uploads commonly expose one ZIP file rather than a directory.
+    This entry point keeps the production boundary explicit: the archive must be
+    read from /kaggle/input and the installed source must be created under
+    /kaggle/working. It never uses ZipFile.extractall and never trusts ZIP paths.
+    """
+    archive = Path(archive_path).expanduser().resolve()
+    destination = Path(dest_root).expanduser().resolve()
+    if enforce_kaggle_paths is None:
+        enforce_kaggle_paths = _kaggle_layout_available()
+    if enforce_kaggle_paths:
+        _under(archive, KAGGLE_INPUT, label="source archive")
+        _under(destination, KAGGLE_WORKING, label="installation destination")
+    if not archive.is_file() or _is_link(archive):
+        raise ValueError("source archive must be a regular file")
+    if destination.exists():
+        raise FileExistsError(f"destination already exists; choose a fresh source directory: {destination}")
+    if archive.stat().st_size > 64 * 1024 * 1024:
+        raise ValueError("source archive exceeds 64 MiB limit")
+
+    staging_parent = KAGGLE_WORKING if enforce_kaggle_paths else destination.parent
+    staging_parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix="guandan-archive-", dir=str(staging_parent)))
+    try:
+        seen = set()
+        total_uncompressed = 0
+        with zipfile.ZipFile(archive) as bundle:
+            if len(bundle.infolist()) > 2200:
+                raise ValueError("source archive contains too many members")
+            for info in bundle.infolist():
+                if info.is_dir():
+                    continue
+                relative = _zip_member_relative(info.filename)
+                if relative in seen:
+                    raise ValueError(f"duplicate source ZIP member: {relative}")
+                seen.add(relative)
+                mode = stat.S_IFMT(info.external_attr >> 16)
+                if mode not in (0, stat.S_IFREG):
+                    raise ValueError(f"linked or special source ZIP member: {info.filename}")
+                if info.flag_bits & 1:
+                    raise ValueError("encrypted source ZIP is unsupported")
+                total_uncompressed += info.file_size
+                if total_uncompressed > 64 * 1024 * 1024:
+                    raise ValueError("uncompressed source archive exceeds 64 MiB limit")
+                target = staging / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(bundle.read(info))
+        if not (staging / SOURCE_MANIFEST).is_file():
+            raise ValueError("source archive must contain guandan/SOURCE_MANIFEST.json")
+        # The normal manifest/hash checker validates exact file set and hashes.
+        _export_files(staging)
+        provenance = runpy.run_path(str(staging / "guandan/deployment/provenance.py"))["source_provenance"]
+        source_evidence = provenance(staging)
+        report = install_source(
+            staging,
+            destination,
+            install_deps=install_deps,
+            dry_run=dry_run,
+            enforce_kaggle_paths=False,
+        )
+        report["input_archive"] = str(archive)
+        report["input_kind"] = "zip_source_export"
+        report["source"] = source_evidence
+        return report
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
 
 
 def check_dependencies(root: Path) -> dict:

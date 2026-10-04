@@ -13,7 +13,8 @@
 - `scripts/kaggle_environment_check.py`：仅在显式调用时检测/复制/安装。
   公开函数：`inspect_environment() -> dict`、
   `require_remote_runtime(system) -> None`、
-  `install_source(source_root, dest_root, install_deps=False, dry_run=False) -> dict`。
+  `install_source(source_root, dest_root, install_deps=False, dry_run=False) -> dict`、
+  `install_source_archive(archive_path, dest_root, install_deps=False, dry_run=False) -> dict`。
 - `notebooks/kaggle_training.py`：`# %%` 格式的普通源码模板，可按单元使用，
   也可作为脚本传递同一组参数。示例训练/恢复/评估调用默认均为注释。
 - 源码导出、摘要验证、运行证据、manifest、新挂载恢复与 trainer 生命周期由
@@ -27,6 +28,30 @@ capability）以及 `kaggle` 子项。后者记录标准输入/输出目录是�
 `require_remote_runtime` 要求 Python >=3.12、可用 CUDA GPU、标准输入与可写
 输出目录。目录和环境 marker 可以伪造，检查通过仍不是远端验收证明；返回
 `accepted`、`kaggle_verified` 始终为 false。
+
+## 1.0 Kaggle 单 ZIP 上传方式
+
+Kaggle 输入可以只挂载一个源码 ZIP；不要求上传本地目录。推荐把
+`guandan-source.zip` 作为私有 Dataset 的唯一文件上传，例如挂载为：
+
+```text
+/kaggle/input/guandan-source/guandan-source.zip
+```
+
+Notebook 先从 ZIP 中读取标准库环境检查入口，并调用
+`install_source_archive()`。该函数会在写入目标前校验 ZIP 成员路径、特殊文件、
+`SOURCE_MANIFEST.json`、完整文件集合和每个文件的 SHA-256，然后只把源码复制到
+`/kaggle/working`。它不使用 `ZipFile.extractall()`，不写入 `/kaggle/input`，也不
+上传、安装或启动训练。
+
+因此上传时应使用源代码交付目录中的：
+
+```text
+D:\project\kaggle_train\guandan_a07_ready_20261004\guandan-source.zip
+```
+
+展开后的 `source_dataset` 仅用于本地检查或手工制作 Dataset，不是必须的 Kaggle
+上传形式。
 
 ## 1. 三类目录必须分开
 

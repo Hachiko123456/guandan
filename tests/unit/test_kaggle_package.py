@@ -391,6 +391,40 @@ def test_build_package_unzip_install_source_round_trip(checker, tmp_path):
     assert (destination / "scripts/kaggle_entry.py").is_file()
 
 
+def test_zip_dataset_upload_round_trip_installs_without_folder_upload(checker, tmp_path):
+    root = package_fixture_repo(tmp_path)
+    archive_path = tmp_path / "guandan-source.zip"
+    result = build_package(root, archive_path)
+    destination = tmp_path / "working" / "guandan-source"
+    report = checker.install_source_archive(
+        archive_path,
+        destination,
+        enforce_kaggle_paths=False,
+    )
+    assert report["status"] == "copied"
+    assert report["input_kind"] == "zip_source_export"
+    assert report["source"]["source_kind"] == "verified_export"
+    assert (destination / "SOURCE_MANIFEST.json").is_file()
+    assert (destination / "scripts/kaggle_entry.py").is_file()
+    assert not list((tmp_path / "working").glob("guandan-archive-*"))
+
+
+def test_zip_dataset_upload_rejects_extra_member_before_destination(checker, tmp_path):
+    root = package_fixture_repo(tmp_path)
+    archive_path = tmp_path / "guandan-source.zip"
+    result = build_package(root, archive_path)
+    import zipfile
+    forged = tmp_path / "forged.zip"
+    with zipfile.ZipFile(result["archive"]) as source, zipfile.ZipFile(forged, "w") as target:
+        for info in source.infolist():
+            target.writestr(info, source.read(info))
+        target.writestr("guandan/unlisted.py", b"forged")
+    destination = tmp_path / "working" / "guandan-source"
+    with pytest.raises(ValueError, match="file-set|hash/path mismatch"):
+        checker.install_source_archive(forged, destination, enforce_kaggle_paths=False)
+    assert not destination.exists()
+
+
 @pytest.mark.parametrize("missing", [
     "scripts/kaggle_entry.py",
     "guandan/deployment/control.py",

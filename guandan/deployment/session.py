@@ -181,10 +181,19 @@ def _verify_training_completion(result, plan: dict, algorithm: str, source: dict
         "durable_token_steps": lifetime_steps,
         "rollout_envs": settings["rollout_envs"],
         "token_steps_per_update": per_update,
-        "profile_counts_match": True,
         "discarded_partial_steps": 0,
         "discarded_optimizer_steps": 0,
     }
+    profile_counts_match = getattr(result, "profile_counts_match", None)
+    if type(profile_counts_match) is not bool:
+        raise ValueError("complete training profile_counts_match must be a bool")
+    # This flag means the invocation itself matched one canonical whole-phase
+    # target. A segmented continuation (99->100 or 101->102) is valid even
+    # when the trainer correctly reports False; all actual/durable counters
+    # below remain mandatory evidence.
+    canonical_target = settings["updates_per_algorithm"] if start == 0 else settings["resume_updates"]
+    if profile_counts_match and actual_updates != canonical_target:
+        raise ValueError("profile_counts_match flag disagrees with continuation target")
     # If a result adapter also exposes explicitly named actual counters, these
     # must agree with TrainingResult's canonical fields, not override them.
     for name, value in (("actual_updates", actual_updates),
