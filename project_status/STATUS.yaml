@@ -102,32 +102,32 @@ stages:
       - remote_full has not been run; accepted must remain false
       - A02 prerequisite defects are recorded in docs/prerequisite_defects_A05_A06.md
   A06_evaluation:
-    local_ready: false
+    local_ready: true
     verification:
       local_fast:
-        status: rejected_on_main_review
-        review_status: rejected
-        code_commit: 0e5c1a1
-        report: project_status/history/20261003T234059912104Z_20b39d6f25a54aea85b628d8237012a8/A06/report.json
+        status: passed
+        review_status: main_reviewed
+        code_commit: bcdc310
+        report: project_status/history/20261004T015030756341Z_84e3447bcf4b4a08a735f1493e657ac5/A06/report.json
         actual_games_per_opponent: 16
         actual_total_games: 48
         seat_rotations: [0, 1, 2, 3]
+        snapshot: actual A05 IPPO update-5 checkpoint
+        same_deal_group_across_rotations: true
       remote_full:
         status: not_run
         review_status: not_reviewed
         code_commit: null
         report: null
-    status: rejected
-    implementation: partial
-    tests: failed_main_review
+    status: verified
+    implementation: complete
+    tests: passed
     accepted: false
-    commit: 0e5c1a1
+    commit: bcdc310
     blockers:
-      - snapshot baseline was not an actual checkpoint-loaded policy
-      - rotations did not reuse the same deal group seed
-      - random strategy used process-randomized hash() seeds
-      - replace with observation-only agents and rerun local_fast 48-game evidence
       - remote_full has not been run; accepted must remain false
+      - local evaluation is pipeline correctness evidence, not a model-strength claim
+      - A02 prerequisite defects remain documented in docs/prerequisite_defects_A05_A06.md
   A07_kaggle:
     status: not_started
     implementation: none
