@@ -90,7 +90,8 @@ def harness(tmp_path, *, incomplete_once=False, bad=False):
                 token_steps_per_update=1024,
                 profile_counts_match=(start in (0, 100) and not incomplete),
                 elapsed_seconds=1.0, metrics=[], checkpoints=[],
-                resumed_from=None if args.resume is None else str(args.resume),
+                resumed_from=None if args.resume is None else str(
+                    Path(args.resume).parent / json.loads(Path(args.resume).read_text())['checkpoint_filename']),
                 resume_sha256=None if args.resume is None else fake_resolver(
                     args.resume, algorithm=args.algorithm)['checkpoint_sha256'],
                 runtime={}, reason='synthetic incomplete' if incomplete else None,
@@ -112,6 +113,22 @@ def harness(tmp_path, *, incomplete_once=False, bad=False):
         return record
     return cfg, source, controller, calls, clock, executor
 
+
+
+def test_real_trainer_nested_checkpoint_layout_maps_to_stage(tmp_path):
+    sessions = tmp_path / 'sessions'
+    manifest = sessions / 'run-1' / 'checkpoints' / 'remote_full' / 'ippo' / 'ippo_update_000100_x.recovery.json'
+    manifest.parent.mkdir(parents=True)
+    manifest.write_text('{}', encoding='utf-8')
+    assert w._stage_directory_from_manifest(manifest, sessions) == sessions / 'run-1'
+
+
+def test_flat_synthetic_checkpoint_layout_still_maps_to_stage(tmp_path):
+    sessions = tmp_path / 'sessions'
+    manifest = sessions / 'run-1' / 'checkpoints' / 'ippo_update_000100_x.recovery.json'
+    manifest.parent.mkdir(parents=True)
+    manifest.write_text('{}', encoding='utf-8')
+    assert w._stage_directory_from_manifest(manifest, sessions) == sessions / 'run-1'
 
 def test_run_all_sequences_both_algorithms_with_one_controller_and_real_artifact_paths(tmp_path):
     profile, source, controller, calls, clock, executor = harness(tmp_path)

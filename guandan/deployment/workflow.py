@@ -137,9 +137,11 @@ def export_progress(root, archive, *, controller=None):
                         _hard_check(controller)
                         target.write(chunk)
         _hard_check(controller)
+        archive_sha256 = digest(temporary, controller=controller)
+        _hard_check(controller)
         os.replace(temporary, archive)
         finished = controller.clock() if controller is not None else time.monotonic()
-        return {'path': str(archive), 'sha256': digest(archive), 'files': len(files), 'uploaded': False,
+        return {'path': str(archive), 'sha256': archive_sha256, 'files': len(files), 'uploaded': False,
                 'export_seconds': float(finished - started),
                 'total_elapsed_seconds': float((finished - controller.started) if controller is not None else finished - started)}
     except BaseException:
@@ -160,7 +162,7 @@ def write_export_receipt(archive, *, status, export_seconds, total_elapsed_secon
     archive = Path(archive).resolve()
     payload = {'format': 'guandan-workflow-export-receipt-v1', 'status': status,
                'archive_path': str(archive),
-               'archive_sha256': digest(archive) if archive.is_file() else None,
+               'archive_sha256': (bundle.get('sha256') if bundle is not None else None),
                'export_seconds': float(export_seconds),
                'total_elapsed_seconds': float(total_elapsed_seconds),
                'uploaded': False, 'accepted': False, 'kaggle_verified': False}
@@ -307,9 +309,16 @@ def _stage_directory_from_manifest(manifest_path, sessions):
     sessions = Path(sessions).resolve()
     if linked(manifest_path) or not manifest_path.is_relative_to(sessions):
         raise ValueError('workflow recovery manifest escapes sessions')
-    if manifest_path.parent.name != 'checkpoints':
-        raise ValueError('workflow recovery manifest must be under a checkpoints directory')
-    stage = manifest_path.parent.parent
+    # Trainer layout: <stage>/checkpoints/<profile>/<algorithm>/*.recovery.json.
+    # Synthetic fixtures may use the older flat <stage>/checkpoints/ layout.
+    if (manifest_path.parent.name == 'checkpoints'
+            and manifest_path.parent.parent.parent == sessions):
+        stage = manifest_path.parent.parent
+    elif (manifest_path.parent.parent.name == 'remote_full'
+          and manifest_path.parent.parent.parent.name == 'checkpoints'):
+        stage = manifest_path.parent.parent.parent.parent
+    else:
+        raise ValueError('workflow recovery manifest has an invalid checkpoint directory')
     if stage.parent != sessions:
         raise ValueError('workflow recovery manifest has an invalid stage directory')
     return stage
@@ -461,9 +470,11 @@ class Workflow:
                 manifest_name = training.get('recovery_manifest')
             checkpoint_name = training.get('checkpoint')
             if manifest_name and checkpoint_name:
-                manifest = output / 'checkpoints' / Path(manifest_name).name
-                checkpoint = output / 'checkpoints' / Path(checkpoint_name).name
-                if manifest.is_file() and checkpoint.is_file():
+                manifest = Path(manifest_name).expanduser().resolve()
+                checkpoint = Path(checkpoint_name).expanduser().resolve()
+                if (manifest.is_file() and checkpoint.is_file()
+                        and manifest.is_relative_to(output)
+                        and checkpoint.is_relative_to(output)):
                     stage['recovery_manifest'] = _safe_file_reference(self.root, manifest)
                     stage['checkpoint'] = _safe_file_reference(self.root, checkpoint)
         path = _workflow_stage_path(output) if output is not None else None
@@ -503,6 +514,11 @@ class Workflow:
                 raise ValueError('training stage input checkpoint digest changed')
             if recovery['durable_updates'] != input_meta.get('durable_updates'):
                 raise ValueError('training stage input update changed')
+            if training_data.get('resume_sha256') != input_meta.get('checkpoint_sha256'):
+                raise ValueError('training resume SHA does not match selected parent checkpoint')
+            if (not training_data.get('resumed_from')
+                    or Path(training_data['resumed_from']).name != Path(recovery['checkpoint_path']).name):
+                raise ValueError('training resume path does not match selected parent checkpoint')
         plan = session.training_plan(stage['algorithm'], recovery)
         training_data['checkpoint'] = str(checkpoint_path)
         training_data['recovery_manifest'] = str(manifest_path)
