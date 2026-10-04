@@ -6,9 +6,10 @@ computed separately with a caller-supplied ``level_rank``:
 
     2 < 3 < ... < A < level < small joker < big joker
 
-When ``level_rank`` is ``Rank.TWO`` there is no second level position; the
-ordinary order is ``2 < 3 < ... < A < small joker < big joker``.  The printed
-rank of a card never changes.  A heart card whose printed rank equals the
+When ``level_rank`` is ``Rank.TWO``, the printed 2 occupies the single level
+position above A: ``3 < ... < A < 2 < small joker < big joker``.  There is no
+second level position, and the printed rank of a card never changes.  A heart
+card whose printed rank equals the
 level is a wild card for declarations, but its physical identity and printed
 rank remain unchanged.
 """
