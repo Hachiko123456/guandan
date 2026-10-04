@@ -133,12 +133,30 @@ stages:
       - local evaluation is pipeline correctness evidence, not a model-strength claim
       - A02 prerequisite defects remain documented in docs/prerequisite_defects_A05_A06.md
   A07_kaggle:
-    status: not_started
-    implementation: none
-    tests: not_run
+    local_ready: true
+    verification:
+      local_package:
+        status: passed
+        review_status: main_reviewed
+        code_commit: 332722a
+        report: project_status/history/20261004T045250542809Z_83ee6010e47f4fec90e769626b3090e1/A07/report.json
+        tests_passed: 48
+        remote_executed: false
+        kaggle_verified: false
+      remote_kaggle:
+        status: not_run
+        review_status: not_reviewed
+        code_commit: null
+        report: null
+    status: verified
+    implementation: complete
+    tests: passed
     accepted: false
-    commit: null
-    blockers: []
+    commit: 332722a
+    blockers:
+      - no real fresh Kaggle GPU session was run; local package evidence is not Kaggle acceptance
+      - remote_full A05/A06 and Kaggle recovery remain unverified
+      - A02 prerequisite defects remain documented in docs/prerequisite_defects_A05_A06.md
   A08_belief_search:
     status: not_started
     implementation: none
