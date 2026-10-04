@@ -107,3 +107,22 @@ def test_joker_identity_and_properties() -> None:
     assert rank_counts((small, big)) == Counter(
         {Rank.SMALL_JOKER: 1, Rank.BIG_JOKER: 1}
     )
+
+
+def test_effective_order_treats_two_as_the_level_when_level_is_two() -> None:
+    order = effective_rank_order(Rank.TWO)
+    assert order == (
+        Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, Rank.SEVEN, Rank.EIGHT,
+        Rank.NINE, Rank.TEN, Rank.JACK, Rank.QUEEN, Rank.KING, Rank.ACE,
+        Rank.TWO, Rank.SMALL_JOKER, Rank.BIG_JOKER,
+    )
+    assert effective_rank_value(Rank.ACE, Rank.TWO) < effective_rank_value(Rank.TWO, Rank.TWO)
+    assert effective_rank_value(Rank.TWO, Rank.TWO) < effective_rank_value(Rank.SMALL_JOKER, Rank.TWO)
+
+
+def test_effective_order_has_exactly_one_level_position_for_every_level() -> None:
+    for level_rank in NORMAL_RANKS:
+        order = effective_rank_order(level_rank)
+        assert len(order) == len(set(order)) == 15
+        assert order[-2:] == (Rank.SMALL_JOKER, Rank.BIG_JOKER)
+        assert effective_rank_value(level_rank, level_rank) == 12

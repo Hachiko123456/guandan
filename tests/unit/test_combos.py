@@ -212,3 +212,23 @@ def test_legacy_aliases_remain_available() -> None:
     assert CombinationKind.KING_BOMB is CombinationKind.FOUR_KINGS
     assert CombinationKind.CONSECUTIVE_PAIRS is CombinationKind.PAIR_SEQUENCE
     assert CombinationKind.STEEL_PLATE is CombinationKind.TRIPLE_SEQUENCE
+
+
+def test_level_two_strength_is_shared_by_pairs_and_bombs() -> None:
+    ace_pair = require_combination(cards_of_rank(Rank.ACE, 2), level_rank=Rank.TWO, kind=CombinationKind.PAIR)
+    two_pair = require_combination(cards_of_rank(Rank.TWO, 2), level_rank=Rank.TWO, kind=CombinationKind.PAIR)
+    assert compare_combinations(two_pair, ace_pair) > 0
+
+    ace_bomb = require_combination(cards_of_rank(Rank.ACE, 4), level_rank=Rank.TWO, kind=CombinationKind.RANK_BOMB)
+    two_bomb = require_combination(cards_of_rank(Rank.TWO, 4), level_rank=Rank.TWO, kind=CombinationKind.RANK_BOMB)
+    assert compare_combinations(two_bomb, ace_bomb) > 0
+
+
+def test_same_heart_level_declaration_is_canonicalized_to_natural_use() -> None:
+    level = Rank.SIX
+    wild = card(level, Suit.HEARTS)
+    cards = (card(Rank.FIVE, Suit.HEARTS), wild, card(Rank.SEVEN, Suit.HEARTS), card(Rank.EIGHT, Suit.HEARTS), card(Rank.NINE, Suit.HEARTS))
+    declarations = [item for item in recognize_combinations(cards, level_rank=level) if item.kind is CombinationKind.STRAIGHT_FLUSH]
+    assert len(declarations) == 1
+    assert declarations[0].wild_assignments[wild.card_id] == (level, Suit.HEARTS)
+    assert declarations[0].natural_wild_ids == (wild.card_id,)

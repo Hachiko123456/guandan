@@ -197,10 +197,18 @@ def _assignment_variants(
     if target_rank in {Rank.SMALL_JOKER, Rank.BIG_JOKER}:
         return ()
     variants: list[tuple[_WILD_ASSIGNMENT, bool]] = []
-    if target_rank is level_rank and (target_suit is None or target_suit is Suit.HEARTS):
+    natural_same_declaration = target_rank is level_rank and (
+        target_suit is None or target_suit is Suit.HEARTS
+    )
+    if natural_same_declaration:
         variants.append(((target_rank, Suit.HEARTS), True))
-    represented_suit = target_suit if target_suit is not None else Suit.CLUBS
-    variants.append(((target_rank, represented_suit), False))
+    # A heart-level wild declared as the natural heart level card and the same
+    # card declared as a substituted heart card have the same public
+    # declaration/result in a straight flush.  Canonicalize that equivalent
+    # pair to natural use; retain other suits/ranks because they are observable.
+    if not (natural_same_declaration and target_suit is Suit.HEARTS):
+        represented_suit = target_suit if target_suit is not None else Suit.CLUBS
+        variants.append(((target_rank, represented_suit), False))
     return tuple(dict.fromkeys(variants))
 
 

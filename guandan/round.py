@@ -94,12 +94,12 @@ def legal_actions(s):return enumerate_legal_actions(s)
 def iter_legal_actions(s)->Iterator[CommittedAction]:yield from enumerate_legal_actions(s)
 def tribute_card_for(s,donor):
     if donor not in s.tribute_donors:return None
-    e=[c for c in s.hands[donor] if not c.is_joker and not c.is_level_wild(s.level_rank)]
+    e=[c for c in s.hands[donor] if not c.is_level_wild(s.level_rank)]
     return min(e,key=lambda c:(-effective_rank_value(c.rank,s.level_rank),c.card_id)) if e else None
 def return_cards_for(s,recipient):
     if s.pending_return is None or s.pending_return[0]!=recipient:return ()
     ranks={Rank.TWO,Rank.THREE,Rank.FOUR,Rank.FIVE,Rank.SIX,Rank.SEVEN,Rank.EIGHT,Rank.NINE,Rank.TEN}
-    return tuple(sorted((c for c in s.hands[recipient] if not c.is_joker and not c.is_level_wild(s.level_rank) and c.rank in ranks),key=lambda c:(effective_rank_value(c.rank,s.level_rank),c.card_id)))
+    return tuple(sorted((c for c in s.hands[recipient] if not c.is_joker and not c.is_level_wild(s.level_rank) and c.rank is not s.level_rank and c.rank in ranks),key=lambda c:(effective_rank_value(c.rank,s.level_rank),c.card_id)))
 def _held(s,a):
     have={c.card_id for c in s.hands[a.player_id]};ids=[c.card_id for c in a.cards]
     if len(ids)!=len(set(ids)) or not set(ids).issubset(have):raise IllegalActionError("action selects a missing or duplicated physical card")

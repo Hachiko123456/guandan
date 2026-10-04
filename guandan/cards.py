@@ -159,8 +159,14 @@ def effective_rank_order(level_rank: Rank = Rank.TWO) -> tuple[Rank, ...]:
     """
 
     level_rank = validate_level_rank(level_rank)
-    ordinary = [Rank.TWO, *[rank for rank in PRINTED_RANKS if rank is not Rank.TWO]]
-    if level_rank is not Rank.TWO:
+    non_two = [rank for rank in PRINTED_RANKS if rank is not Rank.TWO]
+    if level_rank is Rank.TWO:
+        # The starting level is a real level position, not the low natural 2.
+        # There is only one printed rank TWO, so it is moved above A exactly
+        # once and remains below the jokers.
+        ordinary = [*non_two, Rank.TWO]
+    else:
+        ordinary = [Rank.TWO, *non_two]
         ordinary.remove(level_rank)
         ordinary.append(level_rank)
     return (*ordinary, *JOKER_RANKS)
