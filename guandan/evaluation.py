@@ -142,7 +142,7 @@ def _assignment(rotation: int, opponent: str):
 
 def play_game(*, opponent: str, deal_group: int, seat_rotation: int, seed: int,
               candidate_checkpoint, snapshot_checkpoint, deadline=None,
-              env_factory=GuandanEnv, agent_factory=make_agent) -> GameRecord:
+              env_factory=GuandanEnv, agent_factory=make_agent, device='cpu') -> GameRecord:
     """Keep the physical deal/leader fixed; rotate the four agent roles instead.
 
     logical seats 0/2 are the evaluated policy team, 1/3 the opponent team.
@@ -172,7 +172,7 @@ def play_game(*, opponent: str, deal_group: int, seat_rotation: int, seed: int,
         agents[physical] = agent_factory(
             'snapshot' if name == 'candidate' else name,
             seed=rng_seed, checkpoint=candidate_checkpoint if name == 'candidate' else snapshot_checkpoint,
-            device='cpu',
+            device=device,
         )
         agent_seeds[physical] = rng_seed
         for trained in getattr(agents[physical], 'training_deals', []):
@@ -217,9 +217,14 @@ def play_game(*, opponent: str, deal_group: int, seat_rotation: int, seed: int,
 
 def evaluate_profile(*, profile='local_fast', seed=EVALUATION_SEED_BASE,
                      max_hours=None, evidence_path=None, candidate_checkpoint=None,
-                     snapshot_checkpoint=None, deadline=None) -> EvaluationResult:
+                     snapshot_checkpoint=None, deadline=None, device=None) -> EvaluationResult:
     resolved = resolved_profile(profile)  # consumes/validates runner canonical JSON
     config = resolved['config']['evaluation']
+    device = device or ('cuda' if profile == 'remote_full' else 'cpu')
+    if profile == 'remote_full' and device != 'cuda':
+        raise ValueError('remote_full requires CUDA evaluation')
+    if device == 'cuda' and not torch.cuda.is_available():
+        raise RuntimeError('CUDA requested for evaluation but unavailable')
     if type(seed) is not int or seed < EVALUATION_SEED_BASE:
         raise ValueError('invalid evaluation seed namespace')
     started = time.monotonic()
@@ -228,7 +233,7 @@ def evaluate_profile(*, profile='local_fast', seed=EVALUATION_SEED_BASE,
     records = []
     output = None if evidence_path is None else Path(evidence_path)
     previous_threads = torch.get_num_threads()
-    metadata = {'resolved_profile': resolved, 'runtime': runtime_metadata('cpu'),
+    metadata = {'resolved_profile': resolved, 'runtime': runtime_metadata(device),
                 'protocol_versions': [RULES_VERSION,ACTION_VERSION,ENV_VERSION,ENCODING_VERSION],
                 'scope': 'pipeline correctness only; fixed FIVE, standalone first hand; no strength claim',
                 'started_utc': datetime.now(timezone.utc).isoformat(),
@@ -242,8 +247,8 @@ def evaluate_profile(*, profile='local_fast', seed=EVALUATION_SEED_BASE,
             candidate_checkpoint, snapshot_checkpoint = sources['candidate'], sources['snapshot']
             metadata['source_evidence'] = sources
         # Capture hashes/versions once, before any counted game; load errors fail.
-        metadata['candidate'] = SnapshotAgent(candidate_checkpoint).metadata
-        metadata['snapshot_opponent'] = SnapshotAgent(snapshot_checkpoint).metadata
+        metadata['candidate'] = SnapshotAgent(candidate_checkpoint,device=device).metadata
+        metadata['snapshot_opponent'] = SnapshotAgent(snapshot_checkpoint,device=device).metadata
         metadata['max_hours'] = config['max_hours'] if max_hours is None else max_hours
         torch.set_num_threads(1)
         for opponent in config['opponents']:
@@ -252,7 +257,7 @@ def evaluate_profile(*, profile='local_fast', seed=EVALUATION_SEED_BASE,
                     record = play_game(
                         opponent=opponent, deal_group=group, seat_rotation=rotation, seed=seed+group,
                         candidate_checkpoint=candidate_checkpoint, snapshot_checkpoint=snapshot_checkpoint,
-                        deadline=deadline,
+                        deadline=deadline, device=device,
                     )
                     records.append(record)  # completed games ONLY
                     if output is not None:

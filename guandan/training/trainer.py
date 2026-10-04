@@ -50,6 +50,11 @@ class TrainingResult:
     runtime: dict = field(default_factory=dict)
     reason: str | None = None
     evidence: str | None = None
+    durable_updates: int = 0
+    durable_token_steps: int = 0
+    discarded_partial_steps: int = 0
+    discarded_optimizer_steps: int = 0
+    recovery_manifest: str | None = None
 
 
 def _positive(value, name):
@@ -61,7 +66,7 @@ def _positive(value, name):
 def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
           checkpoint_dir="runs", resume=None, hidden_dim=32, seed=TRAIN_SEED_BASE,
           rollout_steps=None, rollout_envs=None, deadline=None, max_hours=None,
-          epochs=2, gamma=1.0, gae_lambda=0.95):
+          epochs=2, gamma=1.0, gae_lambda=0.95, checkpoint_controller=None):
     """updates is additional updates on resume; overrides are explicitly non-profile tests.
 
     rollout_steps retains legacy per-environment ticks only for focused tests.
@@ -82,6 +87,9 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
         raise ValueError("aggregate token steps must be divisible by env count")
     target = (cfg["resume_updates"] if resume else cfg["updates_per_algorithm"]) if updates is None else _positive(updates, "updates")
     budget = deadline or Deadline(cfg["max_hours"] if max_hours is None else max_hours)
+    if checkpoint_controller is not None:
+        from ..deployment.control import CombinedDeadline
+        budget = CombinedDeadline(budget, checkpoint_controller)
     requested = device or configured["config"]["device"]
     if requested == "auto":
         requested = "cuda" if torch.cuda.is_available() else "cpu"
@@ -122,6 +130,35 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
     metrics, checkpoints = [], []
     latest_checkpoint = None
     reason, status, resume_digest = None, "complete", None
+    stable_state = None
+    recovery_manifest = None
+    discarded_steps = discarded_optimizer_steps = 0
+
+    def persist_checkpoint(reason_tag):
+        nonlocal latest_checkpoint, recovery_manifest
+        path = directory / f"{algorithm}_update_{engine.update_count:06d}_{run_id}_{reason_tag}.pt"
+        saved = save_checkpoint(path, model=modules, optimizer=optimizer, profile=profile,
+                                algorithm=algorithm, update=engine.update_count, seed=seed,
+                                model_config=model_cfg, protocol_versions=CURRENT_PROTOCOL_VERSIONS,
+                                git_commit=metadata["git_commit"],
+                                training_state={"compatibility": compatibility, "engine": engine.extra_state()})
+        latest_checkpoint = str(path)
+        checkpoint_digest = file_sha256(path)
+        checkpoints.append({"path": str(path), "sha256": checkpoint_digest, "update": saved.update_count,
+                            "token_steps": engine.total_token_steps, "reason": reason_tag})
+        manifest_path = path.with_suffix('.recovery.json')
+        write_evidence(manifest_path, {
+            "format":"guandan-recovery-v1", "checkpoint_filename":path.name,
+            "checkpoint_sha256":checkpoint_digest, "profile":profile, "algorithm":algorithm,
+            "durable_updates":engine.update_count, "durable_token_steps":engine.total_token_steps,
+            "model_config":model_cfg, "compatibility":compatibility,
+            "protocol_versions":CURRENT_PROTOCOL_VERSIONS, "source_git_commit":metadata["git_commit"],
+            "reason":reason_tag, "remote_verified":False, "accepted":False,
+        })
+        recovery_manifest = str(manifest_path)
+        if checkpoint_controller is not None:
+            checkpoint_controller.checkpoint_saved()
+
     try:
         budget.check(stage="initialize")
         loaded = None
@@ -146,24 +183,37 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
                 raise IncompatibleCheckpointError("checkpoint update counters disagree")
         initial_updates, initial_steps = engine.update_count, engine.total_token_steps
         for _ in range(target):
+            if checkpoint_controller is not None:
+                # An interrupted rollout/optimizer epoch is NOT a consistent
+                # resume point. Preserve the whole previous completed state.
+                stable_state = engine.state_dict()
+                checkpoint_controller.before_update()
             budget.check(stage="before_update", completed_updates=engine.update_count-initial_updates)
+            update_started = time.monotonic()
             row = engine.collect_and_update(aggregate, deadline=budget)
             metrics.append(row)
             if row["token_steps"] != aggregate or row["rollout_envs"] != count or row["rollout_ticks"] != aggregate // count:
                 raise RuntimeError("actual rollout counters do not match requested profile")
+            if checkpoint_controller is not None:
+                stable_state = engine.state_dict()
+                checkpoint_controller.after_update(time.monotonic()-update_started)
             budget.check(stage="after_update")
-            if engine.update_count % cfg["checkpoint_interval"] == 0 or len(metrics) == target:
-                path = directory / f"{algorithm}_update_{engine.update_count:06d}_{run_id}.pt"
-                saved = save_checkpoint(path, model=modules, optimizer=optimizer, profile=profile,
-                                        algorithm=algorithm, update=engine.update_count, seed=seed,
-                                        model_config=model_cfg, protocol_versions=CURRENT_PROTOCOL_VERSIONS,
-                                        training_state={"compatibility": compatibility, "engine": engine.extra_state()})
-                latest_checkpoint = str(path)
-                checkpoints.append({"path": str(path), "sha256": file_sha256(path), "update": saved.update_count,
-                                    "token_steps": engine.total_token_steps})
+            if (engine.update_count % cfg["checkpoint_interval"] == 0 or len(metrics) == target
+                    or (checkpoint_controller is not None and checkpoint_controller.checkpoint_due())):
+                persist_checkpoint('periodic')
             budget.check(stage="checkpoint_complete")
     except (IncompleteTrainingError, BudgetExceeded) as exc:
         status, reason = "incomplete", str(exc)
+        if checkpoint_controller is not None and engine is not None:
+            if stable_state is not None:
+                previous_steps = stable_state["extra_state"]["collector"]["total_token_steps"]
+                discarded_steps = max(0, engine.total_token_steps-previous_steps)
+                discarded_optimizer_steps = max(0, engine.optimizer_steps-stable_state["extra_state"]["optimizer_steps"])
+                engine.load_state_dict(stable_state)
+                metrics[:] = [row for row in metrics if row["update"] <= engine.update_count]
+            # Includes update0 if stopped before the first update. No forged
+            # complete flag, no loss/RNG/env state from a half-finished update.
+            persist_checkpoint('interrupted')
     except Exception as exc:
         write_evidence(report_path, {"status": "failed", "reason": f"{type(exc).__name__}: {exc}",
                                     "profile": configured, "algorithm": algorithm, "runtime": metadata,
@@ -174,12 +224,13 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
     lifetime_steps = initial_steps if engine is None else engine.total_token_steps
     expected_updates = cfg["resume_updates"] if resume else cfg["updates_per_algorithm"]
     result = TrainingResult(
-        algorithm, profile, lifetime_updates-initial_updates, lifetime_steps-initial_steps,
+        algorithm, profile, lifetime_updates-initial_updates, lifetime_steps-initial_steps+discarded_steps,
         metrics[-1].get("loss") if metrics else None, latest_checkpoint, status, lifetime_updates,
         lifetime_steps, initial_updates, target, count, aggregate,
         count == cfg["rollout_envs"] and aggregate == cfg["token_steps_per_update"] and target == expected_updates,
         time.monotonic()-started, metrics, checkpoints, None if resume is None else str(Path(resume).resolve()),
         resume_digest, metadata, reason, str(report_path),
+        lifetime_updates, lifetime_steps, discarded_steps, discarded_optimizer_steps, recovery_manifest,
     )
     write_evidence(report_path, {**asdict(result), "resolved_profile": configured,
                                 "actual_ticks_per_env": [] if engine is None else engine.collector.ticks_per_env.tolist(),

@@ -61,9 +61,10 @@ def resolved_profile(name: str | None = None) -> dict:
 
 
 def runtime_metadata(device: str) -> dict:
-    proc = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True)
+    from ..deployment.provenance import source_provenance
+    provenance = source_provenance(ROOT)
     return {
-        "git_commit": proc.stdout.strip(), "python": sys.executable,
+        **provenance, "python": sys.executable,
         "python_version": platform.python_version(), "torch": str(torch.__version__),
         "device": str(device), "cuda_available": torch.cuda.is_available(),
         "gpu_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
