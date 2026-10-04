@@ -317,10 +317,14 @@ def test_failed_training_gate_requires_explicit_retry_and_retries_from_parent(tm
 
 def test_cached_evaluation_with_nonempty_errors_is_rejected(tmp_path):
     profile = w.session._profile()
-    report = synthetic_evaluation(profile, 'ippo', Path('candidate.pt'), Path('snapshot.pt'))
+    candidate = tmp_path / 'candidate.pt'
+    snapshot = tmp_path / 'snapshot.pt'
+    candidate.write_bytes(b'candidate')
+    snapshot.write_bytes(b'snapshot')
+    report = synthetic_evaluation(profile, 'ippo', candidate, snapshot)
     report['errors'] = ['synthetic postcondition error']
     with pytest.raises(ValueError, match='complete remote_full'):
-        w.checked_evaluation(report, profile, 'ippo', Path('candidate.pt'), Path('snapshot.pt'))
+        w.checked_evaluation(report, profile, 'ippo', candidate, snapshot)
 
 
 def test_parent_chain_rejects_candidate_from_unrelated_update100_branch(tmp_path):
