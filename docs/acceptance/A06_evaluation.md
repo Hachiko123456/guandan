@@ -46,10 +46,16 @@ python scripts/run_acceptance.py --stage A06 --profile local_fast --show-profile
 
 每次 A06 变更先运行完整 scoped `local_fast` A06 及目标依赖测试；不要求每次改动都重跑 A02 既有 10,000 个随机种子对局。远端/release 阶段运行完整回归和发布测试，不得删除或弱化安全、牌守恒、终局/截断、reset、信息边界和错误不静默回退测试。
 
-## 本机 local_fast 证据
+## 本机 local_fast 主代理复核（2026-10-04）
 
-主代理本机运行 `local_fast`，实际完成每个对手 16 局，`random`、`rule`、`snapshot` 各 16 局，总计 48 局。每局记录真实终局、排名、队伍奖励、玩家零和奖励、座位轮换、deal group 和 seed。报告：
+早期 `0e5c1a1` 的四个测试虽然通过，但其 snapshot 是固定规则、换座没有保持相同基础发牌、且 hash() 随机流不可跨进程复现；该报告已被主代理拒绝，不能作为本机通过依据。
 
-`project_status/history/20261003T234059912104Z_20b39d6f25a54aea85b628d8237012a8/A06/report.json`
+最终实现以 A05 已审查证据中的 **IPPO update 6** 为候选策略，**IPPO update 5** 为冻结 snapshot 对手；加载实际权重，记录 checkpoint SHA256 和协议/模型版本。两个候选队伍座位都运行候选策略，对方两个座位运行指定基线，所有 agent 只接收 Observation。
 
-本机通过只表示评估管线的 `local_ready`；不证明模型强度，不运行 `remote_full`，也不设置 `accepted: true`。
+每组发牌的物理分配和初始领出座位保持不变，轮换的是四个策略角色；每个候选主座位实际看到不同手牌。random/rule/snapshot 分别完成 4 组 × 4 轮换 = 16 个真实终局，总计 48 局。另有 1 局跨进程 Python hash seed 重放回归，不并入 48 局计数。
+
+实际报告：`project_status/history/20261004T031552369870Z_39c781cb4c2740e4963f0b38765e3059/A06/report.json`；逐局 JSON 与汇总位于同目录 `execution/games/` 与 `execution/evaluation_summary.json`。Runner 包含 112 项 A06 scoped 测试，全部通过、无跳过；同代码全量回归为 708 passed。
+
+统计包含真实局数、排名/reward、一致的候选队伍视角、按 rotation/deal 分组及 Wilson95 元数据。相同基础牌的轮换不是独立样本；区间仅用于展示统计管线，不是强度/显著性证明。缺模型、版本不兼容、非法动作、超时和截断都显式失败/不完整，不回退、不补计局数。
+
+本机预算只运行 local_fast；remote_full 和 Kaggle 未运行，accepted 保持 false。已知前置规则缺陷见 `docs/prerequisite_defects_A05_A06.md`；本轮局限于级别 FIVE、无上局贡还的单副管线。

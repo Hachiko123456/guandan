@@ -79,7 +79,9 @@ update 5 checkpoint 后各恢复并追加 1 次更新。报告记录真实终局
 目标类型、动作掩码、玩家/队伍视角、terminal/truncated/reset 边界、有限梯度以及
 resume digest。
 
-证据路径：`project_status/history/20261003T232220411107Z_9c0ae0690d5d491088a43fbf02dc9039/A05/report.json`。
+证据路径：`project_status/history/20261003T233030507872Z_830496ba47d44ad88b0dc0dd66044330/A05/report.json`。
 
 本机 local_ready 不等于远端完整验收；remote_full 未运行，`accepted` 必须保持 false。
 本轮另有前置规则缺陷审计：`docs/prerequisite_defects_A05_A06.md`。
+
+主代理最终回归：scoped local_fast A05 234 passed；A05+A06 集成后完整测试套件 708 passed。每算法 base 1280 + resume 256 = 1536 实际 token steps，两算法总计 3072。remote_full 未运行。

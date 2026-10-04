@@ -1,6 +1,6 @@
 project: guandan
 version: 0.1.0
-last_updated: 2026-10-03
+last_updated: 2026-10-04
 rules_version: GD-RULES-0.1
 action_protocol_version: GD-ACTION-0.1
 observation_protocol_version: GD-ENV-0.1
@@ -107,10 +107,14 @@ stages:
       local_fast:
         status: passed
         review_status: main_reviewed
-        code_commit: bcdc310
-        report: project_status/history/20261004T023636288767Z_9a52bbabb2be477a852f5015b7884239/A06/report.json
+        code_commit: 9175caffa237ca80a673b6c5cc97b1cff8d21bba
+        report: project_status/history/20261004T031552369870Z_39c781cb4c2740e4963f0b38765e3059/A06/report.json
         actual_games_per_opponent: 16
         actual_total_games: 48
+        replay_games_not_in_profile_count: 1
+        scoped_tests_passed: 112
+        full_suite_tests_passed: 708
+        execution_summary: project_status/history/20261004T031552369870Z_39c781cb4c2740e4963f0b38765e3059/A06/execution/evaluation_summary.json
         seat_rotations: [0, 1, 2, 3]
         snapshot: actual A05 IPPO update-5 checkpoint
         same_deal_group_across_rotations: true
@@ -123,7 +127,7 @@ stages:
     implementation: complete
     tests: passed
     accepted: false
-    commit: bcdc310
+    commit: 9175caffa237ca80a673b6c5cc97b1cff8d21bba
     blockers:
       - remote_full has not been run; accepted must remain false
       - local evaluation is pipeline correctness evidence, not a model-strength claim
