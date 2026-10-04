@@ -45,6 +45,15 @@ manifest 本身；不复制目录里的额外日志、缓存、检查点、密�
 失败时不递归清理或覆盖任何目标；需要检查失败的副本并选择新的目标目录。
 不要将 checkpoint bundle 当作源码安装。
 
+`SOURCE_MANIFEST.json` 使用严格的 `guandan-source-v1` schema：必须包含
+`format`、40 位小写 commit、非空 `files`、`profile=remote_full`，以及
+`uploaded=false`、`accepted=false`、`kaggle_verified=false`。manifest 中的路径
+必须是规范的相对 POSIX 路径；绝对路径、`..`、反斜杠、符号链接、缺失文件和
+未列出的额外文件都会被拒绝。文件集合和每个 SHA-256 摘要都必须逐项一致。
+源码导出还必须包含 `pyproject.toml`、`configs/acceptance_profiles.json`、
+`guandan` 包、provenance/package/session，以及两个 Kaggle 脚本入口；
+`profiles-0.2` 的 `remote_full` 配置必须保持 remote/CUDA 的 canonical 设置。
+
 ```python
 # 在一个明确选择路径的 notebook 单元中运行：
 import runpy
@@ -124,6 +133,8 @@ checkpoint/manifest 路径与摘要、结果及停止原因。源码复制报告
 
 本 worker 不运行远端或上传，不修改 STATUS，也不授予验收。
 本地单测使用临时源码副本、缺失 Torch 模拟和模拟时钟/信号，不等于 Kaggle
-GPU、完整 remote_full 训练、完整 A06 或跨真实会话恢复。
+GPU、完整 remote_full 训练、完整 A06 或跨真实会话恢复。测试会覆盖本地
+`build_package → unzip → install_source` 的端到端边界，但该流程仍不是 Kaggle
+上传、远程执行或验收证据。
 `python scripts/run_acceptance.py --stage A07` 的验收套件由主任务负责；本 worker
 不编辑该 runner 或 acceptance 文件。

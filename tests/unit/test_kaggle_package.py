@@ -13,6 +13,8 @@ import types
 
 import pytest
 
+from guandan.deployment.package import build_package
+
 
 ROOT = Path(__file__).resolve().parents[2]
 ENTRY = ROOT / "scripts/kaggle_entry.py"
@@ -61,9 +63,30 @@ def exported_source(tmp_path):
              for path in sorted(source.rglob("*")) if path.is_file()}
     (source / "SOURCE_MANIFEST.json").write_text(json.dumps({
         "format": "guandan-source-v1", "git_commit": "a" * 40, "files": files,
-        "profile": "remote_full", "accepted": False, "kaggle_verified": False,
+        "profile": "remote_full", "uploaded": False, "accepted": False, "kaggle_verified": False,
     }), encoding="utf-8")
     return source
+
+
+def git_fixture(root, *args):
+    return subprocess.check_output(["git", "-C", str(root), *args]).decode("utf-8").strip()
+
+
+def package_fixture_repo(tmp_path):
+    root = tmp_path / "package source"
+    root.mkdir()
+    git_fixture(root, "init", "-q")
+    git_fixture(root, "config", "user.name", "Package Fixture")
+    git_fixture(root, "config", "user.email", "package@example.invalid")
+    shutil.copytree(ROOT / "guandan", root / "guandan", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    for name in ("scripts/kaggle_entry.py", "scripts/kaggle_environment_check.py",
+                 "pyproject.toml", "configs/acceptance_profiles.json"):
+        target = root / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / name, target)
+    git_fixture(root, "add", ".")
+    git_fixture(root, "commit", "-qm", "package fixture")
+    return root
 
 
 @pytest.mark.parametrize("path", [ENTRY, CHECKER, NOTEBOOK])
@@ -237,22 +260,16 @@ def test_install_dry_run_never_copies_or_invokes_pip(checker, exported_source, t
     assert result["uploaded"] is result["kaggle_verified"] is False
 
 
-def test_install_copies_verified_export_only_and_never_pip_by_default(checker, exported_source, tmp_path, monkeypatch):
+def test_install_rejects_extra_unmanifested_files_before_copying(checker, exported_source, tmp_path, monkeypatch):
     for name in ("runs/x.pt", "logs/log.txt", "checkpoints/model.pt", ".git/config", "__pycache__/cache.pyc", ".env"):
         extra = exported_source / name
         extra.parent.mkdir(exist_ok=True, parents=True)
         extra.write_text("should not be copied", encoding="utf-8")
     monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: pytest.fail("implicit pip"))
     destination = tmp_path / "writable" / "source"
-    report = checker.install_source(exported_source, destination)
-    assert report["status"] == "copied"
-    assert report["commands"] == []
-    assert (destination / "SOURCE_MANIFEST.json").read_bytes() == (exported_source / "SOURCE_MANIFEST.json").read_bytes()
-    for name in ("runs", "logs", "checkpoints", ".git", "__pycache__", ".env"):
-        assert not (destination / name).exists()
-    assert exported_source.exists()
-    with pytest.raises(FileExistsError):
+    with pytest.raises(ValueError, match="file-set mismatch"):
         checker.install_source(exported_source, destination)
+    assert not destination.exists()
 
 
 def test_install_explicit_pip_failure_remains_failure(checker, exported_source, tmp_path, monkeypatch):
@@ -355,3 +372,41 @@ def test_timeout_and_signal_checkpoint_hooks_use_upstream_controller(monkeypatch
         with pytest.raises(control.SessionStop, match="signal_"):
             signal_controller.check()
     assert all(value is previous for value in handlers.values())
+
+
+def test_build_package_unzip_install_source_round_trip(checker, tmp_path):
+    root = package_fixture_repo(tmp_path)
+    archive_path = tmp_path / "source.zip"
+    result = build_package(root, archive_path)
+    unpacked = tmp_path / "unpacked"
+    with __import__("zipfile").ZipFile(result["archive"]) as archive:
+        archive.extractall(unpacked)
+    source = unpacked / "guandan"
+    destination = tmp_path / "installed source"
+    report = checker.install_source(source, destination)
+    assert report["status"] == "copied"
+    assert report["source"]["source_kind"] == "verified_export"
+    assert report["uploaded"] is report["accepted"] is report["kaggle_verified"] is False
+    assert (destination / "SOURCE_MANIFEST.json").read_bytes() == (source / "SOURCE_MANIFEST.json").read_bytes()
+    assert (destination / "scripts/kaggle_entry.py").is_file()
+
+
+def test_build_package_rejects_missing_deployment_entry(tmp_path):
+    root = package_fixture_repo(tmp_path)
+    (root / "scripts/kaggle_entry.py").unlink()
+    git_fixture(root, "add", "-A")
+    git_fixture(root, "commit", "-qm", "remove deployment entry")
+    with pytest.raises(ValueError, match="incomplete source export"):
+        build_package(root, tmp_path / "missing.zip")
+
+
+def test_build_package_rejects_non_remote_full_profile(tmp_path):
+    root = package_fixture_repo(tmp_path)
+    profile_path = root / "configs/acceptance_profiles.json"
+    profile = json.loads(profile_path.read_text(encoding="utf-8"))
+    profile["profiles"]["remote_full"]["mode"] = "local"
+    profile_path.write_text(json.dumps(profile), encoding="utf-8")
+    git_fixture(root, "add", "configs/acceptance_profiles.json")
+    git_fixture(root, "commit", "-qm", "forge remote profile")
+    with pytest.raises(ValueError, match="remote_full"):
+        build_package(root, tmp_path / "profile.zip")
