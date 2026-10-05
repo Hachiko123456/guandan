@@ -217,7 +217,8 @@ def play_game(*, opponent: str, deal_group: int, seat_rotation: int, seed: int,
 
 def evaluate_profile(*, profile='local_fast', seed=EVALUATION_SEED_BASE,
                      max_hours=None, evidence_path=None, candidate_checkpoint=None,
-                     snapshot_checkpoint=None, deadline=None, device=None) -> EvaluationResult:
+                     snapshot_checkpoint=None, deadline=None, device=None,
+                     progress_callback=None) -> EvaluationResult:
     resolved = resolved_profile(profile)  # consumes/validates runner canonical JSON
     config = resolved['config']['evaluation']
     device = device or ('cuda' if profile == 'remote_full' else 'cpu')
@@ -231,6 +232,7 @@ def evaluate_profile(*, profile='local_fast', seed=EVALUATION_SEED_BASE,
     deadline = deadline or Deadline(config['max_hours'] if max_hours is None else max_hours)
     target = config['deal_groups_per_pairing'] * len(config['seat_rotations'])
     records = []
+    completed_per_opponent = {name: 0 for name in config['opponents']}
     output = None if evidence_path is None else Path(evidence_path)
     previous_threads = torch.get_num_threads()
     metadata = {'resolved_profile': resolved, 'runtime': runtime_metadata(device),
@@ -260,6 +262,16 @@ def evaluate_profile(*, profile='local_fast', seed=EVALUATION_SEED_BASE,
                         deadline=deadline, device=device,
                     )
                     records.append(record)  # completed games ONLY
+                    completed_per_opponent[opponent] += 1
+                    if progress_callback is not None and (len(records) % 25 == 0 or len(records) == target * len(config['opponents'])):
+                        progress_callback({
+                            "event": "game_complete", "opponent": opponent,
+                            "deal_group": group, "seat_rotation": rotation,
+                            "completed_games": len(records),
+                            "target_games": target * len(config['opponents']),
+                            "completed_per_opponent": dict(completed_per_opponent),
+                            "elapsed_seconds": time.monotonic() - started,
+                        })
                     if output is not None:
                         write_evidence(output.parent / 'games' / f'{opponent}_{group:04d}_{rotation}.json', asdict(record))
         deadline.check()

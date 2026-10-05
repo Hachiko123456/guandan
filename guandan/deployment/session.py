@@ -9,6 +9,8 @@ import json
 import os
 from pathlib import Path
 import sys
+import tempfile
+import time
 import uuid
 
 from .provenance import sha256, source_provenance
@@ -65,6 +67,21 @@ def _recovery_origin(resume, working_artifacts_root):
     # Only an explicitly injected runtime seam can supply an unscoped local
     # fixture. Do not label that fixture as evidence of a new Kaggle session.
     return 'none'
+
+
+def _write_live_progress(path: Path, payload: dict) -> None:
+    path = Path(path)
+    temporary = path.with_name(path.name + '.' + uuid.uuid4().hex + '.tmp')
+    temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False), encoding='utf-8')
+    os.replace(temporary, path)
+
+
+def _progress_callback(path: Path, base: dict):
+    def emit(event: dict):
+        payload = {**base, **event, 'updated_at': datetime.now(timezone.utc).isoformat()}
+        _write_live_progress(path, payload)
+        print('[progress] ' + json.dumps(payload, ensure_ascii=False, separators=(',', ':')), flush=True)
+    return emit
 
 
 def _profile():
@@ -397,8 +414,8 @@ def run(args, *, runtime_check=None, checkpoint_controller=None, working_artifac
     directory = output / session_id
     directory.mkdir(parents=True, exist_ok=False)
     record = {'session_id':session_id,'action':args.action,'system':system,'source':source,
-              'profile':profile,'plan':plan,'session_hours':controller.hard_seconds / 3600,
-              'save_margin_seconds':controller.hard_seconds - controller.soft_seconds,
+              'profile':profile,'plan':plan,'session_hours':None if controller.unlimited else controller.hard_seconds / 3600,
+              'save_margin_seconds':None if controller.unlimited else controller.hard_seconds - controller.soft_seconds,
               'checkpoint_seconds':controller.interval,
               'checkpoint_controller_reused':checkpoint_controller is not None,
               'working_artifacts_root':None if scope is None else str(scope),
@@ -408,6 +425,12 @@ def run(args, *, runtime_check=None, checkpoint_controller=None, working_artifac
               'origin':'executed_session; location indicators are not supervisory acceptance'}
     from ..training.runtime import write_evidence
     write_evidence(directory/'session_started.json',record)
+    live_progress_path = directory / 'live_progress.json'
+    emit_progress = _progress_callback(live_progress_path, {
+        'session_id': session_id, 'action': args.action, 'algorithm': args.algorithm,
+        'profile': 'remote_full', 'accepted': False, 'kaggle_verified': False,
+    })
+    emit_progress({'event': 'session_started', 'status': 'running'})
     try:
         with canonical_profile(profile), controller.signal_handlers():
             controller.check(stage='session_start')
@@ -425,7 +448,8 @@ def run(args, *, runtime_check=None, checkpoint_controller=None, working_artifac
                            'hidden_dim':32 if recovery is None else recovery['model_config']['hidden_dim'],
                            'epochs':compatibility.get('epochs',2), 'gamma':compatibility.get('gamma',1.0),
                            'gae_lambda':compatibility.get('gae_lambda',0.95),
-                           'resume':None if recovery is None else recovery['checkpoint_path']}
+                           'resume':None if recovery is None else recovery['checkpoint_path'],
+                           'progress_callback':emit_progress}
                 result = train(**options)
                 record['training'] = asdict(result)
                 complete = result.status == 'complete'
@@ -459,10 +483,13 @@ def run(args, *, runtime_check=None, checkpoint_controller=None, working_artifac
                 }
                 result=evaluate_profile(profile='remote_full',candidate_checkpoint=args.candidate_checkpoint,
                                         snapshot_checkpoint=args.snapshot_checkpoint,
-                                        evidence_path=directory/'evaluation'/'summary.json',deadline=controller,device='cuda')
+                                        evidence_path=directory/'evaluation'/'summary.json',deadline=controller,device='cuda',
+                                        progress_callback=emit_progress)
                 record['evaluation']=result.as_dict()
                 _verify_evaluation_result(record['evaluation'], profile)
                 record['status']='evaluation_complete'
+        emit_progress({'event': 'session_complete', 'status': record['status'],
+                       'output': str(directory), 'recovery_manifest': record.get('recovery_manifest')})
         write_evidence(directory/'session_result.json',record)
         return record
     except BaseException as exc:
@@ -470,6 +497,8 @@ def run(args, *, runtime_check=None, checkpoint_controller=None, working_artifac
         from ..evaluation import EvaluationIncomplete
         record['status']='incomplete' if isinstance(exc,(KeyboardInterrupt,BudgetExceeded,EvaluationIncomplete)) else 'failed'
         record['error']={'type':type(exc).__name__,'message':str(exc)}
+        emit_progress({'event': 'session_failure', 'status': record['status'],
+                       'error': record.get('error'), 'recovery_manifest': record.get('recovery_manifest')})
         write_evidence(directory/'session_failure.json',record)
         raise
 

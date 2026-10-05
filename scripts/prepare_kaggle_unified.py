@@ -15,17 +15,12 @@ if str(ROOT) not in sys.path:
 
 CONFIG = '''# 一份 Notebook；首次只添加源码 Dataset，点击 Run All 即按顺序执行。
 EXECUTE = True  # False 只看计划，不训练
+NO_TIME_LIMIT = True  # 关闭项目主动时间停止；Kaggle外部终止仍不能控制
 SOURCE_DATASET_HINT = ""  # 自动匹配本次源码；多个匹配时填写相对 /kaggle/input 路径
 RESUME_BUNDLE = ""  # 自动找唯一进度包；多份时显式填写 /kaggle/input/... 路径
 INSTALL_DEPS = False  # 缺依赖时显式改 True（仅 wheel，不自动替换规则/算法）
-TOTAL_SESSION_HOURS = 10  # 整个流水线共用，不是每个算法10小时；还须考虑已用会话时间
 SAVE_MARGIN_SECONDS = 300
-CHECKPOINT_SECONDS = 600
-
-import time
-# 同一个 kernel 重跑 Run All 不重新获得10小时；新会话才重新开始计时。
-if "GUANDAN_NOTEBOOK_STARTED" not in globals():
-    GUANDAN_NOTEBOOK_STARTED = time.monotonic()
+CHECKPOINT_SECONDS = 600  # 每10分钟自动导出进度；训练本身还按profile checkpoint
 '''
 
 RUN = '''import os
@@ -62,13 +57,19 @@ def find_progress():
     return candidates[0] if candidates else None
 
 
-remaining_seconds = TOTAL_SESSION_HOURS*3600 - (time.monotonic()-GUANDAN_NOTEBOOK_STARTED)
-if remaining_seconds <= SAVE_MARGIN_SECONDS:
-    raise RuntimeError("本Notebook整体时间预算已用尽，请先保存输出，在新会话恢复")
+remaining_seconds = None
+if not NO_TIME_LIMIT:
+    remaining_seconds = 12*3600 - (time.monotonic()-GUANDAN_NOTEBOOK_STARTED)
+    if remaining_seconds <= SAVE_MARGIN_SECONDS:
+        raise RuntimeError("本Notebook整体时间预算已用尽，请先保存输出，在新会话恢复")
 command = [sys.executable, "-u", "-B", "-m", "guandan.deployment.workflow",
-           "--output-root", str(PIPELINE_ROOT), "--session-hours", str(remaining_seconds/3600),
-           "--save-margin-seconds", str(SAVE_MARGIN_SECONDS),
+           "--output-root", str(PIPELINE_ROOT),
            "--checkpoint-seconds", str(CHECKPOINT_SECONDS)]
+if NO_TIME_LIMIT:
+    command.append("--no-time-limit")
+else:
+    command += ["--session-hours", str(remaining_seconds/3600),
+                "--save-margin-seconds", str(SAVE_MARGIN_SECONDS)]
 if EXECUTE:
     command.append("--execute")
     if PIPELINE_ROOT.exists():
@@ -149,12 +150,14 @@ def render_notebook(metadata, template):
 环境检查 → A04 smoke → IPPO 100更新 → 保存/重载追加2更新 → VRPO同样流程 → 两算法A06评估。
 每算法评估3000局，目标不会因时间不够缩减；这是管线验证，不是模型强度证明。
 
-**整个流程共用一个时间预算，不能承诺一次Kaggle会话一定跑完。**
+**项目不主动设置总时间截止，但 Kaggle 外部会话终止仍可能发生，不能承诺一次会话一定跑完。**
 保存 `guandan-unified-progress.zip` 后，新会话只需挂载该包和同一源码ZIP，再 Run All。
 已完成训练/评估会核对checkpoint与真实记录后跳过；中断的算法评估保留记录但从头重跑，
 不会拼接缺失局数。同会话checkpoint重载不是“新Kaggle会话恢复验收”，accepted始终false。
 
-默认EXECUTE=True会训练；只看计划请改False。代码不会自动上传Kaggle或重新创建远程会话。
+默认EXECUTE=True会训练；NO_TIME_LIMIT=True关闭项目主动时间停止，并每60秒打印心跳/阶段进度，
+每次update/每25局评估也写live_progress.json和日志。Kaggle外部会话终止仍然可能发生，
+所以checkpoint和progress ZIP仍然必须保留。代码不会自动上传Kaggle或重新创建远程会话。
 '''
     bootstrap = template
     for name, key in [('COMMIT', 'source_git_commit'), ('ZIP_SHA256', 'source_zip_sha256'),
@@ -198,7 +201,7 @@ def build(destination):
 
 不要混用之前的ZIP；本Notebook绑定这次commit/hash。
 自动执行IPPO100+2、VRPO100+2、两算法各3000局评估。默认不安装依赖。
-全流程共用10小时时间预算（还须结合你会话已使用的时间），保存余量5分钟。
+默认不设置项目时间截止；checkpoint按profile/600秒保存，进度每60秒输出。Kaggle外部时间限制仍然适用。
 如未完成，保存 /kaggle/working/guandan-unified-progress.zip 和日志。
 新会话挂载同一源码ZIP和进度ZIP，用同一个Notebook Run All继续。
 已完成评估会跳过；不完整的算法评估保留记录但从头重跑。

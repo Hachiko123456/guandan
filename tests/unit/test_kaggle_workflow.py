@@ -236,6 +236,20 @@ def test_progress_zip_rejects_link_member(tmp_path):
     assert not (tmp_path/'new').exists()
 
 
+def test_no_time_limit_controller_only_stops_on_explicit_signal():
+    from guandan.deployment.control import CheckpointController, SessionStop
+    clock = [0.0]
+    controller = CheckpointController(None, save_margin_seconds=300, checkpoint_seconds=10,
+                                      no_time_limit=True, clock=lambda: clock[0])
+    clock[0] = 10_000_000
+    controller.check()
+    controller.before_update()
+    controller.after_update(1.0)
+    controller.request_stop('explicit')
+    with pytest.raises(SessionStop, match='explicit'):
+        controller.check()
+
+
 def test_plan_never_executes_remote_runtime_or_writes(tmp_path, monkeypatch, capsys):
     def prohibited(*a,**kw):
         raise AssertionError('runtime should not be checked for plan')

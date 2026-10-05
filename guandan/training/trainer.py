@@ -66,7 +66,8 @@ def _positive(value, name):
 def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
           checkpoint_dir="runs", resume=None, hidden_dim=32, seed=TRAIN_SEED_BASE,
           rollout_steps=None, rollout_envs=None, deadline=None, max_hours=None,
-          epochs=2, gamma=1.0, gae_lambda=0.95, checkpoint_controller=None):
+          epochs=2, gamma=1.0, gae_lambda=0.95, checkpoint_controller=None,
+          progress_callback=None):
     """updates is additional updates on resume; overrides are explicitly non-profile tests.
 
     rollout_steps retains legacy per-environment ticks only for focused tests.
@@ -201,6 +202,14 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
             if (engine.update_count % cfg["checkpoint_interval"] == 0 or len(metrics) == target
                     or (checkpoint_controller is not None and checkpoint_controller.checkpoint_due())):
                 persist_checkpoint('periodic')
+            if progress_callback is not None:
+                progress_callback({
+                    "event": "update_complete", "algorithm": algorithm, "profile": profile,
+                    "update": engine.update_count, "target_updates": initial_updates + target,
+                    "lifetime_token_steps": engine.total_token_steps,
+                    "target_token_steps": (initial_updates + target) * aggregate,
+                    "checkpoint": latest_checkpoint, "elapsed_seconds": time.monotonic() - started,
+                })
             budget.check(stage="checkpoint_complete")
     except (IncompleteTrainingError, BudgetExceeded) as exc:
         status, reason = "incomplete", str(exc)

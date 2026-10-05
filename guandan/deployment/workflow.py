@@ -15,6 +15,7 @@ from pathlib import Path, PurePosixPath
 import stat
 import sys
 import tempfile
+import threading
 import time
 import uuid
 import zipfile
@@ -395,6 +396,9 @@ class Workflow:
         self.executor = executor or session.run
         self.resolver = resolver or session.resolve_recovery
         self.archive = self.root.parent / (self.root.name + '-progress.zip')
+        self._export_lock = threading.Lock()
+        self._progress_stop = None
+        self._progress_thread = None
         self.root.mkdir(parents=True, exist_ok=True)
         path = self.root / STATE
         if path.exists():
@@ -626,11 +630,43 @@ class Workflow:
             entry['lineage_verified'] = self._lineage_verified(entry, by_count, memo, set())
         return latest
 
+    def _start_progress_ticker(self):
+        stop = threading.Event()
+        self._progress_stop = stop
+        def tick():
+            while not stop.wait(60.0):
+                try:
+                    with self._export_lock:
+                        bundle = export_progress(self.root, self.archive, controller=self.controller)
+                    atomic_json(self.root / 'live_progress.json', {
+                        'status': self.state.get('status'), 'active': self.state.get('active'),
+                        'elapsed_seconds': self.controller.clock() - self.controller.started,
+                        'bundle': {key: value for key, value in bundle.items() if key != 'path'},
+                        'accepted': False, 'kaggle_verified': False,
+                    })
+                    print(f'[workflow] progress checkpoint: elapsed={self.controller.clock()-self.controller.started:.1f}s files={bundle["files"]}', flush=True)
+                except Exception as exc:
+                    atomic_json(self.root / 'live_progress_error.json', {
+                        'type': type(exc).__name__, 'message': str(exc),
+                        'elapsed_seconds': self.controller.clock() - self.controller.started,
+                    })
+        thread = threading.Thread(target=tick, name='guandan-progress-ticker', daemon=True)
+        thread.start()
+        self._progress_thread = thread
+        return stop
+
+    def _stop_progress_ticker(self, stop):
+        stop.set()
+        if self._progress_thread is not None:
+            self._progress_thread.join(timeout=10.0)
+        self._progress_thread = None
+        self._progress_stop = None
+
     def invoke(self, action, algorithm, **inputs):
         self.controller.check()
         args = session.parser().parse_args(['--action', action, '--profile', 'remote_full', '--execute',
                                             '--algorithm', algorithm, '--output-root', str(self.sessions)])
-        args.session_hours = self.controller.hard_seconds / 3600
+        args.session_hours = None if self.controller.unlimited else self.controller.hard_seconds / 3600
         args.save_margin_seconds = self.controller.hard_seconds - self.controller.soft_seconds
         args.checkpoint_seconds = self.controller.interval
         for key, value in inputs.items():
@@ -640,6 +676,7 @@ class Workflow:
         self.save()
         before = set(self.sessions.iterdir()) if self.sessions.exists() else set()
         print(f'[workflow] START {algorithm} {action}; elapsed={self.controller.clock()-self.controller.started:.1f}s', flush=True)
+        ticker = self._start_progress_ticker()
         try:
             record = self.executor(args, checkpoint_controller=self.controller, working_artifacts_root=self.sessions)
         except BaseException as exc:
@@ -652,7 +689,9 @@ class Workflow:
             self.state['history'].append(history)
             self.state.pop('active', None)
             self.save()
+            self._stop_progress_ticker(ticker)
             raise
+        self._stop_progress_ticker(ticker)
         output = Path(record['outputs']).resolve()
         if not output.is_relative_to(self.root):
             raise ValueError('stage output escapes workflow root')
@@ -789,6 +828,7 @@ class Workflow:
 def main(argv=None):
     parser = argparse.ArgumentParser(description='One Run All, shared budget; never uploads or accepts stages')
     parser.add_argument('--execute', action='store_true')
+    parser.add_argument('--no-time-limit', action='store_true', help='disable cooperative time deadline; external Kaggle limits still apply')
     parser.add_argument('--retry-failed', action='store_true', help='explicit retry only after fixing a recorded failure')
     parser.add_argument('--output-root', type=Path, default=Path('/kaggle/working/guandan-unified'))
     parser.add_argument('--resume-bundle', type=Path)
@@ -803,7 +843,7 @@ def main(argv=None):
                           'accepted': False, 'new_kaggle_session_proven': False}, ensure_ascii=False))
         return 0
     # Created before setup/restore. One clock for smoke + both algorithms + both evaluations.
-    controller = CheckpointController(args.session_hours, args.save_margin_seconds, args.checkpoint_seconds)
+    controller = CheckpointController(None if args.no_time_limit else args.session_hours, args.save_margin_seconds, args.checkpoint_seconds, no_time_limit=args.no_time_limit)
     from scripts.kaggle_environment_check import inspect_environment, require_remote_runtime
     require_remote_runtime(inspect_environment())
     root = session._output_directory(args.output_root)

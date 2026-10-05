@@ -364,6 +364,15 @@ def test_interrupted_real_training_restores_durable_state_then_really_continues(
                    for name, value in load_checkpoint(continued.checkpoint).model_state.items())
 
 
+def test_training_progress_callback_reports_real_completed_updates(tmp_path):
+    events = []
+    result = tiny_train(tmp_path, updates=2, progress_callback=events.append)
+    assert result.status == "complete"
+    assert [event["update"] for event in events] == [1, 2]
+    assert all(event["algorithm"] == "ippo" for event in events)
+    assert events[-1]["lifetime_token_steps"] == 2
+
+
 def test_existing_noncooperative_train_still_runs_real_updates(tmp_path):
     result = tiny_train(tmp_path, updates=2)
     assert result.status == "complete", asdict(result)
