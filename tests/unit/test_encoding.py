@@ -253,8 +253,6 @@ PLAY_CASES = (
     PlayCase("straight-flush-natural-heart-wild", CombinationKind.STRAIGHT_FLUSH,
              (2, 6, 10, 14, 18), Rank.SEVEN,
              ((6, Rank.FOUR, Suit.HEARTS),), (6,)),
-    PlayCase("straight-flush-identical-target-not-natural", CombinationKind.STRAIGHT_FLUSH,
-             (2, 6, 10, 14, 18), Rank.SEVEN, ((6, Rank.FOUR, Suit.HEARTS),)),
     PlayCase("four-kings", CombinationKind.FOUR_KINGS, (107, 52, 106, 53), Rank.BIG_JOKER),
 )
 
@@ -263,6 +261,17 @@ def test_roundtrip_case_inventory_covers_all_ten_families() -> None:
     assert {case.family for case in PLAY_CASES} == set(CombinationKind)
     assert {len(case.card_ids) for case in PLAY_CASES
             if case.family is CombinationKind.RANK_BOMB} >= {4, 9, 10}
+
+
+def test_straight_flush_identical_wild_declaration_canonicalizes_to_natural() -> None:
+    level = Rank.FOUR
+    cards = tuple(Card(card_id) for card_id in (2, 6, 10, 14, 18))
+    declarations = [d for d in recognize_combinations(cards, level_rank=level)
+                    if d.kind is CombinationKind.STRAIGHT_FLUSH
+                    and d.comparison_rank is Rank.SEVEN
+                    and dict(d.wild_assignments) == {6: (Rank.FOUR, Suit.HEARTS)}]
+    assert len(declarations) == 1
+    assert declarations[0].natural_wild_ids == (6,)
 
 
 @pytest.mark.parametrize("case", PLAY_CASES, ids=lambda case: case.name)
