@@ -20,6 +20,7 @@ from ..environment_types import GameConfig
 from ..model import PolicyValueNet
 from .checkpoint import (CURRENT_PROTOCOL_VERSIONS, IncompatibleCheckpointError,
                          load_checkpoint, save_checkpoint)
+from .compatibility import build_training_semantic_contract, contract_digest
 from .collector import Deadline, IncompleteTrainingError
 from .critic import CentralQCritic
 from .runtime import (BudgetExceeded, TRAIN_SEED_BASE, file_sha256, resolved_profile, runtime_metadata, write_evidence)
@@ -111,11 +112,24 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
         "critic": "central-Q-team-antisymmetric-688" if algorithm == "vrpo" else "decentralized-V-shared-teams",
         "vocabulary": 256, "channels": 256,
     }
+    optimizer_config = {"name": "Adam", "lr": 3e-4, "betas": [0.9, 0.999],
+                        "eps": 1e-8, "weight_decay": 0.0}
+    semantic_contract = build_training_semantic_contract(
+        profile=profile, algorithm=algorithm, model_config=model_cfg,
+        rollout_envs=count, token_steps_per_update=aggregate, seed=seed,
+        epochs=epochs, gamma=gamma, gae_lambda=gae_lambda,
+        optimizer=optimizer_config, level_rank=int(Rank.FIVE),
+    )
+    semantic_contract_hash = contract_digest(semantic_contract)
     compatibility = {
-        "profile_sha256": configured["sha256"], "envs": count,
+        # profile_sha256 remains provenance only; semantic_contract_hash is the
+        # resume gate and intentionally excludes execution/logging policy.
+        "profile_sha256": configured["sha256"], "semantic_contract": semantic_contract,
+        "semantic_contract_hash": semantic_contract_hash, "envs": count,
         "token_steps_per_update": aggregate, "seed": seed,
         "epochs": epochs, "gamma": gamma, "gae_lambda": gae_lambda,
         "level_rank": int(Rank.FIVE),
+        "optimizer": optimizer_config,
     }
     directory = Path(checkpoint_dir).resolve() / profile / algorithm
     directory.mkdir(parents=True, exist_ok=True)
@@ -125,7 +139,14 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
     critic = CentralQCritic(hidden_dim=hidden_dim).to(chosen) if algorithm == "vrpo" else None
     modules = torch.nn.ModuleDict({"actor": model, **({"critic": critic} if critic is not None else {})})
     optimizer = torch.optim.Adam(modules.parameters(), lr=3e-4)
-    batch = GuandanEnvBatch([GameConfig(seed=seed+i, level_rank=Rank.FIVE) for i in range(count)], auto_reset=False)
+    batch = GuandanEnvBatch(
+        [GameConfig(seed=seed+i, level_rank=Rank.FIVE) for i in range(count)],
+        auto_reset=False,
+        # GuandanEnv.step() already uses an atomic protocol trial; avoid the
+        # second full-environment clone in the training hot path. Tests and
+        # boundary tools retain GuandanEnvBatch's transactional default.
+        transactional=False,
+    )
     engine = None
     initial_updates = initial_steps = 0
     metrics, checkpoints = [], []
@@ -138,10 +159,15 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
     def persist_checkpoint(reason_tag):
         nonlocal latest_checkpoint, recovery_manifest
         path = directory / f"{algorithm}_update_{engine.update_count:06d}_{run_id}_{reason_tag}.pt"
+        source_fingerprint = metadata.get("source_manifest_sha256") or metadata.get("git_commit")
+        implementation_fingerprint = metadata.get("git_commit")
         saved = save_checkpoint(path, model=modules, optimizer=optimizer, profile=profile,
                                 algorithm=algorithm, update=engine.update_count, seed=seed,
                                 model_config=model_cfg, protocol_versions=CURRENT_PROTOCOL_VERSIONS,
                                 git_commit=metadata["git_commit"],
+                                source_fingerprint=source_fingerprint,
+                                implementation_fingerprint=implementation_fingerprint,
+                                semantic_contract=semantic_contract,
                                 training_state={"compatibility": compatibility, "engine": engine.extra_state()})
         latest_checkpoint = str(path)
         checkpoint_digest = file_sha256(path)
@@ -153,6 +179,9 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
             "checkpoint_sha256":checkpoint_digest, "profile":profile, "algorithm":algorithm,
             "durable_updates":engine.update_count, "durable_token_steps":engine.total_token_steps,
             "model_config":model_cfg, "compatibility":compatibility,
+            "semantic_contract":semantic_contract, "semantic_contract_hash":semantic_contract_hash,
+            "source_fingerprint":metadata.get("source_manifest_sha256") or metadata.get("git_commit"),
+            "implementation_fingerprint":metadata.get("git_commit"),
             "protocol_versions":CURRENT_PROTOCOL_VERSIONS, "source_git_commit":metadata["git_commit"],
             "reason":reason_tag, "remote_verified":False, "accepted":False,
         })
@@ -165,10 +194,18 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
         loaded = None
         if resume:
             resume_digest = file_sha256(resume)
-            loaded = load_checkpoint(resume, model=modules, optimizer=optimizer, expected_profile=profile,
-                                     expected_algorithm=algorithm, expected_model_config=model_cfg, map_location=chosen)
-            if loaded.training_state.get("compatibility") != compatibility:
-                raise IncompatibleCheckpointError("training profile/hyperparameters/seed incompatible on resume")
+            current_source = metadata.get("source_manifest_sha256") or metadata.get("git_commit")
+            loaded = load_checkpoint(
+                resume, model=modules, optimizer=optimizer, expected_profile=profile,
+                expected_algorithm=algorithm, expected_model_config=model_cfg,
+                expected_semantic_contract=semantic_contract,
+                expected_source_fingerprint=current_source,
+                expected_implementation_fingerprint=metadata.get("git_commit"),
+                map_location=chosen,
+            )
+            saved_compatibility = loaded.training_state.get("compatibility")
+            if not isinstance(saved_compatibility, dict) or saved_compatibility.get("semantic_contract_hash") != semantic_contract_hash:
+                raise IncompatibleCheckpointError("training semantic contract incompatible on resume")
             extra = loaded.training_state.get("engine")
             if not isinstance(extra, dict):
                 raise IncompatibleCheckpointError("checkpoint lacks full engine resume state")

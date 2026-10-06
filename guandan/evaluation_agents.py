@@ -1,8 +1,12 @@
-"""A06 observation-only token agents; snapshot means real frozen model weights."""
+"""Observation-only evaluation agents with session-scoped frozen policy resources."""
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import dataclass
 from pathlib import Path
+from threading import Lock
+from typing import Sequence
+
 import numpy as np
 import torch
 
@@ -10,8 +14,9 @@ from .action_state import COMMIT_TOKEN, PASS_TOKEN, TokenCodec
 from .cards import Card, Rank, effective_rank_value
 from .environment_types import Observation
 from .model import PolicyValueNet
-from .training.checkpoint import CheckpointError, load_checkpoint
+from .training.checkpoint import CheckpointError
 from .training.runtime import file_sha256
+from .training.snapshot import load_policy_snapshot
 
 
 def legal_tokens(observation: Observation) -> np.ndarray:
@@ -36,11 +41,7 @@ class RandomAgent:
 
 
 class RuleAgent:
-    """Deterministic self/public heuristic, not an oracle or a strength claim.
-
-    Prefer shedding larger ordinary families, delay bombs, and follow when
-    possible. Never removes tokens from the environment's complete action set.
-    """
+    """Deterministic self/public heuristic, not an oracle or a strength claim."""
     metadata = {'kind': 'rule', 'version': 'public-token-heuristic-0.1'}
     family_priority = (14, 13, 11, 12, 10, 9, 8, 15, 16, 17)
 
@@ -59,71 +60,214 @@ class RuleAgent:
         if ranks:
             level = Rank(int(observation.state_channels[3]))
             return min(ranks, key=lambda token: effective_rank_value(TokenCodec.rank_from_token(token), level))
-        # Only pass when no playable branch remains.
         return min([token for token in tokens if token != PASS_TOKEN] or tokens)
 
 
-class SnapshotAgent:
-    """An actual A05 actor checkpoint; missing/incompatible weights fail closed."""
-    def __init__(self, checkpoint: str | Path, *, seed: int = 0, device: str = 'cpu', deterministic: bool = False):
-        self.path = Path(checkpoint).resolve()
-        loaded = load_checkpoint(self.path, map_location='cpu')
-        config = loaded.model_config
+@dataclass(frozen=True, slots=True)
+class _SnapshotResources:
+    model: PolicyValueNet
+    device: torch.device
+    metadata: dict
+    training_deals: list
+
+
+_SNAPSHOT_CACHE: dict[tuple[Path, torch.device], _SnapshotResources] = {}
+_SNAPSHOT_CACHE_LOCK = Lock()
+
+
+def clear_snapshot_cache() -> None:
+    with _SNAPSHOT_CACHE_LOCK:
+        _SNAPSHOT_CACHE.clear()
+
+
+def reset_snapshot_cache() -> None:
+    clear_snapshot_cache()
+
+
+clear_cache = clear_snapshot_cache
+reset_cache = reset_snapshot_cache
+
+
+def _snapshot_device(device: torch.device) -> torch.device:
+    if device.type == 'cuda':
+        if not torch.cuda.is_available():
+            raise RuntimeError(f'requested snapshot device {device} is unavailable')
+        return torch.device('cuda', torch.cuda.current_device() if device.index is None else device.index)
+    return torch.device('cpu') if device.type == 'cpu' else device
+
+
+def _checkpoint_digest(path: Path) -> str:
+    try:
+        return file_sha256(path)
+    except OSError as exc:
+        raise CheckpointError(f'could not read checkpoint {path}: {exc}') from exc
+
+
+def _snapshot_resources(path: Path, device: torch.device) -> _SnapshotResources:
+    key = (path, device)
+    with _SNAPSHOT_CACHE_LOCK:
+        digest = _checkpoint_digest(path)
+        cached = _SNAPSHOT_CACHE.get(key)
+        if cached is not None and cached.metadata['sha256'] == digest:
+            return cached
+        _SNAPSHOT_CACHE.pop(key, None)
+        artifact = load_policy_snapshot(path)
+        config = artifact.model_config
+        if not isinstance(config, dict):
+            raise CheckpointError('snapshot model_config must be a dictionary')
+        metadata = artifact.metadata
+        profile = metadata.get('profile')
+        algorithm = metadata.get('algorithm')
+        update = metadata.get('update')
+        if type(profile) is not str or not profile:
+            raise CheckpointError('snapshot profile missing/invalid')
+        if type(algorithm) is not str or algorithm not in {'ippo', 'vrpo'}:
+            raise CheckpointError('snapshot algorithm missing/invalid')
+        if type(update) is not int or update < 0:
+            raise CheckpointError('snapshot update missing/invalid')
         if config.get('architecture') != 'mean-pooled-token-MLP':
             raise CheckpointError('unsupported actor architecture')
         hidden = config.get('hidden_dim')
         if type(hidden) is not int or hidden <= 0:
             raise CheckpointError('snapshot hidden_dim missing/invalid')
-        if config.get('vocabulary') != 256 or config.get('channels') != 256:
+        if any(type(config.get(name)) is not int or config[name] != 256 for name in ('vocabulary', 'channels')):
             raise CheckpointError('snapshot observation contract differs')
-        weights = {key[len('actor.'):]: value for key,value in loaded.model_state.items() if key.startswith('actor.')}
+        weights = dict(artifact.model_state)
         if not weights:
             raise CheckpointError('snapshot has no actor state; no fallback')
-        self.device = torch.device(device)
-        # Construction must not reset or advance the caller's torch RNG.
         with torch.random.fork_rng(devices=[]):
-            self.model = PolicyValueNet(hidden_dim=hidden)
-        self.model.load_state_dict(weights, strict=True)
-        self.model.to(self.device).eval()
-        self.model.requires_grad_(False)
+            model = PolicyValueNet(hidden_dim=hidden)
+        model.load_state_dict(weights, strict=True)
+        model.to(device).eval()
+        model.requires_grad_(False)
+        enriched = {
+            'kind': 'snapshot', 'checkpoint': str(path), 'sha256': digest,
+            'profile': profile, 'algorithm': algorithm, 'update': update,
+            'model_version': metadata.get('model_version'), 'training_version': metadata.get('training_version'),
+            'protocol_versions': deepcopy(metadata.get('protocol_versions', {})),
+            'model_config': deepcopy(config),
+            'semantic_contract': deepcopy(metadata.get('semantic_contract')),
+            'source_fingerprint': metadata.get('source_fingerprint'),
+            'implementation_fingerprint': metadata.get('implementation_fingerprint'),
+        }
+        if _checkpoint_digest(path) != digest:
+            raise CheckpointError('snapshot checkpoint changed while loading; no fallback')
+        resources = _SnapshotResources(model, device, enriched, deepcopy(artifact.training_deals))
+        _SNAPSHOT_CACHE[key] = resources
+        return resources
+
+
+class SnapshotAgent:
+    """Frozen model wrapper with an independent CPU RNG stream."""
+    @classmethod
+    def clear_cache(cls) -> None:
+        clear_snapshot_cache()
+
+    @classmethod
+    def reset_cache(cls) -> None:
+        clear_snapshot_cache()
+
+    def __init__(self, checkpoint: str | Path, *, seed: int = 0, device: str = 'cpu', deterministic: bool = False):
+        self.path = Path(checkpoint).resolve()
+        self.device = torch.device(device)
+        resources = _snapshot_resources(self.path, _snapshot_device(self.device))
+        self._resources = resources
+        self.model = resources.model
+        self._model_device = resources.device
         self.generator = torch.Generator(device='cpu').manual_seed(seed)
         self.deterministic = deterministic
-        self.training_deals = deepcopy(loaded.training_state.get('engine', {}).get('collector', {}).get('deal_records', []))
-        self.metadata = {
-            'kind': 'snapshot', 'checkpoint': str(self.path), 'sha256': file_sha256(self.path),
-            'algorithm': loaded.metadata.algorithm, 'update': loaded.metadata.update_count,
-            'model_version': loaded.metadata.model_version, 'training_version': loaded.metadata.training_version,
-            'protocol_versions': loaded.metadata.protocol_versions,
-            'model_config': deepcopy(config), 'seed': seed, 'deterministic': deterministic,
-            'device': str(self.device),
-        }
+        self.training_deals = deepcopy(resources.training_deals)
+        self.metadata = deepcopy(resources.metadata)
+        self.metadata.update(seed=seed, deterministic=deterministic, device=str(self.device))
+
+    @staticmethod
+    def _shape(observation: Observation) -> tuple[int, int]:
+        legal_tokens(observation)
+        ids = observation.observation_tokens
+        valid = np.flatnonzero(ids != 0)
+        length = int(valid[-1]) + 1 if len(valid) else 1
+        return length, int(observation.legal_next_mask.sum())
 
     @torch.no_grad()
-    def logits(self, observation: Observation) -> torch.Tensor:
-        legal_tokens(observation)
-        obs_ids = observation.observation_tokens
-        valid_history = np.flatnonzero(obs_ids != 0)
-        length = int(valid_history[-1])+1 if len(valid_history) else 1
-        count = int(observation.legal_next_mask.sum())
-        # Remove only trailing PAD rows/tokens, not live actions/history.
+    def logits_batch(self, observations: Sequence[Observation]) -> torch.Tensor:
+        if not observations:
+            raise ValueError('logits_batch requires at least one observation')
+        shapes = [self._shape(observation) for observation in observations]
+        max_length = max(shape[0] for shape in shapes)
+        max_count = max(shape[1] for shape in shapes)
+        count = len(observations)
+        ids = np.zeros((count, max_length), dtype=np.int64)
+        channels = np.zeros((count, observations[0].state_channels.shape[0]), dtype=np.float32)
+        candidates = np.zeros((count, max_count), dtype=np.int64)
+        masks = np.zeros((count, max_count), dtype=np.bool_)
+        for row, (observation, (length, legal_count)) in enumerate(zip(observations, shapes)):
+            ids[row, :length] = observation.observation_tokens[:length]
+            channels[row] = observation.state_channels
+            candidates[row, :legal_count] = observation.legal_next_tokens[:legal_count]
+            masks[row, :legal_count] = observation.legal_next_mask[:legal_count]
         logits, _ = self.model(
-            torch.as_tensor(obs_ids[None, :length].copy(), dtype=torch.long, device=self.device),
-            torch.as_tensor(observation.state_channels[None].copy(), dtype=torch.float32, device=self.device),
-            torch.as_tensor(observation.legal_next_tokens[None, :count].copy(), dtype=torch.long, device=self.device),
-            torch.as_tensor(observation.legal_next_mask[None, :count].copy(), dtype=torch.bool, device=self.device),
+            torch.as_tensor(ids, dtype=torch.long, device=self._model_device),
+            torch.as_tensor(channels, dtype=torch.float32, device=self._model_device),
+            torch.as_tensor(candidates, dtype=torch.long, device=self._model_device),
+            torch.as_tensor(masks, dtype=torch.bool, device=self._model_device),
         )
         probabilities = self.model.distribution(logits).probs
-        if not torch.isfinite(probabilities).all() or not torch.allclose(probabilities.sum(-1), torch.ones(1, device=self.device), atol=1e-6):
+        if not torch.isfinite(probabilities).all() or not torch.allclose(probabilities.sum(-1), torch.ones(count, device=self._model_device), atol=1e-6):
             raise FloatingPointError('snapshot probabilities invalid')
         return logits.cpu()
 
+    @torch.no_grad()
+    def logits(self, observation: Observation) -> torch.Tensor:
+        return self.logits_batch([observation])
+
+    @classmethod
+    def select_tokens_batch(cls, requests: Sequence[tuple['SnapshotAgent', Observation]]) -> list[int]:
+        if not requests:
+            return []
+        results: list[int | None] = [None] * len(requests)
+        groups: dict[tuple[int, torch.device], list[tuple[int, SnapshotAgent, Observation]]] = {}
+        for index, (agent, observation) in enumerate(requests):
+            if not isinstance(agent, cls):
+                raise TypeError('batch requests must contain SnapshotAgent instances')
+            groups.setdefault((id(agent.model), agent._model_device), []).append((index, agent, observation))
+        for group in groups.values():
+            logits = group[0][1].logits_batch([item[2] for item in group])
+            for row, (index, agent, observation) in enumerate(group):
+                count = int(observation.legal_next_mask.sum())
+                row_logits = logits[row, :count]
+                index_in_candidates = int(row_logits.argmax().item()) if agent.deterministic else int(torch.multinomial(row_logits.softmax(-1), 1, generator=agent.generator).item())
+                token = int(observation.legal_next_tokens[index_in_candidates])
+                if token not in legal_tokens(observation):
+                    raise RuntimeError('snapshot selected illegal token; no fallback')
+                results[index] = token
+        return [int(value) for value in results]
+
     def select_token(self, observation: Observation) -> int:
-        logits = self.logits(observation)
-        index = int(logits.argmax(-1).item()) if self.deterministic else int(torch.multinomial(logits.softmax(-1), 1, generator=self.generator).item())
-        token = int(observation.legal_next_tokens[index])
-        if token not in legal_tokens(observation):
-            raise RuntimeError('snapshot selected illegal token; no fallback')
-        return token
+        return self.select_tokens_batch([(self, observation)])[0]
+
+
+class EvaluationSession:
+    """Own fixed inference resources for one evaluation session."""
+    def __init__(self, candidate_checkpoint, snapshot_checkpoint, *, device='cpu'):
+        self.candidate_checkpoint = Path(candidate_checkpoint).resolve()
+        self.snapshot_checkpoint = Path(snapshot_checkpoint).resolve()
+        self.device = device
+        self._candidate = SnapshotAgent(self.candidate_checkpoint, seed=0, device=device)
+        self._snapshot = SnapshotAgent(self.snapshot_checkpoint, seed=0, device=device)
+
+    @property
+    def metadata(self) -> dict:
+        return {'candidate': deepcopy(self._candidate.metadata), 'snapshot_opponent': deepcopy(self._snapshot.metadata)}
+
+    def make_agent(self, name: str, *, seed: int = 0, checkpoint=None):
+        if name == 'snapshot':
+            if checkpoint is None:
+                raise ValueError('snapshot requires explicit checkpoint')
+            return SnapshotAgent(checkpoint, seed=seed, device=self.device)
+        return make_agent(name, seed=seed, checkpoint=checkpoint, device=self.device)
+
+    def select_tokens_batch(self, requests):
+        return SnapshotAgent.select_tokens_batch(requests)
 
 
 def make_agent(name: str, *, seed: int = 0, checkpoint=None, device='cpu'):
@@ -136,3 +280,9 @@ def make_agent(name: str, *, seed: int = 0, checkpoint=None, device='cpu'):
             raise ValueError('snapshot requires explicit checkpoint')
         return SnapshotAgent(checkpoint, seed=seed, device=device)
     raise ValueError(f'unknown agent {name!r}; no fallback')
+
+
+__all__ = [
+    'RandomAgent', 'RuleAgent', 'SnapshotAgent', 'EvaluationSession', 'make_agent',
+    'legal_tokens', 'clear_snapshot_cache', 'reset_snapshot_cache', 'clear_cache', 'reset_cache',
+]

@@ -392,6 +392,7 @@ def scoped_remote_metadata(uninterrupted, tmp_path, monkeypatch):
     from copy import deepcopy
     from guandan.deployment import session
     from guandan.training.checkpoint import CURRENT_PROTOCOL_VERSIONS, save_checkpoint
+    from guandan.training.compatibility import build_training_semantic_contract, contract_digest
 
     algorithm, baseline = uninterrupted
     actual = load_checkpoint(baseline.checkpoints[0]["path"])
@@ -401,13 +402,27 @@ def scoped_remote_metadata(uninterrupted, tmp_path, monkeypatch):
     monkeypatch.setattr(session, "_profile", lambda: deepcopy(profile))
     state = deepcopy(actual.training_state)
     state["compatibility"]["profile_sha256"] = profile["sha256"]
+    state["compatibility"]["envs"] = 1
+    state["compatibility"]["token_steps_per_update"] = 1
+    semantic_contract = build_training_semantic_contract(
+        profile="remote_full", algorithm=algorithm, model_config=actual.model_config,
+        rollout_envs=1, token_steps_per_update=1, seed=actual.metadata.seed_count,
+        epochs=state["compatibility"].get("epochs", 2),
+        gamma=state["compatibility"].get("gamma", 1.0),
+        gae_lambda=state["compatibility"].get("gae_lambda", 0.95),
+        optimizer=state["compatibility"].get("optimizer", {"name": "Adam", "lr": 3e-4, "betas": [0.9, 0.999], "eps": 1e-8, "weight_decay": 0.0}),
+        level_rank=state["compatibility"].get("level_rank", 5),
+    )
+    state["compatibility"]["semantic_contract"] = semantic_contract
+    state["compatibility"]["semantic_contract_hash"] = contract_digest(semantic_contract)
     old_mount = tmp_path / "fixture_old_working"
     old_mount.mkdir()
     checkpoint = old_mount / "fixture_one_actual_cpu_step.pt"
     save_checkpoint(
         checkpoint, profile="remote_full", algorithm=algorithm, update=1,
         seed=actual.metadata.seed_count, git_commit=actual.metadata.git_commit,
-        protocol_versions=CURRENT_PROTOCOL_VERSIONS, model_state=actual.model_state,
+        protocol_versions=CURRENT_PROTOCOL_VERSIONS, semantic_contract=semantic_contract,
+        model_state=actual.model_state,
         optimizer_state=actual.optimizer_state, model_config=actual.model_config,
         training_state=state,
     )
@@ -415,6 +430,7 @@ def scoped_remote_metadata(uninterrupted, tmp_path, monkeypatch):
         "format": "guandan-recovery-v1", "profile": "remote_full", "algorithm": algorithm,
         "checkpoint_filename": checkpoint.name, "checkpoint_sha256": file_sha256(checkpoint),
         "model_config": actual.model_config, "compatibility": state["compatibility"],
+        "semantic_contract": semantic_contract, "semantic_contract_hash": contract_digest(semantic_contract),
         "protocol_versions": CURRENT_PROTOCOL_VERSIONS,
         "source_git_commit": actual.metadata.git_commit,
         "durable_updates": 1, "durable_token_steps": 1,
@@ -510,5 +526,5 @@ def test_resolver_rejects_profile_drift_after_fixture_checkpoint(scoped_remote_m
     changed = deepcopy(session._profile())
     changed["config"]["training"]["token_steps_per_update"] = 2
     monkeypatch.setattr(session, "_profile", lambda: changed)
-    with pytest.raises(ValueError, match="profile counts/hash changed"):
+    with pytest.raises(ValueError, match="semantic contract differs|profile counts/hash changed"):
         session.resolve_recovery(manifest, algorithm=algorithm)

@@ -15,7 +15,7 @@ import torch
 from .cards import Rank
 from .environment import GameConfig, GuandanEnv
 from .environment_types import ACTION_VERSION, RULES_VERSION, ENV_VERSION, ENCODING_VERSION
-from .evaluation_agents import SnapshotAgent, make_agent, legal_tokens
+from .evaluation_agents import EvaluationSession, SnapshotAgent, make_agent, legal_tokens
 from .evaluation_stats import summarize_games
 from .training.runtime import (ROOT, EVALUATION_SEED_BASE, BudgetExceeded, Deadline,
                                resolved_profile, runtime_metadata, file_sha256, write_evidence)
@@ -215,11 +215,132 @@ def play_game(*, opponent: str, deal_group: int, seat_rotation: int, seed: int,
     return row
 
 
+@dataclass
+class _BatchGame:
+    opponent: str
+    deal_group: int
+    seat_rotation: int
+    seed: int
+    env: object
+    observation: object
+    mapping: list[int]
+    policies: list[str]
+    agents: list[object]
+    agent_seeds: list[int]
+    decisions: list[int]
+    digest: str
+    primary_hand_hash: str
+    trace: object
+    result: object = None
+
+
+def _new_batch_game(*, opponent, deal_group, seat_rotation, seed, session) -> _BatchGame:
+    if type(seed) is not int or seed < EVALUATION_SEED_BASE:
+        raise ValueError('evaluation seeds must lie outside reserved training namespace')
+    if type(deal_group) is not int or deal_group < 0:
+        raise ValueError('deal_group must be a nonnegative integer')
+    mapping, policies = _assignment(seat_rotation, opponent)
+    env = GuandanEnv(GameConfig(level_rank=Rank.FIVE, seed=seed, leader_seat=0))
+    observation = env.reset()
+    original = env.full_state()['round_state']['hands']
+    if len(original) != 4 or any(len(hand) != 27 for hand in original) or sorted(sum(original, [])) != list(range(108)):
+        raise ValueError('counted evaluation requires a complete 108-card 27x4 deal')
+    digest = _digest([sorted(hand) for hand in original])
+    primary_hand_hash = _digest(sorted(original[seat_rotation]))
+    agents = [None] * 4
+    agent_seeds = [0] * 4
+    pairing_index = ('random', 'rule', 'snapshot').index(opponent)
+    for logical, physical in enumerate(mapping):
+        rng_seed = 20_000_000 + pairing_index * 1_000_000 + deal_group * 1_000 + seat_rotation * 10 + logical
+        name = policies[physical]
+        agents[physical] = session.make_agent(
+            'snapshot' if name == 'candidate' else name,
+            seed=rng_seed,
+            checkpoint=session.candidate_checkpoint if name == 'candidate' else session.snapshot_checkpoint,
+        )
+        agent_seeds[physical] = rng_seed
+        for trained in getattr(agents[physical], 'training_deals', []):
+            if trained['seed'] == seed or trained['deal_sha256'] == digest:
+                raise ValueError('training/evaluation deal overlap')
+    return _BatchGame(
+        opponent, deal_group, seat_rotation, seed, env, observation, mapping, policies,
+        agents, agent_seeds, [0] * 4, digest, primary_hand_hash, hashlib.sha256(),
+    )
+
+
+def _finish_batch_game(state: _BatchGame) -> GameRecord:
+    result = state.result
+    if result is None or not result.done or result.truncated:
+        raise RuntimeError('no real terminal transition')
+    info = result.info
+    row = GameRecord(
+        state.opponent, state.deal_group, state.seat_rotation, state.seat_rotation,
+        state.seat_rotation % 2, state.seed, True, False, list(info['ranking']),
+        int(info['winner_team']), info['outcome_class'], result.rewards.tolist(),
+        list(info['team_reward']), result.token_step, result.committed_step,
+        state.digest, True, 0, state.mapping, state.policies, state.agent_seeds,
+        state.decisions, state.primary_hand_hash, state.trace.hexdigest(),
+        [dict(agent.metadata) for agent in state.agents],
+    )
+    summarize_games([asdict(row)])
+    return row
+
+
+def _evaluate_batch(tasks, *, session, deadline) -> list[GameRecord]:
+    states = [_new_batch_game(**task, session=session) for task in tasks]
+    records = []
+    while states:
+        deadline.check()
+        requests = []
+        request_indices = []
+        tokens = {}
+        for index, state in enumerate(states):
+            if state.env.done:
+                records.append(_finish_batch_game(state))
+                continue
+            if state.env.truncated or state.observation is None:
+                raise EvaluationIncomplete({'status': 'incomplete', 'reason': 'max_token_steps before true terminal'})
+            actor = state.observation.player_id
+            agent = state.agents[actor]
+            if isinstance(agent, SnapshotAgent):
+                requests.append((agent, state.observation))
+                request_indices.append((index, actor))
+            else:
+                tokens[index] = int(agent.select_token(state.observation))
+        if requests:
+            for (index, actor), token in zip(request_indices, SnapshotAgent.select_tokens_batch(requests)):
+                tokens[index] = token
+        survivors = []
+        for index, state in enumerate(states):
+            if state.env.done:
+                continue
+            actor = state.observation.player_id
+            token = tokens[index]
+            if isinstance(token, (bool, np.bool_)) or not isinstance(token, (int, np.integer)) or token not in legal_tokens(state.observation):
+                raise ValueError('agent returned illegal token; no fallback')
+            previous_committed, previous_token = state.env.committed_step, state.env.token_step
+            result = state.env.step(int(token))
+            state.decisions[actor] += 1
+            if result.token_step != previous_token + 1 or result.committed_step != previous_committed + int(result.is_commit):
+                raise RuntimeError('evaluation transition clocks disagree')
+            if not result.done and np.any(result.rewards):
+                raise RuntimeError('nonterminal evaluation reward')
+            state.trace.update(json.dumps([actor, int(token), result.token_step, result.committed_step, result.rewards.tolist()], separators=(',', ':')).encode())
+            state.result = result
+            state.observation = result.observation
+            if state.env.done:
+                records.append(_finish_batch_game(state))
+            else:
+                survivors.append(state)
+        states = survivors
+    return records
+
+
 def evaluate_profile(*, profile='local_fast', seed=EVALUATION_SEED_BASE,
                      max_hours=None, evidence_path=None, candidate_checkpoint=None,
                      snapshot_checkpoint=None, deadline=None, device=None,
-                     progress_callback=None) -> EvaluationResult:
-    resolved = resolved_profile(profile)  # consumes/validates runner canonical JSON
+                     progress_callback=None, batch_size=1) -> EvaluationResult:
+    resolved = resolved_profile(profile)
     config = resolved['config']['evaluation']
     device = device or ('cuda' if profile == 'remote_full' else 'cpu')
     if profile == 'remote_full' and device != 'cuda':
@@ -228,6 +349,8 @@ def evaluate_profile(*, profile='local_fast', seed=EVALUATION_SEED_BASE,
         raise RuntimeError('CUDA requested for evaluation but unavailable')
     if type(seed) is not int or seed < EVALUATION_SEED_BASE:
         raise ValueError('invalid evaluation seed namespace')
+    if type(batch_size) is not int or batch_size < 1:
+        raise ValueError('batch_size must be a positive integer')
     started = time.monotonic()
     deadline = deadline or Deadline(config['max_hours'] if max_hours is None else max_hours)
     target = config['deal_groups_per_pairing'] * len(config['seat_rotations'])
@@ -236,10 +359,11 @@ def evaluate_profile(*, profile='local_fast', seed=EVALUATION_SEED_BASE,
     output = None if evidence_path is None else Path(evidence_path)
     previous_threads = torch.get_num_threads()
     metadata = {'resolved_profile': resolved, 'runtime': runtime_metadata(device),
-                'protocol_versions': [RULES_VERSION,ACTION_VERSION,ENV_VERSION,ENCODING_VERSION],
+                'protocol_versions': [RULES_VERSION, ACTION_VERSION, ENV_VERSION, ENCODING_VERSION],
                 'scope': 'pipeline correctness only; fixed FIVE, standalone first hand; no strength claim',
                 'started_utc': datetime.now(timezone.utc).isoformat(),
-                'started_local': datetime.now(timezone(timedelta(hours=8))).isoformat()}
+                'started_local': datetime.now(timezone(timedelta(hours=8))).isoformat(),
+                'batch_size': batch_size}
     try:
         deadline.check()
         if (candidate_checkpoint is None) != (snapshot_checkpoint is None):
@@ -248,39 +372,47 @@ def evaluate_profile(*, profile='local_fast', seed=EVALUATION_SEED_BASE,
             sources = reviewed_checkpoints()
             candidate_checkpoint, snapshot_checkpoint = sources['candidate'], sources['snapshot']
             metadata['source_evidence'] = sources
-        # Capture hashes/versions once, before any counted game; load errors fail.
-        metadata['candidate'] = SnapshotAgent(candidate_checkpoint,device=device).metadata
-        metadata['snapshot_opponent'] = SnapshotAgent(snapshot_checkpoint,device=device).metadata
+        session = EvaluationSession(candidate_checkpoint, snapshot_checkpoint, device=device)
+        metadata.update(session.metadata)
         metadata['max_hours'] = config['max_hours'] if max_hours is None else max_hours
         torch.set_num_threads(1)
-        for opponent in config['opponents']:
-            for group in range(config['deal_groups_per_pairing']):
-                for rotation in config['seat_rotations']:
-                    record = play_game(
-                        opponent=opponent, deal_group=group, seat_rotation=rotation, seed=seed+group,
-                        candidate_checkpoint=candidate_checkpoint, snapshot_checkpoint=snapshot_checkpoint,
-                        deadline=deadline, device=device,
-                    )
-                    records.append(record)  # completed games ONLY
-                    completed_per_opponent[opponent] += 1
-                    if progress_callback is not None and (len(records) % 25 == 0 or len(records) == target * len(config['opponents'])):
-                        progress_callback({
-                            "event": "game_complete", "opponent": opponent,
-                            "deal_group": group, "seat_rotation": rotation,
-                            "completed_games": len(records),
-                            "target_games": target * len(config['opponents']),
-                            "completed_per_opponent": dict(completed_per_opponent),
-                            "elapsed_seconds": time.monotonic() - started,
-                        })
-                    if output is not None:
-                        write_evidence(output.parent / 'games' / f'{opponent}_{group:04d}_{rotation}.json', asdict(record))
+        tasks = [
+            {'opponent': opponent, 'deal_group': group, 'seat_rotation': rotation, 'seed': seed + group}
+            for opponent in config['opponents']
+            for group in range(config['deal_groups_per_pairing'])
+            for rotation in config['seat_rotations']
+        ]
+        for offset in range(0, len(tasks), batch_size):
+            batch = tasks[offset:offset + batch_size]
+            if batch_size == 1:
+                task = batch[0]
+                record = play_game(
+                    **task, candidate_checkpoint=candidate_checkpoint,
+                    snapshot_checkpoint=snapshot_checkpoint, deadline=deadline,
+                    agent_factory=session.make_agent, device=device,
+                )
+                batch_records = [record]
+            else:
+                batch_records = _evaluate_batch(batch, session=session, deadline=deadline)
+            for record in batch_records:
+                records.append(record)
+                completed_per_opponent[record.opponent] += 1
+                if progress_callback is not None and (len(records) % 25 == 0 or len(records) == target * len(config['opponents'])):
+                    progress_callback({
+                        'event': 'game_complete', 'opponent': record.opponent,
+                        'deal_group': record.deal_group, 'seat_rotation': record.seat_rotation,
+                        'completed_games': len(records), 'target_games': target * len(config['opponents']),
+                        'completed_per_opponent': dict(completed_per_opponent),
+                        'elapsed_seconds': time.monotonic() - started,
+                    })
+                if output is not None:
+                    write_evidence(output.parent / 'games' / f'{record.opponent}_{record.deal_group:04d}_{record.seat_rotation}.json', asdict(record))
         deadline.check()
         summaries = summarize_games([asdict(row) for row in records])
         counts = {opponent: summaries['per_opponent'][opponent]['completed'] for opponent in config['opponents']}
-        if any(value != target for value in counts.values()) or len(records) != target*len(config['opponents']):
+        if any(value != target for value in counts.values()) or len(records) != target * len(config['opponents']):
             raise RuntimeError('completed counts differ from profile')
-        result = EvaluationResult(profile, 'complete', target, counts, len(records), tuple(records),
-                                  time.monotonic()-started, seed, summaries, metadata)
+        result = EvaluationResult(profile, 'complete', target, counts, len(records), tuple(records), time.monotonic() - started, seed, summaries, metadata)
         if output is not None:
             write_evidence(output, result.as_dict())
         return result
@@ -288,7 +420,7 @@ def evaluate_profile(*, profile='local_fast', seed=EVALUATION_SEED_BASE,
         incomplete = isinstance(exc, (BudgetExceeded, EvaluationIncomplete))
         report = {'status': 'incomplete' if incomplete else 'failed',
                   'reason': f'{type(exc).__name__}: {exc}', 'completed': len(records),
-                  'target': target*len(config['opponents']), 'metadata': metadata,
+                  'target': target * len(config['opponents']), 'metadata': metadata,
                   'records': [asdict(row) for row in records]}
         if output is not None:
             write_evidence(output.with_name(output.stem + '_failure.json'), report)

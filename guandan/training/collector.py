@@ -343,7 +343,9 @@ class RolloutCollector:
                     remaining_estimate = elapsed / tick * (target_ticks - tick)
                     if remaining_estimate > budget.seconds - budget.elapsed:
                         raise BudgetExceeded("measured rollout throughput cannot finish the fixed target in the remaining budget")
-                obs = deepcopy(self.observation)
+                # Batch observations are owned snapshots and are not mutated by
+                # batch.step(); avoid a full [B,T,A] deepcopy on every token.
+                obs = self.observation
                 self._check_live(obs)
                 state = critic_state(self.batch, obs) if self.critic is not None else None
                 inputs, logits, probabilities, values, q = self._evaluate(obs, state)
@@ -367,12 +369,15 @@ class RolloutCollector:
                 bootstrap = replace(deepcopy(raw_next), phase=raw_next.phase.astype("U32"))
                 for index in np.flatnonzero(result.truncated):
                     _replace_observation_row(bootstrap, int(index), truncation_bootstrap_observation(self.batch, int(index)))
+                # IPPO next-values are evaluated once after the rollout in a
+                # single batched forward. VRPO keeps its privileged critic path
+                # here because its bootstrap state depends on hidden ownership
+                # that is not part of the policy observation.
                 next_values = torch.zeros((batch_size, 4), dtype=torch.float32)
                 live = np.flatnonzero(~result.done)
-                if len(live):
-                    boot_state = critic_state(self.batch, bootstrap) if self.critic is not None else None
-                    live_state = boot_state[live] if boot_state is not None else None
-                    _, _, _, boot_values, _ = self._evaluate(_take_observations(bootstrap, live), live_state)
+                if self.critic is not None and len(live):
+                    boot_state = critic_state(self.batch, bootstrap)
+                    _, _, _, boot_values, _ = self._evaluate(_take_observations(bootstrap, live), boot_state[live])
                     next_values[live] = boot_values.detach().cpu()
                 rewards = torch.from_numpy(result.rewards.copy())
                 players = torch.from_numpy(obs.player_id.astype(np.int64))
@@ -407,6 +412,29 @@ class RolloutCollector:
                     self.reset_counts[index] += 1
                     self.deal_records.append(self._deal_record(int(index), reset_seed if initial is None else None))
                 self.observation = next_observation
+            if self.critic is None and rows:
+                # The old implementation performed one value forward per tick.
+                # Flattening all bootstrap observations preserves the same
+                # labels while removing target_ticks GPU launches and syncs.
+                bootstrap = concatenate_observations([row.bootstrap_observation for row in rows])
+                live_mask = np.concatenate([(~row.terminated.numpy()) for row in rows])
+                live_indices = np.flatnonzero(live_mask)
+                if len(live_indices):
+                    _, _, _, boot_values, _ = self._evaluate(
+                        _take_observations(bootstrap, live_indices), None
+                    )
+                    boot_values = boot_values.detach().cpu()
+                    cursor = 0
+                    rebuilt = []
+                    for row in rows:
+                        mask = ~row.terminated.numpy()
+                        count = int(mask.sum())
+                        values = torch.zeros((batch_size, 4), dtype=torch.float32)
+                        if count:
+                            values[mask] = boot_values[cursor:cursor + count]
+                            cursor += count
+                        rebuilt.append(replace(row, next_values=values))
+                    rows = rebuilt
             check_deadline(deadline)
         except Exception as exc:
             self.incomplete = True

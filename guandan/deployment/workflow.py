@@ -23,6 +23,7 @@ import zipfile
 from . import session
 from .control import CheckpointController, SessionStop
 from .provenance import source_provenance
+from ..observability import RunObservability
 
 STATE = 'workflow.json'
 BUNDLE = 'WORKFLOW_BUNDLE.json'
@@ -111,7 +112,14 @@ def export_progress(root, archive, *, controller=None):
                 raise ValueError('linked progress entry')
             if path.is_dir():
                 continue
-            if not path.is_file() or path.suffix == '.tmp':
+            if not path.is_file():
+                raise ValueError('incomplete or non-regular progress entry')
+            # The asynchronous observability writer uses hidden atomic temp
+            # files. They are intentionally omitted from a progress archive;
+            # exported files themselves remain regular and digest-checked.
+            if path.suffix == '.tmp':
+                if path.name.startswith('.'):
+                    continue
                 raise ValueError('incomplete or non-regular progress entry')
             name = safe_relative(path.relative_to(root).as_posix())
             if name in {BUNDLE, STAGE} and name == BUNDLE:
@@ -400,6 +408,12 @@ class Workflow:
         self._progress_stop = None
         self._progress_thread = None
         self.root.mkdir(parents=True, exist_ok=True)
+        self.observability = RunObservability(self.root, {
+            'run_id': uuid.uuid4().hex, 'workflow': True,
+            'source': source, 'profile_sha256': profile.get('sha256'),
+            'profile': profile.get('name', 'remote_full'),
+        })
+        self.observability.event('workflow_initialized')
         path = self.root / STATE
         if path.exists():
             self.state = json.loads(path.read_text(encoding='utf-8'))
@@ -425,6 +439,9 @@ class Workflow:
 
     def save(self):
         atomic_json(self.root / STATE, self.state)
+        self.observability.progress(status=self.state.get('status'), active=self.state.get('active'),
+                                    accepted=self.state.get('accepted', False),
+                                    kaggle_verified=self.state.get('kaggle_verified', False))
 
     def _input_metadata(self, manifest):
         if manifest is None:
@@ -581,10 +598,12 @@ class Workflow:
                 continue
             data = self.resolver(path, algorithm=algorithm)
             count = data['durable_updates']
-            if (data['source_git_commit'] != self.source['git_commit']
-                    or type(count) is not int or not 0 <= count <= 102
+            if (type(count) is not int or not 0 <= count <= 102
                     or data['durable_token_steps'] != count * 1024):
                 raise ValueError('incompatible durable workflow checkpoint')
+            # resolve_recovery validates the current semantic contract. A source
+            # commit change is allowed for compatible resume and retained as
+            # lineage/provenance rather than treated as a semantic mismatch.
             checkpoint = Path(data['checkpoint_path']).resolve()
             if linked(checkpoint) or not checkpoint.is_relative_to(self.sessions):
                 raise ValueError('checkpoint escapes workflow sessions')
@@ -677,6 +696,8 @@ class Workflow:
         before = set(self.sessions.iterdir()) if self.sessions.exists() else set()
         print(f'[workflow] START {algorithm} {action}; elapsed={self.controller.clock()-self.controller.started:.1f}s', flush=True)
         ticker = self._start_progress_ticker()
+        self.observability.event('stage_started', action=action, algorithm=algorithm)
+        stage_started = time.monotonic()
         try:
             record = self.executor(args, checkpoint_controller=self.controller, working_artifacts_root=self.sessions)
         except BaseException as exc:
@@ -690,6 +711,11 @@ class Workflow:
             self.state.pop('active', None)
             self.save()
             self._stop_progress_ticker(ticker)
+            self.observability.event('stage_failed', action=action, algorithm=algorithm,
+                                     duration_seconds=time.monotonic() - stage_started,
+                                     error_type=type(exc).__name__)
+            self.observability.metric(stage=action, algorithm=algorithm,
+                                      duration_seconds=time.monotonic() - stage_started, status='raised')
             raise
         self._stop_progress_ticker(ticker)
         output = Path(record['outputs']).resolve()
@@ -706,6 +732,11 @@ class Workflow:
         self.state['history'].append(history)
         self.state.pop('active', None)
         self.save()
+        duration = time.monotonic() - stage_started
+        self.observability.event('stage_completed', action=action, algorithm=algorithm,
+                                 status=record['status'], duration_seconds=duration)
+        self.observability.metric(stage=action, algorithm=algorithm,
+                                  duration_seconds=duration, status=record['status'])
         print(f'[workflow] END {algorithm} {action}: {record["status"]}', flush=True)
         return record
 
@@ -799,6 +830,9 @@ class Workflow:
                                   export_receipt=str(receipt))
                 if not active_exception:
                     print(f'[workflow] {self.state["status"]}; progress export failed: {receipt}', flush=True)
+                if active_exception:
+                    self.observability.event('workflow_finished', status=self.state.get('status'), export_status='failed')
+                    self.observability.close()
             except Exception as export_error:
                 finished = self.controller.clock()
                 export_seconds = float(finished - export_started)
@@ -813,7 +847,11 @@ class Workflow:
                 self.state.update(export_seconds=export_seconds, total_elapsed_seconds=total_elapsed,
                                   export_receipt=str(receipt))
                 if not active_exception:
+                    self.observability.event('workflow_finished', status=self.state.get('status'), export_status='failed')
+                    self.observability.close()
                     raise
+                self.observability.event('workflow_finished', status=self.state.get('status'), export_status='failed')
+                self.observability.close()
             else:
                 receipt = write_export_receipt(
                     self.archive, status=self.state['status'], export_seconds=bundle['export_seconds'],
@@ -822,6 +860,9 @@ class Workflow:
                                   total_elapsed_seconds=bundle['total_elapsed_seconds'],
                                   export_receipt=str(receipt))
                 print(f'[workflow] {self.state["status"]}; download {bundle["path"]}', flush=True)
+            self.observability.event('workflow_finished', status=self.state.get('status'),
+                                     elapsed_seconds=self.state.get('total_elapsed_seconds', self.state.get('elapsed_seconds')))
+            self.observability.close()
         return self.state
 
 

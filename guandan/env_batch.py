@@ -54,6 +54,7 @@ class GuandanEnvBatch:
         *,
         auto_reset: bool = False,
         observation_spec: ObservationSpec | None = None,
+        transactional: bool = True,
     ) -> None:
         from .environment import GuandanEnv
 
@@ -64,10 +65,17 @@ class GuandanEnvBatch:
             raise TypeError("configs must contain only GameConfig values")
         if not isinstance(auto_reset, bool):
             raise TypeError("auto_reset must be bool")
+        if not isinstance(transactional, bool):
+            raise TypeError("transactional must be bool")
         if observation_spec is not None and not isinstance(observation_spec, ObservationSpec):
             raise TypeError("observation_spec must be ObservationSpec or None")
         self.observation_spec = observation_spec if observation_spec is not None else ObservationSpec()
         self.auto_reset = auto_reset
+        # Transactional stepping is the default safety mode used by tests and
+        # boundary validation. Training may explicitly disable the outer batch
+        # clone because GuandanEnv.step() already validates and publishes its
+        # own protocol trial atomically.
+        self.transactional = transactional
         self._envs = tuple(
             GuandanEnv(config, observation_spec=self.observation_spec) for config in configs
         )
@@ -226,7 +234,14 @@ class GuandanEnvBatch:
                 raise IllegalActionError("token is outside the legal vocabulary or is PAD")
 
         # Inactive originals are deliberately retained, not reset or stepped.
-        trials = tuple(env if ended else env.clone() for env, ended in zip(self._envs, inactive))
+        # The default transactional path clones each live environment so a
+        # failure publishes no slots. The training fast path may opt out of
+        # this outer clone; GuandanEnv.step() still keeps each single-env
+        # protocol update atomic.
+        trials = tuple(
+            env if (ended or not self.transactional) else env.clone()
+            for env, ended in zip(self._envs, inactive)
+        )
         results: list[StepResult] = []
         observations: list[Observation | None] = []
         for env, ended, token in zip(trials, inactive, token_ids):

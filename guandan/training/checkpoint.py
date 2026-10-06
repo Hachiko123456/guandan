@@ -24,6 +24,10 @@ from guandan.environment_types import ACTION_VERSION, ENCODING_VERSION, ENV_VERS
 from guandan.model import PolicyValueNet
 
 from .config import AcceptanceProfile, ProfileConfigError, load_profile
+from .compatibility import (
+    COMPATIBILITY_SCHEMA_VERSION, CompatibilityError, ResumeDecision, ResumeMode,
+    SemanticContract, classify_resume, require_resume_mode,
+)
 
 CHECKPOINT_VERSION = 2
 MODEL_VERSION = "GD-MODEL-MLP-0.2"
@@ -60,6 +64,10 @@ class CheckpointMetadata:
     profile: str
     algorithm: str
     git_commit: str | None
+    source_fingerprint: str | None
+    implementation_fingerprint: str | None
+    semantic_contract: dict[str, Any]
+    compatibility_schema_version: int
     update_count: int
     seed_count: int
     model_version: str = MODEL_VERSION
@@ -79,7 +87,8 @@ class CheckpointMetadata:
 
     def as_dict(self) -> dict[str, Any]:
         return {**asdict(self), "update": self.update, "seed": self.seed,
-                "protocol_versions": self.protocol_versions}
+                "protocol_versions": self.protocol_versions,
+                "semantic_contract": self.semantic_contract}
 
     def __getitem__(self, key: str) -> Any:
         if key not in self.as_dict():
@@ -261,10 +270,39 @@ def _protocol_versions(value: Mapping[str, Any] | None) -> dict[str, str]:
     return {key: _string(versions[key], key) for key in PROTOCOL_VERSION_KEYS}
 
 
-def _metadata_from_payload(payload: Mapping) -> CheckpointMetadata:
+def _fingerprint(value: Any, name: str) -> str | None:
+    if value is None:
+        return None
+    return _string(value, name)
+
+
+def _semantic_contract(value: Any, *, profile: str, algorithm: str, model_config: Mapping[str, Any]) -> dict[str, Any]:
+    if value is None:
+        value = {
+            "algorithm": algorithm,
+            "profile": profile,
+            "model_version": MODEL_VERSION,
+            "training_version": TRAINING_VERSION,
+            "protocol_versions": CURRENT_PROTOCOL_VERSIONS,
+            "model_config": model_config,
+        }
+    try:
+        return SemanticContract.from_value(value).as_dict()
+    except CompatibilityError as exc:
+        raise CheckpointError(str(exc)) from exc
+
+
+def _metadata_from_payload(payload: Mapping, *, allow_legacy_readonly: bool = False) -> CheckpointMetadata:
     version = payload.get("checkpoint_version")
     if type(version) is not int or version != CHECKPOINT_VERSION:
         raise IncompatibleCheckpointError(f"unsupported checkpoint_version: {version!r}; expected {CHECKPOINT_VERSION}")
+    compatibility_version = payload.get("compatibility_schema_version")
+    legacy_readonly = compatibility_version != COMPATIBILITY_SCHEMA_VERSION
+    if legacy_readonly and not allow_legacy_readonly:
+        raise IncompatibleCheckpointError(
+            "checkpoint has no current semantic compatibility contract; "
+            "use an explicit offline migration before resuming"
+        )
     for key, expected in (("model_version", MODEL_VERSION), ("training_version", TRAINING_VERSION)):
         if payload.get(key) != expected:
             raise IncompatibleCheckpointError(f"incompatible {key}: {payload.get(key)!r}; expected {expected!r}")
@@ -288,6 +326,16 @@ def _metadata_from_payload(payload: Mapping) -> CheckpointMetadata:
     commit = payload["git_commit"]
     if commit is not None:
         _string(commit, "git_commit")
+    source = _fingerprint(payload.get("source_fingerprint", commit), "source_fingerprint")
+    implementation = _fingerprint(payload.get("implementation_fingerprint"), "implementation_fingerprint")
+    contract = payload.get("semantic_contract")
+    if legacy_readonly and contract is None:
+        contract = {}
+    else:
+        try:
+            contract = SemanticContract.from_value(contract).as_dict()
+        except CompatibilityError as exc:
+            raise CheckpointError(str(exc)) from exc
     counters = {}
     for long, short in (("update_count", "update"), ("seed_count", "seed")):
         counter = _strict_counter(payload.get(long, payload.get(short)), long)
@@ -296,7 +344,10 @@ def _metadata_from_payload(payload: Mapping) -> CheckpointMetadata:
         counters[long] = counter
     return CheckpointMetadata(
         checkpoint_version=version, **versions, profile=profile, algorithm=algorithm,
-        git_commit=commit, **counters, model_version=MODEL_VERSION, training_version=TRAINING_VERSION,
+        git_commit=commit, source_fingerprint=source,
+        implementation_fingerprint=implementation, semantic_contract=contract,
+        compatibility_schema_version=compatibility_version, **counters,
+        model_version=MODEL_VERSION, training_version=TRAINING_VERSION,
     )
 
 
@@ -407,6 +458,9 @@ def save_checkpoint(
     update_count: int | None = None,
     seed_count: int | None = None,
     git_commit: str | None | object = _AUTO_GIT_COMMIT,
+    source_fingerprint: str | None | object = _AUTO_GIT_COMMIT,
+    implementation_fingerprint: str | None = None,
+    semantic_contract: SemanticContract | Mapping[str, Any] | None = None,
     protocol_versions: Mapping[str, Any] | None = None,
     model_state: Mapping[str, Any] | None = None,
     optimizer_state: Mapping[str, Any] | None = None,
@@ -446,13 +500,22 @@ def save_checkpoint(
     commit = _git_commit() if git_commit is _AUTO_GIT_COMMIT else git_commit
     if commit is not None:
         _string(commit, "git_commit")
+    source = commit if source_fingerprint is _AUTO_GIT_COMMIT else source_fingerprint
+    if source is not None:
+        _string(source, "source_fingerprint")
+    algorithm_name = _algorithm(algorithm, profile_name)
+    contract = _semantic_contract(semantic_contract, profile=profile_name, algorithm=algorithm_name, model_config=config)
     metadata = CheckpointMetadata(
         checkpoint_version=CHECKPOINT_VERSION, **_protocol_versions(protocol_versions),
-        profile=profile_name, algorithm=_algorithm(algorithm, profile_name), git_commit=commit,
+        profile=profile_name, algorithm=algorithm_name, git_commit=commit,
+        source_fingerprint=source, implementation_fingerprint=_fingerprint(implementation_fingerprint, "implementation_fingerprint"),
+        semantic_contract=contract, compatibility_schema_version=COMPATIBILITY_SCHEMA_VERSION,
         update_count=update if update_count is None else update_count,
         seed_count=seed if seed_count is None else seed_count,
     )
-    payload = {**metadata.as_dict(), "model_state": weights, "optimizer_state": opt_state,
+    payload = {**metadata.as_dict(), "compatibility_schema_version": COMPATIBILITY_SCHEMA_VERSION,
+               "source_fingerprint": source, "implementation_fingerprint": metadata.implementation_fingerprint,
+               "semantic_contract": contract, "model_state": weights, "optimizer_state": opt_state,
                "model_config": config, "training_state": training}
     _safe_tree(payload, "checkpoint")
     _atomic_torch_save(payload, Path(path))
@@ -507,6 +570,11 @@ def load_checkpoint(
     expected_model_config: dict | None = None,
     expected_model_version: str = MODEL_VERSION,
     expected_training_version: str = TRAINING_VERSION,
+    expected_semantic_contract: SemanticContract | Mapping[str, Any] | None = None,
+    allow_legacy_readonly: bool = False,
+    expected_source_fingerprint: str | None = None,
+    expected_implementation_fingerprint: str | None = None,
+    resume_mode: ResumeMode | str | None = None,
 ) -> TrainingCheckpoint:
     """Validate all metadata/state before transactional model+optimizer loading.
 
@@ -521,7 +589,7 @@ def load_checkpoint(
     if type(payload) is not dict:
         raise CheckpointError("checkpoint payload must be a dictionary")
     _safe_tree(payload, "checkpoint")
-    metadata = _metadata_from_payload(payload)
+    metadata = _metadata_from_payload(payload, allow_legacy_readonly=allow_legacy_readonly)
     for key, expected in (("model_version", expected_model_version), ("training_version", expected_training_version)):
         if getattr(metadata, key) != _string(expected, "expected_" + key):
             raise IncompatibleCheckpointError(f"checkpoint {key} does not match expected {expected!r}")
@@ -546,8 +614,37 @@ def load_checkpoint(
                                  else _inferred_config(model, model.state_dict()))
     if expected_model_config is not None and not _same(config, _safe_dict(expected_model_config, "expected_model_config")):
         raise IncompatibleCheckpointError("checkpoint model_config does not match expected model_config")
+    if expected_semantic_contract is not None or resume_mode is not None:
+        try:
+            decision = classify_resume(
+                metadata.semantic_contract, expected_semantic_contract,
+                checkpoint_source_fingerprint=metadata.source_fingerprint,
+                expected_source_fingerprint=expected_source_fingerprint,
+                checkpoint_implementation_fingerprint=metadata.implementation_fingerprint,
+                expected_implementation_fingerprint=expected_implementation_fingerprint,
+            )
+            require_resume_mode(decision, resume_mode)
+        except CompatibilityError as exc:
+            raise IncompatibleCheckpointError(str(exc)) from exc
     _apply_atomically(model, optimizer, weights, opt_state)
     return TrainingCheckpoint(metadata, weights, opt_state, config, training)
+
+
+def checkpoint_resume_decision(
+    checkpoint: TrainingCheckpoint,
+    expected_semantic_contract: SemanticContract | Mapping[str, Any],
+    *,
+    expected_source_fingerprint: str | None = None,
+    expected_implementation_fingerprint: str | None = None,
+) -> ResumeDecision:
+    """Return the resume classification without mutating model or optimizer."""
+    return classify_resume(
+        checkpoint.metadata.semantic_contract, expected_semantic_contract,
+        checkpoint_source_fingerprint=checkpoint.metadata.source_fingerprint,
+        expected_source_fingerprint=expected_source_fingerprint,
+        checkpoint_implementation_fingerprint=checkpoint.metadata.implementation_fingerprint,
+        expected_implementation_fingerprint=expected_implementation_fingerprint,
+    )
 
 
 def resume_checkpoint(path: str | Path, model: Any, optimizer: Any | None = None, **kwargs: Any) -> TrainingCheckpoint:
@@ -558,7 +655,8 @@ load_and_resume_checkpoint = resume_checkpoint
 
 __all__ = [
     "CHECKPOINT_VERSION", "MODEL_VERSION", "TRAINING_VERSION", "PROTOCOL_VERSION_KEYS",
-    "CURRENT_PROTOCOL_VERSIONS", "CheckpointError", "IncompatibleCheckpointError",
-    "CheckpointMetadata", "TrainingCheckpoint", "LoadedCheckpoint", "save_checkpoint",
+    "CURRENT_PROTOCOL_VERSIONS", "COMPATIBILITY_SCHEMA_VERSION", "ResumeMode",
+    "CheckpointError", "IncompatibleCheckpointError", "CheckpointMetadata",
+    "TrainingCheckpoint", "LoadedCheckpoint", "checkpoint_resume_decision", "save_checkpoint",
     "load_checkpoint", "resume_checkpoint", "load_and_resume_checkpoint",
 ]

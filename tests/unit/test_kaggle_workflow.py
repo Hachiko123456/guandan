@@ -287,7 +287,7 @@ def test_recorded_failure_not_silently_retried(tmp_path):
     assert (flow.root/w.STATE).read_bytes()==before
 
 
-def test_generator_renders_one_notebook_with_shared_deadline_and_no_per_algorithm_modes():
+def test_generator_renders_one_notebook_with_explicit_dual_gpu_runner():
     from scripts.prepare_kaggle_unified import render_notebook, ROOT
     import ast
     metadata={'source_git_commit':'a'*40,'source_zip_sha256':'b'*64,
@@ -297,8 +297,8 @@ def test_generator_renders_one_notebook_with_shared_deadline_and_no_per_algorith
     assert doc['nbformat']==4 and len(doc['cells'])==5
     code='\n'.join(''.join(c['source']) for c in doc['cells'] if c['cell_type']=='code')
     ast.parse(code)
-    assert 'guandan.deployment.workflow' in code
-    assert 'remaining_seconds/3600' in code
+    assert 'guandan.experiment' in code
+    assert '--device-ippo' in code and '--device-vrpo' in code
     assert 'runtime_check=' not in code
     assert '__ZIP_SHA256__' not in code
     assert 'MODE =' not in code

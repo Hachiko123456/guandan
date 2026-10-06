@@ -13,151 +13,103 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-CONFIG = '''# 一份 Notebook；首次只添加源码 Dataset，点击 Run All 即按顺序执行。
-EXECUTE = True  # False 只看计划，不训练
-NO_TIME_LIMIT = True  # 关闭项目主动时间停止；Kaggle外部终止仍不能控制
-SOURCE_DATASET_HINT = ""  # 自动匹配本次源码；多个匹配时填写相对 /kaggle/input 路径
-RESUME_BUNDLE = ""  # 自动找唯一进度包；多份时显式填写 /kaggle/input/... 路径
-INSTALL_DEPS = False  # 缺依赖时显式改 True（仅 wheel，不自动替换规则/算法）
-SAVE_MARGIN_SECONDS = 300
-CHECKPOINT_SECONDS = 600  # 每10分钟自动导出进度；训练本身还按profile checkpoint
+CONFIG = '''# 一份 Notebook；只添加本次源码 Dataset，启用两张 GPU 后 Run All。
+EXECUTE = True  # False 只生成计划，不启动训练
+SOURCE_DATASET_HINT = ''  # 源码 Dataset 的相对 /kaggle/input 路径
+INSTALL_DEPS = False  # 缺依赖时才显式改 True
+RESUME_IPPO = ''  # 可选：明确指向本次 semantic-compatible checkpoint 的 /kaggle/input 路径
+RESUME_VRPO = ''  # 可选：明确指向本次 semantic-compatible checkpoint 的 /kaggle/input 路径
+BASE_UPDATES = None  # None=remote_full profile；短实验可显式设置
+RESUME_UPDATES = None
 '''
 
+
 RUN = '''import os
+import json
 import uuid
-
-PIPELINE_ROOT = WORKING_ROOT / "guandan-unified"
-PROGRESS_ZIP = WORKING_ROOT / "guandan-unified-progress.zip"
-
-
-def find_progress():
-    if RESUME_BUNDLE:
-        path = Path(RESUME_BUNDLE).resolve()
-        if not path.is_relative_to(INPUT_ROOT.resolve()) or not path.exists():
-            raise ValueError("RESUME_BUNDLE必须在 /kaggle/input")
-        return path
-    candidates = []
-    for path in INPUT_ROOT.rglob("*-progress.zip"):
-        with zipfile.ZipFile(path) as archive:
-            if "WORKFLOW_BUNDLE.json" not in archive.namelist():
-                continue
-            if archive.getinfo("WORKFLOW_BUNDLE.json").file_size > 16*1024**2:
-                raise ValueError("进度包manifest过大")
-            metadata = json.loads(archive.read("WORKFLOW_BUNDLE.json"))
-        if metadata.get("source_git_commit") == EXPECTED_COMMIT:
-            candidates.append(path)
-    for path in INPUT_ROOT.rglob("WORKFLOW_BUNDLE.json"):
-        if path.stat().st_size > 16*1024**2:
-            raise ValueError("进度包manifest过大")
-        metadata = json.loads(path.read_text(encoding="utf-8"))
-        if metadata.get("source_git_commit") == EXPECTED_COMMIT:
-            candidates.append(path.parent)
-    if len(candidates) > 1:
-        raise ValueError("有多个相符进度包，请设置 RESUME_BUNDLE；不会猜测最新文件")
-    return candidates[0] if candidates else None
-
-
-remaining_seconds = None
-if not NO_TIME_LIMIT:
-    remaining_seconds = 12*3600 - (time.monotonic()-GUANDAN_NOTEBOOK_STARTED)
-    if remaining_seconds <= SAVE_MARGIN_SECONDS:
-        raise RuntimeError("本Notebook整体时间预算已用尽，请先保存输出，在新会话恢复")
-command = [sys.executable, "-u", "-B", "-m", "guandan.deployment.workflow",
-           "--output-root", str(PIPELINE_ROOT),
-           "--checkpoint-seconds", str(CHECKPOINT_SECONDS)]
-if NO_TIME_LIMIT:
-    command.append("--no-time-limit")
-else:
-    command += ["--session-hours", str(remaining_seconds/3600),
-                "--save-margin-seconds", str(SAVE_MARGIN_SECONDS)]
-if EXECUTE:
-    command.append("--execute")
-    if PIPELINE_ROOT.exists():
-        if RESUME_BUNDLE:
-            raise RuntimeError("已有本机进度不能被输入包覆盖；请用新会话恢复该包")
-        print("继续当前working内经过验证的进度。")
-    else:
-        progress = find_progress()
-        if progress:
-            command += ["--resume-bundle", str(progress)]
-            print("恢复进度包：", progress)
-        else:
-            # 不误把旧源码进度丢弃后悄悄重新训练。
-            if list(INPUT_ROOT.rglob("*-progress.zip")) or list(INPUT_ROOT.rglob("WORKFLOW_BUNDLE.json")):
-                raise RuntimeError("存在进度包但源码commit不匹配。请重新挂载生成该进度的同一版本源码ZIP。")
-            print("没有进度包，从IPPO开始；随后自动VRPO和评估。")
-
-log_root = WORKING_ROOT / "guandan-unified-logs"
-log_root.mkdir(exist_ok=True)
-log_path = log_root / (uuid.uuid4().hex + ".log")
-print("COMMAND:", command)
-# stdout实时显示并落盘。每60秒心跳不代表新的更新数或训练完成。
+import shutil
+import subprocess
 import threading
+import time
+
+EXPERIMENT_ROOT = WORKING_ROOT / 'guandan-dual-gpu'
+PROGRESS_ZIP = WORKING_ROOT / 'guandan-dual-gpu-progress.zip'
+command = [sys.executable, '-u', '-B', '-m', 'guandan.experiment',
+           '--profile', 'remote_full', '--output-root', str(EXPERIMENT_ROOT),
+           '--device-ippo', 'cuda:0', '--device-vrpo', 'cuda:1']
+if BASE_UPDATES is not None:
+    command += ['--base-updates', str(BASE_UPDATES)]
+if RESUME_UPDATES is not None:
+    command += ['--resume-updates', str(RESUME_UPDATES)]
+if RESUME_IPPO:
+    command += ['--resume-ippo', str(Path(RESUME_IPPO).resolve())]
+if RESUME_VRPO:
+    command += ['--resume-vrpo', str(Path(RESUME_VRPO).resolve())]
+if EXECUTE:
+    command.append('--execute')
+print('COMMAND:', command)
+log_root = WORKING_ROOT / 'guandan-dual-gpu-logs'
+log_root.mkdir(exist_ok=True)
+log_path = log_root / (uuid.uuid4().hex + '.log')
 stop_heartbeat = threading.Event()
 
 def heartbeat():
     while not stop_heartbeat.wait(60):
-        print(f"[notebook] 子进程运行中，累计 {int(time.monotonic()-GUANDAN_NOTEBOOK_STARTED)} 秒；日志 {log_path}", flush=True)
+        print(f'[notebook] dual-GPU runner alive; log={log_path}', flush=True)
 
 thread = threading.Thread(target=heartbeat, daemon=True)
 thread.start()
+returncode = 0
 try:
-    with log_path.open("w", encoding="utf-8") as log:
+    with log_path.open('w', encoding='utf-8') as log:
         with subprocess.Popen(command, cwd=WORK_ROOT, stdout=subprocess.PIPE,
-                              stderr=subprocess.STDOUT, text=True, encoding="utf-8",
-                              errors="replace", bufsize=1) as process:
-            try:
-                for line in process.stdout:
-                    print(line, end="", flush=True)
-                    log.write(line)
-                    log.flush()
-                returncode = process.wait()
-            except KeyboardInterrupt:
-                # 给子进程软停止请求，留时间保存；不伪装强杀可恢复。
-                process.terminate()
-                returncode = process.wait()
-                raise
+                              stderr=subprocess.STDOUT, text=True, encoding='utf-8',
+                              errors='replace', bufsize=1) as process:
+            for line in process.stdout:
+                print(line, end='', flush=True)
+                log.write(line)
+                log.flush()
+            returncode = process.wait()
 finally:
     stop_heartbeat.set()
-print("returncode:", returncode)
-print("workflow summary:", PIPELINE_ROOT / "workflow.json")
-print("progress ZIP:", PROGRESS_ZIP)
-print("log:", log_path)
+if EXPERIMENT_ROOT.exists():
+    archive_base = str(PROGRESS_ZIP.with_suffix(''))
+    shutil.make_archive(archive_base, 'zip', root_dir=EXPERIMENT_ROOT)
+print('returncode:', returncode)
+print('experiment result:', EXPERIMENT_ROOT / 'result.json')
+print('progress ZIP:', PROGRESS_ZIP)
+print('log:', log_path)
 if returncode not in (0, 2):
-    raise RuntimeError(f"流水线显式失败，停止后续阶段。日志: {log_path}")
-if returncode == 2:
-    print("未全部完成：下载进度ZIP；新Kaggle会话挂载同一源码ZIP和进度ZIP，再用本Notebook Run All。")
+    raise RuntimeError(f'dual-GPU runner failed; log={log_path}')
 '''
 
-SUMMARY = '''summary_path = PIPELINE_ROOT / "workflow.json"
-if summary_path.is_file():
-    summary = json.loads(summary_path.read_text(encoding="utf-8"))
-    print(json.dumps({key: summary.get(key) for key in
-                     ("status", "active", "error", "elapsed_seconds", "accepted", "kaggle_verified",
-                      "genuine_new_kaggle_session_verified")}, ensure_ascii=False, indent=2))
+
+SUMMARY = '''result_path = EXPERIMENT_ROOT / 'result.json'
+if result_path.is_file():
+    result = json.loads(result_path.read_text(encoding='utf-8'))
+    print(json.dumps({key: result.get(key) for key in
+                      ('status', 'elapsed_seconds', 'accepted', 'kaggle_verified')},
+                     ensure_ascii=False, indent=2))
 if PROGRESS_ZIP.is_file():
     from IPython.display import FileLink, display
-    # 仅生成Notebook本地下载链接，不上传、不创建Dataset。
     display(FileLink(str(PROGRESS_ZIP)))
 '''
 
 
+
 def render_notebook(metadata, template):
-    intro = '''# 掼蛋统一训练 Notebook：一次 Run All 自动串联
+    intro = '''# 掼蛋双 GPU 训练 Notebook
 
-只导入这一个 Notebook，添加配套 `guandan-source.zip` Dataset 后启用GPU并 Run All：
+本 Notebook 只绑定本次源码 ZIP，并通过显式 spawn worker 使用 T4 x2：
 
-环境检查 → A04 smoke → IPPO 100更新 → 保存/重载追加2更新 → VRPO同样流程 → 两算法A06评估。
-每算法评估3000局，目标不会因时间不够缩减；这是管线验证，不是模型强度证明。
+- IPPO -> cuda:0
+- VRPO -> cuda:1
 
-**项目不主动设置总时间截止，但 Kaggle 外部会话终止仍可能发生，不能承诺一次会话一定跑完。**
-保存 `guandan-unified-progress.zip` 后，新会话只需挂载该包和同一源码ZIP，再 Run All。
-已完成训练/评估会核对checkpoint与真实记录后跳过；中断的算法评估保留记录但从头重跑，
-不会拼接缺失局数。同会话checkpoint重载不是“新Kaggle会话恢复验收”，accepted始终false。
+训练 checkpoint、worker 日志、system telemetry 和 progress ZIP 均由新的 dual-GPU runner 生成。
+旧的 progress ZIP 不会被自动猜测；如需恢复，必须在 CONFIG 中分别填写 RESUME_IPPO/RESUME_VRPO。
+训练状态的 resume 以 semantic contract 为准，源码 commit 仅作为 provenance。
 
-默认EXECUTE=True会训练；NO_TIME_LIMIT=True关闭项目主动时间停止，并每60秒打印心跳/阶段进度，
-每次update/每25局评估也写live_progress.json和日志。Kaggle外部会话终止仍然可能发生，
-所以checkpoint和progress ZIP仍然必须保留。代码不会自动上传Kaggle或重新创建远程会话。
+默认 remote_full 是运行管线规模，不代表模型强度或 Kaggle 验收；任何 GPU/会话失败都保持 incomplete/failed，绝不自动降级到单卡。
 '''
     bootstrap = template
     for name, key in [('COMMIT', 'source_git_commit'), ('ZIP_SHA256', 'source_zip_sha256'),
