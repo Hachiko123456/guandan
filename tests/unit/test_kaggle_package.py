@@ -467,3 +467,234 @@ def test_build_package_rejects_wrong_remote_counts_before_output(tmp_path):
     with pytest.raises(ValueError, match="remote_full configuration mismatch"):
         build_package(root, output)
     assert not output.exists()
+
+# Evaluation delivery: local rendering/stub-process tests, not Kaggle evidence.
+@pytest.fixture
+def evaluation_packager():
+    return load_script(ROOT / 'scripts/prepare_kaggle_evaluation.py', 'evaluation_packager_test')
+
+
+def evaluation_namespace(module, tmp_path):
+    import ast
+    import math
+    namespace = {'Path': Path, 'sys': sys, 'math': math}
+    exec(module.CONFIG, namespace)
+    namespace.update(INPUT_ROOT=tmp_path, WORKING_ROOT=tmp_path,
+                     OUTPUT_ROOT=tmp_path / 'evaluation', RUN_ID='test')
+    tree = ast.parse(module.RUN)
+    helpers = ast.Module(body=[node for node in tree.body if isinstance(node, ast.FunctionDef)], type_ignores=[])
+    exec(compile(helpers, '<notebook-helpers>', 'exec'), namespace)
+    return namespace
+
+
+def test_evaluation_notebook_defaults_and_ast(evaluation_packager):
+    metadata = {'source_git_commit': 'a' * 40, 'source_zip_sha256': 'b' * 64,
+                'source_manifest_sha256': 'c' * 64, 'checker_sha256': 'd' * 64}
+    notebook = evaluation_packager.render_notebook(
+        metadata, (ROOT / 'notebooks/kaggle_unified_bootstrap.py').read_text(encoding='utf-8-sig'))
+    assert notebook['nbformat'] == 4
+    assert len(notebook['cells']) == 5
+    for cell in notebook['cells']:
+        if cell['cell_type'] == 'code':
+            compile(''.join(cell['source']), cell['id'], 'exec')
+            assert cell['execution_count'] is None and cell['outputs'] == []
+    ns = {}
+    exec(evaluation_packager.CONFIG, ns)
+    assert ns['WARMUP_GAMES_PER_OPPONENT'] == 10
+    assert ns['TARGET_GAMES_PER_OPPONENT'] == 100
+    assert ns['AUTO_CONTINUE_AFTER_WARMUP'] is False
+    assert ns['PROGRESS_BUNDLE'] == ''
+    assert ns['EVAL_PROFILE'] == 'local_fast'
+    assert '__COMMIT__' not in ''.join(notebook['cells'][2]['source'])
+    assert 'input(' not in evaluation_packager.RUN
+    assert 'GUANDAN_EVAL_' not in evaluation_packager.RUN  # no silently ignored env fallback
+
+
+@pytest.mark.parametrize('expanded', [False, True])
+def test_evaluation_config_supports_explicit_zip_or_expanded(evaluation_packager, tmp_path, expanded):
+    ns = evaluation_namespace(evaluation_packager, tmp_path)
+    path = tmp_path / ('expanded' if expanded else 'progress.zip')
+    if expanded:
+        (path / 'workers').mkdir(parents=True)
+    else:
+        path.write_bytes(b'zip validated by suite')
+    ns['PROGRESS_BUNDLE'] = str(path)
+    assert ns['_validate_config']() == path.resolve()
+    payload = ns['_config_payload'](path)
+    assert payload['warmup_total_games'] == 80
+    assert payload['formal_total_games'] == 800
+
+
+@pytest.mark.parametrize(('name', 'value'), [
+    ('PROGRESS_BUNDLE', ''), ('WARMUP_GAMES_PER_OPPONENT', 0),
+    ('TARGET_GAMES_PER_OPPONENT', 101), ('BATCH_SIZE', 0),
+    ('MAX_ESTIMATED_MINUTES', float('nan')), ('MAX_ESTIMATED_MINUTES', float('inf')),
+    ('AUTO_CONTINUE_AFTER_WARMUP', 'False'), ('EXECUTE', 'True'),
+])
+def test_evaluation_bad_config_fails_before_launch(evaluation_packager, tmp_path, name, value):
+    ns = evaluation_namespace(evaluation_packager, tmp_path)
+    path = tmp_path / 'progress.zip'
+    path.touch()
+    ns['PROGRESS_BUNDLE'] = str(path)
+    ns[name] = value
+    with pytest.raises(ValueError):
+        ns['_validate_config']()
+
+
+def test_evaluation_bundle_must_be_under_input_and_not_plain_directory(evaluation_packager, tmp_path):
+    ns = evaluation_namespace(evaluation_packager, tmp_path)
+    ns['PROGRESS_BUNDLE'] = str(tmp_path)
+    with pytest.raises(ValueError, match='workers'):
+        ns['_validate_config']()
+    ns['INPUT_ROOT'] = tmp_path / 'input'
+    ns['PROGRESS_BUNDLE'] = str(tmp_path / 'elsewhere.zip')
+    with pytest.raises(ValueError, match='/kaggle/input'):
+        ns['_validate_config']()
+
+
+@pytest.mark.parametrize('execute', [False, True])
+@pytest.mark.parametrize('auto_continue', [False, True])
+def test_evaluation_flags_pass_exact_config(evaluation_packager, tmp_path, execute, auto_continue):
+    ns = evaluation_namespace(evaluation_packager, tmp_path)
+    ns.update(EXECUTE=execute, AUTO_CONTINUE_AFTER_WARMUP=auto_continue,
+              TARGET_GAMES_PER_OPPONENT=120, WARMUP_GAMES_PER_OPPONENT=7,
+              MAX_ESTIMATED_MINUTES=45, BATCH_SIZE=8, EVAL_PROFILE='remote_full')
+    command = ns['_command'](tmp_path / 'progress.zip')
+    for flag, value in [('--warmup-games-per-opponent', '7'), ('--target-games-per-opponent', '120'),
+                        ('--max-estimated-minutes', '45'), ('--batch-size', '8'), ('--profile', 'remote_full')]:
+        assert command[command.index(flag) + 1] == value
+    assert ('--execute' in command) == execute
+    assert ('--auto-continue-after-warmup' in command) == auto_continue
+    assert 'guandan.evaluation_suite' in command
+    assert 'guandan.experiment' not in command
+
+
+def execute_evaluation_notebook(module, tmp_path, *, execute=False):
+    ns = {'WORKING_ROOT': tmp_path, 'WORK_ROOT': ROOT}
+    exec(module.CONFIG, ns)
+    bundle = tmp_path / 'progress.zip'
+    bundle.touch(exist_ok=True)
+    ns.update(EXECUTE=execute, PROGRESS_BUNDLE=str(bundle))
+    # Replace only the platform root in the test; all other generated code executes unchanged.
+    code = module.RUN.replace("INPUT_ROOT = Path('/kaggle/input').resolve()",
+                              f'INPUT_ROOT = Path({str(tmp_path)!r}).resolve()')
+    return ns, code
+
+
+def test_evaluation_plan_does_not_launch_and_uses_new_run_directory(evaluation_packager, tmp_path, monkeypatch):
+    def forbidden(*args, **kwargs):
+        raise AssertionError('plan must not launch an evaluation subprocess')
+    monkeypatch.setattr(subprocess, 'Popen', forbidden)
+    ns, code = execute_evaluation_notebook(evaluation_packager, tmp_path)
+    exec(code, ns)
+    first = ns['OUTPUT_ROOT']
+    assert first.name.startswith('guandan-evaluation-')
+    assert json.loads((first / 'plan.json').read_text())['status'] == 'plan_only'
+    assert not ns['RESULT_ZIP'].exists()
+    exec(code, ns)
+    assert ns['OUTPUT_ROOT'] != first
+    assert (first / 'plan.json').is_file()
+
+
+@pytest.mark.parametrize(('status', 'code'), [('warmup_complete', 0), ('stopped_by_budget', 2), ('complete', 0), ('failed', 1)])
+def test_evaluation_exit_packs_logs_and_keeps_status(evaluation_packager, tmp_path, monkeypatch, capsys, status, code):
+    import io
+    import zipfile
+    class Process:
+        def __init__(self, command, **kwargs):
+            self.stdout = io.StringIO('completed_games=10 ETA=30s\n')
+            root = Path(command[command.index('--output-root') + 1])
+            # The suite is allowed to require a previously absent output root.
+            root.mkdir()
+            (root / 'result.json').write_text(json.dumps({'status': status}))
+            (root / 'games').mkdir()
+            (root / 'games' / 'one.json').write_text('{"completed":true}')
+        def __enter__(self): return self
+        def __exit__(self, *args): return False
+        def wait(self, **kwargs): return code
+    monkeypatch.setattr(subprocess, 'Popen', Process)
+    ns, source = execute_evaluation_notebook(evaluation_packager, tmp_path, execute=True)
+    if code == 1:
+        with pytest.raises(RuntimeError, match='failed'):
+            exec(source, ns)
+    else:
+        exec(source, ns)
+    with zipfile.ZipFile(ns['RESULT_ZIP']) as archive:
+        assert json.loads(archive.read('result.json'))['status'] == status
+        assert 'notebook.log' in archive.namelist()
+        assert 'games/one.json' in archive.namelist()
+        assert 'evaluation_config.json' in archive.namelist()
+    output = capsys.readouterr().out
+    if status == 'warmup_complete':
+        assert '尚未运行 formal' in output
+    if status == 'stopped_by_budget':
+        assert '预算保护停止' in output
+
+
+def test_evaluation_package_build_includes_committed_tutorial(evaluation_packager, tmp_path, monkeypatch):
+    # Source fixture is committed in an isolated repository; production tree is not committed/packaged here.
+    root = package_fixture_repo(tmp_path)
+    for name in ('docs/kaggle_evaluation_tutorial.md', 'scripts/prepare_kaggle_evaluation.py'):
+        target = root / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / name, target)
+    git_fixture(root, 'add', '.')
+    git_fixture(root, 'commit', '-qm', 'evaluation delivery fixture')
+    monkeypatch.setattr(evaluation_packager, 'ROOT', root)
+    out = tmp_path / 'release-fixture'
+    metadata = evaluation_packager.build(out)
+    notebook = json.loads((out / 'guandan_evaluation.ipynb').read_text(encoding='utf-8'))
+    for cell in notebook['cells']:
+        if cell['cell_type'] == 'code':
+            compile(''.join(cell['source']), cell['id'], 'exec')
+    tutorial = (root / 'docs/kaggle_evaluation_tutorial.md').read_text(encoding='utf-8-sig')
+    assert (out / '使用说明.txt').read_text(encoding='utf-8') == tutorial
+    assert (out / 'kaggle_evaluation_tutorial.md').read_text(encoding='utf-8') == tutorial
+    assert metadata['source_zip_sha256'] == hashlib.sha256((out / 'guandan-source.zip').read_bytes()).hexdigest()
+    assert metadata['uploaded'] is metadata['accepted'] is metadata['kaggle_verified'] is False
+
+
+def test_evaluation_interruption_preserves_already_written_games(evaluation_packager, tmp_path, monkeypatch):
+    import zipfile
+    state = {'terminated': False}
+    class InterruptedOutput:
+        def __iter__(self): return self
+        def __next__(self): raise KeyboardInterrupt()
+    class Process:
+        def __init__(self, command, **kwargs):
+            self.stdout = InterruptedOutput()
+            root = Path(command[command.index('--output-root') + 1])
+            (root / 'games').mkdir(parents=True)
+            (root / 'games' / 'completed.json').write_text('{}')
+        def __enter__(self): return self
+        def __exit__(self, *args): return False
+        def terminate(self): state['terminated'] = True
+        def wait(self, **kwargs): return -15
+    monkeypatch.setattr(subprocess, 'Popen', Process)
+    ns, code = execute_evaluation_notebook(evaluation_packager, tmp_path, execute=True)
+    with pytest.raises(KeyboardInterrupt):
+        exec(code, ns)
+    assert state['terminated'] is True
+    with zipfile.ZipFile(ns['RESULT_ZIP']) as archive:
+        assert 'games/completed.json' in archive.namelist()
+        assert 'notebook.log' in archive.namelist()
+        assert 'result.json' not in archive.namelist()  # never invent a completed result
+
+
+def test_evaluation_warmup_and_formal_counts_are_independent(evaluation_packager, tmp_path):
+    ns = evaluation_namespace(evaluation_packager, tmp_path)
+    bundle = tmp_path / 'progress.zip'
+    bundle.touch()
+    ns.update(PROGRESS_BUNDLE=str(bundle), WARMUP_GAMES_PER_OPPONENT=10, TARGET_GAMES_PER_OPPONENT=4)
+    assert ns['_validate_config']() == bundle.resolve()
+    assert ns['_config_payload'](bundle)['formal_total_games'] == 32
+
+
+def test_evaluation_plan_without_progress_does_not_launch(evaluation_packager,tmp_path,monkeypatch):
+    ns,source=execute_evaluation_notebook(evaluation_packager,tmp_path,execute=False)
+    ns['PROGRESS_BUNDLE']=''
+    def forbidden(*args,**kwargs):
+        raise AssertionError('plan must not launch child')
+    monkeypatch.setattr(subprocess,'Popen',forbidden)
+    exec(source,ns)
+    assert json.loads((ns['OUTPUT_ROOT']/'plan.json').read_text(encoding='utf-8'))['status']=='plan_only'

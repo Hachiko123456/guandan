@@ -82,11 +82,16 @@ def test_batch_evaluation_preserves_counts_and_accepts_policy_artifact(checkpoin
     result = evaluate_profile(
         candidate_checkpoint=checkpoint, snapshot_checkpoint=policy_snapshot,
         evidence_path=tmp_path / 'report.json', batch_size=2,
+        warmup_games_per_opponent=0, target_games_per_opponent=4,
+        auto_continue_after_warmup=True,
     )
     assert result.status == 'complete'
-    assert result.total_games == 3
-    assert result.completed_games_per_opponent == {'random': 1, 'rule': 1, 'snapshot': 1}
+    assert result.total_games == 12
+    assert result.completed_games_per_opponent == {'random': 4, 'rule': 4, 'snapshot': 4}
     assert result.metadata['batch_size'] == 2
+    assert result.metadata['timings']['available'] is True
+    assert result.metadata['timings']['environment_step_seconds'] > 0
+    assert result.metadata['timings']['policy_inference_seconds'] > 0
     assert (tmp_path / 'report.json').exists()
 
 
@@ -135,3 +140,36 @@ def test_actual_step_error_bubbles_and_no_replacement_agent(checkpoint):
         play_game(opponent='random', deal_group=0, seat_rotation=0, seed=1000000,
                   candidate_checkpoint=checkpoint, snapshot_checkpoint=checkpoint,
                   env_factory=BadEnvironment)
+
+
+
+def test_warmup_reports_eta_and_stops_without_formal_games(checkpoint, tmp_path):
+    resolved = resolved_profile()
+    resolved['config']['evaluation'] = {
+        'deal_groups_per_pairing': 1, 'seat_rotations': [0],
+        'opponents': ['random'], 'max_hours': 0.5,
+    }
+    monkeypatch = pytest.MonkeyPatch()
+    monkeypatch.setattr('guandan.evaluation.resolved_profile', lambda profile='local_fast': resolved)
+    events = []
+    try:
+        result = evaluate_profile(
+            candidate_checkpoint=checkpoint, snapshot_checkpoint=checkpoint,
+            evidence_path=tmp_path / 'warmup.json', warmup_games_per_opponent=1,
+            target_games_per_opponent=4, auto_continue_after_warmup=False,
+            progress_callback=events.append,
+        )
+    finally:
+        monkeypatch.undo()
+    assert result.status == 'warmup_complete'
+    assert result.total_games == 0
+    assert result.warmup_completed_games_per_opponent == {'random': 1}
+    completed = [event for event in events if event.get('event') == 'warmup_completed']
+    assert completed and completed[-1]['estimated_remaining_seconds'] is not None
+    assert completed[-1]['estimated_finish']
+    assert (tmp_path / 'warmup.json').exists()
+
+
+def test_target_is_explicit_and_must_be_rotation_balanced():
+    with pytest.raises(ValueError, match='positive multiple'):
+        evaluate_profile(target_games_per_opponent=3, warmup_games_per_opponent=0)
