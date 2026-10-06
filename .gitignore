@@ -11,3 +11,6 @@ wandb/
 *.pth
 *.npz
 project_status/history/
+
+# Generated Kaggle delivery bundles
+release-*/
