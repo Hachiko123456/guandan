@@ -6,8 +6,11 @@ import hashlib
 import json
 from pathlib import Path
 import zipfile
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 CONFIG = '''# 评估 Notebook：不训练，只评估已有 progress bundle。
 EXECUTE = True
 SOURCE_DATASET_HINT = ''
