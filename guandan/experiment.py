@@ -90,11 +90,35 @@ def _worker(spec: WorkerSpec, result_queue) -> None:
                 seed=spec.seed, resume=base.checkpoint, progress_callback=progress,
             )
         else:
-            resume = train(
-                algorithm=spec.algorithm, profile=spec.profile, device=device,
-                updates=spec.resume_updates, checkpoint_dir=worker_dir,
-                seed=spec.seed, resume=spec.resume_checkpoint, progress_callback=progress,
-            )
+            # Resume from any complete update boundary below or at the base
+            # target. Finish the base phase first, then run the explicit resume
+            # verification phase; never blindly add two updates to update 50 or
+            # to a checkpoint that already reached the final target.
+            from .training.checkpoint import load_checkpoint
+            parent = load_checkpoint(spec.resume_checkpoint, map_location="cpu")
+            start_update = parent.metadata.update_count
+            final_target = spec.base_updates + spec.resume_updates
+            if start_update >= final_target:
+                raise RuntimeError(f"{spec.algorithm} checkpoint already reaches target update {start_update}")
+            if start_update < spec.base_updates:
+                base = train(
+                    algorithm=spec.algorithm, profile=spec.profile, device=device,
+                    updates=spec.base_updates - start_update, checkpoint_dir=worker_dir,
+                    seed=spec.seed, resume=spec.resume_checkpoint, progress_callback=progress,
+                )
+                if base.status != "complete":
+                    raise RuntimeError(f"{spec.algorithm} base continuation incomplete: {base.reason}")
+                resume = train(
+                    algorithm=spec.algorithm, profile=spec.profile, device=device,
+                    updates=spec.resume_updates, checkpoint_dir=worker_dir,
+                    seed=spec.seed, resume=base.checkpoint, progress_callback=progress,
+                )
+            else:
+                resume = train(
+                    algorithm=spec.algorithm, profile=spec.profile, device=device,
+                    updates=final_target - start_update, checkpoint_dir=worker_dir,
+                    seed=spec.seed, resume=spec.resume_checkpoint, progress_callback=progress,
+                )
         if resume.status != "complete":
             raise RuntimeError(f"{spec.algorithm} resume training incomplete: {resume.reason}")
         result = {
