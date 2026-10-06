@@ -125,7 +125,10 @@ def load_policy_snapshot(path: str | Path) -> PolicySnapshot:
         raise CheckpointError(f"could not safely load policy artifact {resolved}: {exc}") from exc
     if isinstance(payload, dict) and payload.get("policy_snapshot_version") == POLICY_SNAPSHOT_VERSION:
         return _validate_snapshot_payload(payload, resolved)
-    loaded = load_checkpoint(resolved, map_location="cpu")
+    # Evaluation may read a historical actor as a read-only baseline. This is
+    # not a training resume or an implicit migration; export_policy_snapshot
+    # remains current-schema-only.
+    loaded = load_checkpoint(resolved, map_location="cpu", allow_legacy_readonly=True)
     return PolicySnapshot(
         {key[len("actor."):]: value.detach().cpu() for key, value in loaded.model_state.items() if key.startswith("actor.")},
         deepcopy(loaded.model_config),
