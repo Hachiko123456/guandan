@@ -259,7 +259,9 @@ class EvaluationSession:
     def metadata(self) -> dict:
         return {'candidate': deepcopy(self._candidate.metadata), 'snapshot_opponent': deepcopy(self._snapshot.metadata)}
 
-    def make_agent(self, name: str, *, seed: int = 0, checkpoint=None):
+    def make_agent(self, name: str, *, seed: int = 0, checkpoint=None, device=None):
+        if device is not None and str(device) != str(self.device):
+            raise ValueError('evaluation session device differs from requested agent device')
         if name == 'snapshot':
             if checkpoint is None:
                 raise ValueError('snapshot requires explicit checkpoint')
