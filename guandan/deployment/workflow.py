@@ -114,9 +114,6 @@ def export_progress(root, archive, *, controller=None):
                 continue
             if not path.is_file():
                 raise ValueError('incomplete or non-regular progress entry')
-            # The asynchronous observability writer uses hidden atomic temp
-            # files. They are intentionally omitted from a progress archive;
-            # exported files themselves remain regular and digest-checked.
             if path.suffix == '.tmp':
                 if path.name.startswith('.'):
                     continue
@@ -598,12 +595,10 @@ class Workflow:
                 continue
             data = self.resolver(path, algorithm=algorithm)
             count = data['durable_updates']
-            if (type(count) is not int or not 0 <= count <= 102
+            if (data['source_git_commit'] != self.source['git_commit']
+                    or type(count) is not int or not 0 <= count <= 102
                     or data['durable_token_steps'] != count * 1024):
                 raise ValueError('incompatible durable workflow checkpoint')
-            # resolve_recovery validates the current semantic contract. A source
-            # commit change is allowed for compatible resume and retained as
-            # lineage/provenance rather than treated as a semantic mismatch.
             checkpoint = Path(data['checkpoint_path']).resolve()
             if linked(checkpoint) or not checkpoint.is_relative_to(self.sessions):
                 raise ValueError('checkpoint escapes workflow sessions')

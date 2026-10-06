@@ -80,6 +80,7 @@ class TrainingEngine:
         max_grad_norm: float = 1.0,
         seed: int = 10_000,
         objective_provider: Any = None,
+        execution_mode: str = "reference",
     ) -> None:
         algorithm = str(algorithm).lower()
         if algorithm not in {"ippo", "vrpo"}:
@@ -104,6 +105,8 @@ class TrainingEngine:
             raise TrainingEngineError("IPPO uses the decentralized actor value head, not a Q critic")
         if critic is not None and not isinstance(critic, torch.nn.Module):
             raise TypeError("critic must be a torch module")
+        if execution_mode not in {"reference", "batched"}:
+            raise TrainingEngineError("execution_mode must be reference or batched")
 
         self.algorithm = algorithm
         self.envs = envs
@@ -120,6 +123,7 @@ class TrainingEngine:
         self.max_grad_norm = float(max_grad_norm)
         self.seed = int(seed)
         self.objective_provider = objective_provider
+        self.execution_mode = execution_mode
         self.update_count = 0
         self.optimizer_steps = 0
         self.incomplete = False
@@ -233,6 +237,37 @@ class TrainingEngine:
             advantage.detach(), target.detach(), inputs[2],
         )
 
+    def _batched_loss(self, rollout: Rollout, targets: _Targets) -> tuple[Tensor, dict[str, Tensor]]:
+        """Compute one mean loss over all T*B transitions.
+
+        This keeps policy sampling in the collector and only batches the
+        learner-side forward/backward. Reference mode remains available for
+        focused tests and exact behavioral comparisons.
+        """
+        observations = rollout.observations
+        inputs = policy_inputs(observations, self.device)
+        logits, scalar_values = self.actor(*inputs)
+        actions = rollout.stack("actions").reshape(-1).to(self.device)
+        old_log_probs = rollout.stack("old_log_probs").reshape(-1).to(self.device, dtype=logits.dtype)
+        advantages = targets.advantages.reshape(-1).detach()
+        target_values = targets.targets.reshape(-1).detach()
+        if self.algorithm == "ippo":
+            return _provider_get(self._objectives, "ippo_loss")(
+                logits, scalar_values, actions, old_log_probs, advantages, target_values, inputs[2]
+            )
+        states = torch.cat([row.critic_states for row in rollout.transitions], dim=0).to(self.device)
+        q = self.critic(states, inputs[2])
+        matches = (inputs[2] == actions[:, None]) & inputs[3]
+        if not torch.all(matches.sum(-1) == 1):
+            raise TrainingEngineError("recorded action does not identify exactly one legal row")
+        indices = matches.long().argmax(-1)
+        selected_q = q.gather(1, indices[:, None, None].expand(-1, 1, 4)).squeeze(1)
+        player_ids = rollout.stack("player_ids").reshape(-1).to(self.device)
+        prediction = _provider_get(self._estimators, "acting_player_values")(selected_q, player_ids)
+        return _provider_get(self._objectives, "vrpo_loss")(
+            logits, prediction, actions, old_log_probs, advantages, target_values, inputs[2]
+        )
+
     def collect_and_update(self, token_steps_per_update: int, *, deadline: Any = None) -> dict[str, Any]:
         """Exactly one rollout and one logical update, never another outer loop."""
         rollout = self.collect(token_steps_per_update, deadline=deadline)
@@ -258,14 +293,22 @@ class TrainingEngine:
                 check_deadline(deadline)
                 self.optimizer.zero_grad(set_to_none=True)
                 averaged: dict[str, float] = {}
-                for tick, row in enumerate(rollout.transitions):
+                if self.execution_mode == "batched":
                     check_deadline(deadline)
-                    loss, metrics = self._loss(row, targets.advantages[tick], targets.targets[tick])
+                    loss, metrics = self._batched_loss(rollout, targets)
                     if not torch.isfinite(loss):
                         raise FloatingPointError("non-finite A05 loss")
-                    (loss / rollout.ticks).backward()
-                    for name, value in _as_float_metrics(metrics).items():
-                        averaged[name] = averaged.get(name, 0.0) + value / rollout.ticks
+                    loss.backward()
+                    averaged = _as_float_metrics(metrics)
+                else:
+                    for tick, row in enumerate(rollout.transitions):
+                        check_deadline(deadline)
+                        loss, metrics = self._loss(row, targets.advantages[tick], targets.targets[tick])
+                        if not torch.isfinite(loss):
+                            raise FloatingPointError("non-finite A05 loss")
+                        (loss / rollout.ticks).backward()
+                        for name, value in _as_float_metrics(metrics).items():
+                            averaged[name] = averaged.get(name, 0.0) + value / rollout.ticks
                 norm = torch.nn.utils.clip_grad_norm_(
                     self._parameters, self.max_grad_norm, error_if_nonfinite=True,
                 )
@@ -319,7 +362,8 @@ class TrainingEngine:
 
     def _settings(self) -> dict[str, Any]:
         return {"gamma": self.gamma, "gae_lambda": self.gae_lambda, "epochs": self.epochs,
-                "max_grad_norm": self.max_grad_norm, "batch_size": len(self.envs.envs)}
+                "max_grad_norm": self.max_grad_norm, "batch_size": len(self.envs.envs),
+                "execution_mode": self.execution_mode}
 
     def extra_state(self) -> dict[str, Any]:
         if self.incomplete or self._pending_rollout is not None:

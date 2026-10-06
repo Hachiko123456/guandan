@@ -98,6 +98,7 @@ def build_training_semantic_contract(
     gae_lambda: float,
     optimizer: Mapping[str, Any],
     level_rank: int,
+    execution_mode: str = "reference",
 ) -> dict[str, Any]:
     """Build the canonical contract for a resumable training run.
 
@@ -126,6 +127,7 @@ def build_training_semantic_contract(
             "gae_lambda": float(gae_lambda),
         },
         "optimizer": dict(optimizer),
+        "execution_mode": execution_mode,
     }).as_dict()
 
 

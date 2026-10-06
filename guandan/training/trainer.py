@@ -118,7 +118,7 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
         profile=profile, algorithm=algorithm, model_config=model_cfg,
         rollout_envs=count, token_steps_per_update=aggregate, seed=seed,
         epochs=epochs, gamma=gamma, gae_lambda=gae_lambda,
-        optimizer=optimizer_config, level_rank=int(Rank.FIVE),
+        optimizer=optimizer_config, level_rank=int(Rank.FIVE), execution_mode="batched",
     )
     semantic_contract_hash = contract_digest(semantic_contract)
     compatibility = {
@@ -129,7 +129,7 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
         "token_steps_per_update": aggregate, "seed": seed,
         "epochs": epochs, "gamma": gamma, "gae_lambda": gae_lambda,
         "level_rank": int(Rank.FIVE),
-        "optimizer": optimizer_config,
+        "optimizer": optimizer_config, "execution_mode": "batched",
     }
     directory = Path(checkpoint_dir).resolve() / profile / algorithm
     directory.mkdir(parents=True, exist_ok=True)
@@ -214,7 +214,8 @@ def train(*, algorithm="ippo", profile="local_fast", device=None, updates=None,
             batch.reset(seeds=[seed+i for i in range(count)])
         budget.check(stage="initialize_complete")
         engine = TrainingEngine(algorithm, batch, model, optimizer, critic=critic, device=chosen,
-                                seed=seed, epochs=epochs, gamma=gamma, gae_lambda=gae_lambda)
+                                seed=seed, epochs=epochs, gamma=gamma, gae_lambda=gae_lambda,
+                                execution_mode="batched")
         if loaded is not None:
             engine.load_extra_state(loaded.training_state["engine"])
             if engine.update_count != loaded.metadata.update_count:

@@ -169,3 +169,12 @@ def test_vrpo_requires_real_critic_and_optimizer_coverage():
     critic = CentralQCritic(hidden_dim=8)
     with pytest.raises(TrainingEngineError, match="optimizer"):
         TrainingEngine("vrpo", value.envs, value.actor, value.optimizer, critic=critic)
+
+
+def test_batched_execution_mode_uses_one_optimizer_step_per_epoch():
+    value = engine(size=2, epochs=2)
+    value.execution_mode = "batched"
+    metrics = value.collect_and_update(4)
+    assert metrics["status"] == "complete"
+    assert metrics["optimizer_steps"] == 2
+    assert np.isfinite(metrics["loss"])

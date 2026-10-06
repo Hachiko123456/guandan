@@ -113,7 +113,6 @@ def canonical_profile(profile):
 def resolve_recovery(manifest_path: Path, *, algorithm: str) -> dict:
     """Resolve only a sibling basename: old machine absolute paths are irrelevant."""
     from ..training.checkpoint import CURRENT_PROTOCOL_VERSIONS, load_checkpoint
-    from ..training.compatibility import build_training_semantic_contract, contract_digest
     manifest_path = Path(manifest_path).resolve()
     data = json.loads(manifest_path.read_text(encoding='utf-8'))
     if data.get('format') != 'guandan-recovery-v1' or data.get('profile') != 'remote_full' or data.get('algorithm') != algorithm:
@@ -126,51 +125,24 @@ def resolve_recovery(manifest_path: Path, *, algorithm: str) -> dict:
         raise ValueError('recovery checkpoint missing or escapes manifest directory')
     if sha256(checkpoint)!=data.get('checkpoint_sha256'):
         raise ValueError('checkpoint digest mismatch')
-    compatibility = data.get('compatibility')
-    semantic_contract = data.get('semantic_contract')
-    if (not isinstance(compatibility, dict)
-            or not compatibility.get('semantic_contract_hash')
-            or not isinstance(compatibility.get('semantic_contract'), dict)):
-        raise ValueError('recovery manifest lacks current compatibility metadata; explicit migration required')
-    profile = _profile()
-    settings = profile['config']['training']
-    expected_contract = build_training_semantic_contract(
-        profile='remote_full', algorithm=algorithm, model_config=data['model_config'],
-        rollout_envs=settings['rollout_envs'], token_steps_per_update=settings['token_steps_per_update'],
-        seed=compatibility.get('seed', 10000), epochs=compatibility.get('epochs', 2),
-        gamma=compatibility.get('gamma', 1.0), gae_lambda=compatibility.get('gae_lambda', 0.95),
-        optimizer=compatibility.get('optimizer', {'name': 'Adam', 'lr': 3e-4, 'betas': [0.9, 0.999], 'eps': 1e-8, 'weight_decay': 0.0}),
-        level_rank=compatibility.get('level_rank', 5),
-    )
-    if isinstance(semantic_contract, dict) and contract_digest(semantic_contract) != contract_digest(expected_contract):
-        raise ValueError('recovery semantic contract differs from current training semantics')
-    if compatibility.get('semantic_contract_hash') != contract_digest(expected_contract):
-        raise ValueError('recovery semantic contract digest mismatch')
-    loaded = load_checkpoint(
-        checkpoint, expected_profile='remote_full', expected_algorithm=algorithm,
-        expected_model_config=data['model_config'],
-        expected_semantic_contract=expected_contract if isinstance(semantic_contract, dict) else None,
-        resume_mode='compatible_resume' if isinstance(semantic_contract, dict) else None,
-        map_location='cpu',
-    )
-    if not isinstance(semantic_contract, dict):
-        semantic_contract = loaded.metadata.semantic_contract
-        if not isinstance(semantic_contract, dict) or contract_digest(semantic_contract) != contract_digest(expected_contract):
-            raise ValueError('recovery checkpoint semantic contract differs from current training semantics')
+    loaded = load_checkpoint(checkpoint,expected_profile='remote_full',expected_algorithm=algorithm,
+                             expected_model_config=data['model_config'],map_location='cpu')
     if loaded.metadata.git_commit != data.get('source_git_commit'):
         raise ValueError('checkpoint source commit differs from manifest')
     if data.get('protocol_versions')!=CURRENT_PROTOCOL_VERSIONS:
         raise ValueError('recovery protocol versions mismatch')
-    loaded_compatibility = loaded.training_state.get('compatibility')
-    if not isinstance(loaded_compatibility, dict) or loaded_compatibility.get('semantic_contract_hash') != compatibility.get('semantic_contract_hash'):
-        raise ValueError('recovery semantic compatibility fields differ')
+    compatibility = loaded.training_state.get('compatibility')
+    if compatibility!=data.get('compatibility'):
+        raise ValueError('recovery compatibility fields differ')
     actual = loaded.training_state['engine']
     if loaded.metadata.update_count!=data.get('durable_updates') or actual['update_count']!=loaded.metadata.update_count:
         raise ValueError('recovery update counters disagree')
     if actual['collector']['total_token_steps']!=data.get('durable_token_steps'):
         raise ValueError('recovery token counters disagree')
-    if compatibility.get('envs') != settings['rollout_envs'] or compatibility.get('token_steps_per_update') != settings['token_steps_per_update']:
-        raise ValueError('remote_full training counts changed')
+    profile = _profile()
+    settings = profile['config']['training']
+    if compatibility['profile_sha256']!=profile['sha256'] or compatibility['envs']!=settings['rollout_envs'] or compatibility['token_steps_per_update']!=settings['token_steps_per_update']:
+        raise ValueError('remote_full profile counts/hash changed')
     if actual['collector']['total_token_steps'] != loaded.metadata.update_count*settings['token_steps_per_update']:
         raise ValueError('checkpoint contains partial/unaccounted training update')
     return {**data,'checkpoint_path':str(checkpoint),'manifest_path':str(manifest_path)}
@@ -299,9 +271,8 @@ def _verify_training_completion(result, plan: dict, algorithm: str, source: dict
     for name, value in (("durable_updates", goal), ("durable_token_steps", lifetime_steps)):
         if type(resolved.get(name)) is not int or resolved[name] != value:
             raise ValueError(f"recovery manifest {name} does not reach the training target")
-    # The recovery resolver has already verified the semantic contract. A source
-    # commit change is recorded provenance, not a hard resume blocker; this is
-    # what permits logging/performance-only implementation changes to continue.
+    if not source.get('git_commit') or resolved['source_git_commit'] != source['git_commit']:
+        raise ValueError("completed checkpoint source commit differs from session source")
     checkpoint_name = getattr(result, "checkpoint", None)
     if not checkpoint_name:
         raise ValueError("complete training did not produce a checkpoint")
@@ -322,14 +293,13 @@ def _verify_evaluation_checkpoint(loaded, *, label, update, algorithm, profile, 
         raise ValueError(f'{label} checkpoint profile/algorithm differs from requested evaluation')
     if type(metadata.update_count) is not int or metadata.update_count != update:
         raise ValueError('remote evaluation requires update102 candidate and update100 frozen snapshot')
-    # Evaluation snapshots may be read-only historical baselines. Source commit
-    # is retained in metadata but does not block inference when protocol/model
-    # validation succeeds. Training resume remains contract-gated.
+    if not source.get('git_commit') or metadata.git_commit != source['git_commit']:
+        raise ValueError(f'{label} checkpoint source commit differs from current source')
     settings = profile['config']['training']
     state = loaded.training_state
     compatibility = state.get('compatibility', {})
-    if not isinstance(compatibility, dict):
-        raise ValueError(f'{label} checkpoint compatibility metadata is malformed')
+    if compatibility.get('profile_sha256') != profile['sha256']:
+        raise ValueError(f'{label} checkpoint profile hash differs from canonical profile')
     for field, expected in (('envs', settings['rollout_envs']),
                             ('token_steps_per_update', settings['token_steps_per_update'])):
         value = compatibility.get(field)
@@ -443,10 +413,8 @@ def run(args, *, runtime_check=None, checkpoint_controller=None, working_artifac
     source = source_provenance(ROOT)
     if not source.get('git_worktree_clean'):
         raise ValueError('remote execution requires clean committed/exported source')
-    if recovery is not None and recovery['source_git_commit'] != source['git_commit']:
-        # resolve_recovery has already validated the semantic contract. Keep
-        # the old commit as provenance and continue in compatible_resume mode.
-        recovery['resume_mode'] = 'compatible_resume'
+    if recovery is not None and recovery['source_git_commit']!=source['git_commit']:
+        raise ValueError('use the same exported source commit to resume this checkpoint')
     session_id = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_'+uuid.uuid4().hex
     directory = output / session_id
     directory.mkdir(parents=True, exist_ok=False)
