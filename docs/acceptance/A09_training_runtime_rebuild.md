@@ -1,4 +1,4 @@
-# A09 Training Runtime Rebuild Acceptance
+# A09 训练运行时重构验收
 
 本阶段只验收训练运行时、checkpoint/resume、日志、性能、双 GPU 调度和 Kaggle 交付。A00-A04 规则与环境验收结论不因本阶段改变。
 
