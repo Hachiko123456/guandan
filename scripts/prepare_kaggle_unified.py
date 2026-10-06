@@ -19,6 +19,7 @@ SOURCE_DATASET_HINT = ''  # 源码 Dataset 的相对 /kaggle/input 路径
 INSTALL_DEPS = False  # 缺依赖时才显式改 True
 RESUME_IPPO = ''  # 可选：明确指向本次 semantic-compatible checkpoint 的 /kaggle/input 路径
 RESUME_VRPO = ''  # 可选：明确指向本次 semantic-compatible checkpoint 的 /kaggle/input 路径
+RESUME_BUNDLE = ''  # 可选：本 runner 生成的 progress ZIP 或已展开目录；不会自动猜测
 BASE_UPDATES = None  # None=remote_full profile；短实验可显式设置
 RESUME_UPDATES = None
 '''
@@ -34,6 +35,34 @@ import time
 
 EXPERIMENT_ROOT = WORKING_ROOT / 'guandan-dual-gpu'
 PROGRESS_ZIP = WORKING_ROOT / 'guandan-dual-gpu-progress.zip'
+
+def resolve_resume(bundle, algorithm):
+    if not bundle:
+        return None
+    source = Path(bundle).resolve()
+    if not source.is_relative_to(INPUT_ROOT.resolve()) or not source.exists():
+        raise ValueError('RESUME_BUNDLE 必须位于 /kaggle/input 且存在')
+    root = WORKING_ROOT / 'guandan-resume-bundle'
+    if source.is_file() and source.suffix.lower() == '.zip':
+        with zipfile.ZipFile(source) as archive:
+            archive.extractall(root)
+    elif source.is_dir():
+        root = source
+    else:
+        raise ValueError('RESUME_BUNDLE 必须是 ZIP 或已展开目录')
+    candidates = list((root / 'workers' / algorithm).rglob('*.pt'))
+    if not candidates:
+        raise ValueError(f'progress bundle 中找不到 {algorithm} checkpoint')
+    def update_number(path):
+        import re
+        matches = re.findall(r'_update_(\\d+)_', path.name)
+        return int(matches[-1]) if matches else -1
+    return str(max(candidates, key=lambda item: (update_number(item), item.name)).resolve())
+
+if RESUME_BUNDLE:
+    RESUME_IPPO = RESUME_IPPO or resolve_resume(RESUME_BUNDLE, 'ippo')
+    RESUME_VRPO = RESUME_VRPO or resolve_resume(RESUME_BUNDLE, 'vrpo')
+
 command = [sys.executable, '-u', '-B', '-m', 'guandan.experiment',
            '--profile', 'remote_full', '--output-root', str(EXPERIMENT_ROOT),
            '--device-ippo', 'cuda:0', '--device-vrpo', 'cuda:1']
@@ -149,15 +178,14 @@ def build(destination):
     (destination/'PACKAGE_METADATA.json').write_text(json.dumps(metadata,indent=2),encoding='utf-8')
     (destination/'使用说明.txt').write_text('''只需要这两个文件：
 1. guandan-source.zip：上传为私有Dataset，然后添加到Notebook。
-2. guandan_all_in_one.ipynb：导入Notebook，启用GPU，点击Run All。
+2. guandan_all_in_one.ipynb：导入Notebook，启用两张GPU，点击Run All。
 
-不要混用之前的ZIP；本Notebook绑定这次commit/hash。
-自动执行IPPO100+2、VRPO100+2、两算法各3000局评估。默认不安装依赖。
-默认不设置项目时间截止；checkpoint按profile/600秒保存，进度每60秒输出。Kaggle外部时间限制仍然适用。
-如未完成，保存 /kaggle/working/guandan-unified-progress.zip 和日志。
-新会话挂载同一源码ZIP和进度ZIP，用同一个Notebook Run All继续。
-已完成评估会跳过；不完整的算法评估保留记录但从头重跑。
-同会话重载≠新Kaggle会话验收；所有accepted仍false。
+Notebook 使用 guandan.experiment：IPPO 固定 cuda:0，VRPO 固定 cuda:1，不会静默降级单卡。
+默认执行 remote_full 训练规模；accepted=false、kaggle_verified=false 是正确状态，不代表模型强度。
+如果会话中断，下载 guandan-dual-gpu-progress.zip；下次挂载后在 CONFIG 中填写 RESUME_BUNDLE，
+或分别填写 RESUME_IPPO/RESUME_VRPO。不会自动猜测旧 progress ZIP。
+resume 只接受当前 semantic contract；旧 checkpoint 不会被训练恢复路径隐式迁移。
+所有 worker 日志、telemetry、checkpoint 和 result 都位于 /kaggle/working/guandan-dual-gpu。
 不要自动上传，不改规则、不用FableDan、不宣称强度。
 ''',encoding='utf-8')
     return metadata
