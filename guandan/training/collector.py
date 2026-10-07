@@ -9,7 +9,7 @@ from copy import deepcopy
 from dataclasses import dataclass, fields, replace
 import hashlib
 import json
-from time import monotonic
+from time import perf_counter as monotonic
 from typing import Any, Callable, Mapping, Sequence
 
 import numpy as np
@@ -277,6 +277,7 @@ class RolloutCollector:
         self.terminal_count = 0
         self.truncation_count = 0
         self.incomplete = False
+        self.last_timings: dict[str, float] = {}
         self.deal_records = [self._deal_record(i, env.config.seed) for i, env in enumerate(batch.envs)]
 
     def _deal_record(self, index: int, seed: int | None) -> dict[str, Any]:
@@ -334,6 +335,11 @@ class RolloutCollector:
         rows: list[Transition] = []
         start_steps = self.total_token_steps
         started = monotonic()
+        # Host wall timings include synchronization where existing safety checks
+        # require it; these are not CUDA kernel timings. Never persist as semantics.
+        self.last_timings = timings = dict.fromkeys((
+            "policy_seconds", "sampling_seconds", "environment_seconds",
+            "bootstrap_seconds", "reset_seconds", "capture_seconds"), 0.0)
         try:
             for tick in range(target_ticks):
                 check_deadline(deadline)
@@ -347,13 +353,28 @@ class RolloutCollector:
                 # batch.step(); avoid a full [B,T,A] deepcopy on every token.
                 obs = self.observation
                 self._check_live(obs)
+                phase_started = monotonic()
                 state = critic_state(self.batch, obs) if self.critic is not None else None
                 inputs, logits, probabilities, values, q = self._evaluate(obs, state)
-                indices = torch.multinomial(probabilities.cpu(), 1, generator=self.generator).to(self.device)
-                actions = inputs[2].gather(1, indices).squeeze(1)
+                current_values = values.detach().cpu()
+                timings["policy_seconds"] += monotonic() - phase_started
+                if rows:
+                    # Same frozen policy and actual next state: no additional
+                    # forward, no sampling replay, and never cross a reset.
+                    continuing = ~(rows[-1].terminated | rows[-1].truncated)
+                    rows[-1].next_values[continuing] = current_values[continuing]
+                phase_started = monotonic()
+                cpu_indices = torch.multinomial(probabilities.cpu(), 1, generator=self.generator)
+                cpu_actions = torch.from_numpy(obs.legal_next_tokens).gather(1, cpu_indices).squeeze(1).long()
+                actions = cpu_actions.to(self.device)
                 log_probs = self.model.log_prob(logits, actions, legal_next_tokens=inputs[2])
-                selected_q = q.gather(1, indices[..., None].expand(-1, 1, 4)).squeeze(1) if q is not None else None
-                result = self.batch.step(actions.detach().cpu().numpy().astype(np.int32))
+                selected_q = (q.gather(1, cpu_indices.to(self.device)[..., None].expand(-1, 1, 4)).squeeze(1)
+                              if q is not None else None)
+                timings["sampling_seconds"] += monotonic() - phase_started
+                phase_started = monotonic()
+                result = self.batch.step(cpu_actions.numpy().astype(np.int32))
+                timings["environment_seconds"] += monotonic() - phase_started
+                phase_started = monotonic()
                 # Counters describe completed real transitions even if later work fails.
                 self.total_token_steps += batch_size
                 self.ticks_per_env += 1
@@ -369,16 +390,25 @@ class RolloutCollector:
                 bootstrap = replace(deepcopy(raw_next), phase=raw_next.phase.astype("U32"))
                 for index in np.flatnonzero(result.truncated):
                     _replace_observation_row(bootstrap, int(index), truncation_bootstrap_observation(self.batch, int(index)))
-                # IPPO next-values are evaluated once after the rollout in a
-                # single batched forward. VRPO keeps its privileged critic path
-                # here because its bootstrap state depends on hidden ownership
-                # that is not part of the policy observation.
                 next_values = torch.zeros((batch_size, 4), dtype=torch.float32)
-                live = np.flatnonzero(~result.done)
-                if self.critic is not None and len(live):
-                    boot_state = critic_state(self.batch, bootstrap)
-                    _, _, _, boot_values, _ = self._evaluate(_take_observations(bootstrap, live), boot_state[live])
+                # Truncation must bootstrap BEFORE reset, especially the VRPO
+                # hidden ownership state. The horizon bootstraps continuing slots
+                # in this same bounded batch; true terminal slots stay zero.
+                bootstrap_mask = result.truncated.copy()
+                if tick == target_ticks - 1:
+                    bootstrap_mask |= ~result.done
+                live = np.flatnonzero(bootstrap_mask)
+                timings["capture_seconds"] += monotonic() - phase_started
+                phase_started = monotonic()
+                if len(live):
+                    boot_state = critic_state(self.batch, bootstrap) if self.critic is not None else None
+                    _, _, _, boot_values, _ = self._evaluate(
+                        _take_observations(bootstrap, live),
+                        boot_state[live] if boot_state is not None else None,
+                    )
                     next_values[live] = boot_values.detach().cpu()
+                timings["bootstrap_seconds"] += monotonic() - phase_started
+                phase_started = monotonic()
                 rewards = torch.from_numpy(result.rewards.copy())
                 players = torch.from_numpy(obs.player_id.astype(np.int64))
                 row = Transition(
@@ -389,8 +419,8 @@ class RolloutCollector:
                     token_step_after=torch.from_numpy(result.token_step.copy()),
                     committed_step_before=torch.from_numpy(obs.committed_step.copy()),
                     committed_step_after=torch.from_numpy(result.committed_step.copy()),
-                    actions=actions.detach().cpu(), legal_mask=torch.from_numpy(obs.legal_next_mask.copy()),
-                    old_log_probs=log_probs.detach().cpu(), values=values.detach().cpu(), next_values=next_values,
+                    actions=cpu_actions, legal_mask=torch.from_numpy(obs.legal_next_mask.copy()),
+                    old_log_probs=log_probs.detach().cpu(), values=current_values, next_values=next_values,
                     rewards=rewards, acting_player_rewards=rewards.gather(1, players[:, None]).squeeze(1),
                     terminated=torch.from_numpy(result.done.copy()), truncated=torch.from_numpy(result.truncated.copy()),
                     is_commit=torch.from_numpy(result.is_commit.copy()), info=deepcopy(result.info),
@@ -401,6 +431,8 @@ class RolloutCollector:
                 self.truncation_count += int(result.truncated.sum())
                 ended = np.flatnonzero(result.done | result.truncated)
                 next_observation = replace(deepcopy(raw_next), phase=raw_next.phase.astype("U32"))
+                timings["capture_seconds"] += monotonic() - phase_started
+                phase_started = monotonic()
                 for index in ended:
                     initial = self.initial_states[index] if self.initial_states is not None else None
                     reset_seed = self.reset_seed_base + batch_size * (1 + int(self.reset_counts[index])) + int(index)
@@ -412,29 +444,7 @@ class RolloutCollector:
                     self.reset_counts[index] += 1
                     self.deal_records.append(self._deal_record(int(index), reset_seed if initial is None else None))
                 self.observation = next_observation
-            if self.critic is None and rows:
-                # The old implementation performed one value forward per tick.
-                # Flattening all bootstrap observations preserves the same
-                # labels while removing target_ticks GPU launches and syncs.
-                bootstrap = concatenate_observations([row.bootstrap_observation for row in rows])
-                live_mask = np.concatenate([(~row.terminated.numpy()) for row in rows])
-                live_indices = np.flatnonzero(live_mask)
-                if len(live_indices):
-                    _, _, _, boot_values, _ = self._evaluate(
-                        _take_observations(bootstrap, live_indices), None
-                    )
-                    boot_values = boot_values.detach().cpu()
-                    cursor = 0
-                    rebuilt = []
-                    for row in rows:
-                        mask = ~row.terminated.numpy()
-                        count = int(mask.sum())
-                        values = torch.zeros((batch_size, 4), dtype=torch.float32)
-                        if count:
-                            values[mask] = boot_values[cursor:cursor + count]
-                            cursor += count
-                        rebuilt.append(replace(row, next_values=values))
-                    rows = rebuilt
+                timings["reset_seconds"] += monotonic() - phase_started
             check_deadline(deadline)
         except Exception as exc:
             self.incomplete = True
@@ -446,6 +456,8 @@ class RolloutCollector:
                     "lifetime_token_steps": self.total_token_steps,
                 }
             raise
+        finally:
+            timings["collect_seconds"] = monotonic() - started
         return Rollout(tuple(rows))
 
     def state_dict(self) -> dict[str, Any]:

@@ -9,7 +9,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass
 import math
-from time import monotonic
+from time import perf_counter as monotonic
 from typing import Any, Mapping
 
 import numpy as np
@@ -81,6 +81,7 @@ class TrainingEngine:
         seed: int = 10_000,
         objective_provider: Any = None,
         execution_mode: str = "reference",
+        compute_chunk_ticks: int = 16,
     ) -> None:
         algorithm = str(algorithm).lower()
         if algorithm not in {"ippo", "vrpo"}:
@@ -108,6 +109,10 @@ class TrainingEngine:
         if execution_mode not in {"reference", "batched"}:
             raise TrainingEngineError("execution_mode must be reference or batched")
 
+        if type(compute_chunk_ticks) is not int or compute_chunk_ticks <= 0:
+            raise TrainingEngineError("compute_chunk_ticks must be a positive integer")
+        # Compute/memory tuning only: excluded from checkpoint semantic settings.
+        self.compute_chunk_ticks = compute_chunk_ticks
         self.algorithm = algorithm
         self.envs = envs
         self.actor = actor
@@ -283,9 +288,13 @@ class TrainingEngine:
         started = monotonic()
         epoch_metrics: list[dict[str, float]] = []
         gradient_norms: list[float] = []
+        timings = dict.fromkeys(("targets_seconds", "forward_loss_seconds",
+                                 "backward_seconds", "optimizer_seconds"), 0.0)
         try:
             check_deadline(deadline)
+            phase_started = monotonic()
             targets = self._targets(rollout)
+            timings["targets_seconds"] = monotonic() - phase_started
             self.actor.train()
             if self.critic is not None:
                 self.critic.train()
@@ -293,22 +302,35 @@ class TrainingEngine:
                 check_deadline(deadline)
                 self.optimizer.zero_grad(set_to_none=True)
                 averaged: dict[str, float] = {}
-                if self.execution_mode == "batched":
+                chunk_ticks = self.compute_chunk_ticks if self.execution_mode == "batched" else 1
+                for start in range(0, rollout.ticks, chunk_ticks):
                     check_deadline(deadline)
-                    loss, metrics = self._batched_loss(rollout, targets)
+                    stop = min(start + chunk_ticks, rollout.ticks)
+                    weight = (stop - start) / rollout.ticks
+                    phase_started = monotonic()
+                    if self.execution_mode == "batched":
+                        chunk = Rollout(rollout.transitions[start:stop])
+                        chunk_targets = _Targets(targets.advantages[start:stop],
+                                                 targets.targets[start:stop], targets.kind)
+                        loss, metrics = self._batched_loss(chunk, chunk_targets)
+                    else:
+                        loss, metrics = self._loss(rollout.transitions[start],
+                                                   targets.advantages[start], targets.targets[start])
                     if not torch.isfinite(loss):
                         raise FloatingPointError("non-finite A05 loss")
-                    loss.backward()
-                    averaged = _as_float_metrics(metrics)
-                else:
-                    for tick, row in enumerate(rollout.transitions):
-                        check_deadline(deadline)
-                        loss, metrics = self._loss(row, targets.advantages[tick], targets.targets[tick])
-                        if not torch.isfinite(loss):
-                            raise FloatingPointError("non-finite A05 loss")
+                    timings["forward_loss_seconds"] += monotonic() - phase_started
+                    phase_started = monotonic()
+                    if self.execution_mode == "batched":
+                        (loss * weight).backward()
+                    else:
                         (loss / rollout.ticks).backward()
-                        for name, value in _as_float_metrics(metrics).items():
-                            averaged[name] = averaged.get(name, 0.0) + value / rollout.ticks
+                    timings["backward_seconds"] += monotonic() - phase_started
+                    for name, value in _as_float_metrics(metrics).items():
+                        weighted = value * weight if self.execution_mode == "batched" else value / rollout.ticks
+                        averaged[name] = averaged.get(name, 0.0) + weighted
+                    # Release the graph before constructing the next chunk.
+                    del loss, metrics
+                phase_started = monotonic()
                 norm = torch.nn.utils.clip_grad_norm_(
                     self._parameters, self.max_grad_norm, error_if_nonfinite=True,
                 )
@@ -317,6 +339,7 @@ class TrainingEngine:
                 check_deadline(deadline)
                 self.optimizer.step()
                 self.optimizer_steps += 1
+                timings["optimizer_seconds"] += monotonic() - phase_started
                 if any(not torch.isfinite(p).all() for p in self._parameters):
                     raise FloatingPointError("non-finite updated model parameter")
             self.update_count += 1
@@ -355,6 +378,10 @@ class TrainingEngine:
             "rollout_sha256": rollout.digest(),
             "deal_records": deepcopy(self.collector.deal_records),
             "update_seconds": monotonic() - started,
+            "timing_kind": "host_wall_no_extra_cuda_sync",
+            "collector_timings": dict(self.collector.last_timings),
+            "update_timings": timings,
+            "compute_chunk_ticks": self.compute_chunk_ticks,
         }
         for key in epoch_metrics[-1]:
             result[key] = float(np.mean([row[key] for row in epoch_metrics]))
