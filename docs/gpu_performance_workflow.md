@@ -83,19 +83,27 @@ Notebook 固定完整源码ZIP SHA256与SOURCE_MANIFEST.json SHA256；ZIP校验�
 4. 导入配套 `guandan_performance.ipynb`。
 
 先保持 `EXECUTE=False` 并 Run All，只查看计划，无需开启GPU。
-准备好后选择 GPU T4 x2，填实际 `/kaggle/input/...` 路径：
+准备好后选择 GPU T4 x2。默认配置会自动在 `/kaggle/input` 下查找路径，不需要手填：
 
 ```python
 EXECUTE = True
-SOURCE_ZIP = '/kaggle/input/your-source/guandan-performance-source.zip'
-# 如果Kaggle已自动解压：填写直接包含SOURCE_MANIFEST.json的源码根目录
-# SOURCE_ZIP = '/kaggle/input/your-source/guandan'
-PROGRESS_BUNDLE = '/kaggle/input/your-progress/guandan-dual-gpu-progress.zip'
-BUNDLE_SHA256 = ''  # 可选；填了就必须匹配ZIP实际SHA，不适用于展开目录
-LOCAL_REPORT = '/kaggle/input/your-evidence/optimized.json'
-REFERENCE_REPORT = '/kaggle/input/your-evidence/reference.json'
+SOURCE_ZIP = ''       # 空字符串：按本 Notebook 固定 SHA 自动寻找唯一源码 ZIP/展开目录
+PROGRESS_BUNDLE = ''  # 空字符串：自动寻找唯一 progress；None：明确使用 fresh seeded model
+BUNDLE_SHA256 = ''    # 自动发现 ZIP 时可留空；填写后仍会校验原始 ZIP SHA256
+LOCAL_REPORT = ''
+REFERENCE_REPORT = ''
 BUDGET_SECONDS = 600
 ```
+
+自动发现规则：
+
+- 源码 ZIP 必须匹配本 Notebook 固定的 `source_sha256`；展开源码必须匹配固定的 `SOURCE_MANIFEST.json` SHA256；
+- progress 展开目录必须直接（或在 Dataset 根目录下）包含 `workers/ippo/` 和 `workers/vrpo/`；progress ZIP 必须包含这两个目录；
+- 找不到源码、找到多个源码候选、或找到多个 progress 候选时都会停止并列出候选，绝不会按 Dataset 名称、修改时间或“最新”猜测；
+- 找不到 progress 时会停止并提示；如果确实要做无 checkpoint 的 fresh seeded 短测，必须把 `PROGRESS_BUNDLE = None` 明确写出来，避免误把随机初始化结果当成训练权重性能；
+- 也支持显式填写路径，但不需要为了避免填错而手动填写。
+
+Notebook 输出中的 `INPUT_DISCOVERY` 会显示最终选择的绝对路径和 `source_mode/progress_mode`。
 
 没有本地报告时可不填两项，但只诊断、绝不推荐release。
 预算验证拒绝0、负数、NaN、Infinity和超过600秒；包括bootstrap与Torch初始化；为清理和写报告预留时间。

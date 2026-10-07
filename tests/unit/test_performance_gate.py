@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 from copy import deepcopy
 import importlib.util
+import hashlib
 import json
 import math
 import os
@@ -300,7 +301,7 @@ def test_expanded_notebook_rejects_tampered_file_before_launch(tmp_path, monkeyp
     monkeypatch.setattr(subprocess,'Popen',lambda *a,**k:pytest.fail('tampered source launched'))
     with pytest.raises(ValueError,match='SHA256 mismatch'):
         exec(code, {'EXECUTE':True,'SOURCE_ZIP':str(source),'BUDGET_SECONDS':60,
-                    'PROGRESS_BUNDLE':'','BUNDLE_SHA256':'','LOCAL_REPORT':'','REFERENCE_REPORT':''})
+                    'PROGRESS_BUNDLE':None,'BUNDLE_SHA256':'','LOCAL_REPORT':'','REFERENCE_REPORT':''})
 
 
 def test_game_trace_mismatch_cannot_pass_reference_or_device_gate():
@@ -342,9 +343,93 @@ def test_notebook_expanded_source_success_reaches_only_gate(tmp_path,monkeypatch
         return Done()
     monkeypatch.setattr(subprocess,'Popen',spawn)
     exec(code,{'EXECUTE':True,'SOURCE_ZIP':str(source),'BUDGET_SECONDS':60,
-               'PROGRESS_BUNDLE':'','BUNDLE_SHA256':'','LOCAL_REPORT':'','REFERENCE_REPORT':''})
+               'PROGRESS_BUNDLE':None,'BUNDLE_SHA256':'','LOCAL_REPORT':'','REFERENCE_REPORT':''})
     assert len(seen)==1
     assert 'guandan.performance_gate' in seen[0]
     assert 'guandan.experiment' not in seen[0]
     assert '--execute' in seen[0]
     assert float(seen[0][seen[0].index('--budget-seconds')+1])<60
+
+
+
+def _discovery_namespace():
+    module = generator()
+    namespace = {}
+    exec(module.DISCOVERY, namespace)
+    return namespace
+
+
+def _make_expanded_source(root, manifest_bytes=b'valid-manifest'):
+    source = root / 'guandan-performance-source' / 'guandan'
+    source.mkdir(parents=True)
+    manifest = source / 'SOURCE_MANIFEST.json'
+    manifest.write_bytes(manifest_bytes)
+    return source, hashlib.sha256(manifest_bytes).hexdigest()
+
+
+def _make_expanded_progress(root, name):
+    progress = root / name
+    (progress / 'workers' / 'ippo').mkdir(parents=True)
+    (progress / 'workers' / 'vrpo').mkdir(parents=True)
+    return progress
+
+
+def test_auto_discovery_matches_screenshot_expanded_inputs(tmp_path):
+    namespace = _discovery_namespace()
+    input_root = tmp_path / 'input'
+    source, manifest_sha = _make_expanded_source(input_root)
+    progress = _make_expanded_progress(input_root, 'guandan-training-progress')
+    result = namespace['discover_inputs']('', '', input_root, lambda: None, 'not-a-zip-sha', manifest_sha)
+    assert Path(result['source']).resolve() == source.resolve()
+    assert Path(result['progress']).resolve() == progress.resolve()
+    assert result['source_mode'] == 'auto'
+    assert result['progress_mode'] == 'auto'
+
+
+def test_auto_discovery_accepts_renamed_progress_zip(tmp_path):
+    import zipfile
+    namespace = _discovery_namespace()
+    input_root = tmp_path / 'input'
+    _, manifest_sha = _make_expanded_source(input_root)
+    input_root.mkdir(exist_ok=True)
+    archive_path = input_root / 'renamed-training-artifact.zip'
+    with zipfile.ZipFile(archive_path, 'w') as archive:
+        archive.writestr('nested/workers/ippo/checkpoint.pt', b'ippo')
+        archive.writestr('nested/workers/vrpo/checkpoint.pt', b'vrpo')
+    result = namespace['discover_inputs']('', '', input_root, lambda: None, 'not-a-zip-sha', manifest_sha)
+    assert Path(result['progress']).resolve() == archive_path.resolve()
+
+
+def test_auto_discovery_rejects_multiple_progress_candidates(tmp_path):
+    namespace = _discovery_namespace()
+    input_root = tmp_path / 'input'
+    _, manifest_sha = _make_expanded_source(input_root)
+    _make_expanded_progress(input_root, 'progress-one')
+    _make_expanded_progress(input_root, 'progress-two')
+    with pytest.raises(ValueError, match='multiple progress candidates'):
+        namespace['discover_inputs']('', '', input_root, lambda: None, 'not-a-zip-sha', manifest_sha)
+
+
+def test_auto_discovery_requires_progress_but_none_is_explicit_fresh_seeded(tmp_path):
+    namespace = _discovery_namespace()
+    input_root = tmp_path / 'input'
+    _, manifest_sha = _make_expanded_source(input_root)
+    with pytest.raises(ValueError, match='no valid progress'):
+        namespace['discover_inputs']('', '', input_root, lambda: None, 'not-a-zip-sha', manifest_sha)
+    explicit = namespace['discover_inputs']('', None, input_root, lambda: None, 'not-a-zip-sha', manifest_sha)
+    assert explicit['progress'] is None and explicit['progress_mode'] == 'fresh_seeded'
+
+
+def test_auto_discovery_rejects_input_escape_and_honors_budget(tmp_path):
+    namespace = _discovery_namespace()
+    input_root = tmp_path / 'input'
+    _, manifest_sha = _make_expanded_source(input_root)
+    with pytest.raises(ValueError, match='under /kaggle/input'):
+        namespace['discover_inputs'](str(tmp_path), None, input_root, lambda: None, 'not-a-zip-sha', manifest_sha)
+    calls = []
+    def stop_budget():
+        calls.append(1)
+        if len(calls) > 1:
+            raise TimeoutError('test budget')
+    with pytest.raises(TimeoutError, match='test budget'):
+        namespace['discover_inputs']('', None, input_root, stop_budget, 'not-a-zip-sha', manifest_sha)

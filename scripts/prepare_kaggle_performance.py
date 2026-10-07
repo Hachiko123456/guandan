@@ -17,11 +17,193 @@ NEW_FILES = ("guandan/performance_gate.py", "scripts/run_local_performance.py",
 CONFIG = '''# Default is plan-only. This Notebook NEVER launches a long training run.
 EXECUTE = False
 SOURCE_ZIP = ''  # exact ZIP or expanded source root containing SOURCE_MANIFEST.json under /kaggle/input
-PROGRESS_BUNDLE = ''  # optional existing trained ZIP or directory containing workers/
+PROGRESS_BUNDLE = ''  # blank=auto-discover one trained ZIP/expanded directory; None=explicit fresh seeded run
 BUNDLE_SHA256 = ''  # optional SHA256 for the original progress ZIP, not a directory
 LOCAL_REPORT = ''  # optional optimized local result.json for release gating
 REFERENCE_REPORT = ''  # optional same-machine reference local result.json
 BUDGET_SECONDS = 600  # total from bootstrap start, includes extraction/import/CUDA initialization
+'''
+
+DISCOVERY = r'''import hashlib
+import zipfile
+from pathlib import Path, PurePosixPath
+
+
+def _discovery_check(check_budget):
+    if check_budget is not None:
+        check_budget()
+
+
+def _discovery_sha256(path, check_budget):
+    digest = hashlib.sha256()
+    with Path(path).open('rb') as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+            _discovery_check(check_budget)
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _discovery_inside(path, input_root):
+    root = Path(input_root).expanduser().resolve()
+    candidate = Path(path).expanduser().resolve()
+    if not candidate.exists() or not candidate.is_relative_to(root):
+        raise ValueError('Input path must exist under /kaggle/input: ' + str(path))
+    return candidate
+
+
+def _discovery_unique(paths):
+    result = []
+    seen = set()
+    for path in paths:
+        resolved = Path(path).resolve()
+        key = str(resolved).casefold()
+        if key not in seen:
+            seen.add(key)
+            result.append(resolved)
+    return result
+
+
+def _discovery_scan_paths(input_root, check_budget, max_entries):
+    root = Path(input_root).resolve()
+    count = 0
+    for path in root.rglob('*'):
+        _discovery_check(check_budget)
+        count += 1
+        if count > max_entries:
+            raise ValueError(f'Input scan exceeds max_entries={max_entries}; set an explicit path or remove unrelated Datasets')
+        if path.is_symlink():
+            continue
+        yield path
+
+
+def _discovery_expanded_sources(input_root, expected_manifest_sha256, check_budget, max_entries):
+    candidates = []
+    for path in _discovery_scan_paths(input_root, check_budget, max_entries):
+        if path.is_file() and path.name == 'SOURCE_MANIFEST.json':
+            if _discovery_sha256(path, check_budget) == expected_manifest_sha256:
+                candidates.append(path.parent)
+    return _discovery_unique(candidates)
+
+
+def _discovery_source_zips(input_root, expected_source_sha256, check_budget, max_entries):
+    candidates = []
+    for path in _discovery_scan_paths(input_root, check_budget, max_entries):
+        if not path.is_file():
+            continue
+        # Kaggle may rename an uploaded ZIP or place it under a versioned path;
+        # identify it by ZIP signature plus the pinned whole-file SHA, not name.
+        with path.open('rb') as stream:
+            signature = stream.read(4)
+        _discovery_check(check_budget)
+        if signature != b'PK\x03\x04':
+            continue
+        if _discovery_sha256(path, check_budget) == expected_source_sha256:
+            candidates.append(path)
+    return _discovery_unique(candidates)
+
+
+def _discovery_progress_zip(path, check_budget, max_entries):
+    try:
+        with zipfile.ZipFile(path) as archive:
+            infos = archive.infolist()
+            if len(infos) > max_entries:
+                raise ValueError(f'Progress ZIP has more than max_entries={max_entries}')
+            found = set()
+            for info in infos:
+                _discovery_check(check_budget)
+                rel = PurePosixPath(info.filename)
+                if rel.is_absolute() or '..' in rel.parts or '\\' in info.filename or ':' in info.filename:
+                    continue
+                parts = rel.parts
+                for index in range(len(parts) - 1):
+                    if parts[index:index + 2] == ('workers', 'ippo'):
+                        found.add('ippo')
+                    if parts[index:index + 2] == ('workers', 'vrpo'):
+                        found.add('vrpo')
+            return found == {'ippo', 'vrpo'}
+    except (OSError, zipfile.BadZipFile):
+        return False
+
+
+def _discovery_expanded_progress(input_root, check_budget, max_entries):
+    candidates = []
+    for path in _discovery_scan_paths(input_root, check_budget, max_entries):
+        if path.is_dir() and path.name == 'workers':
+            if (path / 'ippo').is_dir() and (path / 'vrpo').is_dir():
+                candidates.append(path.parent)
+    return _discovery_unique(candidates)
+
+
+def _discovery_progress_zips(input_root, check_budget, max_entries):
+    candidates = []
+    for path in _discovery_scan_paths(input_root, check_budget, max_entries):
+        if path.is_file() and path.suffix.lower() == '.zip' and _discovery_progress_zip(path, check_budget, max_entries):
+            candidates.append(path)
+    return _discovery_unique(candidates)
+
+
+def _discovery_one(label, candidates):
+    candidates = _discovery_unique(candidates)
+    if not candidates:
+        raise ValueError(f'Auto-discovery found no valid {label}; set an explicit path or add the correct Dataset')
+    if len(candidates) > 1:
+        listing = '\n'.join('  - ' + str(path) for path in candidates)
+        raise ValueError(f'Auto-discovery found multiple {label} candidates; refusing to guess:\n{listing}')
+    return str(candidates[0])
+
+
+def _discovery_explicit_source(value, input_root, expected_manifest_sha256, check_budget, max_entries):
+    path = _discovery_inside(value, input_root)
+    if path.is_file():
+        return str(path)
+    if (path / 'SOURCE_MANIFEST.json').is_file():
+        return str(path)
+    candidates = _discovery_expanded_sources(path, expected_manifest_sha256, check_budget, max_entries)
+    return _discovery_one('expanded source', candidates)
+
+
+def _discovery_explicit_progress(value, input_root, check_budget, max_entries):
+    path = _discovery_inside(value, input_root)
+    if path.is_file():
+        if path.suffix.lower() != '.zip':
+            raise ValueError('Explicit progress path must be a ZIP or directory containing workers/')
+        return str(path)
+    if (path / 'workers' / 'ippo').is_dir() and (path / 'workers' / 'vrpo').is_dir():
+        return str(path)
+    candidates = _discovery_expanded_progress(path, check_budget, max_entries)
+    return _discovery_one('expanded progress', candidates)
+
+
+def discover_inputs(source_value, progress_value, input_root, check_budget, source_sha256, manifest_sha256, *, max_entries=20000):
+    'Find exactly one hash-pinned source and at most one trained progress bundle.'
+    root = Path(input_root).expanduser().resolve()
+    if not root.is_dir():
+        raise ValueError('Input root does not exist: ' + str(root))
+    if source_value in ('', None):
+        source_candidates = _discovery_source_zips(root, source_sha256, check_budget, max_entries)
+        source_candidates += _discovery_expanded_sources(root, manifest_sha256, check_budget, max_entries)
+        source = _discovery_one('source', source_candidates)
+        source_mode = 'auto'
+    else:
+        source = _discovery_explicit_source(source_value, root, manifest_sha256, check_budget, max_entries)
+        source_mode = 'explicit'
+    if progress_value is None:
+        progress, progress_mode = None, 'fresh_seeded'
+    elif progress_value == '':
+        progress_candidates = _discovery_expanded_progress(root, check_budget, max_entries)
+        progress_candidates += _discovery_progress_zips(root, check_budget, max_entries)
+        progress_candidates = _discovery_unique(progress_candidates)
+        if len(progress_candidates) > 1:
+            listing = '\n'.join('  - ' + str(path) for path in progress_candidates)
+            raise ValueError(f'Auto-discovery found multiple progress candidates; refusing to guess:\n{listing}')
+        if not progress_candidates:
+            raise ValueError('Auto-discovery found no valid progress; set PROGRESS_BUNDLE=None for an explicit fresh seeded run')
+        progress = str(progress_candidates[0])
+        progress_mode = 'auto'
+    else:
+        progress = _discovery_explicit_progress(progress_value, root, check_budget, max_entries)
+        progress_mode = 'explicit'
+    return {'source': source, 'progress': progress, 'source_mode': source_mode, 'progress_mode': progress_mode}
 '''
 
 RUN = r'''import hashlib
@@ -60,7 +242,7 @@ def remaining():
 def input_path(value):
     path = Path(value).resolve()
     if not path.is_relative_to(Path('/kaggle/input').resolve()) or not path.exists():
-        raise ValueError('Use an existing /kaggle/input path: ' + value)
+        raise ValueError('Use an existing /kaggle/input path: ' + str(value))
     return path
 
 
@@ -71,6 +253,13 @@ try:
                           'workloads':['inference','short-training','short-evaluation'],
                           'comparisons':['single T4','dual T4'], 'recommended':False}, indent=2))
     else:
+        discovered = discover_inputs(
+            SOURCE_ZIP, PROGRESS_BUNDLE, Path('/kaggle/input').resolve(), remaining,
+            EXPECTED_SOURCE_SHA256, EXPECTED_MANIFEST_SHA256,
+        )
+        SOURCE_ZIP = discovered['source']
+        PROGRESS_BUNDLE = discovered['progress']
+        print('INPUT_DISCOVERY:', json.dumps(discovered, ensure_ascii=False, indent=2), flush=True)
         source = input_path(SOURCE_ZIP)
         unpack = RUN_ROOT / 'source'
         if source.is_file():
@@ -201,7 +390,8 @@ def render_notebook(source_sha256, manifest_sha256):
         raise ValueError("invalid source SHA256")
     intro = "# T4 单卡/双卡限时性能验证\n默认只生成计划，不训练长任务。先本地验证，再用一次最多600秒的Kaggle短测；没有收益不推荐长跑。每条lane全局工作量完全相同。"
     cells = []
-    for index, (kind, text) in enumerate((("markdown", intro), ("code", CONFIG), ("code", RUN.replace("__SOURCE_SHA256__", source_sha256).replace("__MANIFEST_SHA256__", manifest_sha256)))):
+    execution = DISCOVERY + '\n' + RUN.replace("__SOURCE_SHA256__", source_sha256).replace("__MANIFEST_SHA256__", manifest_sha256)
+    for index, (kind, text) in enumerate((("markdown", intro), ("code", CONFIG), ("code", execution))):
         cell = {"cell_type": kind, "id": f"performance-{index}", "metadata": {}, "source": text.splitlines(True)}
         if kind == "code":
             ast.parse(text)
