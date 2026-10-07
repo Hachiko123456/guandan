@@ -126,16 +126,17 @@ class EvaluationTelemetry:
                 data['disk'] = dict(free_bytes=disk.free, total_bytes=disk.total)
             except Exception as exc:
                 data['cpu'] = dict(status='unavailable', reason=str(exc))
-        torch = sys.modules.get('torch')
+        torch_module = sys.modules.get('torch')
         data['torch_memory'] = {'status': 'unavailable', 'reason': 'no initialized CUDA context in this process'}
-        if torch is not None and torch.cuda.is_initialized():
-            try:
+        try:
+            cuda = getattr(torch_module, 'cuda', None) if torch_module is not None else None
+            if cuda is not None and getattr(cuda, 'is_initialized', lambda: False)():
                 data['torch_memory'] = {'status': 'ok', 'logical_devices': [dict(
-                    index=i, allocated_bytes=torch.cuda.memory_allocated(i),
-                    reserved_bytes=torch.cuda.memory_reserved(i), peak_allocated_bytes=torch.cuda.max_memory_allocated(i))
-                    for i in range(torch.cuda.device_count())]}
-            except Exception as exc:
-                data['torch_memory'] = dict(status='unavailable', reason=str(exc))
+                    index=i, allocated_bytes=cuda.memory_allocated(i),
+                    reserved_bytes=cuda.memory_reserved(i), peak_allocated_bytes=cuda.max_memory_allocated(i))
+                    for i in range(cuda.device_count())]}
+        except Exception as exc:
+            data['torch_memory'] = dict(status='unavailable', reason=str(exc))
         return data
 
     def _record(self):
