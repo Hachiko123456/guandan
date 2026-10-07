@@ -8,7 +8,7 @@
 
 ## 2. 哪些文件上传，哪些文件留在本地
 
-本次最终交付目录为 `D:/project/guandan/release-evaluation-warmup-20261006`（由主代理完成整体验证后生成，再复制到 Downloads）。请等最终交付确认后再上传，不使用修改中的中间版本。
+本次最终交付目录为 `C:/Users/yhx/Downloads/guandan-evaluation-warmup-20261007-final`（最终交付目录）。请等最终交付确认后再上传，不使用修改中的中间版本。
 
 | 文件 | 操作 |
 |---|---|
