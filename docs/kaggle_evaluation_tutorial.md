@@ -8,7 +8,7 @@
 
 ## 2. 哪些文件上传，哪些文件留在本地
 
-本次最终交付目录为 `C:/Users/yhx/Downloads/guandan-evaluation-warmup-20261007-final`（最终交付目录）。请等最终交付确认后再上传，不使用修改中的中间版本。
+本次最终交付目录为 `C:/Users/yhx/Downloads/guandan-evaluation-optimized-final-20261007`。请只上传该目录中的最终文件，不使用已经删除的旧 warmup/intermediate 目录。
 
 | 文件 | 操作 |
 |---|---|
@@ -222,4 +222,4 @@ RESUME_UPDATES = None
 
 源码 Dataset 挂载后选择 T4 x2，Run All；训练输出为 `guandan-dual-gpu-progress.zip`。需要恢复时，在新会话挂载可兼容的训练 progress，明确填写 RESUME_BUNDLE（ZIP 或展开目录），不要猜旧包。恢复是否允许由训练语义契约检查决定。
 
-**当前训练入口仅负责双算法训练与配置的 checkpoint 重载阶段，不会自动运行本教程的能力评估。** 本次只改评估交付，不宣称已完善训练端遥测或性能。训练完成后，再回到本教程用评估 Notebook 测量模型能力。
+**训练入口和评估入口是分开的。** 当前训练包已经包含双 GPU worker、checkpoint 语义校验、阶段进度、system telemetry、预算保护和中断状态记录；评估包只读取已有权重，不更新模型。训练完成后，再回到本教程用评估 Notebook 测量模型能力。训练包与评估包必须分别使用各自目录中配套的源码 ZIP 和 Notebook。
