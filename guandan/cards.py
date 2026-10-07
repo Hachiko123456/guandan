@@ -80,6 +80,20 @@ NORMAL_RANKS = PRINTED_RANKS
 NON_JOKER_RANKS = PRINTED_RANKS
 JOKER_RANKS: tuple[Rank, ...] = (Rank.SMALL_JOKER, Rank.BIG_JOKER)
 
+# Card identity is stable and bounded (0..107).  Keep the frequently-read
+# physical metadata in compact lookup tables instead of rebuilding enum
+# instances and doing divmod on every hot-path property access.
+_CARD_DECK_INDEX: tuple[int, ...] = tuple(card_id // CARDS_PER_DECK for card_id in range(TOTAL_CARDS))
+_CARD_DECK_OFFSET: tuple[int, ...] = tuple(card_id % CARDS_PER_DECK for card_id in range(TOTAL_CARDS))
+_CARD_RANK: tuple[Rank, ...] = tuple(
+    PRINTED_RANKS[offset // 4] if offset < NORMAL_CARDS_PER_DECK else JOKER_RANKS[offset - NORMAL_CARDS_PER_DECK]
+    for offset in _CARD_DECK_OFFSET
+)
+_CARD_SUIT: tuple[Suit, ...] = tuple(
+    Suit(offset % 4) if offset < NORMAL_CARDS_PER_DECK else Suit.JOKER
+    for offset in _CARD_DECK_OFFSET
+)
+
 
 @dataclass(frozen=True, slots=True)
 class Card:
@@ -100,27 +114,19 @@ class Card:
 
     @property
     def deck_index(self) -> int:
-        return self.card_id // CARDS_PER_DECK
+        return _CARD_DECK_INDEX[self.card_id]
 
     @property
     def deck_offset(self) -> int:
-        return self.card_id % CARDS_PER_DECK
+        return _CARD_DECK_OFFSET[self.card_id]
 
     @property
     def rank(self) -> Rank:
-        offset = self.deck_offset
-        if offset < NORMAL_CARDS_PER_DECK:
-            rank_index, _ = divmod(offset, 4)
-            return PRINTED_RANKS[rank_index]
-        return JOKER_RANKS[offset - NORMAL_CARDS_PER_DECK]
+        return _CARD_RANK[self.card_id]
 
     @property
     def suit(self) -> Suit:
-        offset = self.deck_offset
-        if offset < NORMAL_CARDS_PER_DECK:
-            _, suit_index = divmod(offset, 4)
-            return Suit(suit_index)
-        return Suit.JOKER
+        return _CARD_SUIT[self.card_id]
 
     @property
     def is_joker(self) -> bool:
@@ -130,7 +136,7 @@ class Card:
         """Return whether this physical card is the heart-level wild."""
 
         level_rank = validate_level_rank(level_rank)
-        return self.suit is Suit.HEARTS and self.rank is level_rank
+        return _CARD_SUIT[self.card_id] is Suit.HEARTS and _CARD_RANK[self.card_id] is level_rank
 
     def __str__(self) -> str:
         return f"{self.rank.name}@{self.suit.name}[d{self.deck_index}]"
@@ -143,12 +149,31 @@ def validate_level_rank(level_rank: Rank) -> Rank:
     """Validate and normalize a non-joker level rank."""
 
     try:
-        normalized = Rank(level_rank)
+        normalized = level_rank if isinstance(level_rank, Rank) else Rank(level_rank)
     except (TypeError, ValueError) as exc:
         raise ValueError("level_rank must be a printed non-joker rank") from exc
     if normalized in JOKER_RANKS:
         raise ValueError("a joker cannot be the level rank")
     return normalized
+
+
+def _make_effective_rank_order(level_rank: Rank) -> tuple[Rank, ...]:
+    non_two = [rank for rank in PRINTED_RANKS if rank is not Rank.TWO]
+    if level_rank is Rank.TWO:
+        ordinary = [*non_two, Rank.TWO]
+    else:
+        ordinary = [Rank.TWO, *non_two]
+        ordinary.remove(level_rank)
+        ordinary.append(level_rank)
+    return (*ordinary, *JOKER_RANKS)
+
+
+# Fixed rule tables: 13 level contexts, no per-hand/global result cache.
+_EFFECTIVE_ORDERS = {level: _make_effective_rank_order(level) for level in NORMAL_RANKS}
+_EFFECTIVE_VALUES = {
+    level: {rank: value for value, rank in enumerate(order)}
+    for level, order in _EFFECTIVE_ORDERS.items()
+}
 
 
 def effective_rank_order(level_rank: Rank = Rank.TWO) -> tuple[Rank, ...]:
@@ -160,24 +185,14 @@ def effective_rank_order(level_rank: Rank = Rank.TWO) -> tuple[Rank, ...]:
     """
 
     level_rank = validate_level_rank(level_rank)
-    non_two = [rank for rank in PRINTED_RANKS if rank is not Rank.TWO]
-    if level_rank is Rank.TWO:
-        # The starting level is a real level position, not the low natural 2.
-        # There is only one printed rank TWO, so it is moved above A exactly
-        # once and remains below the jokers.
-        ordinary = [*non_two, Rank.TWO]
-    else:
-        ordinary = [Rank.TWO, *non_two]
-        ordinary.remove(level_rank)
-        ordinary.append(level_rank)
-    return (*ordinary, *JOKER_RANKS)
+    return _EFFECTIVE_ORDERS[level_rank]
 
 
 def effective_rank_value(rank: Rank, level_rank: Rank = Rank.TWO) -> int:
     """Return a comparable strength value under ``level_rank``."""
 
     rank = Rank(rank)
-    return effective_rank_order(level_rank).index(rank)
+    return _EFFECTIVE_VALUES[validate_level_rank(level_rank)][rank]
 
 
 def card_from_id(card_id: int) -> Card:
@@ -212,13 +227,28 @@ def full_deck() -> tuple[Card, ...]:
 def rank_order_value(rank: Rank) -> int:
     """Return a stable printed-order value for canonical serialization."""
 
-    return (*PRINTED_RANKS, *JOKER_RANKS).index(Rank(rank))
+    return _RANK_ORDER_VALUE[Rank(rank)]
+
+
+_RANK_ORDER_VALUE: dict[Rank, int] = {
+    rank: index for index, rank in enumerate((*PRINTED_RANKS, *JOKER_RANKS))
+}
+
+
+_CARD_SORT_KEYS = tuple(
+    (_RANK_ORDER_VALUE[card.rank], int(card.suit), card.deck_index, card.card_id)
+    for card in ALL_CARDS
+)
+_CARDS_BY_RANK = {
+    rank: tuple(card for card in ALL_CARDS if card.rank is rank)
+    for rank in (*PRINTED_RANKS, *JOKER_RANKS)
+}
 
 
 def card_sort_key(card: Card) -> tuple[int, int, int, int]:
     if not isinstance(card, Card):
         raise TypeError(f"expected Card, got {type(card).__name__}")
-    return (rank_order_value(card.rank), int(card.suit), card.deck_index, card.card_id)
+    return _CARD_SORT_KEYS[card.card_id]
 
 
 def sort_cards(cards: Iterable[Card]) -> tuple[Card, ...]:
@@ -241,7 +271,7 @@ def validate_physical_cards(cards: Iterable[Card]) -> tuple[Card, ...]:
 
 def cards_for_rank(rank: Rank) -> tuple[Card, ...]:
     rank = Rank(rank)
-    return tuple(card for card in ALL_CARDS if card.rank is rank)
+    return _CARDS_BY_RANK[rank]
 
 
 __all__ = [

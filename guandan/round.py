@@ -19,18 +19,30 @@ def _key(a):
 def _dk(d):return (d.kind,d.physical_ids(),d.level_rank,d.comparison_rank,d.comparison_key,tuple(sorted((i,r,s) for i,(r,s) in d.wild_assignments.items())),d.natural_wild_ids)
 def enumerate_plays(hand, *, level_rank, current=None):
     from itertools import product
-    from .cards import NON_JOKER_RANKS, WINDOW_RANKS
+    from .cards import NON_JOKER_RANKS, WINDOW_RANKS, Suit
     h=tuple(sort_cards(hand)); out={}; cache={}
     if current is not None:
         if not isinstance(current,Combination) or current.level_rank is not level_rank or not any(_dk(x)==_dk(current) for x in recognize_combinations(current.cards,level_rank=level_rank)):
             raise ValueError("current combination declaration is not valid for its physical cards and level")
     allowed=set(_BOMBS | {CombinationKind.SINGLE,CombinationKind.PAIR,CombinationKind.TRIPLE,CombinationKind.FULL_HOUSE,CombinationKind.STRAIGHT,CombinationKind.PAIR_SEQUENCE,CombinationKind.TRIPLE_SEQUENCE}) if current is None else (_BOMBS if current.kind in _BOMBS else {current.kind}|_BOMBS)
     wilds=tuple(c for c in h if c.is_level_wild(level_rank)); natural={r:tuple(c for c in h if c.rank is r and not c.is_level_wild(level_rank) and not c.is_joker) for r in NON_JOKER_RANKS}; jokers={r:tuple(c for c in h if c.rank is r) for r in (Rank.SMALL_JOKER,Rank.BIG_JOKER)}
+    def recognized_beats(d):
+        # current was validated at the boundary; d is emitted by the recognizer.
+        # Public can_beat() still fully validates adversarial declarations. Do
+        # not re-recognize both sets of physical cards for every known-safe d.
+        if current is None:
+            return True
+        left_bomb, right_bomb = d.kind in _BOMBS, current.kind in _BOMBS
+        if left_bomb or right_bomb:
+            return (left_bomb and not right_bomb) or (left_bomb and right_bomb and d.comparison_key > current.comparison_key)
+        return d.kind is current.kind and d.size == current.size and d.comparison_key[-1] > current.comparison_key[-1]
     def emit(cards):
-        ids=tuple(sorted(c.card_id for c in cards)); ds=cache.get(ids)
-        if ds is None:ds=recognize_combinations(tuple(sorted(cards,key=lambda c:c.card_id)),level_rank=level_rank);cache[ids]=ds
-        for d in ds:
-            if d.kind in allowed and (current is None or can_beat(d,current)):out[_dk(d)]=d
+        ids=tuple(sorted(c.card_id for c in cards))
+        if ids in cache:
+            return  # all declarations of this physical set were already emitted
+        cache[ids]=True
+        for d in recognize_combinations(tuple(sorted(cards,key=lambda c:c.card_id)),level_rank=level_rank):
+            if d.kind in allowed and recognized_beats(d):out[_dk(d)]=d
     if CombinationKind.SINGLE in allowed:
         for c in h:emit((c,))
     for r in NON_JOKER_RANKS:
@@ -59,8 +71,8 @@ def enumerate_plays(hand, *, level_rank, current=None):
                         for a in combinations(natural[tr],tc):
                             for b in combinations(natural[pr],pc):
                                 for w in combinations(wilds,wc):emit(a+b+w)
-    def seq(window,copies):
-        total=len(window)*copies; pools=[tuple(c for c in h if c.rank is r) for r in window]; wild_ids={c.card_id for c in wilds}
+    def seq(window,copies,sequence_hand=h):
+        total=len(window)*copies; pools=[tuple(c for c in sequence_hand if c.rank is r) for r in window]; wild_ids={c.card_id for c in wilds}
         for counts in product(range(copies+1),repeat=len(window)):
             wc=total-sum(counts)
             if not 0<=wc<=min(2,len(wilds)) or any(n>len(pool) for n,pool in zip(counts,pools)):continue
@@ -70,8 +82,17 @@ def enumerate_plays(hand, *, level_rank, current=None):
                 for x in combinations(extra,wc):emit(cards+x)
     def ws(n):
         base=tuple(tuple(WINDOW_RANKS[i:i+n]) for i in range(len(WINDOW_RANKS)-n+1));extra={5:(Rank.ACE,Rank.TWO,Rank.THREE,Rank.FOUR,Rank.FIVE),3:(Rank.ACE,Rank.TWO,Rank.THREE),2:(Rank.ACE,Rank.TWO)}[n];return base+(extra,)
-    if CombinationKind.STRAIGHT in allowed or CombinationKind.STRAIGHT_FLUSH in allowed:
+    if CombinationKind.STRAIGHT in allowed:
         for w in ws(5):seq(w,1)
+    elif CombinationKind.STRAIGHT_FLUSH in allowed:
+        # When answering a non-straight only straight FLUSH sequences can win.
+        # Keep every physical wildcard (it may represent any suit), but don't
+        # enumerate mixed-suit straight candidates merely to discard them.
+        wild_ids={c.card_id for c in wilds}
+        for suit in (Suit.CLUBS,Suit.DIAMONDS,Suit.HEARTS,Suit.SPADES):
+            suited=tuple(c for c in h if c.suit is suit or c.card_id in wild_ids)
+            if len(suited)>=5:
+                for w in ws(5):seq(w,1,suited)
     if CombinationKind.PAIR_SEQUENCE in allowed:
         for w in ws(3):seq(w,2)
     if CombinationKind.TRIPLE_SEQUENCE in allowed:

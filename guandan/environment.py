@@ -22,15 +22,25 @@ from .combos import CombinationKind, recognize_combinations
 
 
 class _CachedProtocol(StepwiseActionState):
-    """Per-instance memoization of A03 paths, keyed by the ENTIRE round snapshot.
+    """Per-instance action cache keyed by every input to legal enumeration.
 
-    No legal action is added/removed. Prefix-only steps reuse immutable paths;
-    any round mutation (including test/debug mutation) invalidates the cache.
-    Caches are neither policy-visible nor serialized, and are never global.
+    History/observation fields are deliberately not cached: only legal action
+    enumeration is memoized. The key contains immutable copies of hand IDs and
+    declaration/phase/exchange context; direct debug mutations invalidate it.
+    No JSON/history serialization, global cache or rules shortcut is involved.
     """
     def _candidate_sequences(self):
-        key = json.dumps(self.round_state.serialize(), sort_keys=True, separators=(",", ":"))
-        key = (key, self.max_action_tokens, self.max_legal_next_tokens)
+        state = self.round_state
+        winner = state.current_winning
+        declaration_key = None if winner is None else (
+            winner.kind, tuple(c.card_id for c in winner.cards), winner.level_rank,
+            winner.comparison_rank, tuple(winner.comparison_key),
+            tuple(winner._wild_assignment_items), tuple(winner.natural_wild_ids))
+        key = (state.done, state.phase, state.level_rank, state.active_seat,
+               tuple(card.card_id for card in state.hands[state.active_seat]),
+               declaration_key, tuple(state.tribute_donors),
+               None if state.pending_return is None else tuple(state.pending_return),
+               self.max_action_tokens, self.max_legal_next_tokens)
         if getattr(self, "_cache_key", None) != key:
             paths = {}
             for action in enumerate_legal_actions(self.round_state):

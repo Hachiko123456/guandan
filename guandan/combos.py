@@ -35,7 +35,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from itertools import product
 from types import MappingProxyType
-from typing import Iterable, Mapping, Sequence
+from typing import Iterable, Mapping, NamedTuple, Sequence
 
 from .cards import (
     Card,
@@ -172,14 +172,33 @@ def _canonical_kind(kind: CombinationKind | str) -> CombinationKind:
 
 
 def _is_wild(card: Card, level_rank: Rank) -> bool:
-    return card.is_level_wild(level_rank)
+    # Internal callers already normalized the level at the public boundary.
+    return card.suit is Suit.HEARTS and card.rank is level_rank
 
 
 def _wild_and_natural(cards: tuple[Card, ...], level_rank: Rank) -> tuple[tuple[Card, ...], tuple[Card, ...]]:
-    return (
-        tuple(card for card in cards if _is_wild(card, level_rank)),
-        tuple(card for card in cards if not _is_wild(card, level_rank)),
-    )
+    wilds: list[Card] = []
+    natural: list[Card] = []
+    for card in cards:
+        (wilds if _is_wild(card, level_rank) else natural).append(card)
+    return tuple(wilds), tuple(natural)
+
+
+class _CardFacts(NamedTuple):
+    """Per-recognition facts shared across family/window candidates, not cached globally."""
+
+    wilds: tuple[Card, ...]
+    natural: tuple[Card, ...]
+    counts: Counter[Rank]
+    has_joker: bool
+    suits: frozenset[Suit]
+
+
+def _card_facts(cards: tuple[Card, ...], level_rank: Rank) -> _CardFacts:
+    wilds, natural = _wild_and_natural(cards, level_rank)
+    counts = Counter(card.rank for card in natural)
+    suits = frozenset(card.suit for card in natural)
+    return _CardFacts(wilds, natural, counts, Suit.JOKER in suits, suits)
 
 
 def _assignment_variants(
@@ -221,6 +240,8 @@ def _assignment_products(
 ) -> tuple[tuple[_WILD_ITEMS, tuple[int, ...]], ...]:
     if len(wilds) != len(targets):
         return ()
+    if not wilds:
+        return (((), ()),)
     choices = [
         _assignment_variants(card, target, level_rank=level_rank, target_suit=target_suit)
         for card, target in zip(wilds, targets)
@@ -293,11 +314,12 @@ def _group_declarations(
     level_rank: Rank,
     target_rank: Rank,
     required_count: int,
+    facts: _CardFacts,
 ) -> tuple[Combination, ...]:
-    wilds, natural = _wild_and_natural(cards, level_rank)
+    wilds, natural = facts.wilds, facts.natural
     if len(cards) != required_count or len(wilds) > 2:
         return ()
-    if any(card.is_joker or card.rank is not target_rank for card in natural):
+    if facts.has_joker or any(rank is not target_rank for rank in facts.counts):
         return ()
     targets = (target_rank,) * len(wilds)
     return tuple(
@@ -314,13 +336,14 @@ def _sequence_declarations(
     window: tuple[Rank, ...],
     copies_per_rank: int,
     declared_suit: Suit | None = None,
+    facts: _CardFacts,
 ) -> tuple[Combination, ...]:
-    wilds, natural = _wild_and_natural(cards, level_rank)
-    if len(wilds) > 2 or any(card.is_joker for card in natural):
+    wilds = facts.wilds
+    if len(wilds) > 2 or facts.has_joker:
         return ()
-    if declared_suit is not None and any(card.suit is not declared_suit for card in natural):
+    if declared_suit is not None and any(suit is not declared_suit for suit in facts.suits):
         return ()
-    counts = Counter(card.rank for card in natural)
+    counts = facts.counts
     if any(rank not in window or count > copies_per_rank for rank, count in counts.items()):
         return ()
     missing: list[Rank] = []
@@ -348,13 +371,18 @@ def _sequence_declarations(
     return tuple(declarations)
 
 
-def _full_house_declarations(cards: tuple[Card, ...], *, level_rank: Rank) -> tuple[Combination, ...]:
-    wilds, natural = _wild_and_natural(cards, level_rank)
-    if len(cards) != 5 or len(wilds) > 2 or any(card.is_joker for card in natural):
+def _full_house_declarations(cards: tuple[Card, ...], *, level_rank: Rank, facts: _CardFacts) -> tuple[Combination, ...]:
+    wilds = facts.wilds
+    if len(cards) != 5 or len(wilds) > 2 or facts.has_joker:
         return ()
-    natural_counts = Counter(card.rank for card in natural)
+    natural_counts = facts.counts
+    if len(natural_counts) > 2:
+        return ()
     declarations: list[Combination] = []
     for triple_rank in NON_JOKER_RANKS:
+        # A triple needs at least one natural card: there are only two wilds.
+        if triple_rank not in natural_counts:
+            continue
         for pair_rank in NON_JOKER_RANKS:
             if pair_rank is triple_rank:
                 continue
@@ -389,15 +417,13 @@ def _full_house_declarations(cards: tuple[Card, ...], *, level_rank: Rank) -> tu
     return tuple(declarations)
 
 
-def _rank_bomb_declarations(cards: tuple[Card, ...], *, level_rank: Rank) -> tuple[Combination, ...]:
+def _rank_bomb_declarations(cards: tuple[Card, ...], *, level_rank: Rank, facts: _CardFacts) -> tuple[Combination, ...]:
     if not 4 <= len(cards) <= 10:
         return ()
-    wilds, natural = _wild_and_natural(cards, level_rank)
-    if len(wilds) > 2 or any(card.is_joker or card.rank is not natural[0].rank for card in natural[1:]):
+    wilds, natural = facts.wilds, facts.natural
+    if len(wilds) > 2 or facts.has_joker or len(facts.counts) != 1:
         return ()
-    if natural and any(card.is_joker for card in natural):
-        return ()
-    target_ranks = NON_JOKER_RANKS if natural else NON_JOKER_RANKS
+    target_ranks = tuple(facts.counts)
     declarations: list[Combination] = []
     for target_rank in target_ranks:
         if any(card.rank is not target_rank for card in natural):
@@ -437,7 +463,8 @@ def recognize_combinations(
         materialized = validate_physical_cards(cards)
     except (TypeError, ValueError):
         return ()
-    if not materialized:
+    # No supported family is empty or larger than the ten-card rank bomb.
+    if not 1 <= len(materialized) <= 10:
         return ()
     canonical = sort_cards(materialized)
     size = len(canonical)
@@ -463,20 +490,31 @@ def recognize_combinations(
                 _build(CombinationKind.SINGLE, canonical, level_rank=level_rank, comparison_rank=card.rank)
             )
 
+    if size == 1:
+        return tuple(declarations)
+    facts = _card_facts(canonical, level_rank)
+
+    # At most one natural rank can participate in a rank group. With two
+    # wilds and no natural cards, all 13 ordinary declarations remain valid.
+    group_ranks = (
+        tuple(facts.counts) if len(facts.counts) == 1
+        else NON_JOKER_RANKS if not facts.counts else ()
+    )
+
     # Pair: same natural joker type is valid; mixed jokers are not.
     if size == 2:
         if all(card.rank is Rank.SMALL_JOKER for card in canonical) or all(card.rank is Rank.BIG_JOKER for card in canonical):
             declarations.append(_build(CombinationKind.PAIR, canonical, level_rank=level_rank, comparison_rank=canonical[0].rank))
         else:
-            for rank in NON_JOKER_RANKS:
-                declarations.extend(_group_declarations(CombinationKind.PAIR, canonical, level_rank=level_rank, target_rank=rank, required_count=2))
+            for rank in group_ranks:
+                declarations.extend(_group_declarations(CombinationKind.PAIR, canonical, level_rank=level_rank, target_rank=rank, required_count=2, facts=facts))
 
     if size == 3:
-        for rank in NON_JOKER_RANKS:
-            declarations.extend(_group_declarations(CombinationKind.TRIPLE, canonical, level_rank=level_rank, target_rank=rank, required_count=3))
+        for rank in group_ranks:
+            declarations.extend(_group_declarations(CombinationKind.TRIPLE, canonical, level_rank=level_rank, target_rank=rank, required_count=3, facts=facts))
 
     if size == 5:
-        declarations.extend(_full_house_declarations(canonical, level_rank=level_rank))
+        declarations.extend(_full_house_declarations(canonical, level_rank=level_rank, facts=facts))
 
     # Exactly four physical jokers: two small and two big.
     if size == 4:
@@ -492,9 +530,11 @@ def recognize_combinations(
             )
 
     if 4 <= size <= 10:
-        declarations.extend(_rank_bomb_declarations(canonical, level_rank=level_rank))
+        declarations.extend(_rank_bomb_declarations(canonical, level_rank=level_rank, facts=facts))
 
-    if size == 5:
+    # Rank multiplicities are independent of the window: reject once before
+    # trying any window or suit. Wilds may fill missing ranks, never duplicates.
+    if size == 5 and not facts.has_joker and all(count == 1 for count in facts.counts.values()):
         for window in _STRAIGHT_WINDOWS:
             declarations.extend(
                 _sequence_declarations(
@@ -503,9 +543,10 @@ def recognize_combinations(
                     level_rank=level_rank,
                     window=window,
                     copies_per_rank=1,
+                    facts=facts,
                 )
             )
-            for suit in (Suit.CLUBS, Suit.DIAMONDS, Suit.HEARTS, Suit.SPADES):
+            for suit in facts.suits if len(facts.suits) == 1 else ():
                 declarations.extend(
                     _sequence_declarations(
                         CombinationKind.STRAIGHT_FLUSH,
@@ -513,57 +554,23 @@ def recognize_combinations(
                         level_rank=level_rank,
                         window=window,
                         copies_per_rank=1,
+                        facts=facts,
                         declared_suit=suit,
                     )
                 )
 
-    if size == 6:
-        pair_count = 3
-        if pair_count == 3:
-            for start in range(len(WINDOW_RANKS) - pair_count + 1):
-                window = tuple(WINDOW_RANKS[start : start + pair_count])
+    if size == 6 and not facts.has_joker:
+        for kind, windows, copies in (
+            (CombinationKind.PAIR_SEQUENCE, _PAIR_WINDOWS, 2),
+            (CombinationKind.TRIPLE_SEQUENCE, _TRIPLE_WINDOWS, 3),
+        ):
+            if len(facts.counts) > 6 // copies or any(count > copies for count in facts.counts.values()):
+                continue
+            for window in windows:
                 declarations.extend(
                     _sequence_declarations(
-                        CombinationKind.PAIR_SEQUENCE,
-                        canonical,
-                        level_rank=level_rank,
-                        window=window,
-                        copies_per_rank=2,
-                    )
-                )
-            if pair_count == 3:
-                declarations.extend(
-                    _sequence_declarations(
-                        CombinationKind.PAIR_SEQUENCE,
-                        canonical,
-                        level_rank=level_rank,
-                        window=(Rank.ACE, Rank.TWO, Rank.THREE),
-                        copies_per_rank=2,
-                    )
-                )
-
-    if size == 6:
-        triple_count = 2
-        if triple_count == 2:
-            for start in range(len(WINDOW_RANKS) - triple_count + 1):
-                window = tuple(WINDOW_RANKS[start : start + triple_count])
-                declarations.extend(
-                    _sequence_declarations(
-                        CombinationKind.TRIPLE_SEQUENCE,
-                        canonical,
-                        level_rank=level_rank,
-                        window=window,
-                        copies_per_rank=3,
-                    )
-                )
-            if triple_count == 2:
-                declarations.extend(
-                    _sequence_declarations(
-                        CombinationKind.TRIPLE_SEQUENCE,
-                        canonical,
-                        level_rank=level_rank,
-                        window=(Rank.ACE, Rank.TWO),
-                        copies_per_rank=3,
+                        kind, canonical, level_rank=level_rank, window=window,
+                        copies_per_rank=copies, facts=facts,
                     )
                 )
 
