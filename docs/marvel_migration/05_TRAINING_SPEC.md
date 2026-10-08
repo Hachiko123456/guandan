@@ -28,6 +28,60 @@ M03 允许更小尺寸做 smoke，但报告必须明确写出实际配置，不�
 - learner updates；
 - iterations。
 
+## 2.1 On-policy 采样概率契约（M02 补修后）
+
+正式 IPPO/VRPO fresh rollout 必须使用：
+
+```text
+purpose=on_policy
+sampling_temperature=1.0
+forced_action_indices=None
+```
+
+trajectory 字段语义：
+
+- `policy_probs[B,T,A]`：rollout actor 原始策略分布，用于 reference KL 和 Q-value policy expectation；
+- `behavior_action_prob[B,T]`：实际行为分布对已选动作的概率，用于 PPO 旧概率；
+- `on_policy_valid[B,T]`：正式 learner eligibility。
+
+`purpose=evaluation|test` 可使用 greedy、非 1 温度和 forced legal actions，但必须写 `on_policy_valid=false`。PPO 入口必须拒绝这些样本，不能把评估/测试 trajectory 静默混入 fresh on-policy batch。
+
+sampler 在 agent/cache 执行后失败时采用 fail-closed poisoned state：completed counters 不增加，后续 rollout/collect 拒绝，不能称 exact resume。
+
+## 2.2 Dense trajectory 分配前内存门槛
+
+M03 在构造 `TrajectoryBuffer`/`Sampler` 前必须调用 `trajectory_memory_budget()` 或 `require_trajectory_memory_budget()`：
+
+1. 打印字段级 shape、dtype、单 trajectory、rollout buffer、commit buffer 和每 rank 估计；
+2. 配置显式 `max_sampler_bytes_per_rank`；
+3. 超预算时在任何 dense buffer 分配前失败；
+4. 预算还必须另列模型、optimizer、KV cache、activations、replay 和临时复制，不能把 sampler estimate 当总内存。
+
+当前默认协议 `T=4096,A=256,L_action=8,P=4` 下，修复后 dense layout 单 trajectory 约 87.148 MiB。若全局 `rollout=512, collect=2048`，仅 rollout+commit buffers 约 261.445 GiB；两 rank 均分仍约 130.723 GiB/rank。
+
+M03 推荐本地 smoke：
+
+```text
+backend=python_reference
+purpose=on_policy
+rollout_batch_size=1
+collect_batch_size=1
+replay_buffer_scale=1
+mini_batches=1
+history_dim=16
+feature_dim=24
+decoder_layers=1
+decoder_heads=4
+state_layers=1
+action_layers=1
+fuse_layers=1
+smoke-only max_game_horizon=512
+```
+
+`T=512` 必须使用带独立 identifier 的测试专用 `GameSpec`，所有接收的 trajectory 都要在 512 前自然终局；不得把该结果描述为默认 `T=4096` 协议验证。该 sampler 形状约 32.681 MiB（1 rollout + 2-slot commit capacity）。
+
+紧凑 dtype、按实际长度裁剪、分桶和 chunk/spill 是后续优化方案，本轮不通过 top-N 删除合法动作，也不假设 C++ 自动解决 tensor buffer 内存。
+
 ## 3. IPPO
 
 初始算法基线参考：

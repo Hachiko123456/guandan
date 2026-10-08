@@ -28,7 +28,7 @@
     "v1_v2_legal_action_bijection": true,
     "v1_v2_state_transition_equivalence": true
   },
-  "implementation_commit": "self",
+  "implementation_commit": "71500c5ac580cfda935d7bbd52de6a3793110c60",
   "next_stage": "M03_marvel_training_smoke",
   "protocols": {
     "action": "GD-ACTION-0.2-MARVEL",

@@ -407,7 +407,7 @@ class _SmallHorizonGame:
 def test_marvel_sampler_consumes_minimal_complete_python_adapter_trajectory() -> None:
     sampler = Sampler(config=SamplerConfig(
         game=_SmallHorizonGame, device="cpu", rollout_batch_size=1,
-        collect_batch_size=1, sampling_temperature=0.0, env_seed=0,
+        collect_batch_size=1, sampling_temperature=0.0, purpose="test", env_seed=0,
     ))
     trajectory = sampler.collect(agent_model=_CommitFirstAgent())
     steps = int(trajectory["num_steps"][0])

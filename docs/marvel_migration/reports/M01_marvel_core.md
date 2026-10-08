@@ -3,7 +3,7 @@
 - 日期：2026-10-08
 - 分支：`codex/marvel-guandan-migration`
 - 开始 commit：`44efa2fd28536cb9863c6173ea3fbc92626df506`
-- 结束 commit：本报告所属的单一原子提交（自引用 SHA 不能写入其自身内容；实际 SHA 见 Git HEAD 与最终答复）
+- 结束 commit：`d4638ab4eb7886335c8f438deadcaff12066f1bf`
 - 执行环境：Windows 11；Python 3.12.0；PyTorch 2.13.0+cpu；NumPy 2.3.5；CUDA unavailable
 - 阶段状态：`accepted`
 

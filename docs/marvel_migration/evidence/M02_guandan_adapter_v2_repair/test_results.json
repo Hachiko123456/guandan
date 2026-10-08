@@ -1,0 +1,162 @@
+{
+  "commands": [
+    {
+      "command": "python -m pytest -q tests/marvel_core tests/marvel_adapter --disable-warnings --junitxml=runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/scoped.junit.xml",
+      "duration_seconds": 65.28,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/scoped.junit.xml",
+      "junit_sha256": "7cc5ef241ddc39d57ea5931484bd226c8f7ce8a3ddb14d057e9c73839c1dee27",
+      "log": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/scoped.log",
+      "log_sha256": "0dd24198f19340c3235d5651ee4fd8024eefcb2d2663dbc06dec3175b941e211",
+      "name": "scoped",
+      "passed": 62,
+      "skipped": 0
+    },
+    {
+      "command": "python -m pytest -q tests/marvel_adapter/test_sampler_contract.py --disable-warnings --junitxml=runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/sampler_contract_tests.junit.xml",
+      "duration_seconds": 7.909,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/sampler_contract_tests.junit.xml",
+      "junit_sha256": "6406b3d0fde99aeae829731ff290316c7b6b5d9b9e83843e8129ab3b143db450",
+      "log": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/sampler_contract_tests.log",
+      "log_sha256": "b43b923e8c3a23cd30f8ebab7ed9763e183c333b0fa80516460dbd94cbd0b8e4",
+      "name": "sampler_contract_tests",
+      "passed": 17,
+      "skipped": 0
+    },
+    {
+      "command": "python -m pytest -q tests/marvel_adapter/test_complex_actions.py --disable-warnings --junitxml=runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/complex_actions_tests.junit.xml",
+      "duration_seconds": 22.527,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/complex_actions_tests.junit.xml",
+      "junit_sha256": "ce89e0b73d0e65457d212a644e8823a5b778d18eb06907ee5f7c965af46dcc66",
+      "log": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/complex_actions_tests.log",
+      "log_sha256": "43c8fbfc1f837c89f86fc34f1a3e5c30f0accf93850bff52701af5791b09a03c",
+      "name": "complex_actions_tests",
+      "passed": 16,
+      "skipped": 0
+    },
+    {
+      "command": "python -m pytest -q tests/acceptance/test_a01_cards.py tests/acceptance/test_a02_rules.py tests/acceptance/test_a02_a03_defect_fix.py tests/acceptance/test_a03_actions.py tests/acceptance/test_a04_environment.py --disable-warnings --junitxml=runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/legacy_a01_a04.junit.xml",
+      "duration_seconds": 12.969,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/legacy_a01_a04.junit.xml",
+      "junit_sha256": "1635e94d7314d9390d58fc1934e22ac8b23b2f4251be8b4a12c162cc10fb8735",
+      "log": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/legacy_a01_a04.log",
+      "log_sha256": "82c06b4d1ae3dc8c6525c8eff3a59778df53def57d39078994136c85345b4ab8",
+      "name": "legacy_a01_a04",
+      "passed": 152,
+      "skipped": 0
+    },
+    {
+      "command": "python -m pytest -q -ra tests/unit tests/integration --disable-warnings --junitxml=runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/legacy_unit_integration.junit.xml",
+      "duration_seconds": 223.16,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/legacy_unit_integration.junit.xml",
+      "junit_sha256": "a87b413eb91aa6e505cf2de1be828924a7bc61499314cfd30b8d5244cae15611",
+      "log": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/legacy_unit_integration.log",
+      "log_sha256": "46d01859c19099fa5dc6a675199a8a1fe7cf2351be043043bcfeefc0c55b6d63",
+      "name": "legacy_unit_integration",
+      "passed": 889,
+      "skipped": 10
+    },
+    {
+      "command": "python scripts/verify_marvel_adapter_v2.py --output docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/original_scan_rerun.json",
+      "errors": 0,
+      "evidence": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/original_scan_rerun.json",
+      "evidence_sha256": "0e5487488cd06b471c5a951394859f82b9bb399b43efaee6664b7d76b82351e1",
+      "exit_code": 0,
+      "failed": 0,
+      "log": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/original_scan_rerun.log",
+      "log_sha256": "88c23f7a3c330f1349ce417cc0e2a3bcd668839ebc67856b15ee89bae75472f9",
+      "name": "original_scan_rerun",
+      "passed": 1,
+      "skipped": 0
+    },
+    {
+      "command": "python scripts/verify_marvel_adapter_v2_complex_actions.py --output docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/complex_action_coverage.json",
+      "errors": 0,
+      "evidence": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/complex_action_coverage.json",
+      "evidence_sha256": "56eaca0b88deb0a12777897ffbba02fde901aa5ea3b8246e7e12ed94ba13e356",
+      "exit_code": 0,
+      "failed": 0,
+      "log": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/complex_action_coverage.log",
+      "log_sha256": "5723d2e47ae6b6964cfe2358e1ca415cdc417033aa4be23c07b37a6208c03215",
+      "name": "complex_action_coverage",
+      "passed": 1,
+      "skipped": 0
+    },
+    {
+      "command": "python scripts/verify_marvel_sampler_contract.py --output docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/sampler_contract.json",
+      "errors": 0,
+      "evidence": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/sampler_contract.json",
+      "evidence_sha256": "108df68e6a75ac8e84207979039371779b1fd4fa25da8ed1cccaa11ffa206fff",
+      "exit_code": 0,
+      "failed": 0,
+      "log": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/sampler_contract.log",
+      "log_sha256": "c5da753fb901565da9fa94de0a67b56732fd2280d8f54d622dcb62dd6c08c102",
+      "name": "sampler_contract",
+      "passed": 1,
+      "skipped": 0
+    },
+    {
+      "command": "python scripts/report_marvel_m03_memory_budget.py --output docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/memory_budget.json",
+      "errors": 0,
+      "evidence": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/memory_budget.json",
+      "evidence_sha256": "8dcce2db60707af3a8517ed01d25455ae2e34f0687c418a4cb22cdf61d8ac5e1",
+      "exit_code": 0,
+      "failed": 0,
+      "log": "runs/M02_guandan_adapter_v2_repair/20261008_repair_validation/memory_budget.log",
+      "log_sha256": "84afdf92e8eb56a5c346229a0ec92be6a13da7b41d568e71a62b82a19701b565",
+      "name": "memory_budget",
+      "passed": 1,
+      "skipped": 0
+    }
+  ],
+  "new_skips_introduced_by_repair": 0,
+  "run_id": "20261008_repair_validation",
+  "schema": "guandan-marvel-m02-repair-test-results-v1",
+  "skip_explanations": [
+    {
+      "count": 1,
+      "reason": "Windows host cannot create the deployment symlink in this environment",
+      "source": "tests/unit/test_deployment_source.py:225"
+    },
+    {
+      "count": 2,
+      "reason": "CUDA unavailable",
+      "source": "tests/unit/test_estimators.py:190"
+    },
+    {
+      "count": 1,
+      "reason": "Windows host cannot create directory symlinks",
+      "source": "tests/unit/test_performance_discovery.py:283"
+    },
+    {
+      "count": 4,
+      "reason": "CUDA unavailable; CPU cannot certify GPU rollout equivalence",
+      "source": "tests/unit/test_rollout_performance.py:70"
+    },
+    {
+      "count": 1,
+      "reason": "CUDA unavailable",
+      "source": "tests/unit/test_training_objectives.py:150"
+    },
+    {
+      "count": 1,
+      "reason": "CUDA unavailable",
+      "source": "tests/unit/test_training_support.py:198"
+    }
+  ],
+  "stage": "M02_guandan_adapter_v2_repair"
+}

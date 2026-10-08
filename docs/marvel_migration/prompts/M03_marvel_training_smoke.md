@@ -54,6 +54,19 @@
 
 在 Python reference backend 上接通 MARVEL v1.3 风格模型、complete-trajectory sampler、IPPO、VRPO、replay、checkpoint 和指标。只证明训练语义正确，不证明性能或强度。
 
+## M02 补修后的启动硬门槛
+
+M03 在分配 sampler/buffer 前必须：
+
+1. 使用 `trajectory_memory_budget()` 打印字段级和每 rank 内存估计；
+2. 使用 `require_trajectory_memory_budget()` 对显式 `max_sampler_bytes_per_rank` fail closed；
+3. 正式 fresh rollout 固定 `purpose=on_policy`、`sampling_temperature=1.0`、禁止 forced actions；
+4. learner 只接收 `on_policy_valid=true`，旧概率读取 `behavior_action_prob`，reference KL 读取 `policy_probs`；
+5. sampler poisoned failure 不能重试或称 exact resume，必须从已知一致状态重建；
+6. 默认 `rollout=512,collect=2048,T=4096` 约需 261.445 GiB sampler dense buffers，禁止直接分配。
+
+推荐首个本地 smoke profile：`rollout=1`、`collect=1`、`replay_buffer_scale=1`、`mini_batches=1`、16/24 小模型、测试专用 `T=512`。必须明确其 reduced-horizon 身份，并验证所有 trajectory 在 512 前真实终局；不得冒充默认协议验证。
+
 ## 必做任务
 
 1. 实现/接通 Transformer Agent、结构化 action encoder、IPPO value head 和 VRPO CentralCritic。

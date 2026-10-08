@@ -134,7 +134,7 @@ def compute_gae_from_qvalue(
     This helper is used by the VRPO Q-critic trainer:
 
     - `V_pi(s)` is computed as the on-policy expectation `E_a[Q(s, a)]`
-      using `avail_probs_new`.
+      using ``avail_probs_new``.
     - `Q_lambda(s, a)` is computed via TD(lambda) bootstrapping using
       `V_pi(s_{t+1})`.
     - `A_pi(s, a) = Q_lambda(s, a) - V_pi(s)` is gathered for the acting
@@ -144,12 +144,12 @@ def compute_gae_from_qvalue(
     ----------
     rollout:
         Rollout TensorDict containing ``num_steps``, ``player_ids``, ``rewards``,
-        ``action_taken``, and optionally ``avail_probs``.
+        ``action_taken``, and optionally ``policy_probs``.
     state_qvalues:
         Q-value estimates shaped ``[B, T, A, P]`` (typically critic_model(...).qvalues).
     avail_probs_new:
         Action probabilities shaped ``[B, T, A]`` used to form `V_pi(s)` and
-        bootstrap targets. If omitted, the rollout-time `avail_probs` are used.
+        bootstrap targets. If omitted, rollout-time ``policy_probs`` are used.
     discount_gamma:
         Discount factor for bootstrapping.
     gae_lambda:
@@ -160,7 +160,7 @@ def compute_gae_from_qvalue(
     rewards = rollout["rewards"].to(dtype = state_qvalues.dtype)
     action_taken = rollout["action_taken"].to(dtype = torch.long)
     if avail_probs_new is None:
-        avail_probs_new = rollout["avail_probs"]
+        avail_probs_new = rollout["policy_probs"]
 
     B, T = player_ids.shape
     if state_qvalues.shape[:2] != (B, T):

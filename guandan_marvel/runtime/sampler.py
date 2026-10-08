@@ -14,6 +14,13 @@ from guandan_marvel.env_batch import EnvStepBatch
 from guandan_marvel.model import KVCache
 from guandan_marvel.utils import unwrap_distributed_module
 
+SAMPLER_CONTRACT_SCHEMA = "guandan-marvel-sampler-contract-v2"
+_SAMPLER_PURPOSES = frozenset({"on_policy", "evaluation", "test"})
+
+
+class SamplerFailedStateError(RuntimeError):
+    """The sampler observed a non-transactional failure and cannot continue."""
+
 
 @dataclass(frozen = True)
 class SamplerConfig:
@@ -24,6 +31,7 @@ class SamplerConfig:
     rollout_batch_size: int
     collect_batch_size: int
     sampling_temperature: float = 1.0
+    purpose: str = "on_policy"
     cache_dtype: torch.dtype | None = None
     field_specs: Optional[Mapping[str, FieldSpecLike]] = None
     env_seed: int | None = 0
@@ -32,8 +40,15 @@ class SamplerConfig:
     def __post_init__(self) -> None:
         object.__setattr__(self, "device", torch.device(self.device))
         temperature = float(self.sampling_temperature)
-        if not math.isfinite(temperature):
-            raise ValueError("sampling_temperature must be finite.")
+        purpose = str(self.purpose).strip().lower()
+        if not math.isfinite(temperature) or temperature < 0.0:
+            raise ValueError("sampling_temperature must be finite and non-negative.")
+        if purpose not in _SAMPLER_PURPOSES:
+            raise ValueError(f"purpose must be one of {sorted(_SAMPLER_PURPOSES)}.")
+        if purpose == "on_policy" and temperature != 1.0:
+            raise ValueError("on_policy sampling requires sampling_temperature=1.0 exactly.")
+        object.__setattr__(self, "sampling_temperature", temperature)
+        object.__setattr__(self, "purpose", purpose)
         if self.field_specs is None:
             specs = trajectory_field_specs(self.game)
             object.__setattr__(self, "field_specs", specs)
@@ -55,6 +70,7 @@ class Sampler:
         self.device = config.device
         self._cache_dtype = config.cache_dtype
         self._sampling_temperature = float(config.sampling_temperature)
+        self.purpose = config.purpose
         self._env_seed = config.env_seed
 
         def game_attr(name: str) -> int:
@@ -104,6 +120,11 @@ class Sampler:
         self.total_game_steps = 0
         self.last_step_rewards: torch.Tensor | None = None
         self.last_step_is_terminal: torch.Tensor | None = None
+        self.attempted_env_steps = 0
+        self.failed_env_steps = 0
+        self.rejected_rollout_steps = 0
+        self._failed = False
+        self._failure_info: dict[str, object] | None = None
 
         self.agent_kv: KVCache | None = None
         self._reset_mask_full: torch.Tensor | None = None
@@ -113,8 +134,40 @@ class Sampler:
             device = self.device,
         )
 
+    @property
+    def failed(self) -> bool:
+        return self._failed
+
+    @property
+    def failure_info(self) -> dict[str, object] | None:
+        return None if self._failure_info is None else dict(self._failure_info)
+
+    def _require_healthy(self) -> None:
+        if self._failed:
+            info = self._failure_info or {}
+            raise SamplerFailedStateError(
+                "sampler is unusable after a failed rollout; construct or restore a new sampler "
+                f"from a known-consistent state (failure={info})"
+            )
+
+    def _mark_failed(self, *, stage: str, error: Exception) -> None:
+        self._failed = True
+        self._failure_info = {
+            "schema": SAMPLER_CONTRACT_SCHEMA,
+            "strategy": "poison_on_failure",
+            "stage": stage,
+            "error_type": type(error).__name__,
+            "error": str(error),
+            "exact_resume_allowed": False,
+            "completed_env_steps": self.total_env_steps,
+            "completed_game_steps": self.total_game_steps,
+            "attempted_env_steps": self.attempted_env_steps,
+            "failed_env_steps": self.failed_env_steps,
+        }
+
     def prepare_agent_cache(self, *, agent_model: Any) -> None:
         """Ensure the decoder KV cache is initialized and aligned with rollout history."""
+        self._require_healthy()
         with torch.inference_mode():
             self._ensure_agent_cache(agent_model)
             self._rebuild_agent_cache(agent_model)
@@ -125,6 +178,7 @@ class Sampler:
         agent_model: Any,
     ) -> TensorDict:
         """Roll out trajectories until `collect_batch_size` games finish and return that batch."""
+        self._require_healthy()
         if not self._use_commit_buffer or self.commit_buffer is None:
             raise RuntimeError(
                 "Sampler.collect() requires collect_batch_size > 0 (commit mode). "
@@ -239,130 +293,166 @@ class Sampler:
         self.rollout_buffer.reset(mask)
         self.agent_kv.reset(mask.repeat_interleave(self.P))
 
+    @torch.inference_mode()
     def rollout_step(
         self,
         *,
         agent_model: Any,
         forced_action_indices: torch.Tensor | None = None,
     ) -> torch.Tensor:
-        """Advance environments by one step and return the per-env is_terminal mask for that step.
+        """Advance one transactional rollout step.
 
-        Invariant (critical): ``self.parsed_envs_step`` MUST represent the game state at
-        trajectory position ``self.rollout_buffer["num_steps"]`` — i.e. the next slot to
-        be written. If the env has been stepped PAST this position before handoff (e.g.
-        via an external ``envs.step(...)`` between prefill and the first ``rollout_step``),
-        buffer positions drift by one and every downstream policy query operates on a
-        misaligned state. This was the root cause of the 3-pt search-rollout calibration
-        gap against the eval path; see ``kagami/search/rollout_session.py``.
+        ``on_policy`` mode accepts only temperature 1 and never accepts forced
+        actions. Evaluation/test modes may use greedy, temperature transforms,
+        or forced legal actions, but their transitions carry
+        ``on_policy_valid=False`` and are rejected by PPO loss entry points.
 
-        Args:
-            agent_model: trained MARVEL agent module.
-            forced_action_indices: optional tensor of shape ``[rollout_batch_size]`` with
-                per-env action indices into ``parsed_envs_step["avail_tokens"]``. When
-                provided, player-node action selection bypasses the sampling-temperature
-                logic and uses these indices directly. Chance-node sampling is still
-                performed via ``torch.multinomial`` on ``avail_weights`` (forced indices
-                do NOT apply at chance nodes). Intended for driving a predetermined root
-                action from within the rollout loop itself — the only correct way to
-                preserve the prefill↔parsed_envs_step invariant when a root action needs
-                to be applied before the main policy-driven rollout.
+        Failure strategy B is used: any exception after agent/cache execution
+        poisons the sampler. Completed counters are not incremented, and later
+        rollout/collect/cache calls fail with ``SamplerFailedStateError``.
         """
+        self._require_healthy()
         if self.agent_kv is None or self._reset_mask_full is None:
             raise RuntimeError(
                 "Sampler cache is not initialized. "
                 "Call sampler.prepare_agent_cache(agent_model=...) before rollout_step()."
             )
+        if forced_action_indices is not None and self.purpose == "on_policy":
+            raise ValueError("forced_action_indices are forbidden for on_policy sampling.")
 
-        if self.config.state_logger is not None:
-            self.config.state_logger(self.envs, self.total_env_steps)
-
-        self.total_env_steps += self.rollout_batch_size
-
-        step_rollout = TensorDict(
-            {
-                "num_steps": torch.ones(self.rollout_batch_size, dtype = torch.long, device = self.device),
-                "player_ids": self.parsed_envs_step["player_ids"].unsqueeze(1),
-                "obs_tokens": self.parsed_envs_step["obs_tokens"].unsqueeze(1),
-                "obs_channels": self.parsed_envs_step["obs_channels"].unsqueeze(1),
-                "avail_tokens": self.parsed_envs_step["avail_tokens"].unsqueeze(1),
-                "avail_weights": self.parsed_envs_step["avail_weights"].unsqueeze(1),
-            },
-            batch_size = [self.rollout_batch_size],
-            device = self.device,
-        )
-        per_env_output = agent_model(
-            rollout = step_rollout,
-            use_cache = True,
-            past_key_values = self.agent_kv,
-        )
-
-        avail_probs = per_env_output.avail_probs.squeeze(1).float()
-
-        # Prior-preserving temperature: softmax(raw_logits / temp + log_prior).
-        # Reconstruct raw logits (up to constant) by subtracting the log-prior,
-        # scale only the learned component by temperature, then re-add the prior.
-        # At temp=1 this reduces to the original probs; as temp→∞ it converges
-        # to the prior distribution (avail_weights / sum) rather than flat uniform.
-        avail_weights_f = self.parsed_envs_step["avail_weights"].float()
-        avail_mask = avail_weights_f > 0
-        log_probs = avail_probs.clamp(min = 1e-9).log()
-        log_prior = avail_weights_f.clamp(min = 1e-9).log()
-        raw_logits = log_probs - log_prior
-        neg_inf = torch.finfo(raw_logits.dtype).min
+        forced: torch.Tensor | None = None
         if forced_action_indices is not None:
-            forced = forced_action_indices.to(dtype = torch.long, device = self.device)
+            forced = torch.as_tensor(forced_action_indices, dtype=torch.long, device=self.device)
             if tuple(forced.shape) != (self.rollout_batch_size,):
                 raise ValueError(
                     "forced_action_indices must have shape [rollout_batch_size]: "
                     f"expected {(self.rollout_batch_size,)}, got {tuple(forced.shape)}."
                 )
-            action_taken = forced
-        elif self._sampling_temperature <= 0.0:
-            action_taken = torch.argmax(raw_logits.masked_fill(~avail_mask, neg_inf), dim = 1)
-        else:
-            scaled_logits = (raw_logits / self._sampling_temperature + log_prior).masked_fill(~avail_mask, neg_inf)
-            sampling_probs = torch.softmax(scaled_logits, dim = 1)
-            action_taken = torch.multinomial(sampling_probs, 1).squeeze(1)
+            action_count = self.parsed_envs_step["avail_weights"].shape[-1]
+            if bool(((forced < 0) | (forced >= action_count)).any()):
+                raise ValueError("forced_action_indices contains an out-of-range action index.")
+            forced_legal = self.parsed_envs_step["avail_weights"][self._micro_buffer_range, forced] > 0
+            if not bool(forced_legal.all()):
+                raise ValueError("forced_action_indices must select legal actions in every slot.")
 
-        # Chance / environment steps are not agent decisions: sample from the provided
-        # action weights (which represent a probability mass function).
-        player_ids_step = self.parsed_envs_step["player_ids"].to(dtype = torch.long)
-        chance_mask = player_ids_step < 0
-        avail_probs_used = avail_probs
-        if torch.any(chance_mask):
-            chance_weights = self.parsed_envs_step["avail_weights"].float()
-            sampled = torch.multinomial(chance_weights[chance_mask], 1).squeeze(1)
-            action_taken = action_taken.clone()
-            action_taken[chance_mask] = sampled
+        if self.config.state_logger is not None:
+            self.config.state_logger(self.envs, self.total_env_steps)
 
-            # Record the normalized chance distribution (useful for downstream metrics/debugging).
-            norm = chance_weights[chance_mask].sum(dim = 1, keepdim = True).clamp(min = 1e-9)
-            avail_probs_used = avail_probs.clone()
-            avail_probs_used[chance_mask] = chance_weights[chance_mask] / norm
+        self.attempted_env_steps += self.rollout_batch_size
+        stage = "agent_forward"
+        try:
+            step_rollout = TensorDict(
+                {
+                    "num_steps": torch.ones(self.rollout_batch_size, dtype=torch.long, device=self.device),
+                    "player_ids": self.parsed_envs_step["player_ids"].unsqueeze(1),
+                    "obs_tokens": self.parsed_envs_step["obs_tokens"].unsqueeze(1),
+                    "obs_channels": self.parsed_envs_step["obs_channels"].unsqueeze(1),
+                    "avail_tokens": self.parsed_envs_step["avail_tokens"].unsqueeze(1),
+                    "avail_weights": self.parsed_envs_step["avail_weights"].unsqueeze(1),
+                },
+                batch_size=[self.rollout_batch_size],
+                device=self.device,
+            )
+            per_env_output = agent_model(
+                rollout=step_rollout,
+                use_cache=True,
+                past_key_values=self.agent_kv,
+            )
+            policy_probs = per_env_output.avail_probs.squeeze(1).float()
+            avail_weights_f = self.parsed_envs_step["avail_weights"].float()
+            avail_mask = avail_weights_f > 0
+            if tuple(policy_probs.shape) != tuple(avail_weights_f.shape):
+                raise ValueError("agent policy probability shape does not match available actions.")
+            if not bool(torch.isfinite(policy_probs).all()):
+                raise FloatingPointError("agent policy probabilities contain non-finite values.")
 
-        action_is_commit = self.parsed_envs_step["avail_is_commit"][
-            self._micro_buffer_range,
-            action_taken,
-        ].to(torch.bool)
-        self.total_game_steps += int(action_is_commit.sum().item())
-        action_tokens = self.parsed_envs_step["avail_tokens"][self._micro_buffer_range, action_taken]
-        actions = self.game.actions_from_np(action_tokens.detach().cpu().numpy())
-        self.parsed_envs_step.record_agent_outputs(
-            avail_probs = avail_probs_used,
-            action_taken = action_taken,
-        )
+            log_probs = policy_probs.clamp(min=1e-9).log()
+            log_prior = avail_weights_f.clamp(min=1e-9).log()
+            raw_logits = log_probs - log_prior
+            neg_inf = torch.finfo(raw_logits.dtype).min
+            if forced is not None:
+                action_taken = forced
+                behavior_probs = torch.zeros_like(policy_probs).scatter_(1, action_taken.unsqueeze(1), 1.0)
+            elif self._sampling_temperature == 0.0:
+                action_taken = torch.argmax(raw_logits.masked_fill(~avail_mask, neg_inf), dim=1)
+                behavior_probs = torch.zeros_like(policy_probs).scatter_(1, action_taken.unsqueeze(1), 1.0)
+            elif self._sampling_temperature == 1.0:
+                behavior_probs = policy_probs
+                action_taken = torch.multinomial(behavior_probs, 1).squeeze(1)
+            else:
+                scaled_logits = (
+                    raw_logits / self._sampling_temperature + log_prior
+                ).masked_fill(~avail_mask, neg_inf)
+                behavior_probs = torch.softmax(scaled_logits, dim=1)
+                action_taken = torch.multinomial(behavior_probs, 1).squeeze(1)
 
-        envs_step = self.envs.step(actions)
-        next_parsed_envs_step = EnvStepBatch.from_env_step(envs_step, self.config)
-        outcome = next_parsed_envs_step.outcome
+            player_ids_step = self.parsed_envs_step["player_ids"].to(dtype=torch.long)
+            chance_mask = player_ids_step < 0
+            if torch.any(chance_mask):
+                chance_weights = self.parsed_envs_step["avail_weights"].float()
+                norm = chance_weights[chance_mask].sum(dim=1, keepdim=True).clamp(min=1e-9)
+                chance_probs = chance_weights[chance_mask] / norm
+                sampled = torch.multinomial(chance_probs, 1).squeeze(1)
+                action_taken = action_taken.clone()
+                action_taken[chance_mask] = sampled
+                behavior_probs = behavior_probs.clone()
+                behavior_probs[chance_mask] = chance_probs
 
-        step_done_mask = outcome["is_terminal"].to(dtype = torch.bool)
-        self.last_step_rewards = outcome["rewards"].to(dtype = torch.float32, device = self.device).clone()
-        self.last_step_is_terminal = step_done_mask.clone()
-        transition = self.parsed_envs_step.build_transition(outcome)
-        self.rollout_buffer.add_step(self._micro_buffer_range, transition)
-        if bool(step_done_mask.any().item()):
-            self._commit_done(step_done_mask)
+            behavior_action_prob = behavior_probs[
+                self._micro_buffer_range, action_taken
+            ].to(dtype=torch.float32)
+            on_policy_valid = torch.full(
+                (self.rollout_batch_size,),
+                self.purpose == "on_policy" and forced is None,
+                dtype=torch.bool,
+                device=self.device,
+            )
+            action_is_commit = self.parsed_envs_step["avail_is_commit"][
+                self._micro_buffer_range, action_taken
+            ].to(torch.bool)
+            action_tokens = self.parsed_envs_step["avail_tokens"][
+                self._micro_buffer_range, action_taken
+            ]
+            actions = self.game.actions_from_np(action_tokens.detach().cpu().numpy())
+            self.parsed_envs_step.record_agent_outputs(
+                policy_probs=policy_probs,
+                behavior_action_prob=behavior_action_prob,
+                on_policy_valid=on_policy_valid,
+                action_taken=action_taken,
+            )
 
-        self.parsed_envs_step = next_parsed_envs_step
-        return step_done_mask
+            stage = "environment_step"
+            envs_step = self.envs.step(actions)
+            next_parsed_envs_step = EnvStepBatch.from_env_step(envs_step, self.config)
+            outcome = next_parsed_envs_step.outcome
+            step_done_mask = outcome["is_terminal"].to(dtype=torch.bool)
+            transition = self.parsed_envs_step.build_transition(outcome)
+
+            stage = "rollout_buffer_write"
+            self.rollout_buffer.add_step(self._micro_buffer_range, transition)
+            if bool(step_done_mask.any().item()):
+                stage = "completed_trajectory_commit"
+                self._commit_done(step_done_mask)
+
+            stage = "publish"
+            self.parsed_envs_step = next_parsed_envs_step
+            self.last_step_rewards = outcome["rewards"].to(
+                dtype=torch.float32, device=self.device
+            ).clone()
+            self.last_step_is_terminal = step_done_mask.clone()
+            self.total_env_steps += self.rollout_batch_size
+            self.total_game_steps += int(action_is_commit.sum().item())
+            return step_done_mask
+        except Exception as error:
+            self.failed_env_steps += self.rollout_batch_size
+            self.rejected_rollout_steps += 1
+            self._mark_failed(stage=stage, error=error)
+            raise
+
+
+__all__ = [
+    "SAMPLER_CONTRACT_SCHEMA",
+    "Sampler",
+    "SamplerConfig",
+    "SamplerFailedStateError",
+]

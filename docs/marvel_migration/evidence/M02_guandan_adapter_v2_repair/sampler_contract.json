@@ -1,0 +1,83 @@
+{
+  "evaluation_modes": {
+    "0.0": {
+      "action": 8,
+      "behavior_action_probability": 1.0,
+      "on_policy_valid": false,
+      "policy_probability": 0.20000000298023224
+    },
+    "0.5": {
+      "action": 8,
+      "behavior_action_probability": 0.28421053290367126,
+      "on_policy_valid": false,
+      "policy_probability": 0.20000000298023224
+    },
+    "2.0": {
+      "action": 8,
+      "behavior_action_probability": 0.1553921103477478,
+      "on_policy_valid": false,
+      "policy_probability": 0.20000000298023224
+    }
+  },
+  "failure_transaction": {
+    "after": {
+      "buffer_steps": 2,
+      "cache_seq_lens": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "env_steps": 2,
+      "environment_unchanged": true,
+      "failed": true,
+      "failure_info": {
+        "attempted_env_steps": 3,
+        "completed_env_steps": 2,
+        "completed_game_steps": 0,
+        "error": "V1 token horizon reached before terminal",
+        "error_type": "TrajectoryHorizonError",
+        "exact_resume_allowed": false,
+        "failed_env_steps": 1,
+        "schema": "guandan-marvel-sampler-contract-v2",
+        "stage": "environment_step",
+        "strategy": "poison_on_failure"
+      },
+      "game_steps": 0
+    },
+    "before": {
+      "buffer_steps": 2,
+      "cache_seq_lens": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "env_steps": 2,
+      "game_steps": 0
+    },
+    "cache_advanced_before_failure": true,
+    "completed_counters_unchanged": true,
+    "exception": "TrajectoryHorizonError",
+    "strategy": "poison_on_failure",
+    "subsequent_retry_rejected": true
+  },
+  "forced_test_mode": {
+    "behavior_action_probability": 1.0,
+    "on_policy_valid": false,
+    "ppo_entry_rejected": true
+  },
+  "on_policy_nonunit_temperature_rejected": {
+    "0.0": true,
+    "0.5": true,
+    "2.0": true
+  },
+  "on_policy_temperature_one": {
+    "match": true,
+    "on_policy_valid": true,
+    "selected_behavior_probability": 0.20000000298023224,
+    "selected_policy_probability": 0.20000000298023224
+  },
+  "schema": "guandan-marvel-sampler-contract-verification-v2",
+  "stage": "M02_guandan_adapter_v2_repair"
+}

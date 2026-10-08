@@ -1,0 +1,129 @@
+{
+  "acceptance_registration_commit": null,
+  "branch": "codex/marvel-guandan-migration",
+  "coverage": {
+    "directed_complex_actions": {
+      "all_combination_kinds": 10,
+      "all_commit": true,
+      "all_serialization_resume": true,
+      "all_v1_transition_equal": true,
+      "cases": 13,
+      "max_prefix_tokens": 15,
+      "real_terminal": false,
+      "wild_modes": [
+        "mixed_multiple",
+        "natural",
+        "none",
+        "substitute",
+        "substitute_multiple"
+      ]
+    },
+    "original_scan": {
+      "candidate_rows": 23121,
+      "commits": 2809,
+      "complete_games": 15,
+      "executed_families": {
+        "single": 810
+      },
+      "real_terminal": true,
+      "steps": 4447
+    }
+  },
+  "date": "2026-10-08",
+  "evidence": [
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/review_findings.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/protocol_schema.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/sampler_contract.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/original_scan_rerun.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/complex_action_coverage.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/memory_budget.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/test_results.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/source_manifest.json"
+  ],
+  "gates": {
+    "all_families_actually_committed": true,
+    "buffer_failure_tested": true,
+    "completed_counters_transactional": true,
+    "evaluation_test_marked_non_trainable": true,
+    "failed_sampler_retry_rejected": true,
+    "forced_on_policy_rejected": true,
+    "m03_preallocation_gate_specified": true,
+    "memory_budget_saved": true,
+    "multi_env_two_collects": true,
+    "multislot_failure_tested": true,
+    "nonunit_on_policy_rejected": true,
+    "on_policy_probability_consistent": true,
+    "ppo_rejects_non_trainable": true,
+    "protected_rules_unchanged": true,
+    "real_kv_cache_path_tested": true,
+    "real_transformer_complete_terminal": true,
+    "reference_repo_unchanged": true,
+    "wild_cases_executed": true
+  },
+  "m01_original_implementation_commit": "d4638ab4eb7886335c8f438deadcaff12066f1bf",
+  "m02_original_implementation_commit": "71500c5ac580cfda935d7bbd52de6a3793110c60",
+  "memory": {
+    "per_trajectory_mib": 87.14844512939453,
+    "recommended_local_smoke_sampler_mib": 32.680686950683594,
+    "sampler_gib_global_512_2048": 261.4453353881836,
+    "sampler_gib_per_rank_world2": 130.7226676940918
+  },
+  "next_stage": "M03_marvel_training_smoke (blocked until acceptance registration commit)",
+  "repair_implementation_commit": null,
+  "repairs": {
+    "buffer_schema": "guandan-marvel-buffer-v2",
+    "evaluation_test_training_eligible": false,
+    "failure_strategy": "poison_on_failure",
+    "on_policy_forced_actions": false,
+    "on_policy_temperature": 1.0,
+    "preallocation_budget_api": true,
+    "sampler_contract": "guandan-marvel-sampler-contract-v2"
+  },
+  "review_findings": {
+    "complex_action_execution_gap_reproduced": true,
+    "dense_memory_risk_reproduced": true,
+    "failed_step_counter_cache_drift_reproduced": true,
+    "sampling_probability_mismatch_reproduced": true
+  },
+  "schema": "guandan-marvel-stage-repair-report-v1",
+  "stage": "M02_guandan_adapter_v2_repair",
+  "status": "locally_verified_pending_registration",
+  "tests": {
+    "complex_actions": {
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 16,
+      "skipped": 0
+    },
+    "legacy_a01_a04": {
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 152,
+      "skipped": 0
+    },
+    "legacy_unit_integration": {
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "new_skips": 0,
+      "passed": 889,
+      "skipped": 10
+    },
+    "sampler_contract": {
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 17,
+      "skipped": 0
+    },
+    "scoped": {
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 62,
+      "skipped": 0
+    }
+  }
+}

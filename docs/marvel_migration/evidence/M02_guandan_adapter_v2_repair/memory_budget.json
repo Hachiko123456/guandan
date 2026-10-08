@@ -1,0 +1,637 @@
+{
+  "calculation": "pure shape*dtype byte accounting; no dense trajectory allocation",
+  "default_protocol": {
+    "collect_batch_size_global": 2048,
+    "excludes": [
+      "model",
+      "optimizer",
+      "kv_cache",
+      "learner_activations",
+      "replay",
+      "temporary_copies"
+    ],
+    "fields": [
+      {
+        "bytes": 8,
+        "dtype": "int64",
+        "elements": 1,
+        "name": "num_steps",
+        "shape_per_trajectory": []
+      },
+      {
+        "bytes": 6291456,
+        "dtype": "int64",
+        "elements": 786432,
+        "name": "obs_tokens",
+        "shape_per_trajectory": [
+          4096,
+          4,
+          48
+        ]
+      },
+      {
+        "bytes": 8388608,
+        "dtype": "uint8",
+        "elements": 8388608,
+        "name": "obs_channels",
+        "shape_per_trajectory": [
+          4096,
+          4,
+          512
+        ]
+      },
+      {
+        "bytes": 32768,
+        "dtype": "int64",
+        "elements": 4096,
+        "name": "player_ids",
+        "shape_per_trajectory": [
+          4096
+        ]
+      },
+      {
+        "bytes": 67108864,
+        "dtype": "int64",
+        "elements": 8388608,
+        "name": "avail_tokens",
+        "shape_per_trajectory": [
+          4096,
+          256,
+          8
+        ]
+      },
+      {
+        "bytes": 4194304,
+        "dtype": "float32",
+        "elements": 1048576,
+        "name": "avail_weights",
+        "shape_per_trajectory": [
+          4096,
+          256
+        ]
+      },
+      {
+        "bytes": 1048576,
+        "dtype": "bool",
+        "elements": 1048576,
+        "name": "avail_is_commit",
+        "shape_per_trajectory": [
+          4096,
+          256
+        ]
+      },
+      {
+        "bytes": 4194304,
+        "dtype": "float32",
+        "elements": 1048576,
+        "name": "policy_probs",
+        "shape_per_trajectory": [
+          4096,
+          256
+        ]
+      },
+      {
+        "bytes": 16384,
+        "dtype": "float32",
+        "elements": 4096,
+        "name": "behavior_action_prob",
+        "shape_per_trajectory": [
+          4096
+        ]
+      },
+      {
+        "bytes": 4096,
+        "dtype": "bool",
+        "elements": 4096,
+        "name": "on_policy_valid",
+        "shape_per_trajectory": [
+          4096
+        ]
+      },
+      {
+        "bytes": 32768,
+        "dtype": "int64",
+        "elements": 4096,
+        "name": "action_taken",
+        "shape_per_trajectory": [
+          4096
+        ]
+      },
+      {
+        "bytes": 65536,
+        "dtype": "float32",
+        "elements": 16384,
+        "name": "rewards",
+        "shape_per_trajectory": [
+          4096,
+          4
+        ]
+      },
+      {
+        "bytes": 4096,
+        "dtype": "bool",
+        "elements": 4096,
+        "name": "is_terminal",
+        "shape_per_trajectory": [
+          4096
+        ]
+      }
+    ],
+    "game_identifier": "GuandanMARVELV2PythonReference",
+    "per_trajectory_bytes": 91381768,
+    "per_trajectory_mib": 87.14844512939453,
+    "rollout_batch_size_global": 512,
+    "sampler_bytes_global": 280724791296,
+    "sampler_bytes_per_rank": 280724791296,
+    "sampler_gib_global": 261.4453353881836,
+    "sampler_gib_per_rank": 261.4453353881836,
+    "sampler_trajectories_global": 3072,
+    "sampler_trajectories_per_rank": 3072,
+    "schema": "guandan-marvel-trajectory-memory-budget-v1",
+    "world_size": 1
+  },
+  "default_protocol_two_rank_split": {
+    "collect_batch_size_global": 2048,
+    "excludes": [
+      "model",
+      "optimizer",
+      "kv_cache",
+      "learner_activations",
+      "replay",
+      "temporary_copies"
+    ],
+    "fields": [
+      {
+        "bytes": 8,
+        "dtype": "int64",
+        "elements": 1,
+        "name": "num_steps",
+        "shape_per_trajectory": []
+      },
+      {
+        "bytes": 6291456,
+        "dtype": "int64",
+        "elements": 786432,
+        "name": "obs_tokens",
+        "shape_per_trajectory": [
+          4096,
+          4,
+          48
+        ]
+      },
+      {
+        "bytes": 8388608,
+        "dtype": "uint8",
+        "elements": 8388608,
+        "name": "obs_channels",
+        "shape_per_trajectory": [
+          4096,
+          4,
+          512
+        ]
+      },
+      {
+        "bytes": 32768,
+        "dtype": "int64",
+        "elements": 4096,
+        "name": "player_ids",
+        "shape_per_trajectory": [
+          4096
+        ]
+      },
+      {
+        "bytes": 67108864,
+        "dtype": "int64",
+        "elements": 8388608,
+        "name": "avail_tokens",
+        "shape_per_trajectory": [
+          4096,
+          256,
+          8
+        ]
+      },
+      {
+        "bytes": 4194304,
+        "dtype": "float32",
+        "elements": 1048576,
+        "name": "avail_weights",
+        "shape_per_trajectory": [
+          4096,
+          256
+        ]
+      },
+      {
+        "bytes": 1048576,
+        "dtype": "bool",
+        "elements": 1048576,
+        "name": "avail_is_commit",
+        "shape_per_trajectory": [
+          4096,
+          256
+        ]
+      },
+      {
+        "bytes": 4194304,
+        "dtype": "float32",
+        "elements": 1048576,
+        "name": "policy_probs",
+        "shape_per_trajectory": [
+          4096,
+          256
+        ]
+      },
+      {
+        "bytes": 16384,
+        "dtype": "float32",
+        "elements": 4096,
+        "name": "behavior_action_prob",
+        "shape_per_trajectory": [
+          4096
+        ]
+      },
+      {
+        "bytes": 4096,
+        "dtype": "bool",
+        "elements": 4096,
+        "name": "on_policy_valid",
+        "shape_per_trajectory": [
+          4096
+        ]
+      },
+      {
+        "bytes": 32768,
+        "dtype": "int64",
+        "elements": 4096,
+        "name": "action_taken",
+        "shape_per_trajectory": [
+          4096
+        ]
+      },
+      {
+        "bytes": 65536,
+        "dtype": "float32",
+        "elements": 16384,
+        "name": "rewards",
+        "shape_per_trajectory": [
+          4096,
+          4
+        ]
+      },
+      {
+        "bytes": 4096,
+        "dtype": "bool",
+        "elements": 4096,
+        "name": "is_terminal",
+        "shape_per_trajectory": [
+          4096
+        ]
+      }
+    ],
+    "game_identifier": "GuandanMARVELV2PythonReference",
+    "per_trajectory_bytes": 91381768,
+    "per_trajectory_mib": 87.14844512939453,
+    "rollout_batch_size_global": 512,
+    "sampler_bytes_global": 280724791296,
+    "sampler_bytes_per_rank": 140362395648,
+    "sampler_gib_global": 261.4453353881836,
+    "sampler_gib_per_rank": 130.7226676940918,
+    "sampler_trajectories_global": 3072,
+    "sampler_trajectories_per_rank": 1536,
+    "schema": "guandan-marvel-trajectory-memory-budget-v1",
+    "world_size": 2
+  },
+  "full_shape_minimal_sampler": {
+    "collect_batch_size_global": 1,
+    "excludes": [
+      "model",
+      "optimizer",
+      "kv_cache",
+      "learner_activations",
+      "replay",
+      "temporary_copies"
+    ],
+    "fields": [
+      {
+        "bytes": 8,
+        "dtype": "int64",
+        "elements": 1,
+        "name": "num_steps",
+        "shape_per_trajectory": []
+      },
+      {
+        "bytes": 6291456,
+        "dtype": "int64",
+        "elements": 786432,
+        "name": "obs_tokens",
+        "shape_per_trajectory": [
+          4096,
+          4,
+          48
+        ]
+      },
+      {
+        "bytes": 8388608,
+        "dtype": "uint8",
+        "elements": 8388608,
+        "name": "obs_channels",
+        "shape_per_trajectory": [
+          4096,
+          4,
+          512
+        ]
+      },
+      {
+        "bytes": 32768,
+        "dtype": "int64",
+        "elements": 4096,
+        "name": "player_ids",
+        "shape_per_trajectory": [
+          4096
+        ]
+      },
+      {
+        "bytes": 67108864,
+        "dtype": "int64",
+        "elements": 8388608,
+        "name": "avail_tokens",
+        "shape_per_trajectory": [
+          4096,
+          256,
+          8
+        ]
+      },
+      {
+        "bytes": 4194304,
+        "dtype": "float32",
+        "elements": 1048576,
+        "name": "avail_weights",
+        "shape_per_trajectory": [
+          4096,
+          256
+        ]
+      },
+      {
+        "bytes": 1048576,
+        "dtype": "bool",
+        "elements": 1048576,
+        "name": "avail_is_commit",
+        "shape_per_trajectory": [
+          4096,
+          256
+        ]
+      },
+      {
+        "bytes": 4194304,
+        "dtype": "float32",
+        "elements": 1048576,
+        "name": "policy_probs",
+        "shape_per_trajectory": [
+          4096,
+          256
+        ]
+      },
+      {
+        "bytes": 16384,
+        "dtype": "float32",
+        "elements": 4096,
+        "name": "behavior_action_prob",
+        "shape_per_trajectory": [
+          4096
+        ]
+      },
+      {
+        "bytes": 4096,
+        "dtype": "bool",
+        "elements": 4096,
+        "name": "on_policy_valid",
+        "shape_per_trajectory": [
+          4096
+        ]
+      },
+      {
+        "bytes": 32768,
+        "dtype": "int64",
+        "elements": 4096,
+        "name": "action_taken",
+        "shape_per_trajectory": [
+          4096
+        ]
+      },
+      {
+        "bytes": 65536,
+        "dtype": "float32",
+        "elements": 16384,
+        "name": "rewards",
+        "shape_per_trajectory": [
+          4096,
+          4
+        ]
+      },
+      {
+        "bytes": 4096,
+        "dtype": "bool",
+        "elements": 4096,
+        "name": "is_terminal",
+        "shape_per_trajectory": [
+          4096
+        ]
+      }
+    ],
+    "game_identifier": "GuandanMARVELV2PythonReference",
+    "per_trajectory_bytes": 91381768,
+    "per_trajectory_mib": 87.14844512939453,
+    "rollout_batch_size_global": 1,
+    "sampler_bytes_global": 274145304,
+    "sampler_bytes_per_rank": 274145304,
+    "sampler_gib_global": 0.25531771034002304,
+    "sampler_gib_per_rank": 0.25531771034002304,
+    "sampler_trajectories_global": 3,
+    "sampler_trajectories_per_rank": 3,
+    "schema": "guandan-marvel-trajectory-memory-budget-v1",
+    "world_size": 1
+  },
+  "later_options_not_implemented_in_m02_repair": [
+    "compact token dtypes where vocabulary permits",
+    "actual-length trimming after collection",
+    "length buckets",
+    "chunked/spilled commit storage"
+  ],
+  "prohibitions": [
+    "no legal-action top-N truncation",
+    "no reduced-horizon result may be presented as default T=4096 validation",
+    "C++ does not automatically solve tensor buffer memory"
+  ],
+  "recommended_local_smoke": {
+    "collect_batch_size": 1,
+    "game_spec": {
+      "identifier": "GuandanMARVELV2PythonReference-local-smoke-T512",
+      "max_game_horizon": 512,
+      "note": "test-only reduced horizon; every accepted smoke trajectory must terminate naturally before 512 and this is not default-protocol validation"
+    },
+    "mini_batches": 1,
+    "model": {
+      "action_layers": 1,
+      "decoder_heads": 4,
+      "decoder_layers": 1,
+      "feature_dim": 24,
+      "fuse_layers": 1,
+      "history_dim": 16,
+      "state_layers": 1
+    },
+    "replay_buffer_scale": 1,
+    "required_startup_behavior": "print estimate and reject before allocation when configured per-rank limit is exceeded",
+    "rollout_batch_size": 1,
+    "sampler_budget": {
+      "collect_batch_size_global": 1,
+      "excludes": [
+        "model",
+        "optimizer",
+        "kv_cache",
+        "learner_activations",
+        "replay",
+        "temporary_copies"
+      ],
+      "fields": [
+        {
+          "bytes": 8,
+          "dtype": "int64",
+          "elements": 1,
+          "name": "num_steps",
+          "shape_per_trajectory": []
+        },
+        {
+          "bytes": 786432,
+          "dtype": "int64",
+          "elements": 98304,
+          "name": "obs_tokens",
+          "shape_per_trajectory": [
+            512,
+            4,
+            48
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "dtype": "uint8",
+          "elements": 1048576,
+          "name": "obs_channels",
+          "shape_per_trajectory": [
+            512,
+            4,
+            512
+          ]
+        },
+        {
+          "bytes": 4096,
+          "dtype": "int64",
+          "elements": 512,
+          "name": "player_ids",
+          "shape_per_trajectory": [
+            512
+          ]
+        },
+        {
+          "bytes": 8388608,
+          "dtype": "int64",
+          "elements": 1048576,
+          "name": "avail_tokens",
+          "shape_per_trajectory": [
+            512,
+            256,
+            8
+          ]
+        },
+        {
+          "bytes": 524288,
+          "dtype": "float32",
+          "elements": 131072,
+          "name": "avail_weights",
+          "shape_per_trajectory": [
+            512,
+            256
+          ]
+        },
+        {
+          "bytes": 131072,
+          "dtype": "bool",
+          "elements": 131072,
+          "name": "avail_is_commit",
+          "shape_per_trajectory": [
+            512,
+            256
+          ]
+        },
+        {
+          "bytes": 524288,
+          "dtype": "float32",
+          "elements": 131072,
+          "name": "policy_probs",
+          "shape_per_trajectory": [
+            512,
+            256
+          ]
+        },
+        {
+          "bytes": 2048,
+          "dtype": "float32",
+          "elements": 512,
+          "name": "behavior_action_prob",
+          "shape_per_trajectory": [
+            512
+          ]
+        },
+        {
+          "bytes": 512,
+          "dtype": "bool",
+          "elements": 512,
+          "name": "on_policy_valid",
+          "shape_per_trajectory": [
+            512
+          ]
+        },
+        {
+          "bytes": 4096,
+          "dtype": "int64",
+          "elements": 512,
+          "name": "action_taken",
+          "shape_per_trajectory": [
+            512
+          ]
+        },
+        {
+          "bytes": 8192,
+          "dtype": "float32",
+          "elements": 2048,
+          "name": "rewards",
+          "shape_per_trajectory": [
+            512,
+            4
+          ]
+        },
+        {
+          "bytes": 512,
+          "dtype": "bool",
+          "elements": 512,
+          "name": "is_terminal",
+          "shape_per_trajectory": [
+            512
+          ]
+        }
+      ],
+      "game_identifier": "GuandanMARVELV2PythonReference-local-smoke-T512",
+      "per_trajectory_bytes": 11422728,
+      "per_trajectory_mib": 10.893562316894531,
+      "rollout_batch_size_global": 1,
+      "sampler_bytes_global": 34268184,
+      "sampler_bytes_per_rank": 34268184,
+      "sampler_gib_global": 0.03191473335027695,
+      "sampler_gib_per_rank": 0.03191473335027695,
+      "sampler_trajectories_global": 3,
+      "sampler_trajectories_per_rank": 3,
+      "schema": "guandan-marvel-trajectory-memory-budget-v1",
+      "world_size": 1
+    }
+  },
+  "schema": "guandan-marvel-m03-memory-budget-v1",
+  "stage": "M02_guandan_adapter_v2_repair"
+}

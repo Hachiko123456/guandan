@@ -1,0 +1,18 @@
+{
+  "all_functional_gates_passed": true,
+  "evidence": [
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/review_findings.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/protocol_schema.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/sampler_contract.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/original_scan_rerun.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/complex_action_coverage.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/memory_budget.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/test_results.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/source_manifest.json"
+  ],
+  "identity_registration_pending": true,
+  "report": "docs/marvel_migration/reports/M02_guandan_adapter_v2_repair.json",
+  "schema": "guandan-marvel-m02-repair-summary-v1",
+  "stage": "M02_guandan_adapter_v2_repair",
+  "status": "locally_verified_pending_registration"
+}

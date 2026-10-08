@@ -1,0 +1,109 @@
+{
+  "files": [
+    {
+      "bytes": 20764,
+      "origin": "derived-modified",
+      "path": "guandan_marvel/runtime/sampler.py",
+      "role": "sampler probability/failure contract v2",
+      "sha256": "3d8a552dcf92e00d0fa9b50c7cff93ad06fb16f05cb1395af63d92d7eac3f43d"
+    },
+    {
+      "bytes": 14099,
+      "origin": "derived-modified",
+      "path": "guandan_marvel/buffer.py",
+      "role": "trajectory schema v2 and pure memory estimator",
+      "sha256": "1a3afd1756f2fccf2ed2d26ce7497580b391bd1d23b576899692f94f06a62066"
+    },
+    {
+      "bytes": 3969,
+      "origin": "derived-modified",
+      "path": "guandan_marvel/env_batch.py",
+      "role": "explicit policy/behavior/on-policy fields",
+      "sha256": "a16a2be9b1cd2657b39aa73f153eade21db548cde2cd8e5f63fb8bb47a9c4cef"
+    },
+    {
+      "bytes": 10581,
+      "origin": "derived-modified",
+      "path": "guandan_marvel/training/losses.py",
+      "role": "PPO behavior reference and eligibility guard",
+      "sha256": "561dd98486ebbaa823bd4654fa27832e3df8911a34d32e3766ed248f4bb0ba2c"
+    },
+    {
+      "bytes": 8819,
+      "origin": "derived-modified",
+      "path": "guandan_marvel/training/gae.py",
+      "role": "policy_probs field migration",
+      "sha256": "c595d709f380187c70c7d973f29ee5a1782ded9edb7e8aed0bfff05b282295ec"
+    },
+    {
+      "bytes": 9431,
+      "origin": "new",
+      "path": "guandan_marvel/testing/complex_actions.py",
+      "role": "directed all-family action execution fixtures",
+      "sha256": "c3f6642ad3c07c8ce50510f7f25b3fd19fa881fde723ccfd4beed7e1ba0d7976"
+    },
+    {
+      "bytes": 13114,
+      "origin": "new",
+      "path": "tests/marvel_adapter/test_sampler_contract.py",
+      "role": "probability and failed transaction regressions",
+      "sha256": "0a5fe354b286d8435a20a7476a123ff991c7b63921b6416758cd3124449d1951"
+    },
+    {
+      "bytes": 6642,
+      "origin": "new",
+      "path": "tests/marvel_adapter/test_complex_actions.py",
+      "role": "all-family/multi-env/real-transformer coverage",
+      "sha256": "b496ad5dc6c359a0ff6ea92130f78051a4460c98e0b66c072716bfbcc887bcf1"
+    },
+    {
+      "bytes": 3014,
+      "origin": "new",
+      "path": "tests/marvel_adapter/test_memory_budget.py",
+      "role": "allocation-free budget and preflight tests",
+      "sha256": "01fcce2e148345f7e216f3b66b36d82fa238616887d254fc8f1347673670afe0"
+    },
+    {
+      "bytes": 19762,
+      "origin": "modified",
+      "path": "tests/marvel_adapter/test_adapter.py",
+      "role": "explicit test-purpose sampler",
+      "sha256": "a9f762bdb53908d914518540a19c64ea40662a0351b87222143201b401d81f91"
+    },
+    {
+      "bytes": 10370,
+      "origin": "modified",
+      "path": "scripts/verify_marvel_adapter_v2.py",
+      "role": "candidate vs executed family accounting",
+      "sha256": "115c4dd35fb29ea09c0a3861e0530e4585a279b09d9ccde19dcb3abe67a661f7"
+    },
+    {
+      "bytes": 2762,
+      "origin": "new",
+      "path": "scripts/verify_marvel_adapter_v2_complex_actions.py",
+      "role": "complex action machine report",
+      "sha256": "b538e6f676de99009dcc09bdf92465d1edc2171b0ef6f007d9231cc2a0d3f895"
+    },
+    {
+      "bytes": 9081,
+      "origin": "new",
+      "path": "scripts/verify_marvel_sampler_contract.py",
+      "role": "sampler probability/failure machine report",
+      "sha256": "e63a4c402d65a638392f58e023be1633e36606c480dd137e1bcaed93fa6a8f9d"
+    },
+    {
+      "bytes": 3723,
+      "origin": "new",
+      "path": "scripts/report_marvel_m03_memory_budget.py",
+      "role": "field-level memory report",
+      "sha256": "ff2fd28fc6555b3a25460c5cc0eb2a731851e61bb77b3131875d50dfeb084957"
+    }
+  ],
+  "original_m01_commit": "d4638ab4eb7886335c8f438deadcaff12066f1bf",
+  "original_m02_commit": "71500c5ac580cfda935d7bbd52de6a3793110c60",
+  "protected_rule_files_modified": false,
+  "reference_commit": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+  "reference_repository_modified": false,
+  "schema": "guandan-marvel-m02-repair-source-manifest-v1",
+  "stage": "M02_guandan_adapter_v2_repair"
+}

@@ -86,7 +86,10 @@ channels 仅含当前公开状态和 observer 自身私有状态：
 
 - `num_steps`、`player_ids`；
 - `obs_tokens`、`obs_channels`；
-- `avail_tokens`、`avail_weights`、`avail_is_commit`、`avail_probs`；
+- `avail_tokens`、`avail_weights`、`avail_is_commit`；
+- `policy_probs`：模型在采样前输出的原始策略分布；
+- `behavior_action_prob`：实际行为分布赋给已选动作的概率；
+- `on_policy_valid`：该 step 是否可进入正式 on-policy learner；
 - `action_taken`、`rewards`、`is_terminal`。
 
 只有真实 A02 terminal 才设置 `is_terminal` 和非零终局奖励。horizon overflow 抛 `TrajectoryHorizonError`，不伪造胜负。sampler 完整轨迹测试收集 296-step 真终局并存入/采样 MARVEL buffer。
@@ -102,3 +105,13 @@ V2 batch 序列化保存：协议版本、backend、容量、每 slot V1 environ
 - `tests/marvel_adapter/test_adapter.py`
 
 这些是本地功能/正确性证据，不是模型强度、C++ 性能或 Kaggle 远端验收证据。
+## 9. M02 补修后的 sampler 契约
+
+- sampler contract：`guandan-marvel-sampler-contract-v2`；buffer state：`guandan-marvel-buffer-v2`。
+- `purpose=on_policy` 只允许 `sampling_temperature=1.0`，并禁止 `forced_action_indices`。
+- `purpose=evaluation|test` 可使用 greedy、非 1 温度或显式 forced legal action，但写入 `on_policy_valid=false`。
+- PPO 入口读取 `behavior_action_prob` 计算旧行为概率比，读取 `policy_probs` 计算 reference KL，并拒绝任何 `on_policy_valid=false` 的 actor step。
+- sampler 采用 `poison_on_failure`：agent/cache 执行后的任一 environment、buffer 或 completed-trajectory commit 异常都不会增加 completed counters，并把 sampler 标为不可继续；后续 rollout/collect/cache rebuild 必须显式失败。该状态不允许称为 exact resume。
+- `attempted_env_steps`、`failed_env_steps` 和 `rejected_rollout_steps` 是诊断计数，不得与成功完成的 `total_env_steps`/`total_game_steps` 混用。
+
+旧 `avail_probs` trajectory 字段不再存在。M02 原始 `guandan-marvel-buffer-v1` snapshot 与 v2 buffer schema 显式不兼容；由于 M02 没有正式训练 checkpoint，这属于协议修复迁移，不称 resume。

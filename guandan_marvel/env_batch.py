@@ -66,12 +66,18 @@ class EnvStepBatch:
         return self._outcome
 
     def record_agent_outputs(
-        self, *, avail_probs: torch.Tensor | None = None,
+        self, *, policy_probs: torch.Tensor | None = None,
+        behavior_action_prob: torch.Tensor | None = None,
+        on_policy_valid: torch.Tensor | None = None,
         action_taken: torch.Tensor | None = None,
         step_fields: Optional[Dict[str, torch.Tensor]] = None,
     ) -> None:
-        if avail_probs is not None:
-            self._observation.set("avail_probs", avail_probs)
+        if policy_probs is not None:
+            self._observation.set("policy_probs", policy_probs)
+        if behavior_action_prob is not None:
+            self._observation.set("behavior_action_prob", behavior_action_prob)
+        if on_policy_valid is not None:
+            self._observation.set("on_policy_valid", on_policy_valid)
         if action_taken is not None:
             self._observation.set("action_taken", action_taken)
         if step_fields:

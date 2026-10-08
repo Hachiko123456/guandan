@@ -28,3 +28,10 @@
 ## 许可证与运行依赖
 
 `env_batch.py` 和 `runtime/sampler.py` 保留 SPDX/commit/path 来源头；MIT LICENSE 已随 `guandan_marvel/LICENSE` 分发。运行时代码不导入参考 checkout，不包含对参考绝对路径的依赖。参考仓库审计前后 `git status --short` 为空。
+## M02 补修来源（2026-10-08）
+
+- `runtime/sampler.py` 在原参考派生基础上增加本地 sampler contract v2：on-policy purpose gate、实际 behavior probability、poison-on-failure 状态机；未从其他规则项目复制。
+- `buffer.py` 增加纯 shape/dtype 内存估计和 schema v2；未分配默认 261 GiB dense buffers。
+- `training/losses.py`/`gae.py` 只迁移 trajectory 字段语义和入口验证，不改写 PPO/VRPO 数学目标。
+- `testing/complex_actions.py` 的定向案例来自本仓库既有 `CombinationKind`、recognizer 和历史 A03/A04 测试夹具；所有动作仍由 V1 oracle 识别和执行。
+- 补修证据、测试和报告独立存放于 `M02_guandan_adapter_v2_repair`，不覆盖原 M02 扫描。

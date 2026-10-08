@@ -125,3 +125,29 @@ VRPO replay 放 GPU、CPU pinned memory 或分级缓存，由显存和吞吐决�
 影响：...
 回滚方式：...
 ```
+### D015 On-policy sampler 概率契约
+日期：2026-10-08
+状态：accepted
+候选方案：记录温度后完整分布；仅记录模型分布；限制正式采样温度。
+决定：正式 on-policy 只允许 temperature=1，保存 `policy_probs` 和已选动作的 `behavior_action_prob`，evaluation/test 标为 `on_policy_valid=false`。
+证据：M02 repair sampler tests 和 `sampler_contract.json`。
+影响：非 1 温度与 forced action 不可静默进入 PPO。
+回滚方式：若未来支持 off-policy/temperature correction，必须升级 sampler/buffer semantic contract。
+
+### D016 Sampler 失败状态
+日期：2026-10-08
+状态：accepted
+候选方案：完整回滚 cache/env/buffer；失败后 poison。
+决定：采用 poison-on-failure。agent/cache 执行后的异常不增加 completed counters，sampler 禁止继续或 exact resume。
+证据：horizon、multi-slot forged action、buffer write injection 和真实小型 Agent cache tests。
+影响：实现简单且 fail closed；调用方必须从已知一致状态重建。
+回滚方式：只有提供 env/buffer/cache/RNG 原子 rollback 证据后才能改为可继续策略。
+
+### D017 M03 dense trajectory 内存门槛
+日期：2026-10-08
+状态：accepted
+候选方案：直接沿用 512/2048；降低合法动作；分配前预算。
+决定：M03 必须在分配前进行字段级预算并设置 per-rank hard limit。禁止 top-N。首个本地 smoke 使用显式 test-only T=512、rollout=1、collect=1。
+证据：`memory_budget.json` 和 `test_memory_budget.py`。
+影响：默认 512/2048/T4096 不可直接本地或双 T4 分配。
+回滚方式：紧凑 dtype、裁剪、分桶/chunk 实现并验证后可重新定型。

@@ -16,7 +16,9 @@ if str(REPO_ROOT) not in sys.path:
 import numpy as np
 import torch
 
+from guandan.action_state import FAMILY_TOKEN_BASE, TokenCodec
 from guandan.cards import NORMAL_RANKS, Rank
+from guandan.combos import CombinationKind
 from guandan.environment_types import GameConfig
 from guandan.state import Phase, PreviousHandResult
 from guandan_marvel import game
@@ -49,6 +51,8 @@ def run_case(level: Rank, seed: int, previous: PreviousHandResult | None, verify
     restored = None
     max_candidates = max_event_tokens = max_prefix_stage = commits = 0
     action_rows_checked = 0
+    candidate_families: set[str] = set()
+    executed_families: dict[str, int] = {}
     steps = 0
     started = time.perf_counter()
     while not bool(step.is_terminal[0]):
@@ -61,14 +65,22 @@ def run_case(level: Rank, seed: int, previous: PreviousHandResult | None, verify
         if len({action.row for action in decoded}) != len(decoded):
             raise AssertionError("structured action row collision")
         action_rows_checked += len(decoded)
+        for candidate in decoded:
+            if FAMILY_TOKEN_BASE <= candidate.token_id < FAMILY_TOKEN_BASE + len(CombinationKind):
+                candidate_families.add(TokenCodec.family_from_token(candidate.token_id).value)
         max_candidates = max(max_candidates, len(decoded))
         max_prefix_stage = max(max_prefix_stage, *(action.prefix_stage for action in decoded))
         max_event_tokens = max(max_event_tokens, int(np.count_nonzero(step.observations.tokens, axis=-1).max()))
         row = choose_row(step)
         action = game.actions_from_np(row)[0]
         commits += int(action.is_commit)
+        before_committed = batch.envs[0].committed_step
         step = batch.step((action,))
         steps += 1
+        if batch.envs[0].committed_step > before_committed:
+            last = batch.envs[0]._require_protocol().round_state.history[-1]
+            if isinstance(last.kind, CombinationKind):
+                executed_families[last.kind.value] = executed_families.get(last.kind.value, 0) + 1
         if verify_resume and steps == 40:
             restored = game.EnvBatch.deserialize(batch.serialize())
             same_step(batch.observe(), restored.observe())
@@ -97,6 +109,8 @@ def run_case(level: Rank, seed: int, previous: PreviousHandResult | None, verify
         "steps": steps,
         "commits": commits,
         "action_rows_checked": action_rows_checked,
+        "candidate_families": sorted(candidate_families),
+        "executed_families": dict(sorted(executed_families.items())),
         "max_candidates": max_candidates,
         "max_event_tokens": max_event_tokens,
         "max_prefix_stage": max_prefix_stage,
@@ -158,6 +172,11 @@ def main() -> int:
             "total_steps": sum(case["steps"] for case in cases),
             "total_commits": sum(case["commits"] for case in cases),
             "action_rows_checked": sum(case["action_rows_checked"] for case in cases),
+            "candidate_families": sorted({family for case in cases for family in case["candidate_families"]}),
+            "executed_families": {
+                family: sum(case["executed_families"].get(family, 0) for case in cases)
+                for family in sorted({family for case in cases for family in case["executed_families"]})
+            },
             "max_observed_candidates": max(case["max_candidates"] for case in cases),
             "max_observed_event_tokens": max(case["max_event_tokens"] for case in cases),
             "max_observed_prefix_stage": max(case["max_prefix_stage"] for case in cases),

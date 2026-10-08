@@ -86,3 +86,12 @@ guandan-legacy-v1-ippo-update1702.pt
 - promotion evaluation hash；
 - promotion timestamp；
 - previous champion。
+## 7. M02 sampler/buffer schema 修复
+
+M02 补修将 trajectory probability 字段从含义模糊的 `avail_probs` 拆为：
+
+- `policy_probs`；
+- `behavior_action_prob`；
+- `on_policy_valid`。
+
+buffer state schema 从 `guandan-marvel-buffer-v1` 升级为 `guandan-marvel-buffer-v2`。v1 buffer snapshot 必须显式拒绝，不能作为 v2 exact/compatible resume。M02 未产生正式训练 checkpoint，因此该变更分类为 `migration`，不是丢失正式 resume 能力。M03 新 checkpoint 的 semantic contract hash 必须包含 sampler contract、buffer schema 和 on-policy purpose/temperature。

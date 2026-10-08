@@ -41,9 +41,11 @@ def compute_clipped_pg_loss(
 ) -> ClippedPGLossOutput:
     """Compute the PPO clipped policy gradient objective terms.
 
-    Derives `action_prob_new`/`action_prob_ref` from the rollout's taken actions, reference
-    probabilities from `rollout['avail_probs']`, and the regularization KL term from
-    `rollout['avail_weights']`.
+    Derives the new selected-action probability from ``avail_probs_new`` and
+    the behavior reference probability from ``rollout['behavior_action_prob']``.
+    ``rollout['policy_probs']`` is the raw rollout policy distribution used for
+    KL(reference) only. Evaluation/test trajectories are rejected through the
+    explicit ``on_policy_valid`` field.
 
     Loss terms
     ----------
@@ -63,13 +65,19 @@ def compute_clipped_pg_loss(
     num_steps = rollout["num_steps"]
     action_taken = rollout["action_taken"].to(dtype = torch.long)
     avail_weights = rollout["avail_weights"]
-    avail_probs_ref = rollout["avail_probs"].to(dtype = avail_probs_new.dtype)
+    policy_probs_ref = rollout["policy_probs"].to(dtype=avail_probs_new.dtype)
+    behavior_action_prob = rollout["behavior_action_prob"].to(dtype=avail_probs_new.dtype)
+    on_policy_valid = rollout["on_policy_valid"].to(dtype=torch.bool)
 
     B, T = player_ids.shape
     if avail_probs_new.shape[:2] != (B, T):
         raise ValueError("avail_probs_new leading dims must match rollout [B, T].")
-    if avail_probs_ref.shape != avail_probs_new.shape:
-        raise ValueError("avail_probs_ref must have the same shape as avail_probs_new.")
+    if policy_probs_ref.shape != avail_probs_new.shape:
+        raise ValueError("rollout['policy_probs'] must have the same shape as avail_probs_new.")
+    if behavior_action_prob.shape != (B, T):
+        raise ValueError("rollout['behavior_action_prob'] must have shape [B, T].")
+    if on_policy_valid.shape != (B, T):
+        raise ValueError("rollout['on_policy_valid'] must have shape [B, T].")
     if player_advantage.shape != (B, T):
         raise ValueError("player_advantage must have shape [B, T].")
     if action_taken.shape != (B, T):
@@ -86,18 +94,26 @@ def compute_clipped_pg_loss(
     batch_idx_range = torch.arange(B, device = player_ids.device).unsqueeze(1)
     time_idx_range = torch.arange(T, device = player_ids.device).unsqueeze(0)
     action_prob_new = avail_probs_new[batch_idx_range, time_idx_range, action_taken]
-    action_prob_ref = avail_probs_ref[batch_idx_range, time_idx_range, action_taken]
+    action_policy_prob_ref = policy_probs_ref[batch_idx_range, time_idx_range, action_taken]
 
     avail_probs_unif = avail_weights / avail_weights.sum(dim = -1, keepdim = True).clamp(min = 1e-8)
 
     flat_player_mask = player_mask.reshape(-1)
     mask_avail_probs_new = avail_probs_new.reshape(-1, A)[flat_player_mask]
-    mask_avail_probs_ref = avail_probs_ref.reshape(-1, A)[flat_player_mask]
+    mask_policy_probs_ref = policy_probs_ref.reshape(-1, A)[flat_player_mask]
     mask_avail_probs_unif = avail_probs_unif.reshape(-1, A)[flat_player_mask]
-    mask_action_prob_ref = action_prob_ref.reshape(-1)[flat_player_mask]
+    mask_behavior_action_prob = behavior_action_prob.reshape(-1)[flat_player_mask]
+    mask_action_policy_prob_ref = action_policy_prob_ref.reshape(-1)[flat_player_mask]
     mask_action_prob_new = action_prob_new.reshape(-1)[flat_player_mask]
+    mask_on_policy_valid = on_policy_valid.reshape(-1)[flat_player_mask]
+    if not bool(mask_on_policy_valid.all()):
+        raise ValueError("PPO loss requires exclusively on_policy-valid rollout samples.")
+    if bool((mask_behavior_action_prob <= 0).any()) or not bool(torch.isfinite(mask_behavior_action_prob).all()):
+        raise ValueError("behavior_action_prob must be finite and positive on valid samples.")
+    if not torch.allclose(mask_behavior_action_prob, mask_action_policy_prob_ref, rtol=1e-5, atol=1e-7):
+        raise ValueError("on_policy behavior probability must match the rollout policy probability.")
 
-    mask_logprob_ref = mask_action_prob_ref.log()
+    mask_logprob_ref = mask_behavior_action_prob.log()
     mask_logprob_new = mask_action_prob_new.log()
     mask_logratio = mask_logprob_new - mask_logprob_ref
     mask_ratio = mask_logratio.exp()
@@ -111,7 +127,7 @@ def compute_clipped_pg_loss(
 
     mask_kl_ref = (
         mask_avail_probs_new_safe
-        * (mask_avail_probs_new_safe.log() - (mask_avail_probs_ref + eps).log())
+        * (mask_avail_probs_new_safe.log() - (mask_policy_probs_ref + eps).log())
     ).sum(dim = -1)
 
     kl_unif_mean = mask_kl_unif.mean()
