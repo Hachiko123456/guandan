@@ -1,0 +1,71 @@
+{
+  "artifacts": [
+    {
+      "bytes": 4285,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke/checkpoint_verification.json",
+      "sha256": "e1519840ff7fdeb1dbc26393e4d6907421813a89ddfac131fbf58012f0ebcec4"
+    },
+    {
+      "bytes": 7079,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke/memory_preflight.json",
+      "sha256": "ff0af329b260a340ae17c29b4b983a86d35392dbe1de4a0da6e008a67b1622d2"
+    },
+    {
+      "bytes": 12041,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke/metrics_manifest.json",
+      "sha256": "1a9ea7a214c8e676ed6790b9e1a45e29a2ab4eac8cf26097f537d1ef91d77e5b"
+    },
+    {
+      "bytes": 1138,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke/protocol_schema.json",
+      "sha256": "d77e1c4ee6528e6e52fb4cc33a7df4c0ead5aef7b26a38cbeb877df857ec8f2c"
+    },
+    {
+      "bytes": 4115,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke/source_manifest.json",
+      "sha256": "6fda3d973892bd6367e0925fd979a699511198f89802ec9f26a7841ab84fbea6"
+    },
+    {
+      "bytes": 6640,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke/test_results.json",
+      "sha256": "6597849f2701791db9768a8f4a095335ed1962753acf08a6e8d4d050415a3edd"
+    },
+    {
+      "bytes": 7585,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke/training_smoke.json",
+      "sha256": "71b1144826aca6e10b52579e3f820f851d66172b593251ae6961db7f950de2f8"
+    },
+    {
+      "bytes": 7531,
+      "path": "docs/marvel_migration/reports/M03_marvel_training_smoke.md",
+      "sha256": "bcd8bfa962402d498f24ed89af361321144e1f3b5e381f8db618060c84563548"
+    },
+    {
+      "bytes": 9351,
+      "path": "docs/marvel_migration/reports/M03_marvel_training_smoke.json",
+      "sha256": "818a0cd5bfa3419d6d1accef6c6484101b41c1549f6c492926f1343ed5700c54"
+    },
+    {
+      "bytes": 4209,
+      "path": "docs/marvel_migration/M03_TRAINING_PROTOCOL.md",
+      "sha256": "61a36009cf29e0ff39550f143350fc052136708db5446cc0f05f6953fb9039cc"
+    },
+    {
+      "bytes": 2147,
+      "path": "docs/marvel_migration/M03_SOURCE_AUDIT.md",
+      "sha256": "ba7c8edbb012b568657fd70596c2727e23e48f57e7e6be3e1bab954be450837a"
+    },
+    {
+      "bytes": 5027,
+      "path": "docs/marvel_migration/STATUS.yaml",
+      "sha256": "cb69aa3e6d57e7b5bd74e361ae439506b0cc7ae707a2c0d7461d8e2bcfb3c2e4"
+    }
+  ],
+  "date": "2026-10-08",
+  "implementation_commit_ref": "refs/tags/m03-marvel-training-smoke-accepted",
+  "reason": "the atomic stage commit cannot embed its own SHA; the stable tag and final response resolve it",
+  "schema": "guandan-marvel-m03-artifact-manifest-v1",
+  "self_commit_sha_embedded": false,
+  "stage": "M03_marvel_training_smoke",
+  "start_commit": "6997cf8526f2852115f2df06ed279f1846682138"
+}

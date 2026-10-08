@@ -172,6 +172,9 @@ class TrainConfig:
     seed: int = 0
     deterministic: bool = False
     deterministic_disable_tf32: bool = False
+    amp_enabled: bool = False
+    max_sampler_bytes_per_rank: int | None = None
+    checkpoint_replay_buffer: bool = True
     resume_from: str | None = None
     resume_optimizer: bool = True
     total_iterations: int = 2000
@@ -204,6 +207,10 @@ class TrainConfig:
             self.game = GameSpec(**dict(self.game))
         if not isinstance(self.game, GameSpec):
             self.game = GameSpec.from_game(self.game)
+        if self.max_sampler_bytes_per_rank is not None and int(self.max_sampler_bytes_per_rank) <= 0:
+            raise ValueError("max_sampler_bytes_per_rank must be positive when configured.")
+        if not isinstance(self.amp_enabled, bool) or not isinstance(self.checkpoint_replay_buffer, bool):
+            raise TypeError("amp_enabled and checkpoint_replay_buffer must be bool.")
         if not self.run_name:
             timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
             self.run_name = f"{self.game_identifier}_{timestamp}"

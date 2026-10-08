@@ -1,0 +1,99 @@
+{
+  "algorithms": {
+    "ippo": {
+      "checkpoints": [
+        {
+          "buffer_schema": "guandan-marvel-buffer-v2",
+          "bytes": 34875053,
+          "durable_updates": 1,
+          "iteration": 1,
+          "merged_policy": {
+            "beta": 0.0,
+            "identity": "current_policy_copy",
+            "not_smoothed_when_beta_zero": true
+          },
+          "path": "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\ippo\\checkpoints\\guandan-marvel-v2-ippo-iter000001.pt",
+          "replay_persistence": null,
+          "resume_classification": "exact_resume",
+          "sampler_contract": "guandan-marvel-sampler-contract-v2",
+          "semantic_contract_hash": "d2c458aa162cf2113f741c1a68585ac9dc1c7963c729888a0ff241b46d6b6acc",
+          "sha256": "015b84617ca8038e3aafb1ee3f00ab587689194b3696543a7f9131a3658ca1b9"
+        },
+        {
+          "buffer_schema": "guandan-marvel-buffer-v2",
+          "bytes": 34875117,
+          "durable_updates": 2,
+          "iteration": 2,
+          "merged_policy": {
+            "beta": 0.0,
+            "identity": "current_policy_copy",
+            "not_smoothed_when_beta_zero": true
+          },
+          "path": "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\ippo\\checkpoints\\guandan-marvel-v2-ippo-iter000002.pt",
+          "replay_persistence": null,
+          "resume_classification": "exact_resume",
+          "sampler_contract": "guandan-marvel-sampler-contract-v2",
+          "semantic_contract_hash": "d2c458aa162cf2113f741c1a68585ac9dc1c7963c729888a0ff241b46d6b6acc",
+          "sha256": "f0f82ab4ffbecfa202c4b5f97ce37e6a8aab248f9367aa020fd38ed77779681d"
+        }
+      ],
+      "classification": {
+        "compatible": "compatible_resume",
+        "evaluation": "evaluation_only",
+        "exact": "exact_resume",
+        "legacy_v1_training_resume_rejected": true,
+        "migration": "migration",
+        "warm_restart": null
+      }
+    },
+    "vrpo": {
+      "checkpoints": [
+        {
+          "buffer_schema": "guandan-marvel-buffer-v2",
+          "bytes": 47070702,
+          "durable_updates": 1,
+          "iteration": 1,
+          "merged_policy": {
+            "beta": 0.0,
+            "identity": "current_policy_copy",
+            "not_smoothed_when_beta_zero": true
+          },
+          "path": "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\vrpo\\checkpoints\\guandan-marvel-v2-vrpo-iter000001.pt",
+          "replay_persistence": "persisted",
+          "resume_classification": "exact_resume",
+          "sampler_contract": "guandan-marvel-sampler-contract-v2",
+          "semantic_contract_hash": "724aedb987f330ebefd9b1c231a1864c17adff5b896bb5d9e0b0cc237a137b80",
+          "sha256": "179e5aa6d0b78ee12b373b2b9aeccd80b88f8bebc400c985efd759ea58b04a42"
+        },
+        {
+          "buffer_schema": "guandan-marvel-buffer-v2",
+          "bytes": 47070766,
+          "durable_updates": 2,
+          "iteration": 2,
+          "merged_policy": {
+            "beta": 0.0,
+            "identity": "current_policy_copy",
+            "not_smoothed_when_beta_zero": true
+          },
+          "path": "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\vrpo\\checkpoints\\guandan-marvel-v2-vrpo-iter000002.pt",
+          "replay_persistence": "persisted",
+          "resume_classification": "exact_resume",
+          "sampler_contract": "guandan-marvel-sampler-contract-v2",
+          "semantic_contract_hash": "724aedb987f330ebefd9b1c231a1864c17adff5b896bb5d9e0b0cc237a137b80",
+          "sha256": "65bff3660e2dbc8d61e900d74ddc6b2db020a977b10787aea0aa6ace94690dc5"
+        }
+      ],
+      "classification": {
+        "compatible": "compatible_resume",
+        "evaluation": "evaluation_only",
+        "exact": "exact_resume",
+        "legacy_v1_training_resume_rejected": true,
+        "migration": "migration",
+        "warm_restart": "warm_restart"
+      }
+    }
+  },
+  "schema": "guandan-marvel-m03-artifact-verification-v1",
+  "summary_path": "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\summary.json",
+  "summary_sha256": "0bf4dda044eefc3cbf3da625336162587e3e2c8dadc245bb2f80ae752468cb46"
+}

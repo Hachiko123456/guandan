@@ -1,0 +1,139 @@
+{
+  "commands": [
+    {
+      "command": "python -m pytest -q tests/marvel_training tests/marvel_core tests/marvel_adapter --disable-warnings --junitxml=runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/test_logs/scoped.junit.xml",
+      "duration_seconds": 88.461,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/test_logs/scoped.junit.xml",
+      "junit_sha256": "a91f30ce9e9a5968fcb335456dea2e2158621f8999faaebc4880435c7e54e4cd",
+      "log": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/test_logs/scoped.log",
+      "log_sha256": "21519fd9a65eb65ff54c10408247c112675badaf0e119fe3171d08204b0a4b00",
+      "name": "scoped",
+      "passed": 69,
+      "skipped": 0
+    },
+    {
+      "command": "python -m pytest -q tests/marvel_training/test_training_smoke.py --disable-warnings --junitxml=runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/test_logs/training_smoke.junit.xml",
+      "duration_seconds": 29.833,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/test_logs/training_smoke.junit.xml",
+      "junit_sha256": "5e9d0778c1d0d6c68786a89410b9b1e1e7fae514c9dbdd521480af6536fa7dc0",
+      "log": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/test_logs/training_smoke.log",
+      "log_sha256": "c2a481cf2b074321e54c4e55a437c26a16e6e736a29f70aaa2f53930c5e5afe3",
+      "name": "training_smoke",
+      "passed": 7,
+      "skipped": 0
+    },
+    {
+      "command": "python -m pytest -q tests/acceptance/test_a01_cards.py tests/acceptance/test_a02_rules.py tests/acceptance/test_a02_a03_defect_fix.py tests/acceptance/test_a03_actions.py tests/acceptance/test_a04_environment.py --disable-warnings --junitxml=runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/test_logs/legacy_a01_a04.junit.xml",
+      "duration_seconds": 15.704,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/test_logs/legacy_a01_a04.junit.xml",
+      "junit_sha256": "6765beee1b49bb536c065c4f571e4b9624b6f997df956b4c20f67244d64ffa9b",
+      "log": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/test_logs/legacy_a01_a04.log",
+      "log_sha256": "faf86a1ffb24cd1f32b449056b7a5bcb6d13943bf117234f9c61a8b484438237",
+      "name": "legacy_a01_a04",
+      "passed": 152,
+      "skipped": 0
+    },
+    {
+      "command": "python -m pytest -q -ra tests/unit tests/integration --disable-warnings --junitxml=runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/test_logs/legacy_unit_integration.junit.xml",
+      "duration_seconds": 226.309,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/test_logs/legacy_unit_integration.junit.xml",
+      "junit_sha256": "60dd74354a9db579dfe502dfceb643ba864241b151f23079e27adafbabc12b0b",
+      "log": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/test_logs/legacy_unit_integration.log",
+      "log_sha256": "1fda07b03c65016373f61989ac583c3dfffd6e5167a60f033873eb6eb4f6aa7b",
+      "name": "legacy_unit_integration",
+      "passed": 889,
+      "skipped": 10
+    },
+    {
+      "command": "python scripts/run_marvel_training_smoke.py --output-dir runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance",
+      "errors": 0,
+      "evidence": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/summary.json",
+      "evidence_sha256": "0bf4dda044eefc3cbf3da625336162587e3e2c8dadc245bb2f80ae752468cb46",
+      "exit_code": 0,
+      "failed": 0,
+      "log": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/run.log",
+      "log_sha256": "e4ae11f6dc1328845759edcb20c84c6c98830c28fb66455e001f782a95f2941e",
+      "name": "training_smoke_run",
+      "passed": 1,
+      "skipped": 0
+    },
+    {
+      "command": "python scripts/verify_marvel_training_artifacts.py --summary runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/summary.json --output docs/marvel_migration/evidence/M03_marvel_training_smoke/checkpoint_verification.json",
+      "errors": 0,
+      "evidence": "docs/marvel_migration/evidence/M03_marvel_training_smoke/checkpoint_verification.json",
+      "evidence_sha256": "e1519840ff7fdeb1dbc26393e4d6907421813a89ddfac131fbf58012f0ebcec4",
+      "exit_code": 0,
+      "failed": 0,
+      "log": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/verify_artifacts.log",
+      "log_sha256": "902dfc46c933e151094ec7cf5a9474cf0d7a35e7caa2e547665316cb42eaaa22",
+      "name": "checkpoint_verification",
+      "passed": 1,
+      "skipped": 0
+    },
+    {
+      "command": "python -I -c <import final installed wheel M03 trainers/checkpoint schema>",
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "log": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/clean_wheel_final_import.log",
+      "log_sha256": "04dccd27aaf041e2cb2ea19198d3bef4d695a00e0b75f1d814bdf0a5f88c3673",
+      "name": "clean_wheel_import",
+      "passed": 1,
+      "skipped": 0
+    }
+  ],
+  "new_skips_introduced_by_m03": 0,
+  "run_id": "20261008_cpu_smoke_acceptance",
+  "schema": "guandan-marvel-m03-test-results-v1",
+  "skip_explanations": [
+    {
+      "count": 1,
+      "reason": "symlink creation unavailable",
+      "source": "tests/unit/test_deployment_source.py:225"
+    },
+    {
+      "count": 2,
+      "reason": "CUDA unavailable",
+      "source": "tests/unit/test_estimators.py:190"
+    },
+    {
+      "count": 1,
+      "reason": "directory symlinks unavailable on Windows host",
+      "source": "tests/unit/test_performance_discovery.py:283"
+    },
+    {
+      "count": 4,
+      "reason": "CUDA unavailable; CPU cannot certify GPU equivalence",
+      "source": "tests/unit/test_rollout_performance.py:70"
+    },
+    {
+      "count": 1,
+      "reason": "CUDA unavailable",
+      "source": "tests/unit/test_training_objectives.py:150"
+    },
+    {
+      "count": 1,
+      "reason": "CUDA unavailable",
+      "source": "tests/unit/test_training_support.py:198"
+    }
+  ],
+  "stage": "M03_marvel_training_smoke",
+  "wheel": {
+    "bytes": 262395,
+    "committed": false,
+    "path": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/wheel_final/guandan_train-0.1.0-py3-none-any.whl",
+    "sha256": "03ace2ff056e1eb5b6f713209b1a7283275be7ac86d8c27affe0cc766b461e5b"
+  }
+}

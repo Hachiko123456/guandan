@@ -1,0 +1,191 @@
+{
+  "algorithms": {
+    "ippo": {
+      "amp_enabled": false,
+      "checkpoints": [
+        {
+          "bytes": 34875053,
+          "path": "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\ippo\\checkpoints\\guandan-marvel-v2-ippo-iter000001.pt",
+          "sha256": "015b84617ca8038e3aafb1ee3f00ab587689194b3696543a7f9131a3658ca1b9"
+        },
+        {
+          "bytes": 34875117,
+          "path": "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\ippo\\checkpoints\\guandan-marvel-v2-ippo-iter000002.pt",
+          "sha256": "f0f82ab4ffbecfa202c4b5f97ce37e6a8aab248f9367aa020fd38ed77779681d"
+        }
+      ],
+      "compile_enabled": false,
+      "completed_games": 2,
+      "durable_updates": 2,
+      "final_metrics": {
+        "agent/adv_mean": 0.02498788759112358,
+        "agent/adv_std": 0.22924773395061493,
+        "agent/clip_coef": 0.02,
+        "agent/clip_frac": 0.11575562506914139,
+        "agent/grad_norm": 0.15398597717285156,
+        "agent/kl_ref": 8.336124301422387e-05,
+        "agent/kl_unif": 0.021736513823270798,
+        "agent/learning_rate": 0.0004,
+        "agent/pg_loss": -0.00046850976650603116,
+        "agent/reg_coef": 0.1,
+        "agent/value_loss": 0.026350338011980057,
+        "health/action_capacity_overflows": 0,
+        "health/horizon_overflows": 0,
+        "health/illegal_actions": 0,
+        "health/nonfinite_gradients": 0,
+        "health/nonfinite_losses": 0,
+        "health/truncated_games": 0,
+        "memory/sampler_bytes_per_rank_estimate": 34268184,
+        "statistics/completed_games_total": 2,
+        "statistics/durable_updates": 2,
+        "statistics/env_steps_mean": 311.0,
+        "statistics/env_steps_total": 645,
+        "statistics/game_steps_mean": 136.0,
+        "statistics/game_steps_total": 293,
+        "statistics/iterations": 2,
+        "statistics/learner_updates": 4,
+        "statistics/return_team0_mean": -1.0,
+        "statistics/return_team1_mean": 1.0,
+        "statistics/trajectories": 1,
+        "statistics/trajectory_length_mean": 311.0
+      },
+      "iterations": 2,
+      "learner_updates": 4,
+      "merged_policy_identity": "current_policy_copy",
+      "metrics_jsonl": [
+        "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\ippo\\phase1\\ippo_metrics.jsonl",
+        "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\ippo\\phase2\\ippo_metrics.jsonl"
+      ],
+      "optimizer": "adamw",
+      "replay_memory": null,
+      "resume_decision": "exact_resume",
+      "sampler_memory_bytes": 34268184,
+      "semantic_contract_hash": "d2c458aa162cf2113f741c1a68585ac9dc1c7963c729888a0ff241b46d6b6acc",
+      "source_hash": "0121e6e1e2348aa1296ad1511115b15e7ef75c1ad678d6b59dcbb3e4b9117ede",
+      "total_env_steps": 645,
+      "total_game_steps": 293,
+      "trajectory_lengths": [
+        334,
+        311
+      ]
+    },
+    "vrpo": {
+      "amp_enabled": false,
+      "checkpoints": [
+        {
+          "bytes": 47070702,
+          "path": "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\vrpo\\checkpoints\\guandan-marvel-v2-vrpo-iter000001.pt",
+          "sha256": "179e5aa6d0b78ee12b373b2b9aeccd80b88f8bebc400c985efd759ea58b04a42"
+        },
+        {
+          "bytes": 47070766,
+          "path": "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\vrpo\\checkpoints\\guandan-marvel-v2-vrpo-iter000002.pt",
+          "sha256": "65bff3660e2dbc8d61e900d74ddc6b2db020a977b10787aea0aa6ace94690dc5"
+        }
+      ],
+      "compile_enabled": false,
+      "completed_games": 2,
+      "durable_updates": 2,
+      "final_metrics": {
+        "agent/adv_mean": -0.036655254662036896,
+        "agent/adv_std": 0.17405220866203308,
+        "agent/clip_coef": 0.02,
+        "agent/clip_frac": 0.012121211737394333,
+        "agent/grad_norm": 0.0844983235001564,
+        "agent/kl_ref": 7.501300387957599e-06,
+        "agent/kl_unif": 0.025293748825788498,
+        "agent/learning_rate": 0.0004,
+        "agent/pg_loss": -0.0009128628298640251,
+        "agent/reg_coef": 0.1,
+        "buffer/replay_buffer_size": 1,
+        "critic/grad_norm": 0.050269629806280136,
+        "critic/learning_rate": 0.0004,
+        "critic/qv_lbd_loss": 0.015554728917777538,
+        "critic/qv_td1_loss": 0.0015842289431020617,
+        "health/action_capacity_overflows": 0,
+        "health/horizon_overflows": 0,
+        "health/illegal_actions": 0,
+        "health/nonfinite_gradients": 0,
+        "health/nonfinite_losses": 0,
+        "health/truncated_games": 0,
+        "memory/replay_buffer_bytes_estimate": 11422728,
+        "memory/sampler_bytes_per_rank_estimate": 34268184,
+        "statistics/completed_games_total": 2,
+        "statistics/durable_updates": 2,
+        "statistics/env_steps_mean": 330.0,
+        "statistics/env_steps_total": 634,
+        "statistics/game_steps_mean": 139.0,
+        "statistics/game_steps_total": 266,
+        "statistics/iterations": 2,
+        "statistics/learner_updates": 8,
+        "statistics/return_team0_mean": 1.0,
+        "statistics/return_team1_mean": -1.0,
+        "statistics/trajectories": 1,
+        "statistics/trajectory_length_mean": 330.0
+      },
+      "iterations": 2,
+      "learner_updates": 8,
+      "merged_policy_identity": "current_policy_copy",
+      "metrics_jsonl": [
+        "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\vrpo\\phase1\\vrpo_metrics.jsonl",
+        "runs\\M03_marvel_training_smoke\\20261008_cpu_smoke_acceptance\\vrpo\\phase2\\vrpo_metrics.jsonl"
+      ],
+      "optimizer": "adamw",
+      "replay_memory": {
+        "bytes": 11422728,
+        "capacity": 1
+      },
+      "resume_decision": "exact_resume",
+      "sampler_memory_bytes": 34268184,
+      "semantic_contract_hash": "724aedb987f330ebefd9b1c231a1864c17adff5b896bb5d9e0b0cc237a137b80",
+      "source_hash": "0121e6e1e2348aa1296ad1511115b15e7ef75c1ad678d6b59dcbb3e4b9117ede",
+      "total_env_steps": 634,
+      "total_game_steps": 266,
+      "trajectory_lengths": [
+        304,
+        330
+      ]
+    }
+  },
+  "backend": "python_reference",
+  "date": "2026-10-08",
+  "default_protocol_horizon": 4096,
+  "environment": {
+    "cuda_available": false,
+    "numpy": "2.3.5",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]",
+    "torch": "2.13.0+cpu"
+  },
+  "game_identifier": "GuandanMARVELV2PythonReference-local-smoke-T512",
+  "model_strength_claim": false,
+  "profile": {
+    "agent_epoch": 2,
+    "amp": false,
+    "collect_batch_size": 1,
+    "compile": false,
+    "critic_aux_epoch": 2,
+    "mini_batches": 1,
+    "model": {
+      "action_layers": 1,
+      "decoder_heads": 4,
+      "decoder_layers": 1,
+      "feature_dim": 24,
+      "fuse_layers": 1,
+      "history_dim": 16,
+      "state_layers": 1
+    },
+    "muon": false,
+    "optimizer": "AdamW",
+    "replay_buffer_scale": 1,
+    "rollout_batch_size": 1
+  },
+  "reduced_horizon_disclaimer": true,
+  "remote_verified": false,
+  "run_id": "20261008_cpu_smoke_acceptance",
+  "run_summary_path": "runs/M03_marvel_training_smoke/20261008_cpu_smoke_acceptance/summary.json",
+  "run_summary_sha256": "0bf4dda044eefc3cbf3da625336162587e3e2c8dadc245bb2f80ae752468cb46",
+  "schema": "guandan-marvel-m03-training-smoke-evidence-v1",
+  "smoke_horizon": 512,
+  "stage": "M03_marvel_training_smoke"
+}

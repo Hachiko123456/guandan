@@ -262,3 +262,16 @@ checkpoint 至少保存：
 ## 10. 强度声明
 
 训练 loss 下降、GPU 利用率、完成 iteration 或超过 random 都不能单独证明可实战。强度只由 `06_EVALUATION_CHAMPION_SPEC.md` 的独立评估决定。
+## 11. M03 本地实现状态（2026-10-08）
+
+M03 本地 runtime 已实现：
+
+- IPPO value head、多玩家 GAE、2+ policy epochs、clip/KL/value loss、gradient finite/clip；
+- VRPO centralized Q critic、fresh actor GAE、complete replay、fresh-first/replay-next critic aux epochs、lambda/TD1 metrics；
+- AdamW 默认，Muon/compile 可配置，首个 smoke 显式关闭 Muon/compile/AMP；
+- resume actor 与 merged evaluation copy；beta=0 标记为 `current_policy_copy`；
+- JSONL core/health/Guandan metrics；
+- V2 checkpoint、sampler/RNG/replay exact continuation；
+- incomplete/nonterminal batch 不增加 durable update。
+
+实际验收 profile 使用 CPU、16/24 小模型、`T=512`、rollout/collect/replay=1；它只证明训练语义。

@@ -95,3 +95,20 @@ M02 补修将 trajectory probability 字段从含义模糊的 `avail_probs` 拆�
 - `on_policy_valid`。
 
 buffer state schema 从 `guandan-marvel-buffer-v1` 升级为 `guandan-marvel-buffer-v2`。v1 buffer snapshot 必须显式拒绝，不能作为 v2 exact/compatible resume。M02 未产生正式训练 checkpoint，因此该变更分类为 `migration`，不是丢失正式 resume 能力。M03 新 checkpoint 的 semantic contract hash 必须包含 sampler contract、buffer schema 和 on-policy purpose/temperature。
+## 8. M03 training checkpoint v2
+
+M03 canonical schema：`guandan-marvel-training-checkpoint-v2`。至少保存：
+
+- algorithm、architecture、完整 game/sampler/buffer/Q-target semantic contract hash；
+- resolved config/hash、source hash 和 source parent commit；
+- resume actor、merged/current-copy actor、IPPO value head；
+- VRPO critic；
+- actor/critic optimizer；
+- schedule、iteration、learner/durable counters；
+- Python/NumPy/Torch/CUDA RNG；
+- serialized sampler/environment/partial rollout state；
+- VRPO replay state（exact resume）；
+- selection/champion identity（M03 为 null，不伪造）；
+- merged policy identity，beta=0 明确为 `current_policy_copy`。
+
+文件名带算法和 iteration：`guandan-marvel-v2-{ippo|vrpo}-iterNNNNNN.pt`。M03 continuation verifier 已验证 exact resume 后模型权重、采样计数和下一次更新一致。

@@ -1,0 +1,28 @@
+{
+  "buffer_schema": "guandan-marvel-buffer-v2",
+  "checkpoint_resume_classes": [
+    "exact_resume",
+    "compatible_resume",
+    "warm_restart",
+    "migration",
+    "evaluation_only"
+  ],
+  "game_protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+  "on_policy_contract": {
+    "eligibility_field": "on_policy_valid",
+    "forced_action_indices": null,
+    "old_probability_field": "behavior_action_prob",
+    "purpose": "on_policy",
+    "reference_policy_field": "policy_probs",
+    "sampling_temperature": 1.0
+  },
+  "runtime_schema": "guandan-marvel-m03-local-runtime-v1",
+  "sampler_contract": "guandan-marvel-sampler-contract-v2",
+  "sampler_state_schema": "guandan-marvel-sampler-state-v1",
+  "schema": "guandan-marvel-m03-protocol-manifest-v1",
+  "stage": "M03_marvel_training_smoke",
+  "training_checkpoint_schema": "guandan-marvel-training-checkpoint-v2",
+  "training_semantic_contract_schema": "guandan-marvel-training-contract-v1",
+  "trajectory_schema": "guandan-marvel-complete-trajectory-v1",
+  "vrpo_q_target_contract": "guandan-marvel-vrpo-q-lambda-td1-v1"
+}

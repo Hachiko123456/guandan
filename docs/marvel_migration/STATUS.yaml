@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M03_marvel_training_smoke
+current_stage: M04_cpp_runtime
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -62,19 +62,29 @@ stages:
     blockers: []
 
   M03_marvel_training_smoke:
+    status: accepted
+    accepted: true
+    commit: refs/tags/m03-marvel-training-smoke-accepted
+    reports:
+      - docs/marvel_migration/reports/M03_marvel_training_smoke.md
+      - docs/marvel_migration/reports/M03_marvel_training_smoke.json
+    evidence:
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke/protocol_schema.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke/memory_preflight.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke/training_smoke.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke/checkpoint_verification.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke/metrics_manifest.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke/test_results.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke/source_manifest.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke/artifact_manifest.json
+    blockers: []
+
+  M04_cpp_runtime:
     status: not_started
     accepted: false
     commit: null
     reports: []
     blockers: []
-
-  M04_cpp_runtime:
-    status: blocked
-    accepted: false
-    commit: null
-    reports: []
-    blockers:
-      - M03_marvel_training_smoke is not accepted
 
   M05_differential_performance:
     status: blocked

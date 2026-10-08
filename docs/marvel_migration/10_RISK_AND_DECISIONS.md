@@ -151,3 +151,20 @@ VRPO replay 放 GPU、CPU pinned memory 或分级缓存，由显存和吞吐决�
 证据：`memory_budget.json` 和 `test_memory_budget.py`。
 影响：默认 512/2048/T4096 不可直接本地或双 T4 分配。
 回滚方式：紧凑 dtype、裁剪、分桶/chunk 实现并验证后可重新定型。
+### D018 M03 首个优化器/编译/精度 profile
+日期：2026-10-08
+状态：accepted（local smoke）
+候选方案：Muon/compile/AMP 默认开启；全部关闭；逐项试验。
+决定：首个语义 smoke 使用 AdamW，Muon=false、compile=false、AMP=false。Muon 与 compile 保持显式配置；AMP=true 在 M03 local runtime fail closed。
+证据：M03 training tests、JSONL metrics 和 `training_smoke.json`。
+影响：最小化语义验证变量，不代表正式配置最优。
+回滚方式：M08 pilot 提供稳定性和吞吐证据后重新定型。
+
+### D019 M03 checkpoint/replay persistence
+日期：2026-10-08
+状态：accepted
+候选方案：只存模型 warm restart；保存 sampler/RNG；保存 sampler/RNG/replay exact resume。
+决定：IPPO 保存 sampler/RNG/optimizer，VRPO 额外持久化 replay；schema 为 `guandan-marvel-training-checkpoint-v2`。
+证据：exact continuation tests 和 `checkpoint_verification.json`。
+影响：checkpoint 较大，但 local smoke 可证明 exact resume；缺 replay 自动分类 warm restart。
+回滚方式：未来若改为外部 replay artifact，必须升级 schema 并明确恢复分类。

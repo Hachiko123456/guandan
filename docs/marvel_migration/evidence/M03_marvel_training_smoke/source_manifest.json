@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-08",
+  "deferred": [
+    "C++ runtime M04",
+    "selection/champion M06",
+    "DDP/Kaggle M07",
+    "pilot tuning M08",
+    "formal training M09"
+  ],
+  "files": [
+    {
+      "bytes": 11832,
+      "origin": "modified",
+      "path": "guandan_marvel/config.py",
+      "role": "M03 runtime flags and memory budget config",
+      "sha256": "e255f288264a23efa126f69c244a14dd15d8ad2e155cd293a2c17e5ea07c2055"
+    },
+    {
+      "bytes": 25081,
+      "origin": "modified",
+      "path": "guandan_marvel/runtime/sampler.py",
+      "role": "checkpointable sampler state and terminal info queue",
+      "sha256": "435daab0c7afa5e93d669e60fa9fac7178bf2577b1aa5ed2bb146406e3239303"
+    },
+    {
+      "bytes": 8042,
+      "origin": "new",
+      "path": "guandan_marvel/training/checkpoints.py",
+      "role": "training checkpoint v2 and resume classification",
+      "sha256": "457462a71601c8f4f648d44414c61a21d7d02278f810eab79f0b1cf9bb78512f"
+    },
+    {
+      "bytes": 4727,
+      "origin": "new",
+      "path": "guandan_marvel/training/validation.py",
+      "role": "complete/on-policy/finite/replay validation",
+      "sha256": "acd1e60e93fb58168afc2ea5356759766cc350edff9bb4d9c87086ad0b7e927e"
+    },
+    {
+      "bytes": 5428,
+      "origin": "new",
+      "path": "guandan_marvel/training/metrics.py",
+      "role": "core JSONL training metrics",
+      "sha256": "83ebfea9b057c17ea8370c9e6a03389e8b7417b25c7ba0917320556e580c3c0f"
+    },
+    {
+      "bytes": 1644,
+      "origin": "new",
+      "path": "guandan_marvel/training/smoke.py",
+      "role": "explicit T512 Python reference smoke game",
+      "sha256": "ff3203f1d47404622c5aff6d49a8f4ef02387be1a390750167ad776889f46af6"
+    },
+    {
+      "bytes": 32104,
+      "origin": "new",
+      "path": "guandan_marvel/training/local.py",
+      "role": "local IPPO/VRPO workflow",
+      "sha256": "32d1243d703a233bf705a4ceb68243c6af91505e486219d6e50eb82beb4c0fe1"
+    },
+    {
+      "bytes": 168,
+      "origin": "new",
+      "path": "guandan_marvel/training/ippo.py",
+      "role": "IPPO canonical entry point",
+      "sha256": "56c4742591a1aef8cd68f8f6fa1686be1fdbcb9698abdc2bbc3026e7fe93deb6"
+    },
+    {
+      "bytes": 218,
+      "origin": "new",
+      "path": "guandan_marvel/training/vrpo.py",
+      "role": "VRPO canonical entry point",
+      "sha256": "28634b9801699cc50d1acd2b43dbab5b1040dca4615f7f95cac35706c614c6f6"
+    },
+    {
+      "bytes": 1502,
+      "origin": "modified",
+      "path": "guandan_marvel/training/__init__.py",
+      "role": "training API exports",
+      "sha256": "e552a47f4eb3d8b1d5f2c53048f3bc42ac7e9f63dce427d0bfbf3a4b2b16fd81"
+    },
+    {
+      "bytes": 1086,
+      "origin": "modified",
+      "path": "guandan_marvel/__init__.py",
+      "role": "top-level M03 exports",
+      "sha256": "fc0f4d7887a13affd1950466447a795b91ca7b9ce650dbb919707cd6512f0bf9"
+    },
+    {
+      "bytes": 10831,
+      "origin": "new",
+      "path": "tests/marvel_training/test_training_smoke.py",
+      "role": "M03 semantic/checkpoint/replay tests",
+      "sha256": "1a3bd99e7c39b76136f435aa0eb9deb4d09a021df4bed0b5c51ffc53676b0012"
+    },
+    {
+      "bytes": 6596,
+      "origin": "new",
+      "path": "scripts/run_marvel_training_smoke.py",
+      "role": "bounded real training smoke",
+      "sha256": "876fdb08ed72937b667ee1d9de9bca60c2190136d0a83aabad3980c9f001a249"
+    },
+    {
+      "bytes": 7197,
+      "origin": "new",
+      "path": "scripts/verify_marvel_training_artifacts.py",
+      "role": "checkpoint/artifact verifier",
+      "sha256": "d6f3f28d4a021f5549b5ed3025828bb4b42d1164d89d043831e492dab9529299"
+    }
+  ],
+  "license": "MIT",
+  "protected_rule_files_modified": false,
+  "reference_commit": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+  "reference_repository": "D:\\project\\doudizhu",
+  "runtime_reference_checkout_dependency": false,
+  "schema": "guandan-marvel-m03-source-manifest-v1",
+  "stage": "M03_marvel_training_smoke",
+  "start_commit": "6997cf8526f2852115f2df06ed279f1846682138"
+}

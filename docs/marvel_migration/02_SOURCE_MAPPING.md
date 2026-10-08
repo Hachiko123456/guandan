@@ -108,3 +108,8 @@ M01 的阶段报告必须包含：
 - `guandan_marvel/runtime/sampler.py` 派生自参考 `marvel/runtime/sampler.py`；只替换 canonical namespace/import，具体游戏通过 V2 module 注入。
 - `guandan_marvel/game.py` 为 Guandan 专用新实现，只包装已验收 A03/A04，不复制斗地主规则。
 - 完整文件级来源、未复制范围与只读审计见 `M02_SOURCE_AUDIT.md`。
+## 8. M03 已解析映射（2026-10-08）
+
+- IPPO/VRPO 更新结构参考 `marvel/training/ippo.py` 和 `vrpo.py`，本地实现合并到 fail-closed `training/local.py`。
+- checkpoint/resume、完整轨迹验证、指标和显式 smoke game 为 Guandan M03 重写模块。
+- 未迁移 evaluator/selection、DDP/Kaggle 和 C++；完整映射见 `M03_SOURCE_AUDIT.md`。

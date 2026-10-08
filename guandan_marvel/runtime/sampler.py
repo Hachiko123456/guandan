@@ -15,6 +15,7 @@ from guandan_marvel.model import KVCache
 from guandan_marvel.utils import unwrap_distributed_module
 
 SAMPLER_CONTRACT_SCHEMA = "guandan-marvel-sampler-contract-v2"
+SAMPLER_STATE_SCHEMA = "guandan-marvel-sampler-state-v1"
 _SAMPLER_PURPOSES = frozenset({"on_policy", "evaluation", "test"})
 
 
@@ -125,6 +126,7 @@ class Sampler:
         self.rejected_rollout_steps = 0
         self._failed = False
         self._failure_info: dict[str, object] | None = None
+        self._terminal_info_queue: list[dict[str, object]] = []
 
         self.agent_kv: KVCache | None = None
         self._reset_mask_full: torch.Tensor | None = None
@@ -205,6 +207,81 @@ class Sampler:
         self.commit_buffer[:-batch_size] = self.commit_buffer[batch_size:].clone()
         self.commit_buffer[-batch_size:] = self.commit_buffer.empty(batch_size = batch_size)
         self.commit_buffer_size -= batch_size
+
+    def pop_terminal_infos(self, count: int) -> list[dict[str, object]]:
+        self._require_healthy()
+        value = int(count)
+        if value < 0 or value > len(self._terminal_info_queue):
+            raise ValueError("terminal info count is outside the queued range")
+        result = self._terminal_info_queue[:value]
+        del self._terminal_info_queue[:value]
+        return [dict(item) for item in result]
+
+    def state_dict(self) -> dict[str, object]:
+        self._require_healthy()
+        return {
+            "schema": SAMPLER_STATE_SCHEMA,
+            "purpose": self.purpose,
+            "sampling_temperature": self._sampling_temperature,
+            "rollout_batch_size": self.rollout_batch_size,
+            "collect_batch_size": self.collect_batch_size,
+            "envs": self.envs.serialize(),
+            "rollout_buffer": self.rollout_buffer.state_dict(),
+            "commit_buffer": None if self.commit_buffer is None else self.commit_buffer.state_dict(),
+            "commit_buffer_size": self.commit_buffer_size,
+            "total_env_steps": self.total_env_steps,
+            "total_game_steps": self.total_game_steps,
+            "attempted_env_steps": self.attempted_env_steps,
+            "failed_env_steps": self.failed_env_steps,
+            "rejected_rollout_steps": self.rejected_rollout_steps,
+            "terminal_info_queue": [dict(item) for item in self._terminal_info_queue],
+        }
+
+    def load_state_dict(self, state: Mapping[str, object]) -> None:
+        if state.get("schema") != SAMPLER_STATE_SCHEMA:
+            raise ValueError(f"unsupported sampler state schema; expected {SAMPLER_STATE_SCHEMA}")
+        expected = {
+            "purpose": self.purpose,
+            "sampling_temperature": self._sampling_temperature,
+            "rollout_batch_size": self.rollout_batch_size,
+            "collect_batch_size": self.collect_batch_size,
+        }
+        for key, value in expected.items():
+            if state.get(key) != value:
+                raise ValueError(f"sampler state {key} mismatch")
+        env_type = type(self.envs)
+        deserialize = getattr(env_type, "deserialize", None)
+        if not callable(deserialize):
+            raise TypeError("environment batch type does not support deserialize()")
+        restored_envs = deserialize(state["envs"])
+        observed = restored_envs.observe()
+        parsed = EnvStepBatch.from_env_step(observed, self.config)
+        self.rollout_buffer.load_state_dict(state["rollout_buffer"])
+        raw_commit = state.get("commit_buffer")
+        if self.commit_buffer is None:
+            if raw_commit is not None:
+                raise ValueError("checkpoint contains a commit buffer but sampler is no-commit")
+        else:
+            if raw_commit is None:
+                raise ValueError("checkpoint is missing the configured commit buffer")
+            self.commit_buffer.load_state_dict(raw_commit)
+        self.envs = restored_envs
+        self.parsed_envs_step = parsed
+        self.commit_buffer_size = int(state["commit_buffer_size"])
+        self.total_env_steps = int(state["total_env_steps"])
+        self.total_game_steps = int(state["total_game_steps"])
+        self.attempted_env_steps = int(state.get("attempted_env_steps", self.total_env_steps))
+        self.failed_env_steps = int(state.get("failed_env_steps", 0))
+        self.rejected_rollout_steps = int(state.get("rejected_rollout_steps", 0))
+        self._terminal_info_queue = [dict(item) for item in state.get("terminal_info_queue", [])]
+        if not 0 <= self.commit_buffer_size <= (0 if self.commit_buffer is None else self.commit_buffer.batch_size):
+            raise ValueError("invalid restored commit_buffer_size")
+        self._failed = False
+        self._failure_info = None
+        self.agent_kv = None
+        self._reset_mask_full = None
+        self.last_step_rewards = None
+        self.last_step_is_terminal = None
 
     def _ensure_agent_cache(self, agent_model: Any) -> None:
         agent_model = unwrap_distributed_module(agent_model)
@@ -433,6 +510,8 @@ class Sampler:
             if bool(step_done_mask.any().item()):
                 stage = "completed_trajectory_commit"
                 self._commit_done(step_done_mask)
+                for index in step_done_mask.nonzero().flatten().tolist():
+                    self._terminal_info_queue.append(dict(envs_step.infos[index]))
 
             stage = "publish"
             self.parsed_envs_step = next_parsed_envs_step
@@ -452,6 +531,7 @@ class Sampler:
 
 __all__ = [
     "SAMPLER_CONTRACT_SCHEMA",
+    "SAMPLER_STATE_SCHEMA",
     "Sampler",
     "SamplerConfig",
     "SamplerFailedStateError",

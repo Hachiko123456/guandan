@@ -7,8 +7,9 @@ shadow the reference project's top-level ``marvel`` package.
 from .buffer import BufferConfig, BufferFieldSpec, TrajectoryBuffer, trajectory_field_specs, trajectory_memory_budget, require_trajectory_memory_budget
 from .config import CompileConfig, DDPConfig, GameSpec, ModelConfig, OptimizerConfig, TrainConfig, deserialize_train_config
 from .model import Agent, CentralCritic, TensorDict
+from .training import IPPOTrainer, VRPOTrainer, PythonReferenceSmokeGame
 from . import game
 
 __version__ = "0.1.0"
 
-__all__ = ["Agent", "BufferConfig", "BufferFieldSpec", "CentralCritic", "CompileConfig", "DDPConfig", "GameSpec", "ModelConfig", "OptimizerConfig", "TensorDict", "TrainConfig", "TrajectoryBuffer", "deserialize_train_config", "trajectory_field_specs", "trajectory_memory_budget", "require_trajectory_memory_budget", "game"]
+__all__ = ["Agent", "BufferConfig", "BufferFieldSpec", "CentralCritic", "CompileConfig", "DDPConfig", "GameSpec", "ModelConfig", "OptimizerConfig", "TensorDict", "TrainConfig", "TrajectoryBuffer", "deserialize_train_config", "trajectory_field_specs", "trajectory_memory_budget", "require_trajectory_memory_budget", "IPPOTrainer", "VRPOTrainer", "PythonReferenceSmokeGame", "game"]
