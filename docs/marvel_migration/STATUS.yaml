@@ -1,0 +1,103 @@
+project: guandan-marvel-migration
+version: 0.1.0
+last_updated: 2026-10-08
+workspace: D:\project\guandan
+reference_repo: D:\project\doudizhu
+kaggle_delivery_root: D:\project\kaggle_train
+branch: codex/marvel-guandan-migration
+baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
+current_stage: M01_marvel_core
+
+protocol_targets:
+  action: GD-ACTION-0.2-MARVEL
+  environment: GD-ENV-0.2-MARVEL
+  encoding: GD-ENCODING-0.2-MARVEL
+
+stages:
+  M00_control_documents:
+    status: accepted
+    accepted: true
+    commit: null
+    reports:
+      - docs/marvel_migration/reports/M00_control_documents.md
+      - docs/marvel_migration/reports/M00_control_documents.json
+    blockers: []
+
+  M01_marvel_core:
+    status: not_started
+    accepted: false
+    commit: null
+    reports: []
+    blockers: []
+
+  M02_guandan_adapter_v2:
+    status: blocked
+    accepted: false
+    commit: null
+    reports: []
+    blockers:
+      - M01_marvel_core is not accepted
+
+  M03_marvel_training_smoke:
+    status: blocked
+    accepted: false
+    commit: null
+    reports: []
+    blockers:
+      - M02_guandan_adapter_v2 is not accepted
+
+  M04_cpp_runtime:
+    status: blocked
+    accepted: false
+    commit: null
+    reports: []
+    blockers:
+      - M03_marvel_training_smoke is not accepted
+
+  M05_differential_performance:
+    status: blocked
+    accepted: false
+    commit: null
+    reports: []
+    blockers:
+      - M04_cpp_runtime is not accepted
+
+  M06_evaluation_champion:
+    status: blocked
+    accepted: false
+    commit: null
+    reports: []
+    blockers:
+      - M05_differential_performance is not accepted
+
+  M07_kaggle_t4x2:
+    status: blocked
+    accepted: false
+    commit: null
+    reports: []
+    blockers:
+      - M06_evaluation_champion is not accepted
+
+  M08_remote_pilot:
+    status: blocked
+    accepted: false
+    commit: null
+    reports: []
+    blockers:
+      - M07_kaggle_t4x2 is not accepted
+
+  M09_full_training:
+    status: blocked
+    accepted: false
+    commit: null
+    reports: []
+    blockers:
+      - M08_remote_pilot is not accepted
+
+  M10_belief_search:
+    status: blocked
+    accepted: false
+    commit: null
+    reports: []
+    blockers:
+      - M09_full_training must establish a stable direct-policy baseline

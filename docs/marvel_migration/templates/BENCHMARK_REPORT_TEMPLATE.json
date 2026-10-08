@@ -1,0 +1,27 @@
+{
+  "schema": "guandan-marvel-benchmark-v1",
+  "stage": "Mxx",
+  "timestamp": "YYYY-MM-DDTHH:MM:SS+08:00",
+  "source_commit": "",
+  "config_sha256": "",
+  "hardware": {},
+  "workload": {},
+  "counts": {
+    "env_steps": 0,
+    "game_steps": 0,
+    "completed_games": 0,
+    "iterations": 0
+  },
+  "timings_seconds": {
+    "total": 0.0,
+    "rollout": 0.0,
+    "learner": 0.0,
+    "evaluation": 0.0,
+    "checkpoint": 0.0
+  },
+  "throughput": {},
+  "memory": {},
+  "valid": false,
+  "errors": [],
+  "notes": []
+}

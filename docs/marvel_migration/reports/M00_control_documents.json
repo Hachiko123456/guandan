@@ -1,0 +1,20 @@
+{
+  "schema": "guandan-marvel-stage-report-v1",
+  "stage": "M00_control_documents",
+  "date": "2026-10-08",
+  "branch": "codex/marvel-guandan-migration",
+  "baseline_commit": "efe9afe74030ae25f278bdde1e8dba2008d7b37c",
+  "implementation_commit": null,
+  "status": "accepted",
+  "functional_code_modified": false,
+  "documents": 11,
+  "prompts": 10,
+  "templates": 3,
+  "checks": {
+    "expected_files_present": true,
+    "benchmark_json_valid": true,
+    "prompt_contract_valid": true,
+    "changes_scoped_to_migration_docs": true
+  },
+  "next_stage": "M01_marvel_core"
+}
