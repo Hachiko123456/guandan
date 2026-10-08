@@ -17,7 +17,7 @@ stages:
   M00_control_documents:
     status: accepted
     accepted: true
-    commit: null
+    commit: 6782352115b2fbc18e2541b4977d86f38a3aef24
     reports:
       - docs/marvel_migration/reports/M00_control_documents.md
       - docs/marvel_migration/reports/M00_control_documents.json

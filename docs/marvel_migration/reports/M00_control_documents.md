@@ -3,6 +3,7 @@
 - 日期：2026-10-08
 - 分支：`codex/marvel-guandan-migration`
 - 基线 commit：`efe9afe74030ae25f278bdde1e8dba2008d7b37c`
+- 实现 commit：`6782352115b2fbc18e2541b4977d86f38a3aef24`
 - 阶段状态：`accepted`
 - 功能代码修改：无
 
@@ -26,7 +27,7 @@
 
 ## 说明
 
-M00 acceptance 只代表迁移控制面可用，不代表 MARVEL 代码、V2 adapter、C++ 环境或训练已经实现。实现 commit 将记录在 `STATUS.yaml` 的 M00 `commit` 字段。
+M00 acceptance 只代表迁移控制面可用，不代表 MARVEL 代码、V2 adapter、C++ 环境或训练已经实现。实现 commit 已记录在 `STATUS.yaml` 的 M00 `commit` 字段。
 
 ## 下一阶段
 
