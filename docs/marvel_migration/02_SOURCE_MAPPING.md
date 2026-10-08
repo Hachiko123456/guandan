@@ -94,3 +94,11 @@ M01 的阶段报告必须包含：
 - 每个迁移文件的来源路径；
 - 游戏专用依赖清理结果；
 - 未迁移文件及原因。
+
+## 6. M01 已解析映射（2026-10-08）
+
+- 审计使用完整参考 commit：`acdcf199cf422e2b683cb22142b8e7cb33b14460`。
+- D005/D006 已接受：目标包为 `guandan_marvel`，以许可证保留的仓库内派生子包交付。
+- 完整逐文件来源、改写程度、残留假设和 M02 接口见 `M01_SOURCE_AUDIT.md`。
+- `env_batch`、sampler、workflow、IPPO/VRPO trainer、evaluation hook 和 train CLI 未机械复制，分别等待 M02/M03/M06。
+- 参考 MIT LICENSE 随包分发于 `guandan_marvel/LICENSE`，来源说明位于 `guandan_marvel/NOTICE.md`。

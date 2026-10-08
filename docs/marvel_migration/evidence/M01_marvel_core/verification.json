@@ -1,0 +1,144 @@
+{
+  "schema": "guandan-marvel-stage-evidence-v1",
+  "stage": "M01_marvel_core",
+  "date": "2026-10-08",
+  "branch": "codex/marvel-guandan-migration",
+  "start_commit": "44efa2fd28536cb9863c6173ea3fbc92626df506",
+  "implementation_commit": "self",
+  "reference": {
+    "repository": "D:\\project\\doudizhu",
+    "commit": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+    "license": "MIT",
+    "license_sha256": "c40411b9f09e2927c13b18331fee1d3f2caad5dcac4200c3280c198b8c05c95b",
+    "working_tree_clean_after_audit": true
+  },
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]",
+    "torch": "2.13.0+cpu",
+    "cuda_available": false,
+    "numpy": "2.3.5"
+  },
+  "commands": [
+    {
+      "name": "marvel_core",
+      "command": "python -m pytest -q tests/marvel_core --disable-warnings --junitxml=runs/M01_marvel_core/test_logs/marvel_core.junit.xml",
+      "exit_code": 0,
+      "passed": 12,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 14.42,
+      "log": "runs/M01_marvel_core/test_logs/marvel_core.log",
+      "junit": "runs/M01_marvel_core/test_logs/marvel_core.junit.xml",
+      "log_sha256": "d3bba5ab937244c611b3f629296fee578998f2ebb2ec46cb9818944c1cca2877",
+      "junit_sha256": "b7859da46c4b966f5300ae5925282736e292e7832c82b24ccfd438723550be98"
+    },
+    {
+      "name": "legacy_unit_integration",
+      "command": "python -m pytest -q tests/unit tests/integration --disable-warnings --junitxml=runs/M01_marvel_core/test_logs/legacy_unit_integration.junit.xml",
+      "exit_code": 0,
+      "passed": 889,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 10,
+      "duration_seconds": 222.71,
+      "log": "runs/M01_marvel_core/test_logs/legacy_unit_integration.log",
+      "junit": "runs/M01_marvel_core/test_logs/legacy_unit_integration.junit.xml",
+      "log_sha256": "c5ac32af57053bc7e6a23cbc30ec5b6d7e2cdeb3b9f37016117a2d9c1d038bf0",
+      "junit_sha256": "99745704eaa973ba59a2306cc098373953597aab7f64c81814992186d6f93eeb"
+    },
+    {
+      "name": "legacy_a01_a04",
+      "command": "python -m pytest -q tests/acceptance/test_a01_cards.py tests/acceptance/test_a02_rules.py tests/acceptance/test_a02_a03_defect_fix.py tests/acceptance/test_a03_actions.py tests/acceptance/test_a04_environment.py --disable-warnings --junitxml=runs/M01_marvel_core/test_logs/legacy_a01_a04.junit.xml",
+      "exit_code": 0,
+      "passed": 152,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 10.84,
+      "log": "runs/M01_marvel_core/test_logs/legacy_a01_a04.log",
+      "junit": "runs/M01_marvel_core/test_logs/legacy_a01_a04.junit.xml",
+      "log_sha256": "1ff00eaf63cd37bcc21ffb1faa8abcd4127c0be494f97c0f49b20a1cc46b776c",
+      "junit_sha256": "13eadad48ef8456c7bc187b4e90e6349d2043aa0e016698fb43f317486bef568"
+    },
+    {
+      "name": "clean_wheel_import",
+      "command": "python -I -c <import installed wheel; fake Agent/Critic forward>",
+      "exit_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "log": "runs/M01_marvel_core/test_logs/clean_install_import.log",
+      "observed_shapes": {
+        "agent": [
+          2,
+          3,
+          4
+        ],
+        "critic": [
+          2,
+          3,
+          4,
+          4
+        ]
+      },
+      "log_sha256": "3e684564ad1f2611bbf26b3b33e359e60c2d0f2b5eda40cb6bbf7762fb26e714"
+    },
+    {
+      "name": "git_diff_check",
+      "command": "git diff --check && git diff --cached --check",
+      "exit_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "runtime_coupling_scan",
+      "command": "rg forbidden marvel/nanopokerlib/doudizhu runtime imports and absolute reference paths under guandan_marvel/*.py",
+      "exit_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "reference_repo_clean",
+      "command": "git -C D:\\project\\doudizhu status --short",
+      "exit_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "stdout_empty": true
+    }
+  ],
+  "wheel": {
+    "path": "runs/M01_marvel_core/wheel/guandan_train-0.1.0-py3-none-any.whl",
+    "sha256": "b9b165335ef351a2cc9c5d6ec7f69c5d288b13fdff168c9a7f267018797a595b",
+    "bytes": 226507,
+    "contains_source_license": true,
+    "contains_source_notice": true,
+    "committed": false
+  },
+  "gates": {
+    "independent_namespace": true,
+    "clean_install_import": true,
+    "fake_agent_forward": true,
+    "fake_critic_forward": true,
+    "buffer_round_trip": true,
+    "checkpoint_round_trip": true,
+    "optimizer_round_trip": true,
+    "compile_fail_closed": true,
+    "ddp_fail_closed": true,
+    "no_reference_absolute_path_runtime_dependency": true,
+    "legacy_guandan_regression_passed": true,
+    "formal_training_run": false,
+    "guandan_v2_adapter_implemented": false,
+    "git_diff_check": true,
+    "reference_repository_unchanged": true,
+    "protected_rule_files_unchanged": true
+  }
+}

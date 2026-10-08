@@ -1,0 +1,303 @@
+{
+  "schema": "guandan-marvel-source-map-v1",
+  "stage": "M01_marvel_core",
+  "reference_commit": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+  "license": "MIT",
+  "target_namespace": "guandan_marvel",
+  "files": [
+    {
+      "target": "guandan_marvel/config.py",
+      "source": [
+        "marvel/config.py",
+        "marvel/game_identity.py"
+      ],
+      "rewrite": "major",
+      "remaining_assumptions": [
+        "fixed tensor capacities"
+      ],
+      "m02_interface": "inject versioned Guandan GameSpec"
+    },
+    {
+      "target": "guandan_marvel/utils.py",
+      "source": [
+        "marvel/utils.py"
+      ],
+      "rewrite": "moderate",
+      "remaining_assumptions": [],
+      "m02_interface": "commit-step masks"
+    },
+    {
+      "target": "guandan_marvel/model/transformer.py",
+      "source": [
+        "marvel/model/transformer.py"
+      ],
+      "rewrite": "minor",
+      "remaining_assumptions": [
+        "causal history sequence"
+      ],
+      "m02_interface": "horizon bound"
+    },
+    {
+      "target": "guandan_marvel/model/cache.py",
+      "source": [
+        "marvel/model/cache.py"
+      ],
+      "rewrite": "minor",
+      "remaining_assumptions": [
+        "flattened B*P cache batch"
+      ],
+      "m02_interface": "rollout cache contract"
+    },
+    {
+      "target": "guandan_marvel/model/tensordict.py",
+      "source": [
+        "marvel/model/tensordict.py"
+      ],
+      "rewrite": "moderate",
+      "remaining_assumptions": [],
+      "m02_interface": "batch/device-valid tensors"
+    },
+    {
+      "target": "guandan_marvel/model/checkpointable.py",
+      "source": [
+        "marvel/model/checkpointable.py"
+      ],
+      "rewrite": "minor",
+      "remaining_assumptions": [],
+      "m02_interface": "protocol metadata supplied by manager"
+    },
+    {
+      "target": "guandan_marvel/model/trainable.py",
+      "source": [
+        "marvel/model/trainable.py"
+      ],
+      "rewrite": "minor",
+      "remaining_assumptions": [],
+      "m02_interface": null
+    },
+    {
+      "target": "guandan_marvel/model/legacy.py",
+      "source": [
+        "marvel/model/legacy.py"
+      ],
+      "rewrite": "minor",
+      "remaining_assumptions": [
+        "MARVEL architecture v1 load support"
+      ],
+      "m02_interface": null
+    },
+    {
+      "target": "guandan_marvel/model/base.py",
+      "source": [
+        "marvel/model/base.py"
+      ],
+      "rewrite": "moderate",
+      "remaining_assumptions": [
+        "obs B,T,P,L",
+        "actions B,T,A,L"
+      ],
+      "m02_interface": "define V2 tokens/channels"
+    },
+    {
+      "target": "guandan_marvel/model/agent.py",
+      "source": [
+        "marvel/model/agent.py"
+      ],
+      "rewrite": "moderate",
+      "remaining_assumptions": [
+        "single acting player per token step",
+        "player_id -1 for environment steps"
+      ],
+      "m02_interface": "map token/COMMIT steps"
+    },
+    {
+      "target": "guandan_marvel/model/critic.py",
+      "source": [
+        "marvel/model/critic.py"
+      ],
+      "rewrite": "moderate",
+      "remaining_assumptions": [
+        "centralized P-player state"
+      ],
+      "m02_interface": "actor/critic information boundary"
+    },
+    {
+      "target": "guandan_marvel/model/types.py",
+      "source": [
+        "marvel/model/types.py"
+      ],
+      "rewrite": "minor",
+      "remaining_assumptions": [
+        "shape contracts"
+      ],
+      "m02_interface": "sampler field alignment"
+    },
+    {
+      "target": "guandan_marvel/optim/common.py",
+      "source": [
+        "marvel/optim/common.py"
+      ],
+      "rewrite": "minor",
+      "remaining_assumptions": [],
+      "m02_interface": null
+    },
+    {
+      "target": "guandan_marvel/optim/muon.py",
+      "source": [
+        "marvel/optim/muon.py"
+      ],
+      "rewrite": "minor",
+      "remaining_assumptions": [],
+      "m02_interface": null
+    },
+    {
+      "target": "guandan_marvel/buffer.py",
+      "source": [
+        "marvel/buffer.py"
+      ],
+      "rewrite": "major",
+      "remaining_assumptions": [
+        "complete trajectory layout"
+      ],
+      "m02_interface": "supply V2 capacities"
+    },
+    {
+      "target": "guandan_marvel/runtime/checkpoints.py",
+      "source": [
+        "marvel/runtime/checkpoints.py"
+      ],
+      "rewrite": "major",
+      "remaining_assumptions": [
+        "flat state bindings"
+      ],
+      "m02_interface": "add protocol/semantic hashes"
+    },
+    {
+      "target": "guandan_marvel/runtime/compilation.py",
+      "source": [
+        "marvel/runtime/compilation.py"
+      ],
+      "rewrite": "moderate",
+      "remaining_assumptions": [],
+      "m02_interface": null
+    },
+    {
+      "target": "guandan_marvel/runtime/distributed.py",
+      "source": [
+        "marvel/runtime/distributed.py"
+      ],
+      "rewrite": "major",
+      "remaining_assumptions": [
+        "multi-rank CUDA DDP"
+      ],
+      "m02_interface": null
+    },
+    {
+      "target": "guandan_marvel/runtime/intervals.py",
+      "source": [
+        "marvel/runtime/intervals.py"
+      ],
+      "rewrite": "minor",
+      "remaining_assumptions": [],
+      "m02_interface": null
+    },
+    {
+      "target": "guandan_marvel/runtime/logger.py",
+      "source": [
+        "marvel/runtime/logger.py"
+      ],
+      "rewrite": "major_reduced",
+      "remaining_assumptions": [],
+      "m02_interface": "later metrics"
+    },
+    {
+      "target": "guandan_marvel/training/losses.py",
+      "source": [
+        "marvel/training/losses.py"
+      ],
+      "rewrite": "minor",
+      "remaining_assumptions": [
+        "rollout masks and field names"
+      ],
+      "m02_interface": "real trajectory fields"
+    },
+    {
+      "target": "guandan_marvel/training/gae.py",
+      "source": [
+        "marvel/training/gae.py"
+      ],
+      "rewrite": "minor",
+      "remaining_assumptions": [
+        "multi-player rewards/player ids"
+      ],
+      "m02_interface": "terminal reward semantics"
+    },
+    {
+      "target": "guandan_marvel/training/schedules.py",
+      "source": [
+        "marvel/training/trainer.py"
+      ],
+      "rewrite": "major_extraction",
+      "remaining_assumptions": [
+        "iteration decay"
+      ],
+      "m02_interface": null
+    },
+    {
+      "target": "guandan_marvel/testing/fake_game.py",
+      "source": [],
+      "rewrite": "new",
+      "remaining_assumptions": [
+        "test-only four-player shapes"
+      ],
+      "m02_interface": "must not be reused as adapter"
+    }
+  ],
+  "deferred": [
+    {
+      "source": "marvel/env_batch.py",
+      "stage": "M02",
+      "reason": "requires V2 environment wire"
+    },
+    {
+      "source": "marvel/runtime/sampler.py",
+      "stage": "M03",
+      "reason": "requires V2 adapter and complete-trajectory semantics"
+    },
+    {
+      "source": "marvel/runtime/rollout_conversion.py",
+      "stage": "M02/M03",
+      "reason": "requires concrete adapter history mapping"
+    },
+    {
+      "source": "marvel/training/ippo.py",
+      "stage": "M03",
+      "reason": "formal trainer deferred"
+    },
+    {
+      "source": "marvel/training/vrpo.py",
+      "stage": "M03",
+      "reason": "formal trainer/replay workflow deferred"
+    },
+    {
+      "source": "marvel/training/workflow.py",
+      "stage": "M03",
+      "reason": "depends on sampler/runtime"
+    },
+    {
+      "source": "marvel/runtime/orchestra.py",
+      "stage": "M03",
+      "reason": "depends on full logger/checkpoint workflow"
+    },
+    {
+      "source": "marvel/eval/hooks.py",
+      "stage": "M06",
+      "reason": "evaluation/champion scope"
+    },
+    {
+      "source": "marvel/train.py",
+      "stage": "M03",
+      "reason": "no formal training in M01"
+    }
+  ]
+}

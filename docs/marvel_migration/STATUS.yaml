@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M01_marvel_core
+current_stage: M02_guandan_adapter_v2
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -24,19 +24,23 @@ stages:
     blockers: []
 
   M01_marvel_core:
+    status: accepted
+    accepted: true
+    commit: HEAD
+    reports:
+      - docs/marvel_migration/reports/M01_marvel_core.md
+      - docs/marvel_migration/reports/M01_marvel_core.json
+    evidence:
+      - docs/marvel_migration/evidence/M01_marvel_core/verification.json
+      - docs/marvel_migration/evidence/M01_marvel_core/source_manifest.json
+    blockers: []
+
+  M02_guandan_adapter_v2:
     status: not_started
     accepted: false
     commit: null
     reports: []
     blockers: []
-
-  M02_guandan_adapter_v2:
-    status: blocked
-    accepted: false
-    commit: null
-    reports: []
-    blockers:
-      - M01_marvel_core is not accepted
 
   M03_marvel_training_smoke:
     status: blocked

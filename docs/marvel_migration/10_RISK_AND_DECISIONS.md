@@ -26,15 +26,27 @@
 
 理由：避免搜索掩盖基础模型和训练问题。
 
-## 2. M01 必须决策
+## 2. M01 决策（已完成）
 
 ### D005 Python 包命名
 
-候选：`marvel` 或独立命名空间。需评估本地安装冲突、Kaggle 打包、迁移 diff 和维护成本。
+日期：2026-10-08
+状态：accepted
+候选方案：保留顶级 `marvel` 并强制隔离；使用独立命名空间。
+决定：使用 `guandan_marvel`。
+证据：`adr/ADR-005-006-marvel-core-namespace.md`；同进程冲突测试可同时导入外部 `marvel` sentinel、`guandan` 和 `guandan_marvel`。
+影响：参考 import 需要显式改名，但同一环境不会因 `sys.path` 顺序加载错误包。
+回滚方式：仅可在隔离发布物增加 `marvel` compatibility facade；仓库内 canonical namespace 不回滚。
 
 ### D006 通用代码复制方式
 
-候选：vendor、独立子包、共享本地依赖。不得依赖 `D:\project\doudizhu` 绝对路径运行。
+日期：2026-10-08
+状态：accepted
+候选方案：vendor 派生子包；共享本地依赖；运行时引用参考 checkout。
+决定：在当前仓库 vendor 许可证保留的派生子包，记录逐文件 provenance，不依赖参考绝对路径。
+证据：`M01_SOURCE_AUDIT.md`、`guandan_marvel/NOTICE.md`、`guandan_marvel/LICENSE` 和 wheel 安装验证。
+影响：上游同步需要人工审查；Kaggle 打包和复现无需额外 checkout。
+回滚方式：未来可拆成独立版本化 wheel，但不得恢复绝对路径依赖。
 
 ## 3. M02/M04 必须决策
 

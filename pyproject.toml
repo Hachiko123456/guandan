@@ -22,7 +22,7 @@ notebook = ["ipykernel"]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["guandan*"]
+include = ["guandan*", "guandan_marvel*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -33,3 +33,7 @@ markers = [
   "acceptance: stage acceptance tests",
   "slow: long-running tests",
 ]
+
+
+[tool.setuptools.package-data]
+guandan_marvel = ["LICENSE", "NOTICE.md"]
