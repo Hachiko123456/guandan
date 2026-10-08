@@ -1,0 +1,92 @@
+{
+  "acceptance_registration_commit_embedded": false,
+  "artifacts": [
+    {
+      "bytes": 9272,
+      "path": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/complex_action_coverage.json",
+      "sha256": "56eaca0b88deb0a12777897ffbba02fde901aa5ea3b8246e7e12ed94ba13e356"
+    },
+    {
+      "bytes": 15450,
+      "path": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/memory_budget.json",
+      "sha256": "8dcce2db60707af3a8517ed01d25455ae2e34f0687c418a4cb22cdf61d8ac5e1"
+    },
+    {
+      "bytes": 16300,
+      "path": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/original_scan_rerun.json",
+      "sha256": "0e5487488cd06b471c5a951394859f82b9bb399b43efaee6664b7d76b82351e1"
+    },
+    {
+      "bytes": 1481,
+      "path": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/protocol_schema.json",
+      "sha256": "3e43e49f2587a680ef0d655c1a238217214ec988bc3c1013591150bc1beab3f5"
+    },
+    {
+      "bytes": 1213,
+      "path": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/repair_summary.json",
+      "sha256": "fedf3240fe68ee01647c1059dd8b4b548477295af79b47f3007360ae76772025"
+    },
+    {
+      "bytes": 2059,
+      "path": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/review_findings.json",
+      "sha256": "f6dfc7265a29ac0d5178c549bea72841a83871661cb31d363e947815d8f584d9"
+    },
+    {
+      "bytes": 2246,
+      "path": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/sampler_contract.json",
+      "sha256": "108df68e6a75ac8e84207979039371779b1fd4fa25da8ed1cccaa11ffa206fff"
+    },
+    {
+      "bytes": 4131,
+      "path": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/source_manifest.json",
+      "sha256": "f4162d65e35e382befd69c80502a21744d2894fa90449e3e370b4fbfe7d6e58c"
+    },
+    {
+      "bytes": 8065,
+      "path": "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/test_results.json",
+      "sha256": "7686e5112152c6b1092ec403e4c0afea87d04cad864fc2e20c1a8c556b367178"
+    },
+    {
+      "bytes": 7897,
+      "path": "docs/marvel_migration/reports/M02_guandan_adapter_v2_repair.md",
+      "sha256": "be2bfadeec6e6da449344c4c75d418cecbd6bcf05b1ece48a040605e06fc0c9e"
+    },
+    {
+      "bytes": 4379,
+      "path": "docs/marvel_migration/reports/M02_guandan_adapter_v2_repair.json",
+      "sha256": "1f96ae920f016f9b384251aa1793859041c05c8297d7d1bddc44879a4fee6b62"
+    },
+    {
+      "bytes": 4191,
+      "path": "docs/marvel_migration/STATUS.yaml",
+      "sha256": "b3041751225986c82eff93156d45346fd5a51b80bdfe163f589564714f129e45"
+    },
+    {
+      "bytes": 1385,
+      "path": "docs/marvel_migration/reports/M01_marvel_core.json",
+      "sha256": "68f77bca687ebf2ad54dc2f65ccca113e71ffca896989a28d5dfecd709f7300c"
+    },
+    {
+      "bytes": 5319,
+      "path": "docs/marvel_migration/evidence/M01_marvel_core/verification.json",
+      "sha256": "363572be18f4e23c42327088ceac4ea8bf7dc14dafda5b8849b61384fb9543d0"
+    },
+    {
+      "bytes": 2405,
+      "path": "docs/marvel_migration/reports/M02_guandan_adapter_v2.json",
+      "sha256": "ec44a39e3f4470edc4cad9af8c6579b462f6bc7c4edf2774fa98265dfdb69d3f"
+    },
+    {
+      "bytes": 6857,
+      "path": "docs/marvel_migration/reports/M02_guandan_adapter_v2.md",
+      "sha256": "1728f13f3c764c2bbe73e2b8a178bb32232d7f6f55423f91cf452db6a1417893"
+    }
+  ],
+  "date": "2026-10-08",
+  "m01_original_implementation_commit": "d4638ab4eb7886335c8f438deadcaff12066f1bf",
+  "m02_original_implementation_commit": "71500c5ac580cfda935d7bbd52de6a3793110c60",
+  "reason": "a commit cannot contain its own stable SHA; final answer and git log identify the registration commit",
+  "repair_implementation_commit": "9f481f3c68b1e9dcc6bc66cdcfd6775811379600",
+  "schema": "guandan-marvel-m02-repair-artifact-manifest-v1",
+  "stage": "M02_guandan_adapter_v2_repair"
+}

@@ -4,8 +4,8 @@
 - 分支：`codex/marvel-guandan-migration`
 - M01 原始实现：`d4638ab4eb7886335c8f438deadcaff12066f1bf`
 - M02 原始实现：`71500c5ac580cfda935d7bbd52de6a3793110c60`
-- 补修实现 commit：待第一笔补修提交，由第二笔验收登记提交固定
-- 状态：`locally_verified_pending_registration`
+- 补修实现 commit：`9f481f3c68b1e9dcc6bc66cdcfd6775811379600`
+- 状态：`accepted`
 - 环境：Windows 11；Python 3.12.0；PyTorch 2.13.0+cpu；NumPy 2.3.5；CUDA unavailable
 
 ## 范围
@@ -130,6 +130,7 @@
 - `memory_budget.json`
 - `test_results.json`
 - `source_manifest.json`
+- `artifact_manifest.json`
 
 ## 受保护范围
 
@@ -145,4 +146,4 @@
 
 ## 当前结论
 
-补修功能和本地证据已经通过，但在第一笔补修 commit SHA 尚未由第二笔登记前，`STATUS.yaml` 保持 M02 `accepted=false`、M03 blocked。第二笔只固定准确补修 SHA、证据 hash 和重新验收状态，不执行 M03。
+补修实现提交已固定为 `9f481f3c68b1e9dcc6bc66cdcfd6775811379600`，所有硬门槛和证据 hash 已重新核验。`STATUS.yaml` 重新接受 M02 并解除 M03 blocker；本轮没有执行 M03。验收登记提交自身 SHA 不写入自身内容，准确值由 Git 和最终答复给出。

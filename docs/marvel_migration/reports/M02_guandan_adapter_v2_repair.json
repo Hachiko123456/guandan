@@ -38,7 +38,8 @@
     "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/complex_action_coverage.json",
     "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/memory_budget.json",
     "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/test_results.json",
-    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/source_manifest.json"
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/source_manifest.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/artifact_manifest.json"
   ],
   "gates": {
     "all_families_actually_committed": true,
@@ -68,8 +69,8 @@
     "sampler_gib_global_512_2048": 261.4453353881836,
     "sampler_gib_per_rank_world2": 130.7226676940918
   },
-  "next_stage": "M03_marvel_training_smoke (blocked until acceptance registration commit)",
-  "repair_implementation_commit": null,
+  "next_stage": "M03_marvel_training_smoke",
+  "repair_implementation_commit": "9f481f3c68b1e9dcc6bc66cdcfd6775811379600",
   "repairs": {
     "buffer_schema": "guandan-marvel-buffer-v2",
     "evaluation_test_training_eligible": false,
@@ -87,7 +88,7 @@
   },
   "schema": "guandan-marvel-stage-repair-report-v1",
   "stage": "M02_guandan_adapter_v2_repair",
-  "status": "locally_verified_pending_registration",
+  "status": "accepted",
   "tests": {
     "complex_actions": {
       "errors": 0,

@@ -8,11 +8,13 @@
     "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/complex_action_coverage.json",
     "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/memory_budget.json",
     "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/test_results.json",
-    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/source_manifest.json"
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/source_manifest.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2_repair/artifact_manifest.json"
   ],
-  "identity_registration_pending": true,
+  "identity_registration_pending": false,
+  "repair_implementation_commit": "9f481f3c68b1e9dcc6bc66cdcfd6775811379600",
   "report": "docs/marvel_migration/reports/M02_guandan_adapter_v2_repair.json",
   "schema": "guandan-marvel-m02-repair-summary-v1",
   "stage": "M02_guandan_adapter_v2_repair",
-  "status": "locally_verified_pending_registration"
+  "status": "accepted"
 }
