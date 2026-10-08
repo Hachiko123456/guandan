@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M02_guandan_adapter_v2
+current_stage: M03_marvel_training_smoke
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -26,7 +26,7 @@ stages:
   M01_marvel_core:
     status: accepted
     accepted: true
-    commit: HEAD
+    commit: d4638ab4eb7886335c8f438deadcaff12066f1bf
     reports:
       - docs/marvel_migration/reports/M01_marvel_core.md
       - docs/marvel_migration/reports/M01_marvel_core.json
@@ -36,19 +36,25 @@ stages:
     blockers: []
 
   M02_guandan_adapter_v2:
+    status: accepted
+    accepted: true
+    commit: HEAD
+    reports:
+      - docs/marvel_migration/reports/M02_guandan_adapter_v2.md
+      - docs/marvel_migration/reports/M02_guandan_adapter_v2.json
+    evidence:
+      - docs/marvel_migration/evidence/M02_guandan_adapter_v2/protocol_schema.json
+      - docs/marvel_migration/evidence/M02_guandan_adapter_v2/verification.json
+      - docs/marvel_migration/evidence/M02_guandan_adapter_v2/test_results.json
+      - docs/marvel_migration/evidence/M02_guandan_adapter_v2/source_manifest.json
+    blockers: []
+
+  M03_marvel_training_smoke:
     status: not_started
     accepted: false
     commit: null
     reports: []
     blockers: []
-
-  M03_marvel_training_smoke:
-    status: blocked
-    accepted: false
-    commit: null
-    reports: []
-    blockers:
-      - M02_guandan_adapter_v2 is not accepted
 
   M04_cpp_runtime:
     status: blocked

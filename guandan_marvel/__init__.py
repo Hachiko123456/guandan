@@ -7,7 +7,8 @@ shadow the reference project's top-level ``marvel`` package.
 from .buffer import BufferConfig, BufferFieldSpec, TrajectoryBuffer, trajectory_field_specs
 from .config import CompileConfig, DDPConfig, GameSpec, ModelConfig, OptimizerConfig, TrainConfig, deserialize_train_config
 from .model import Agent, CentralCritic, TensorDict
+from . import game
 
 __version__ = "0.1.0"
 
-__all__ = ["Agent", "BufferConfig", "BufferFieldSpec", "CentralCritic", "CompileConfig", "DDPConfig", "GameSpec", "ModelConfig", "OptimizerConfig", "TensorDict", "TrainConfig", "TrajectoryBuffer", "deserialize_train_config", "trajectory_field_specs"]
+__all__ = ["Agent", "BufferConfig", "BufferFieldSpec", "CentralCritic", "CompileConfig", "DDPConfig", "GameSpec", "ModelConfig", "OptimizerConfig", "TensorDict", "TrainConfig", "TrajectoryBuffer", "deserialize_train_config", "trajectory_field_specs", "game"]

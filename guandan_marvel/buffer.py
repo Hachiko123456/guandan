@@ -93,6 +93,15 @@ class TrajectoryBuffer:
     def __getitem__(self, item):
         return self._storage[item]
 
+    def __setitem__(self, item, value) -> None:
+        """Assign trajectory batches through the underlying TensorDict.
+
+        The complete-trajectory sampler uses slice assignment when moving
+        finished rollouts into its commit buffer.  Keeping the operation here
+        preserves TensorDict shape/key validation instead of bypassing it.
+        """
+        self._storage[item] = value
+
     def __len__(self) -> int:
         return self._size
 

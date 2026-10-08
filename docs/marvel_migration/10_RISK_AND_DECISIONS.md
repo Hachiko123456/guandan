@@ -52,7 +52,13 @@
 
 ### D007 结构化动作 row 的最大长度和词表
 
-必须通过合法动作全集扫描确定，不可猜测上界。
+日期：2026-10-08
+状态：accepted
+候选方案：完整 canonical action 放入单 row；只放 scalar token；带 current-state metadata 的固定 row。
+决定：采用 8-token row `[ROW_BEGIN, PHASE, PREFIX_STAGE, KIND, PAYLOAD_MARKER, V1_TOKEN_ID, IS_COMMIT, ROW_END]`，词表 320。V1 legal-next token 是唯一执行载荷，但必须整行匹配当前候选，避免 stale/forged row。
+证据：`M02_ADAPTER_PROTOCOL.md`、`tests/marvel_adapter/test_adapter.py`、`evidence/M02_guandan_adapter_v2/verification.json`。V1 token 词表仅 256 个 ID，因此候选容量 256 是硬上界；15 局扫描实际最大 27。
+影响：保持逐 token/COMMIT 时间轴，candidate row 可被 MARVEL action encoder 消费；不会枚举后静默 top-N。
+回滚方式：新协议版本可扩展 row，但不得原地改变 `GD-ACTION-0.2-MARVEL`。
 
 ### D008 C++ 物理牌表示
 
@@ -60,7 +66,13 @@
 
 ### D009 发牌和 chance step
 
-决定 reset 内发牌或显式 chance node；必须与 sampler 统计、replay 和搜索需求一致。
+日期：2026-10-08
+状态：accepted（Python reference backend）
+候选方案：reset 内确定性发牌；显式 chance node。
+决定：M02 Python reference adapter 在 `reset(seed)` 内完成发牌，首个输出直接给实际 active player；普通 PLAY/TRIBUTE/RETURN 决策的 `player_ids` 均为真实座位。
+证据：`M02_ADAPTER_PROTOCOL.md`、M02 reset/step/sampler tests。
+影响：M02 sampler 无额外 chance transition；M04 C++ 若改变该决策必须升级环境协议并做差分。
+回滚方式：只能在新 `GD-ENV` 版本引入显式 chance node，不得静默改变 V2 wire。
 
 ## 4. M03/M08 必须决策
 

@@ -1,0 +1,494 @@
+{
+  "backend": "python_reference",
+  "capacity_basis": {
+    "action_row": "fixed eight-field reversible schema",
+    "available_actions": "one row per unique V1 legal token; V1 vocabulary has 256 token IDs",
+    "horizon": "inherits V1 max_token_steps=4096 and hard-fails before nonterminal truncation",
+    "observation_event": "max(32-token V1 action + 5 framing, four 5-token exchange records + framing) <= 48"
+  },
+  "cases": [
+    {
+      "action_rows_checked": 1549,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 2.519136,
+      "level_rank": 3,
+      "max_candidates": 27,
+      "max_event_tokens": 8,
+      "max_prefix_stage": 2,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": true,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 0,
+      "steps": 295,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1610,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 1.277767,
+      "level_rank": 4,
+      "max_candidates": 27,
+      "max_event_tokens": 9,
+      "max_prefix_stage": 3,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 1,
+      "steps": 296,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1563,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 2.316525,
+      "level_rank": 5,
+      "max_candidates": 27,
+      "max_event_tokens": 9,
+      "max_prefix_stage": 3,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 2,
+      "steps": 297,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1528,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 1.223781,
+      "level_rank": 6,
+      "max_candidates": 27,
+      "max_event_tokens": 9,
+      "max_prefix_stage": 3,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 3,
+      "steps": 296,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1525,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 2.301912,
+      "level_rank": 7,
+      "max_candidates": 27,
+      "max_event_tokens": 9,
+      "max_prefix_stage": 3,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 4,
+      "steps": 297,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1502,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 1.623264,
+      "level_rank": 8,
+      "max_candidates": 27,
+      "max_event_tokens": 8,
+      "max_prefix_stage": 2,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 5,
+      "steps": 295,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1509,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 5.03253,
+      "level_rank": 9,
+      "max_candidates": 27,
+      "max_event_tokens": 9,
+      "max_prefix_stage": 3,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 6,
+      "steps": 297,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1561,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 1.697249,
+      "level_rank": 10,
+      "max_candidates": 27,
+      "max_event_tokens": 9,
+      "max_prefix_stage": 3,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 7,
+      "steps": 296,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1544,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 1.15463,
+      "level_rank": 11,
+      "max_candidates": 27,
+      "max_event_tokens": 9,
+      "max_prefix_stage": 3,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 8,
+      "steps": 296,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1548,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 1.73901,
+      "level_rank": 12,
+      "max_candidates": 27,
+      "max_event_tokens": 8,
+      "max_prefix_stage": 2,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 9,
+      "steps": 295,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1518,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 1.217155,
+      "level_rank": 13,
+      "max_candidates": 27,
+      "max_event_tokens": 8,
+      "max_prefix_stage": 2,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 10,
+      "steps": 295,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1582,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 1.519287,
+      "level_rank": 14,
+      "max_candidates": 27,
+      "max_event_tokens": 9,
+      "max_prefix_stage": 3,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 11,
+      "steps": 296,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1482,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 1.459673,
+      "level_rank": 15,
+      "max_candidates": 27,
+      "max_event_tokens": 9,
+      "max_prefix_stage": 3,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": false,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 12,
+      "steps": 296,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1562,
+      "card_conservation": true,
+      "commits": 187,
+      "duration_seconds": 1.634097,
+      "level_rank": 6,
+      "max_candidates": 27,
+      "max_event_tokens": 9,
+      "max_prefix_stage": 3,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": true,
+      "ranking": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "seed": 101,
+      "steps": 296,
+      "winner_team": 0
+    },
+    {
+      "action_rows_checked": 1538,
+      "card_conservation": true,
+      "commits": 191,
+      "duration_seconds": 1.812847,
+      "level_rank": 15,
+      "max_candidates": 27,
+      "max_event_tokens": 25,
+      "max_prefix_stage": 3,
+      "outcome_class": "DOUBLE_DOWN",
+      "previous_result": true,
+      "ranking": [
+        4,
+        2,
+        3,
+        1
+      ],
+      "real_terminal": true,
+      "resume_continuation_checked": false,
+      "reward": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "seed": 102,
+      "steps": 304,
+      "winner_team": 1
+    }
+  ],
+  "duration_seconds": 30.374833,
+  "environment": {
+    "cuda_available": false,
+    "numpy": "2.3.5",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]",
+    "torch": "2.13.0+cpu"
+  },
+  "game_spec": {
+    "identifier": "GuandanMARVELV2PythonReference",
+    "max_action_tokens": 8,
+    "max_available_actions": 256,
+    "max_game_horizon": 4096,
+    "max_observation_tokens": 48,
+    "num_channels": 512,
+    "num_players": 4,
+    "num_tokens": 320
+  },
+  "protocols": {
+    "action": "GD-ACTION-0.2-MARVEL",
+    "encoding": "GD-ENCODING-0.2-MARVEL",
+    "environment": "GD-ENV-0.2-MARVEL"
+  },
+  "schema": "guandan-marvel-m02-verification-v1",
+  "source": {
+    "branch": "codex/marvel-guandan-migration",
+    "head_before_stage_commit": "d4638ab4eb7886335c8f438deadcaff12066f1bf",
+    "reference_commit": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+    "reference_worktree_clean": true
+  },
+  "stage": "M02_guandan_adapter_v2",
+  "status": "passed",
+  "summary": {
+    "action_rows_checked": 23121,
+    "all_13_level_ranks": true,
+    "all_card_conservation": true,
+    "all_real_terminal": true,
+    "complete_games": 15,
+    "exchange_games": 2,
+    "max_observed_candidates": 27,
+    "max_observed_event_tokens": 25,
+    "max_observed_prefix_stage": 3,
+    "max_steps": 304,
+    "min_steps": 295,
+    "resume_continuation_checked": true,
+    "total_commits": 2809,
+    "total_steps": 4447
+  }
+}

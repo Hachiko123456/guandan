@@ -1,0 +1,75 @@
+{
+  "backend": "python_reference",
+  "branch": "codex/marvel-guandan-migration",
+  "date": "2026-10-08",
+  "evidence": [
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2/protocol_schema.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2/verification.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2/test_results.json",
+    "docs/marvel_migration/evidence/M02_guandan_adapter_v2/source_manifest.json"
+  ],
+  "gates": {
+    "capacity_overflow_hard_fail": true,
+    "complete_real_terminal_trajectories": true,
+    "cpp_backend": false,
+    "critic_actor_separation": true,
+    "explicit_python_reference_backend": true,
+    "formal_training_run": false,
+    "four_player_actor_information_sets": true,
+    "incremental_events_no_full_history_repeat": true,
+    "legacy_v1_preserved": true,
+    "marvel_sampler_buffer_consumption": true,
+    "model_strength_claim": false,
+    "protected_rule_files_unchanged": true,
+    "protocol_schemas_versioned": true,
+    "serialization_continuation": true,
+    "terminal_reward_ranking_conservation": true,
+    "unfinished_exchange_privacy": true,
+    "v1_v2_legal_action_bijection": true,
+    "v1_v2_state_transition_equivalence": true
+  },
+  "implementation_commit": "self",
+  "next_stage": "M03_marvel_training_smoke",
+  "protocols": {
+    "action": "GD-ACTION-0.2-MARVEL",
+    "encoding": "GD-ENCODING-0.2-MARVEL",
+    "environment": "GD-ENV-0.2-MARVEL",
+    "serialization": "guandan-marvel-python-adapter-v1"
+  },
+  "schema": "guandan-marvel-stage-report-v1",
+  "stage": "M02_guandan_adapter_v2",
+  "start_commit": "d4638ab4eb7886335c8f438deadcaff12066f1bf",
+  "status": "accepted",
+  "tests": {
+    "legacy_a01_a04": {
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 152,
+      "skipped": 0
+    },
+    "legacy_unit_integration": {
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 889,
+      "skipped": 10
+    },
+    "m02_scoped": {
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 25,
+      "skipped": 0
+    },
+    "verification_scan": {
+      "candidate_rows": 23121,
+      "commits": 2809,
+      "complete_games": 15,
+      "exchange_games": 2,
+      "exit_code": 0,
+      "level_ranks": 13,
+      "steps": 4447
+    }
+  }
+}

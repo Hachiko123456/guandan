@@ -6,7 +6,7 @@
 - 环境协议：`GD-ENV-0.2-MARVEL`
 - 编码协议：`GD-ENCODING-0.2-MARVEL`
 
-V2 在 M02 实现前是设计目标，不得把本文档表述为已完成代码。
+M02 已在 `guandan_marvel.game` 实现 Python reference adapter。规范化的常量、schema、容量依据和 channel/action 布局见 `M02_ADAPTER_PROTOCOL.md`；本文保留跨阶段接口原则。该实现不是 C++ 或高性能正式训练后端。
 
 ## 2. 游戏模块常量
 

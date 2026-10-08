@@ -102,3 +102,9 @@ M01 的阶段报告必须包含：
 - 完整逐文件来源、改写程度、残留假设和 M02 接口见 `M01_SOURCE_AUDIT.md`。
 - `env_batch`、sampler、workflow、IPPO/VRPO trainer、evaluation hook 和 train CLI 未机械复制，分别等待 M02/M03/M06。
 - 参考 MIT LICENSE 随包分发于 `guandan_marvel/LICENSE`，来源说明位于 `guandan_marvel/NOTICE.md`。
+## 7. M02 已解析映射（2026-10-08）
+
+- `guandan_marvel/env_batch.py` 派生自参考 `marvel/env_batch.py`；保留 SPDX、来源 commit 和 MIT 许可证。
+- `guandan_marvel/runtime/sampler.py` 派生自参考 `marvel/runtime/sampler.py`；只替换 canonical namespace/import，具体游戏通过 V2 module 注入。
+- `guandan_marvel/game.py` 为 Guandan 专用新实现，只包装已验收 A03/A04，不复制斗地主规则。
+- 完整文件级来源、未复制范围与只读审计见 `M02_SOURCE_AUDIT.md`。

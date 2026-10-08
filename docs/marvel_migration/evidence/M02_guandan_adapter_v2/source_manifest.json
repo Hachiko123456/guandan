@@ -1,0 +1,81 @@
+{
+  "excluded": [
+    "nanopokerlib/cpp/games/doudizhu",
+    "evaluations/doudizhu",
+    "kagami/games/doudizhu",
+    "legacy V1 replacement",
+    "C++/pybind"
+  ],
+  "files": [
+    {
+      "bytes": 33346,
+      "classification": "guandan-specific Python reference adapter",
+      "origin": "new",
+      "path": "guandan_marvel/game.py",
+      "sha256": "fed23ab77224b28c36407600f3eac1778133eac3949806c9b27424648d7fbac1",
+      "source": null
+    },
+    {
+      "bytes": 3525,
+      "classification": "light adaptation",
+      "origin": "derived",
+      "path": "guandan_marvel/env_batch.py",
+      "sha256": "bc0d31770214e66e315a8a4627382d4bdb2fec80bf85bd1eb1379386039a12bc",
+      "source": "marvel/env_batch.py"
+    },
+    {
+      "bytes": 17152,
+      "classification": "light adaptation",
+      "origin": "derived",
+      "path": "guandan_marvel/runtime/sampler.py",
+      "sha256": "403c41316a0515f8babdb29f4ebe1f95c71489d57f38ae7f6d0b5ff353b433b3",
+      "source": "marvel/runtime/sampler.py"
+    },
+    {
+      "bytes": 9387,
+      "classification": "sampler slice-assignment support",
+      "origin": "m01-derived-modified",
+      "path": "guandan_marvel/buffer.py",
+      "sha256": "b1b010e0d30c4274fe6dd8d012e0e0c099a5f6ec89a52d648f4042f18d6def1e",
+      "source": "marvel/buffer.py"
+    },
+    {
+      "bytes": 830,
+      "classification": "exports",
+      "origin": "local-modified",
+      "path": "guandan_marvel/__init__.py",
+      "sha256": "0a1b7971d310821e770a3a60f8a087beaaf6d9711a48e3d9a1185364da765bed",
+      "source": null
+    },
+    {
+      "bytes": 687,
+      "classification": "exports",
+      "origin": "local-modified",
+      "path": "guandan_marvel/runtime/__init__.py",
+      "sha256": "2d32aedf30f9f6438fc648dc85f8a5c51a907aa92bff971c26dea6353087f7d9",
+      "source": null
+    },
+    {
+      "bytes": 19746,
+      "classification": "M02 acceptance tests",
+      "origin": "new",
+      "path": "tests/marvel_adapter/test_adapter.py",
+      "sha256": "2ed074fc424743ef785ded8e4ff3c33f4f84b6c5e43ece0687f733e9d7ef870a",
+      "source": null
+    },
+    {
+      "bytes": 9104,
+      "classification": "M02 evidence generator",
+      "origin": "new",
+      "path": "scripts/verify_marvel_adapter_v2.py",
+      "sha256": "d4145d6430f281bfe450bc206bad14e7f7335cca153734e11b2523958c5303d5",
+      "source": null
+    }
+  ],
+  "license": "MIT",
+  "reference_commit": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+  "reference_repository": "D:\\project\\doudizhu",
+  "runtime_reference_checkout_dependency": false,
+  "schema": "guandan-marvel-m02-source-manifest-v1",
+  "stage": "M02_guandan_adapter_v2"
+}

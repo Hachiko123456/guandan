@@ -1,0 +1,61 @@
+{
+  "commands": [
+    {
+      "command": "python -m pytest -q tests/marvel_adapter tests/marvel_core --disable-warnings --junitxml=runs/M02_guandan_adapter_v2/test_logs/m02_scoped.junit.xml",
+      "duration_seconds": 44.271,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M02_guandan_adapter_v2/test_logs/m02_scoped.junit.xml",
+      "junit_sha256": "244e6ff6f506f30fab80f729708825ac74a6944a31a1437b071789e25c08d822",
+      "log": "runs/M02_guandan_adapter_v2/test_logs/m02_scoped.log",
+      "log_sha256": "e4ad13d7b30d1e5c08721ef6dc3031161e43c8c7642905a087e42b73f070e5f0",
+      "name": "m02_scoped",
+      "passed": 25,
+      "skipped": 0
+    },
+    {
+      "command": "python -m pytest -q tests/acceptance/test_a01_cards.py tests/acceptance/test_a02_rules.py tests/acceptance/test_a02_a03_defect_fix.py tests/acceptance/test_a03_actions.py tests/acceptance/test_a04_environment.py --disable-warnings --junitxml=runs/M02_guandan_adapter_v2/test_logs/legacy_a01_a04.junit.xml",
+      "duration_seconds": 10.906,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M02_guandan_adapter_v2/test_logs/legacy_a01_a04.junit.xml",
+      "junit_sha256": "8953fd603426375b0c24acece1ea6527d6975a796b84c7990085cf7f96ccbc9c",
+      "log": "runs/M02_guandan_adapter_v2/test_logs/legacy_a01_a04.log",
+      "log_sha256": "9c5c5a69672b23e4b62b4a704155bec9c4ca2e34bd737d8555804033d81073d7",
+      "name": "legacy_a01_a04",
+      "passed": 152,
+      "skipped": 0
+    },
+    {
+      "command": "python -m pytest -q tests/unit tests/integration --disable-warnings --junitxml=runs/M02_guandan_adapter_v2/test_logs/legacy_unit_integration.junit.xml",
+      "duration_seconds": 223.294,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M02_guandan_adapter_v2/test_logs/legacy_unit_integration.junit.xml",
+      "junit_sha256": "c73059389afb2a8610c0e8f9d46d16370e767fa1a285dc7dd9a0b60a469512a4",
+      "log": "runs/M02_guandan_adapter_v2/test_logs/legacy_unit_integration.log",
+      "log_sha256": "5c5ed444b2bd67789e43b68a32f8aa9480d7b418756f0bd50022ad2305f7968c",
+      "name": "legacy_unit_integration",
+      "passed": 889,
+      "skipped": 10
+    },
+    {
+      "command": "python scripts/verify_marvel_adapter_v2.py --output docs/marvel_migration/evidence/M02_guandan_adapter_v2/verification.json",
+      "errors": 0,
+      "evidence": "docs/marvel_migration/evidence/M02_guandan_adapter_v2/verification.json",
+      "evidence_sha256": "b3393d3ef69e9965dfb31ef30e10ea14f4e36292e3b87c46d5f4b2b66f920c3e",
+      "exit_code": 0,
+      "failed": 0,
+      "log": "runs/M02_guandan_adapter_v2/test_logs/verification_scan.log",
+      "log_sha256": "aec2860c5720967d6ec01b806d21840f14bc89aafb965f8071a1ac9d43c7cd31",
+      "name": "verification_scan",
+      "passed": 1,
+      "skipped": 0
+    }
+  ],
+  "schema": "guandan-marvel-m02-test-results-v1",
+  "stage": "M02_guandan_adapter_v2"
+}

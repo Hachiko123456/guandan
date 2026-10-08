@@ -1,0 +1,80 @@
+{
+  "action": {
+    "execution": "The complete row must exactly match one current V1 legal-next row.",
+    "row": [
+      "ROW_BEGIN",
+      "PHASE",
+      "PREFIX_STAGE",
+      "KIND",
+      "PAYLOAD_MARKER",
+      "V1_TOKEN_ID",
+      "IS_COMMIT",
+      "ROW_END"
+    ],
+    "row_length": 8,
+    "version": "GD-ACTION-0.2-MARVEL"
+  },
+  "backend": "python_reference",
+  "encoding": {
+    "channel_dtype": "uint8",
+    "history": "one incremental event row per environment token step",
+    "privacy": "no other-seat hand identity and no unresolved other-seat exchange card",
+    "state": "public state plus observer hand/private prefix/private unresolved exchange selection",
+    "version": "GD-ENCODING-0.2-MARVEL"
+  },
+  "environment": {
+    "backend": "python_reference",
+    "capacity_policy": "hard_fail_no_truncation",
+    "critic_privileged_api": "EnvBatch.critic_state (never attached to EnvStep)",
+    "reset_step_fields": {
+      "available_actions.is_commit": [
+        "B",
+        256
+      ],
+      "available_actions.tokens": [
+        "B",
+        256,
+        8
+      ],
+      "available_actions.weights": [
+        "B",
+        256
+      ],
+      "is_terminal": [
+        "B"
+      ],
+      "observations.channels": [
+        "B",
+        4,
+        512
+      ],
+      "observations.tokens": [
+        "B",
+        4,
+        48
+      ],
+      "player_ids": [
+        "B"
+      ],
+      "rewards": [
+        "B",
+        4
+      ]
+    },
+    "version": "GD-ENV-0.2-MARVEL"
+  },
+  "game_identifier": "GuandanMARVELV2PythonReference",
+  "game_spec": {
+    "max_action_tokens": 8,
+    "max_available_actions": 256,
+    "max_game_horizon": 4096,
+    "max_observation_tokens": 48,
+    "num_channels": 512,
+    "num_players": 4,
+    "num_tokens": 320,
+    "pad_token": 0
+  },
+  "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+  "schema": "guandan-marvel-v2-protocol-schema-v1",
+  "serialization_schema": "guandan-marvel-python-adapter-v1"
+}
