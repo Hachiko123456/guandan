@@ -8,7 +8,7 @@
   "historical_not_rerun": [
     "legacy unit/integration/property suite from previous M04 repair; not claimed as rerun in this narrowly scoped repair"
   ],
-  "implementation_commit": null,
+  "implementation_commit": "612cd1891393b582192ae7a35b4c2763c66f4f79",
   "new_skips": 0,
   "other_commands": [
     {

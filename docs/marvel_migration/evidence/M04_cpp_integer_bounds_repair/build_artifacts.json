@@ -20,7 +20,7 @@
     "path": "nanopokerlib/_guandan_cpp.cp312-win_amd64.pyd",
     "sha256": "54d54e1afb372059c7a796f61fedfa5484dffd42f595368646d53055b7ebc34b"
   },
-  "implementation_commit": null,
+  "implementation_commit": "612cd1891393b582192ae7a35b4c2763c66f4f79",
   "isolated_extension": {
     "bytes": 3682524,
     "path": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/wheel_install/nanopokerlib/_guandan_cpp.cp312-win_amd64.pyd",

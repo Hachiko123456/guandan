@@ -5,9 +5,9 @@
 - 原始 M04 实现：`75735031721a44304ffe4d7be7fc1532fadd0ba6`
 - 前次补修实现：`ff0d1d097d8989ff9037c303493002a2a4c1388a`
 - 前次验收登记：`1703456d0de1b0643513a37fcc7fd8f45482a7ef`
-- 本次补修实现：待第一笔提交后登记
-- 本次验收登记：待第二笔提交
-- 状态：`locally_verified_pending_identity_registration`
+- 本次补修实现：`612cd1891393b582192ae7a35b4c2763c66f4f79`
+- 本次验收登记：本登记提交自身（不嵌入自引用 SHA；由 Git 和最终答复给出）
+- 状态：`accepted`
 
 ## 范围
 
@@ -168,4 +168,4 @@ SHA-256 56914e40f56267344569fdb94ab546f61048658cfd3562d6793ccb3744c4ca12
 
 ## 当前结论
 
-最小代码修复和全部要求的本地验证已经通过。当前等待第一笔实现提交生成稳定 SHA，再由第二笔登记重新验收。在身份登记完成前 M04 保持 `accepted=false`，M05 保持 blocked。
+本次最小补修实现已固定为 `612cd1891393b582192ae7a35b4c2763c66f4f79`。原始漏洞、全部八字段 signed/unsigned 边界、raw/decoded 两入口、batch 原子性、合法 dtype、Sampler、RNG/serialization、强制构建和隔离 wheel 均通过。M04 已重新 `accepted`；M05 为 `not_started`、`accepted=false`、无 blocker，可以启动但本轮未自动执行。

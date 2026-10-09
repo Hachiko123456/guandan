@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M04_cpp_runtime
+current_stage: M05_differential_performance
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -92,12 +92,13 @@ stages:
     blockers: []
 
   M04_cpp_runtime:
-    status: in_progress
-    accepted: false
-    commit: ff0d1d097d8989ff9037c303493002a2a4c1388a
+    status: accepted
+    accepted: true
+    commit: 612cd1891393b582192ae7a35b4c2763c66f4f79
     original_implementation_commit: 75735031721a44304ffe4d7be7fc1532fadd0ba6
     previous_repair_implementation_commit: ff0d1d097d8989ff9037c303493002a2a4c1388a
     previous_repair_acceptance_commit: 1703456d0de1b0643513a37fcc7fd8f45482a7ef
+    integer_bounds_repair_implementation_commit: 612cd1891393b582192ae7a35b4c2763c66f4f79
     reports:
       - docs/marvel_migration/reports/M04_cpp_runtime.md
       - docs/marvel_migration/reports/M04_cpp_runtime.json
@@ -133,16 +134,14 @@ stages:
       - docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/source_manifest.json
       - docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/build_artifacts.json
       - docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/artifact_manifest.json
-    blockers:
-      - integer-bounds repair implementation commit identity and reacceptance registration are pending
+    blockers: []
 
   M05_differential_performance:
-    status: blocked
+    status: not_started
     accepted: false
     commit: null
     reports: []
-    blockers:
-      - M04_cpp_runtime integer-bounds repair is not accepted
+    blockers: []
 
   M06_evaluation_champion:
     status: blocked

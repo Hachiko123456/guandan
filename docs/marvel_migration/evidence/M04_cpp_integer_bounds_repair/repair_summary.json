@@ -1,5 +1,5 @@
 {
-  "accepted": false,
+  "accepted": true,
   "all_failure_states_unchanged": true,
   "batch_atomic": true,
   "boundary_cases": 13,
@@ -7,8 +7,8 @@
   "default_backend_changed": false,
   "field_cases": 24,
   "fixed": true,
-  "identity_registration_pending": true,
-  "implementation_commit": null,
+  "identity_registration_pending": false,
+  "implementation_commit": "612cd1891393b582192ae7a35b4c2763c66f4f79",
   "issue_reproduced": true,
   "legal_dtypes": [
     "int32",
@@ -17,6 +17,7 @@
     "uint64"
   ],
   "m05_started": false,
+  "next_stage_allowed": true,
   "python_cpp_rejection": true,
   "raw_and_decoded_rejected": true,
   "rng_restore_modified": false,

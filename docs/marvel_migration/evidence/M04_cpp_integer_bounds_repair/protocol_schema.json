@@ -2,7 +2,7 @@
   "date": "2026-10-09",
   "default_backend": "python_reference",
   "failure_atomic": true,
-  "implementation_commit": null,
+  "implementation_commit": "612cd1891393b582192ae7a35b4c2763c66f4f79",
   "inputs_preserved": [
     "numpy rows",
     "Sequence[V2Action]"

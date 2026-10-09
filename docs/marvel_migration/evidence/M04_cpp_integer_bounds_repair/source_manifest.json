@@ -33,7 +33,7 @@
       "sha256": "a177bcc3b81fbabc2fc1abfb491fa41e0b402ceb43a60c769e42e4ce1d5f920b"
     }
   ],
-  "implementation_commit": null,
+  "implementation_commit": "612cd1891393b582192ae7a35b4c2763c66f4f79",
   "protected_files": [
     {
       "baseline_blob": "85734aa3039aa2e8b5850762ddb4903942fab09b",
