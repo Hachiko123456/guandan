@@ -1,7 +1,7 @@
 {
   "date": "2026-10-09",
   "historical_evidence_preserved": true,
-  "implementation_commit": null,
+  "implementation_commit": "9b4cb016c690650a18d3bc39137f703491c207d4",
   "large_artifacts_committed": false,
   "run_artifacts": [
     {
@@ -273,22 +273,22 @@
       "sha256": "78245ca7b2b2d502c1b32074a4b6b89b8c34c596f27056c183fa4f776f4da80a"
     },
     {
-      "bytes": 739,
+      "bytes": 777,
       "git_tracked": true,
       "path": "docs/marvel_migration/evidence/M05_performance_finish/verification.json",
-      "sha256": "5e1b75feb9747763b982f30263f05489fa4afe15b5eea2e21f9cdd1293ddb32a"
+      "sha256": "6324b11ef08fd29d713f678c8c811a9af757ac1dfce5be06489c2992dba4dba0"
     },
     {
-      "bytes": 8351,
+      "bytes": 8342,
       "git_tracked": true,
       "path": "docs/marvel_migration/reports/M05_performance_finish.md",
-      "sha256": "4d50e807324b44f4fddf2bd75d07805f1610b2168bcb5f224041ec48a7813e13"
+      "sha256": "993bd2a5329ec06f42b1535af40a2200ae821548f6057948d7c9a422d262a5f0"
     },
     {
-      "bytes": 50971,
+      "bytes": 51006,
       "git_tracked": true,
       "path": "docs/marvel_migration/reports/M05_performance_finish.json",
-      "sha256": "c1c4484d487ed7baceca1f4bf6eea6dabba3f9dca9ceca04071fad28fc0c98b3"
+      "sha256": "5ee9c98311eb3a20957e811a9ab136ec90de2a73a2958dda01ccbc1ecf51adb1"
     },
     {
       "bytes": 3443,
@@ -297,10 +297,10 @@
       "sha256": "5388da0cb7752adac4c4afd45732e8166b28e50c6c90432264ac8dd5482e1044"
     },
     {
-      "bytes": 13335,
+      "bytes": 13504,
       "git_tracked": true,
       "path": "docs/marvel_migration/STATUS.yaml",
-      "sha256": "5ae5df9a1909831dd01acfdb6880f2eabe040e274b768e25be77b6a057e02aa2"
+      "sha256": "83041291b5dcfdf045495cd6b5fc1bb2c2730e947b8bbdc2a209a071d747fb19"
     }
   ]
 }
