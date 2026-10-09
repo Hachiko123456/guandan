@@ -1,0 +1,270 @@
+{
+  "schema": "guandan-marvel-m06-e2e-summary-v1",
+  "stage": "M06_evaluation_champion",
+  "run_root": "runs/M06_evaluation_champion/20261010_acceptance_final2",
+  "command": "python scripts/run_marvel_m06_evaluation.py --output runs/M06_evaluation_champion/20261010_acceptance_final2 --device cpu",
+  "exit_code": 0,
+  "result_status": "complete",
+  "candidate": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "backend": "cpp",
+    "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+    "checkpoint_path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\cpp_checkpoint\\cpp-backend-iter000001-v4.pt",
+    "checkpoint_schema": "guandan-marvel-training-checkpoint-v4",
+    "checkpoint_sha256": "5a2507d39fc973cb5331d47b4a3111ac993f5000bb72e8285e36fedee8ed7f02",
+    "iteration": 1,
+    "merged_policy": {
+      "beta": 0.0,
+      "identity": "current_policy_copy",
+      "not_smoothed_when_beta_zero": true
+    },
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "resolved_config_hash": "73a9d3ae0ffafc7efb0138615c7c03ef8b032ddaadafaf0729bd29786650af66",
+    "schema": "guandan-marvel-policy-identity-v1",
+    "source_commit": "3aee75fdeece3fc9f142f93c9fb971fe59954bd8",
+    "source_hash": "2c0cf2a79b41c14f5056cfba6f0a17f3a8987003c1381b924aeb49d5666d4d76",
+    "training_counters": {
+      "iteration": 1
+    }
+  },
+  "games_recorded": 20,
+  "expected_games": 20,
+  "evaluation_hash": "8f7cecc6c00ed3d4b0202fe49a00d59ae73f917e9b516e88145aaeb2333eb2c6",
+  "plan_hash": "a7ff8cfd6fb3bb7bc3b32623fb22fef0bc7150b4fcf1f8c0be14279a5d14b784",
+  "deals_manifest_hash": "26462487196f057a0df45de760b29a527d004838c10bd9910c4771256c0f0d37",
+  "matrix": [
+    {
+      "checkpoint_sha256": "5a2507d39fc973cb5331d47b4a3111ac993f5000bb72e8285e36fedee8ed7f02",
+      "id": "champion",
+      "kind": "v2"
+    },
+    {
+      "id": "rule",
+      "kind": "rule"
+    },
+    {
+      "id": "random",
+      "kind": "random"
+    },
+    {
+      "checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+      "id": "legacy",
+      "kind": "legacy_v1"
+    },
+    {
+      "checkpoint_sha256": "5a2507d39fc973cb5331d47b4a3111ac993f5000bb72e8285e36fedee8ed7f02",
+      "id": "opponent_pool",
+      "kind": "v2"
+    }
+  ],
+  "seat_rotation_coverage": {
+    "cluster_count": 5,
+    "complete": true,
+    "errors": [],
+    "expected_rotations": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "overall_metrics": {
+    "by_rotation": {
+      "0": 0.8,
+      "1": 0.0,
+      "2": 0.8,
+      "3": 0.0
+    },
+    "clustered_ci95": {
+      "clusters": 5,
+      "conclusive": true,
+      "high": 0.6776,
+      "low": 0.12240000000000006,
+      "mean": 0.4,
+      "method": "deal-cluster-t95",
+      "standard_error": 0.09999999999999999
+    },
+    "complete": true,
+    "completed_games": 20,
+    "eval/cluster_count": 5,
+    "eval/clustered_ci95_high": 0.6776,
+    "eval/clustered_ci95_low": 0.12240000000000006,
+    "eval/double_down_rate": 0.15,
+    "eval/games_per_second": 0.5825622973260322,
+    "eval/head_last_rate": 0.8,
+    "eval/head_third_rate": 0.05,
+    "eval/illegal_count": 0,
+    "eval/mean_team_reward": -0.2,
+    "eval/seat_rotation_gap": 0.8,
+    "eval/team02_win_rate": 0.8,
+    "eval/team13_win_rate": 0.0,
+    "eval/truncated_count": 0,
+    "eval/win_rate": 0.4,
+    "games": 20
+  },
+  "per_opponent": {
+    "champion": {
+      "complete": true,
+      "completed_games": 4,
+      "eval/cluster_count": 1,
+      "eval/clustered_ci95_high": null,
+      "eval/clustered_ci95_low": null,
+      "eval/double_down_rate": 0.0,
+      "eval/games_per_second": 0.44136937496804796,
+      "eval/head_last_rate": 1.0,
+      "eval/head_third_rate": 0.0,
+      "eval/illegal_count": 0,
+      "eval/mean_team_reward": 0.0,
+      "eval/seat_rotation_gap": 1.0,
+      "eval/team02_win_rate": 1.0,
+      "eval/team13_win_rate": 0.0,
+      "eval/truncated_count": 0,
+      "eval/win_rate": 0.5,
+      "games": 4
+    },
+    "legacy": {
+      "complete": true,
+      "completed_games": 4,
+      "eval/cluster_count": 1,
+      "eval/clustered_ci95_high": null,
+      "eval/clustered_ci95_low": null,
+      "eval/double_down_rate": 0.25,
+      "eval/games_per_second": 0.5179932330918038,
+      "eval/head_last_rate": 0.5,
+      "eval/head_third_rate": 0.25,
+      "eval/illegal_count": 0,
+      "eval/mean_team_reward": -1.0,
+      "eval/seat_rotation_gap": 0.0,
+      "eval/team02_win_rate": 0.0,
+      "eval/team13_win_rate": 0.0,
+      "eval/truncated_count": 0,
+      "eval/win_rate": 0.0,
+      "games": 4
+    },
+    "opponent_pool": {
+      "complete": true,
+      "completed_games": 4,
+      "eval/cluster_count": 1,
+      "eval/clustered_ci95_high": null,
+      "eval/clustered_ci95_low": null,
+      "eval/double_down_rate": 0.0,
+      "eval/games_per_second": 0.44169002617985575,
+      "eval/head_last_rate": 1.0,
+      "eval/head_third_rate": 0.0,
+      "eval/illegal_count": 0,
+      "eval/mean_team_reward": 0.0,
+      "eval/seat_rotation_gap": 1.0,
+      "eval/team02_win_rate": 1.0,
+      "eval/team13_win_rate": 0.0,
+      "eval/truncated_count": 0,
+      "eval/win_rate": 0.5,
+      "games": 4
+    },
+    "random": {
+      "complete": true,
+      "completed_games": 4,
+      "eval/cluster_count": 1,
+      "eval/clustered_ci95_high": null,
+      "eval/clustered_ci95_low": null,
+      "eval/double_down_rate": 0.0,
+      "eval/games_per_second": 0.8477724165119311,
+      "eval/head_last_rate": 1.0,
+      "eval/head_third_rate": 0.0,
+      "eval/illegal_count": 0,
+      "eval/mean_team_reward": 0.0,
+      "eval/seat_rotation_gap": 1.0,
+      "eval/team02_win_rate": 1.0,
+      "eval/team13_win_rate": 0.0,
+      "eval/truncated_count": 0,
+      "eval/win_rate": 0.5,
+      "games": 4
+    },
+    "rule": {
+      "complete": true,
+      "completed_games": 4,
+      "eval/cluster_count": 1,
+      "eval/clustered_ci95_high": null,
+      "eval/clustered_ci95_low": null,
+      "eval/double_down_rate": 0.5,
+      "eval/games_per_second": 1.0604713927899883,
+      "eval/head_last_rate": 0.5,
+      "eval/head_third_rate": 0.0,
+      "eval/illegal_count": 0,
+      "eval/mean_team_reward": 0.0,
+      "eval/seat_rotation_gap": 1.0,
+      "eval/team02_win_rate": 1.0,
+      "eval/team13_win_rate": 0.0,
+      "eval/truncated_count": 0,
+      "eval/win_rate": 0.5,
+      "games": 4
+    }
+  },
+  "promotion": {
+    "candidate": {
+      "algorithm": "ippo",
+      "architecture": "v1.3",
+      "backend": "cpp",
+      "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+      "checkpoint_path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\cpp_checkpoint\\cpp-backend-iter000001-v4.pt",
+      "checkpoint_schema": "guandan-marvel-training-checkpoint-v4",
+      "checkpoint_sha256": "5a2507d39fc973cb5331d47b4a3111ac993f5000bb72e8285e36fedee8ed7f02",
+      "iteration": 1,
+      "merged_policy": {
+        "beta": 0.0,
+        "identity": "current_policy_copy",
+        "not_smoothed_when_beta_zero": true
+      },
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+      "resolved_config_hash": "73a9d3ae0ffafc7efb0138615c7c03ef8b032ddaadafaf0729bd29786650af66",
+      "schema": "guandan-marvel-policy-identity-v1",
+      "source_commit": "3aee75fdeece3fc9f142f93c9fb971fe59954bd8",
+      "source_hash": "2c0cf2a79b41c14f5056cfba6f0a17f3a8987003c1381b924aeb49d5666d4d76",
+      "training_counters": {
+        "iteration": 1
+      }
+    },
+    "current_champion": {
+      "algorithm": "ippo",
+      "architecture": "v1.3",
+      "backend": "cpp",
+      "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+      "checkpoint_path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\cpp_checkpoint\\cpp-backend-iter000001-v4.pt",
+      "checkpoint_schema": "guandan-marvel-training-checkpoint-v4",
+      "checkpoint_sha256": "5a2507d39fc973cb5331d47b4a3111ac993f5000bb72e8285e36fedee8ed7f02",
+      "iteration": 1,
+      "merged_policy": {
+        "beta": 0.0,
+        "identity": "current_policy_copy",
+        "not_smoothed_when_beta_zero": true
+      },
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+      "resolved_config_hash": "73a9d3ae0ffafc7efb0138615c7c03ef8b032ddaadafaf0729bd29786650af66",
+      "schema": "guandan-marvel-policy-identity-v1",
+      "source_commit": "3aee75fdeece3fc9f142f93c9fb971fe59954bd8",
+      "source_hash": "2c0cf2a79b41c14f5056cfba6f0a17f3a8987003c1381b924aeb49d5666d4d76",
+      "training_counters": {
+        "iteration": 1
+      }
+    },
+    "decided_at": "2026-10-09T16:29:05.017901+00:00",
+    "evaluation_hash": "8f7cecc6c00ed3d4b0202fe49a00d59ae73f917e9b516e88145aaeb2333eb2c6",
+    "hash": "798cb1cd8674040c92d4bc0c02fab243011e869e4894a3297530ab233376150e",
+    "policy": {
+      "ci95_low_threshold": 0.52,
+      "min_clusters": 2,
+      "random_min_win_rate": 0.7,
+      "rule_min_win_rate": 0.4
+    },
+    "promote": false,
+    "reasons": [
+      "candidate is byte-identical to current champion"
+    ],
+    "schema": "guandan-marvel-promotion-decision-v1",
+    "selection_deals_hash": "26462487196f057a0df45de760b29a527d004838c10bd9910c4771256c0f0d37",
+    "status": "reject"
+  },
+  "champion_unchanged": true,
+  "final_holdout_uses": [],
+  "disclaimer": "Local small-scale E0 pipeline exercise only; not model strength or Kaggle/T4x2 evidence."
+}

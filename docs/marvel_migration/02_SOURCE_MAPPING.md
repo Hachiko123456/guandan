@@ -120,3 +120,10 @@ M01 的阶段报告必须包含：
 - `nanopokerlib/cpp/bindings.cpp` 和 `setup.py` 提供显式 pybind/C++20 build、`EnvBatch`、NumPy wire、序列化和 debug/critic API。
 - `nanopokerlib/guandan.py` 暴露 `GAME_SPEC`；`guandan_marvel/cpp_game.py` 是显式 opt-in backend。`guandan_marvel.game` 仍为默认 Python reference。
 - 完整来源分类、hash 和未复制扫描见 `evidence/M04_cpp_runtime/source_manifest.json`。
+
+## 10. M06 已解析映射（2026-10-10）
+
+- 参考 `evaluations/core/*` 的 plan/recording/summary 组织概念和 `marvel/eval/hooks.py` 的周期 hook 边界；
+- Guandan host、agents、四座位 rotation、deal-cluster CI、promotion、champion/pool/final audit 全部按本仓库协议重写；
+- 未复制 `evaluations/doudizhu/*`、landlord/peasants 指标或外部斗地主 agent；
+- 完整文件级分类见 `M06_SOURCE_AUDIT.md`。

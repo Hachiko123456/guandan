@@ -1,0 +1,205 @@
+{
+  "coverage": {
+    "leader_seats": [
+      0
+    ],
+    "level_ranks": [
+      5
+    ],
+    "tribute_modes": [
+      "head_third"
+    ]
+  },
+  "created_at": "2026-10-09T16:28:26.643200+00:00",
+  "datasets": {
+    "final": [
+      {
+        "deal_id": "final-000000",
+        "domain": "final",
+        "leader_seat": 0,
+        "level_rank": 5,
+        "previous_result": {
+          "outcome_class": "HEAD_THIRD",
+          "ranking": [
+            1,
+            4,
+            3,
+            2
+          ],
+          "tribute_cancelled": false,
+          "winner_team": 0
+        },
+        "seed": 1500000000
+      }
+    ],
+    "selection": [
+      {
+        "deal_id": "selection-000000",
+        "domain": "selection",
+        "leader_seat": 0,
+        "level_rank": 5,
+        "previous_result": {
+          "outcome_class": "HEAD_THIRD",
+          "ranking": [
+            1,
+            4,
+            3,
+            2
+          ],
+          "tribute_cancelled": false,
+          "winner_team": 0
+        },
+        "seed": 1000000000
+      }
+    ],
+    "training": [
+      {
+        "deal_id": "training-000000",
+        "domain": "training",
+        "leader_seat": 0,
+        "level_rank": 5,
+        "previous_result": {
+          "outcome_class": "HEAD_THIRD",
+          "ranking": [
+            1,
+            4,
+            3,
+            2
+          ],
+          "tribute_cancelled": false,
+          "winner_team": 0
+        },
+        "seed": 100000
+      },
+      {
+        "deal_id": "training-000001",
+        "domain": "training",
+        "leader_seat": 0,
+        "level_rank": 5,
+        "previous_result": {
+          "outcome_class": "HEAD_THIRD",
+          "ranking": [
+            1,
+            4,
+            3,
+            2
+          ],
+          "tribute_cancelled": false,
+          "winner_team": 0
+        },
+        "seed": 100001
+      },
+      {
+        "deal_id": "training-000002",
+        "domain": "training",
+        "leader_seat": 0,
+        "level_rank": 5,
+        "previous_result": {
+          "outcome_class": "HEAD_THIRD",
+          "ranking": [
+            1,
+            4,
+            3,
+            2
+          ],
+          "tribute_cancelled": false,
+          "winner_team": 0
+        },
+        "seed": 100002
+      },
+      {
+        "deal_id": "training-000003",
+        "domain": "training",
+        "leader_seat": 0,
+        "level_rank": 5,
+        "previous_result": {
+          "outcome_class": "HEAD_THIRD",
+          "ranking": [
+            1,
+            4,
+            3,
+            2
+          ],
+          "tribute_cancelled": false,
+          "winner_team": 0
+        },
+        "seed": 100003
+      },
+      {
+        "deal_id": "training-000004",
+        "domain": "training",
+        "leader_seat": 0,
+        "level_rank": 5,
+        "previous_result": {
+          "outcome_class": "HEAD_THIRD",
+          "ranking": [
+            1,
+            4,
+            3,
+            2
+          ],
+          "tribute_cancelled": false,
+          "winner_team": 0
+        },
+        "seed": 100004
+      },
+      {
+        "deal_id": "training-000005",
+        "domain": "training",
+        "leader_seat": 0,
+        "level_rank": 5,
+        "previous_result": {
+          "outcome_class": "HEAD_THIRD",
+          "ranking": [
+            1,
+            4,
+            3,
+            2
+          ],
+          "tribute_cancelled": false,
+          "winner_team": 0
+        },
+        "seed": 100005
+      },
+      {
+        "deal_id": "training-000006",
+        "domain": "training",
+        "leader_seat": 0,
+        "level_rank": 5,
+        "previous_result": {
+          "outcome_class": "HEAD_THIRD",
+          "ranking": [
+            1,
+            4,
+            3,
+            2
+          ],
+          "tribute_cancelled": false,
+          "winner_team": 0
+        },
+        "seed": 100006
+      },
+      {
+        "deal_id": "training-000007",
+        "domain": "training",
+        "leader_seat": 0,
+        "level_rank": 5,
+        "previous_result": {
+          "outcome_class": "HEAD_THIRD",
+          "ranking": [
+            1,
+            4,
+            3,
+            2
+          ],
+          "tribute_cancelled": false,
+          "winner_team": 0
+        },
+        "seed": 100007
+      }
+    ]
+  },
+  "generator_version": "guandan-marvel-deal-seed-generator-v1",
+  "hash": "26462487196f057a0df45de760b29a527d004838c10bd9910c4771256c0f0d37",
+  "schema": "guandan-marvel-deals-manifest-v1"
+}

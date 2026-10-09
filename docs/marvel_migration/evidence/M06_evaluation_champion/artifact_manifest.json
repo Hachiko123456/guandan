@@ -1,0 +1,117 @@
+{
+  "schema": "guandan-marvel-m06-artifact-manifest-v1",
+  "stage": "M06_evaluation_champion",
+  "large_artifacts_committed": false,
+  "run_root": "runs/M06_evaluation_champion/20261010_acceptance_final2",
+  "test_root": "runs/M06_evaluation_champion/20261010_acceptance_tests",
+  "run_artifacts": [
+    {
+      "path": "runs/M06_evaluation_champion/20261010_acceptance_final2/e2e.log",
+      "bytes": 6634,
+      "sha256": "99cd79dddfc12fe3d428c2b999cdd32a3905f97c4d11554e78a38666763b0bd2"
+    },
+    {
+      "path": "runs/M06_evaluation_champion/20261010_acceptance_final2/e2e.exitcode",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "path": "runs/M06_evaluation_champion/20261010_acceptance_final2/deals_manifest.json",
+      "bytes": 4481,
+      "sha256": "0135e192a3180d81f8d6d4c6252cedda5bfb4310124dbb6e08deb142e1f9e197"
+    },
+    {
+      "path": "runs/M06_evaluation_champion/20261010_acceptance_final2/champion_manifest.json",
+      "bytes": 1506,
+      "sha256": "1b66b51d22264bc20511d94d784b86c04f613f1240cfffcb6f2c2e2964e52325"
+    },
+    {
+      "path": "runs/M06_evaluation_champion/20261010_acceptance_final2/opponent_pool_manifest.json",
+      "bytes": 1536,
+      "sha256": "2038e8f0358a8d8af17c65f3302f9d2e75a36064f8edbb9a3dcd895863c385ae"
+    },
+    {
+      "path": "runs/M06_evaluation_champion/20261010_acceptance_final2/final_holdout_audit.json",
+      "bytes": 276,
+      "sha256": "a5d640be089192573933418c515d23fa75ce2478dc11ccbdbd725756aa712479"
+    },
+    {
+      "path": "runs/M06_evaluation_champion/20261010_acceptance_final2/recovery_verification.json",
+      "bytes": 1132,
+      "sha256": "95861f73cf476fceaf08c29843fc772f6effb4eca7b968f2f6e79d49af0029fb"
+    },
+    {
+      "path": "runs/M06_evaluation_champion/20261010_acceptance_final2/selection_run/evaluation_plan.json",
+      "bytes": 4658,
+      "sha256": "6d9a588747af4bde7b1a0c523e2c3595c7248a5aa8dbe9796a3ca17b072623ad"
+    },
+    {
+      "path": "runs/M06_evaluation_champion/20261010_acceptance_final2/selection_run/games.jsonl",
+      "bytes": 24072,
+      "sha256": "91f1062e62b8869153722ce0a608f574020bea6de38b17954a09c96770075993"
+    },
+    {
+      "path": "runs/M06_evaluation_champion/20261010_acceptance_final2/selection_run/cluster_summary.json",
+      "bytes": 5621,
+      "sha256": "891ba0d173ee31667a8ca25a72757d325df30466e46cfc8f272adaaa809acf46"
+    },
+    {
+      "path": "runs/M06_evaluation_champion/20261010_acceptance_final2/selection_run/promotion_decision.json",
+      "bytes": 2800,
+      "sha256": "4abe57d13f138c7d61b6b699f7f391f3e12ee40b2e747ee4fae69f9a25749689"
+    },
+    {
+      "path": "runs/M06_evaluation_champion/20261010_acceptance_final2/selection_run/result.json",
+      "bytes": 5080,
+      "sha256": "d6ba2a0e7b3a40390275290ad953f2d7bcb1ecfbe165ce67681213b2b364b0e1"
+    }
+  ],
+  "tracked_evidence": [
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion/checkpoint_identity.json",
+      "bytes": 2967,
+      "sha256": "509c8a809c002e98d9bee16f3397d839b7639325866941c32e518d79d8348750"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion/deals_manifest.json",
+      "bytes": 4481,
+      "sha256": "0135e192a3180d81f8d6d4c6252cedda5bfb4310124dbb6e08deb142e1f9e197"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion/e2e_summary.json",
+      "bytes": 9530,
+      "sha256": "75669e46176b1d1959ff94730019ae384ecd826d0f3768bbe5170acbf18d2d1f"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion/environment.json",
+      "bytes": 453,
+      "sha256": "d1d63dc2171befebc9f59cbbf0da41a22e89eaaddd9258d47e7f21c554dbed60"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion/promotion_recovery.json",
+      "bytes": 4188,
+      "sha256": "e984ae2f50bf33f9b1136d6f2628f86c65897386631586652c40d87b57b4f2c6"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion/protocol_schema.json",
+      "bytes": 1135,
+      "sha256": "5d9efa58787c8a18ae513c227486b3a2419fdfa318b9dfab27a347c1f764768e"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion/source_manifest.json",
+      "bytes": 4197,
+      "sha256": "74da9456676b6fd6bcd260bd0627f75f2ba8f680d0115c679005bb70473b3224"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion/test_results.json",
+      "bytes": 5003,
+      "sha256": "09719fd0ac67b192ab5b9ed4414d80091e8287dd7b27285e972210e77b8e8fad"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion/verification.json",
+      "bytes": 1311,
+      "sha256": "eb1ea72cff483c12df450479a5f85a21114515c5b1ccdb9288c7ddf25fcaa03e"
+    }
+  ],
+  "implementation_commit": null
+}

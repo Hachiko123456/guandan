@@ -112,3 +112,7 @@ eval/games_per_second
 - E5：完整多副实战发布。
 
 M09 至少目标为 E3。E4/E5 需要额外基线和完整比赛管理器。
+
+## 9. M06 已实现协议
+
+M06 canonical schemas、四座位 role mapping、deal-cluster t interval、promotion 状态机、manifest 原子性、legacy opponent-only adapter、pool recovery、training hook 和 final one-shot audit 见 `M06_EVALUATION_PROTOCOL.md`。本地小规模运行只证明 E0 管线，不构成模型强度或 Kaggle 性能结论。

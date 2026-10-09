@@ -1,0 +1,41 @@
+{
+  "schema": "guandan-marvel-m06-verification-v1",
+  "stage": "M06_evaluation_champion",
+  "implementation_commit": null,
+  "passes": true,
+  "accepted": true,
+  "m07_allowed": true,
+  "hard_gates": {
+    "previous_stage_accepted": true,
+    "deals_disjoint": true,
+    "fixed_matrix_complete": true,
+    "seat_rotation_coverage": true,
+    "clustered_ci_math_tests": true,
+    "checkpoint_mismatch_rejected": true,
+    "promotion_atomic_rollback": true,
+    "incomplete_never_promotes": true,
+    "final_holdout_audited_and_unused": true,
+    "legacy_v1_opponent_only": true,
+    "real_cpp_checkpoint_e2e_complete": true,
+    "illegal_count": 0,
+    "truncated_count": 0,
+    "champion_old_state_preserved_on_no_promotion": true,
+    "opponent_pool_recovery": true,
+    "training_hook_state_isolation_test": true
+  },
+  "tests": {
+    "passed": 535,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "tests": 535
+  },
+  "e2e_evaluation_hash": "8f7cecc6c00ed3d4b0202fe49a00d59ae73f917e9b516e88145aaeb2333eb2c6",
+  "promotion_status": "reject",
+  "limitations": [
+    "one selection deal per lane makes per-opponent CI inconclusive",
+    "candidate is byte-identical to bootstrap champion, so no strength promotion",
+    "local CPU only; no Kaggle T4x2 or model-strength evidence"
+  ],
+  "blockers": []
+}

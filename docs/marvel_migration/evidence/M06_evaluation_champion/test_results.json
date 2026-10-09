@@ -1,0 +1,113 @@
+{
+  "schema": "guandan-marvel-m06-test-results-v1",
+  "stage": "M06_evaluation_champion",
+  "commands": [
+    {
+      "name": "m06_scoped_and_training",
+      "command": "python -m pytest tests/marvel_evaluation tests/marvel_training -q --junitxml=...",
+      "exit_code": 0,
+      "counts": {
+        "passed": 43,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 43,
+        "seconds": 39.393
+      },
+      "junit": "runs/M06_evaluation_champion/20261010_acceptance_tests/m06_scoped_and_training.junit.xml",
+      "junit_sha256": "5e8870f5e430d53e92123aa4ee432a8a029b371724b6a25ee6d25fe6cc2d396e",
+      "log": "runs/M06_evaluation_champion/20261010_acceptance_tests/m06_scoped_and_training.log",
+      "log_sha256": "c1fd6db1857b3f6ca7d7aa20ac7fdf1fd921ca8fc6a42530bc501360a7e478b6"
+    },
+    {
+      "name": "m01_m05_backend_regression",
+      "command": "python -m pytest tests/marvel_core tests/marvel_adapter tests/marvel_cpp tests/marvel_differential -q --junitxml=...",
+      "exit_code": 0,
+      "counts": {
+        "passed": 180,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 180,
+        "seconds": 100.304
+      },
+      "junit": "runs/M06_evaluation_champion/20261010_acceptance_tests/m01_m05_backend_regression.junit.xml",
+      "junit_sha256": "2b34714a6b3790e759ed026b4f08ff7c5081d7eb748202f5a4ed756f40351c51",
+      "log": "runs/M06_evaluation_champion/20261010_acceptance_tests/m01_m05_backend_regression.log",
+      "log_sha256": "eb8e88abf758b5c7935be4849de8ed30cf47fca17040f6ec46f814335e7600a6"
+    },
+    {
+      "name": "a01_a04_regression",
+      "command": "python -m pytest tests/acceptance/test_a01_cards.py tests/acceptance/test_a02_rules.py tests/acceptance/test_a02_a03_defect_fix.py tests/acceptance/test_a03_actions.py tests/acceptance/test_a04_environment.py -q --junitxml=...",
+      "exit_code": 0,
+      "counts": {
+        "passed": 152,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 152,
+        "seconds": 10.419
+      },
+      "junit": "runs/M06_evaluation_champion/20261010_acceptance_tests/a01_a04_regression.junit.xml",
+      "junit_sha256": "c4b6892cc1a60457307fa2ffb3e3959bf4f5b6c6f2e9689cf03ca93a9eccb93b",
+      "log": "runs/M06_evaluation_champion/20261010_acceptance_tests/a01_a04_regression.log",
+      "log_sha256": "5ec6da5634a9177fffba2c842f201efeb6bf9ea61af8e8de4cf3dc4eb233138f"
+    },
+    {
+      "name": "legacy_evaluation_regression",
+      "command": "python -m pytest tests/acceptance/test_a06_evaluation.py tests/unit/test_evaluation.py tests/unit/test_evaluation_agents.py tests/unit/test_evaluation_inputs.py tests/unit/test_evaluation_progress.py tests/unit/test_evaluation_stats.py tests/unit/test_evaluation_suite.py tests/unit/test_evaluation_telemetry.py -q --junitxml=...",
+      "exit_code": 0,
+      "counts": {
+        "passed": 155,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 155,
+        "seconds": 60.768
+      },
+      "junit": "runs/M06_evaluation_champion/20261010_acceptance_tests/legacy_evaluation_regression.junit.xml",
+      "junit_sha256": "6f46afb1fc496036c3c80e54232564a1872634bf64e842efd856b5dda7a1e391",
+      "log": "runs/M06_evaluation_champion/20261010_acceptance_tests/legacy_evaluation_regression.log",
+      "log_sha256": "cae825dbb33e638aa7f1e67ac609130c6f09ecaa87af6c6bc12abf3259908655"
+    },
+    {
+      "name": "a00_specification",
+      "command": "python -m pytest tests/acceptance/test_a00_specification.py -q --junitxml=...",
+      "exit_code": 0,
+      "counts": {
+        "passed": 5,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 5,
+        "seconds": 0.056
+      },
+      "junit": "runs/M06_evaluation_champion/20261010_acceptance_tests/a00_specification.junit.xml",
+      "junit_sha256": "9c1a6ecccd7e0986a06ed46fd6e12438838aaa7da046e37009526e33b33d456e",
+      "log": "runs/M06_evaluation_champion/20261010_acceptance_tests/a00_specification.log",
+      "log_sha256": "57cd57fb43df83aae7085518419c5a9edf270f06e97d1a0aee421386dea67a10"
+    }
+  ],
+  "nonoverlapping_totals": {
+    "passed": 535,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "tests": 535
+  },
+  "e2e": {
+    "command": "python scripts/run_marvel_m06_evaluation.py --output runs/M06_evaluation_champion/20261010_acceptance_final2 --device cpu",
+    "exit_code": 0,
+    "games": 20,
+    "log": "runs/M06_evaluation_champion/20261010_acceptance_final2/e2e.log",
+    "log_sha256": "99cd79dddfc12fe3d428c2b999cdd32a3905f97c4d11554e78a38666763b0bd2"
+  },
+  "preserved_diagnostics": [
+    {
+      "command": "python scripts/run_marvel_m06_evaluation.py --output runs/M06_evaluation_champion/20261010_acceptance --device cpu",
+      "exit_code": 1,
+      "reason": "initial direct script import path omitted repository root; fixed before final run",
+      "log": "runs/M06_evaluation_champion/20261010_acceptance/e2e_initial_failed.log"
+    }
+  ]
+}

@@ -224,3 +224,17 @@ Round 1 保留 active-only post-decoder heads；四座位 history/KV 仍完整�
 影响：M05 在没有新硬性 blocker 时可接受并解除 M06 blocker。该决定不证明 Kaggle T4×2 性能、双卡效率、模型强度或可实战性；这些仍分别由 M08/M09 验证。
 
 回滚方式：如后续发现任何正确性、安全、隐私、恢复或身份缺陷，立即重新阻塞 M05/M06；不得以本修订豁免。
+
+
+### D016 M06 selection、final 和 champion 边界
+
+日期：2026-10-10
+状态：accepted
+
+决定：training/selection/final seed domain 在一个 versioned deals manifest 中全局去重。Selection 使用固定五 lane 矩阵和四座位轮换；同一 base deal 的四局只作为一个统计 cluster。Final 使用 candidate-locked one-shot audit，永远不产生 promotion。
+
+决定：promotion 采用 `promote/reject/inconclusive` 三态。少于两个完整 clusters 或 CI 不足为 inconclusive；点估计 50.1% 不晋升。Champion 和 pool 都使用 hash-protected atomic manifest。
+
+决定：legacy V1 只经 Python mirror adapter 作为 opponent；V2 candidate/champion 必须匹配 C++ checkpoint/build/protocol identity。
+
+影响：M06 本地演练可以验证管线和恢复，但不构成强度、final holdout 或远端吞吐结论。

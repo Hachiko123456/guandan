@@ -15,8 +15,9 @@ This derivative deliberately uses the independent top-level package name
 
 Detailed file-by-file provenance and rewrite classification is tracked in
 `docs/marvel_migration/M01_SOURCE_AUDIT.md`,
-`docs/marvel_migration/M02_SOURCE_AUDIT.md`, and
-`docs/marvel_migration/M03_SOURCE_AUDIT.md`. The M02 derivative additions
+`docs/marvel_migration/M02_SOURCE_AUDIT.md`,
+`docs/marvel_migration/M03_SOURCE_AUDIT.md`, and
+`docs/marvel_migration/M06_SOURCE_AUDIT.md`. The M02 derivative additions
 include `guandan_marvel/env_batch.py` and `guandan_marvel/runtime/sampler.py`;
 the GuanDan-specific `guandan_marvel/game.py` adapter is newly written over
 the accepted local Python rule oracle.

@@ -1,0 +1,91 @@
+{
+  "schema": "guandan-marvel-m06-promotion-recovery-v1",
+  "decision": {
+    "candidate": {
+      "algorithm": "ippo",
+      "architecture": "v1.3",
+      "backend": "cpp",
+      "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+      "checkpoint_path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\cpp_checkpoint\\cpp-backend-iter000001-v4.pt",
+      "checkpoint_schema": "guandan-marvel-training-checkpoint-v4",
+      "checkpoint_sha256": "5a2507d39fc973cb5331d47b4a3111ac993f5000bb72e8285e36fedee8ed7f02",
+      "iteration": 1,
+      "merged_policy": {
+        "beta": 0.0,
+        "identity": "current_policy_copy",
+        "not_smoothed_when_beta_zero": true
+      },
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+      "resolved_config_hash": "73a9d3ae0ffafc7efb0138615c7c03ef8b032ddaadafaf0729bd29786650af66",
+      "schema": "guandan-marvel-policy-identity-v1",
+      "source_commit": "3aee75fdeece3fc9f142f93c9fb971fe59954bd8",
+      "source_hash": "2c0cf2a79b41c14f5056cfba6f0a17f3a8987003c1381b924aeb49d5666d4d76",
+      "training_counters": {
+        "iteration": 1
+      }
+    },
+    "current_champion": {
+      "algorithm": "ippo",
+      "architecture": "v1.3",
+      "backend": "cpp",
+      "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+      "checkpoint_path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\cpp_checkpoint\\cpp-backend-iter000001-v4.pt",
+      "checkpoint_schema": "guandan-marvel-training-checkpoint-v4",
+      "checkpoint_sha256": "5a2507d39fc973cb5331d47b4a3111ac993f5000bb72e8285e36fedee8ed7f02",
+      "iteration": 1,
+      "merged_policy": {
+        "beta": 0.0,
+        "identity": "current_policy_copy",
+        "not_smoothed_when_beta_zero": true
+      },
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+      "resolved_config_hash": "73a9d3ae0ffafc7efb0138615c7c03ef8b032ddaadafaf0729bd29786650af66",
+      "schema": "guandan-marvel-policy-identity-v1",
+      "source_commit": "3aee75fdeece3fc9f142f93c9fb971fe59954bd8",
+      "source_hash": "2c0cf2a79b41c14f5056cfba6f0a17f3a8987003c1381b924aeb49d5666d4d76",
+      "training_counters": {
+        "iteration": 1
+      }
+    },
+    "decided_at": "2026-10-09T16:29:05.017901+00:00",
+    "evaluation_hash": "8f7cecc6c00ed3d4b0202fe49a00d59ae73f917e9b516e88145aaeb2333eb2c6",
+    "hash": "798cb1cd8674040c92d4bc0c02fab243011e869e4894a3297530ab233376150e",
+    "policy": {
+      "ci95_low_threshold": 0.52,
+      "min_clusters": 2,
+      "random_min_win_rate": 0.7,
+      "rule_min_win_rate": 0.4
+    },
+    "promote": false,
+    "reasons": [
+      "candidate is byte-identical to current champion"
+    ],
+    "schema": "guandan-marvel-promotion-decision-v1",
+    "selection_deals_hash": "26462487196f057a0df45de760b29a527d004838c10bd9910c4771256c0f0d37",
+    "status": "reject"
+  },
+  "champion_before_hash": "d8ae785280ec75feb2b500ed20bcdd4c00fc9e6357ee223e5cf21f938a26fb5f",
+  "champion_after_hash": "d8ae785280ec75feb2b500ed20bcdd4c00fc9e6357ee223e5cf21f938a26fb5f",
+  "champion_unchanged": true,
+  "champion_generation": 1,
+  "opponent_pool_hash": "d6cbc854862c3d51908d4a275f8b43203e3b598b2fe399cecab3b87ec43f0b6a",
+  "opponent_pool_revision": 3,
+  "pool_sample": {
+    "active": true,
+    "added_at": "2026-10-09T16:28:27.015155+00:00",
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "checkpoint": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\cpp_checkpoint\\cpp-backend-iter000001-v4.pt",
+    "checkpoint_sha256": "5a2507d39fc973cb5331d47b4a3111ac993f5000bb72e8285e36fedee8ed7f02",
+    "id": "champion-generation-1",
+    "kind": "champion",
+    "pool_manifest_hash": "d6cbc854862c3d51908d4a275f8b43203e3b598b2fe399cecab3b87ec43f0b6a",
+    "sample_seed": 1,
+    "sampling_probability": 1.0,
+    "source_champion_manifest_hash": "d8ae785280ec75feb2b500ed20bcdd4c00fc9e6357ee223e5cf21f938a26fb5f",
+    "weight": 1.0
+  },
+  "atomic_rollback_unit_test": true,
+  "incomplete_never_promotes_unit_test": true,
+  "final_holdout_uses": []
+}

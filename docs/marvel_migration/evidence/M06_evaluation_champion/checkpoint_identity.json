@@ -1,0 +1,64 @@
+{
+  "schema": "guandan-marvel-m06-checkpoint-identity-verification-v1",
+  "candidate": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "backend": "cpp",
+    "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+    "checkpoint_path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\cpp_checkpoint\\cpp-backend-iter000001-v4.pt",
+    "checkpoint_schema": "guandan-marvel-training-checkpoint-v4",
+    "checkpoint_sha256": "5a2507d39fc973cb5331d47b4a3111ac993f5000bb72e8285e36fedee8ed7f02",
+    "iteration": 1,
+    "merged_policy": {
+      "beta": 0.0,
+      "identity": "current_policy_copy",
+      "not_smoothed_when_beta_zero": true
+    },
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "resolved_config_hash": "73a9d3ae0ffafc7efb0138615c7c03ef8b032ddaadafaf0729bd29786650af66",
+    "schema": "guandan-marvel-policy-identity-v1",
+    "source_commit": "3aee75fdeece3fc9f142f93c9fb971fe59954bd8",
+    "source_hash": "2c0cf2a79b41c14f5056cfba6f0a17f3a8987003c1381b924aeb49d5666d4d76",
+    "training_counters": {
+      "iteration": 1
+    }
+  },
+  "champion": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "backend": "cpp",
+    "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+    "checkpoint_path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\cpp_checkpoint\\cpp-backend-iter000001-v4.pt",
+    "checkpoint_schema": "guandan-marvel-training-checkpoint-v4",
+    "checkpoint_sha256": "5a2507d39fc973cb5331d47b4a3111ac993f5000bb72e8285e36fedee8ed7f02",
+    "iteration": 1,
+    "merged_policy": {
+      "beta": 0.0,
+      "identity": "current_policy_copy",
+      "not_smoothed_when_beta_zero": true
+    },
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "resolved_config_hash": "73a9d3ae0ffafc7efb0138615c7c03ef8b032ddaadafaf0729bd29786650af66",
+    "schema": "guandan-marvel-policy-identity-v1",
+    "source_commit": "3aee75fdeece3fc9f142f93c9fb971fe59954bd8",
+    "source_hash": "2c0cf2a79b41c14f5056cfba6f0a17f3a8987003c1381b924aeb49d5666d4d76",
+    "training_counters": {
+      "iteration": 1
+    }
+  },
+  "champion_manifest_hash": "d8ae785280ec75feb2b500ed20bcdd4c00fc9e6357ee223e5cf21f938a26fb5f",
+  "legacy_anchor": {
+    "active": true,
+    "added_at": "2026-10-09T16:28:28.162732+00:00",
+    "algorithm": "ippo",
+    "checkpoint": "D:\\project\\guandan\\runs\\a07probe\\local_fast\\ippo\\ippo_update_000001_90453d2696194fc2b755820939dcbed2_periodic.pt",
+    "checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+    "id": "legacy-v1-anchor",
+    "kind": "legacy_v1",
+    "weight": 0.25
+  },
+  "cpp_backend_identity_match": true,
+  "algorithm_architecture_protocol_mismatch_tests": true,
+  "legacy_v1_opponent_only_test": true,
+  "evaluation_checkpoint_training_resume_allowed": false
+}

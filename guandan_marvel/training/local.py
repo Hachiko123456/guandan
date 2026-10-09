@@ -191,6 +191,7 @@ class LocalTrainerBase:
         self.last_trajectory_num_steps: tuple[int, ...] = ()
         self.last_policy_epochs = 0
         self.last_critic_batch_sources: tuple[str, ...] = ()
+        self.evaluation_hook = None
         self.repo_root = Path(__file__).resolve().parents[2]
         self.backend_identity = build_backend_identity(game)
         self.backend_name = str(self.backend_identity["backend"])
@@ -228,6 +229,12 @@ class LocalTrainerBase:
     @property
     def merged_policy_identity(self) -> str:
         return "current_policy_copy" if self.cfg.agent_merging_beta == 0.0 else "exponential_moving_average"
+
+    def set_evaluation_hook(self, hook: object | None) -> None:
+        """Attach an optional non-blocking M06 evaluator hook at iteration boundaries."""
+        if hook is not None and not callable(getattr(hook, "on_iteration_completed", None)):
+            raise TypeError("evaluation hook must define on_iteration_completed(trainer, iteration=...)")
+        self.evaluation_hook = hook
 
     def _compile(self, module: nn.Module) -> nn.Module:
         if not self.cfg.compile.enabled:
@@ -340,6 +347,17 @@ class LocalTrainerBase:
         metrics["statistics/iterations"] = target_iteration
         metrics["statistics/durable_updates"] = target_durable
         metrics["statistics/completed_games_total"] = target_completed
+        if self.evaluation_hook is not None:
+            try:
+                hook_result = self.evaluation_hook.on_iteration_completed(
+                    self, iteration=target_iteration,
+                )
+                metrics["evaluation/hook_status"] = str(hook_result.get("status", "unknown"))
+                if hook_result.get("snapshot") is not None:
+                    metrics["evaluation/snapshot"] = str(hook_result["snapshot"])
+            except Exception as error:  # Evaluation scheduling must not poison training.
+                metrics["evaluation/hook_status"] = "schedule_failed"
+                metrics["evaluation/hook_error"] = f"{type(error).__name__}: {error}"
         _finite_metrics(metrics)
         self.metrics.log(metrics, step=target_iteration)
         self.iteration = target_iteration

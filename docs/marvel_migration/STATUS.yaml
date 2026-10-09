@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M06_evaluation_champion
+current_stage: M07_kaggle_t4x2
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -208,19 +208,34 @@ stages:
     blockers: []
 
   M06_evaluation_champion:
+    status: accepted
+    accepted: true
+    commit: null
+    implementation_commit: null
+    registration_commit: null
+    registration_note: exact implementation SHA will be recorded by the follow-up registration commit
+    reports:
+      - docs/marvel_migration/reports/M06_evaluation_champion.md
+      - docs/marvel_migration/reports/M06_evaluation_champion.json
+    evidence:
+      - docs/marvel_migration/evidence/M06_evaluation_champion/protocol_schema.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion/deals_manifest.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion/e2e_summary.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion/checkpoint_identity.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion/promotion_recovery.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion/test_results.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion/source_manifest.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion/environment.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion/verification.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion/artifact_manifest.json
+    blockers: []
+
+  M07_kaggle_t4x2:
     status: ready
     accepted: false
     commit: null
     reports: []
     blockers: []
-
-  M07_kaggle_t4x2:
-    status: blocked
-    accepted: false
-    commit: null
-    reports: []
-    blockers:
-      - M06_evaluation_champion is not accepted
 
   M08_remote_pilot:
     status: blocked

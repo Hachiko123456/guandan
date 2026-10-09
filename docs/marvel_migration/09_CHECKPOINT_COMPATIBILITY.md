@@ -131,3 +131,9 @@ Canonical training schema upgrades to `guandan-marvel-training-checkpoint-v4`; s
 For `python_reference`, identity and source fingerprint are generated without importing the native extension. For `cpp`, identity includes the loaded extension path, binary SHA-256, compiler/C++ standard/Python ABI, compile-time embedded native-source digest and, when source files are available, a comparison against the current native-source manifest. Wrapper, native source/header, build identity or binary changes are not exact-compatible.
 
 `python_reference` and `cpp` checkpoints are never automatically cross-resumed. A v3 checkpoint that lacks backend/build identity is `migration` for training or `evaluation_only` under an explicit evaluation load; current backend data must not be injected to relabel it exact. Logging/run-directory-only changes remain compatible only when backend, source, binary, semantic and execution identities otherwise match. Any failed load continues to poison trainer and sampler.
+
+## 11. M06 evaluation-only checkpoint（2026-10-10）
+
+`guandan-marvel-evaluation-checkpoint-v1` 仅保存冻结 merged actor、V2 algorithm/architecture/protocol、C++ backend/build identity、resolved config hash 和 source identity。它明确 `training_resume_allowed=false`，不得作为 exact/compatible/warm training resume。
+
+M06 candidate/champion/opponent-pool V2 loader 只接受 training checkpoint v4 或 evaluation checkpoint v1，并 fail-closed 拒绝 algorithm、architecture、protocol、resolved config hash 或 C++ build identity mismatch。Legacy GD-ACTION/GD-ENV-0.1 只能经 dedicated legacy adapter 作为 opponent；不得混入 V2 resume 或 champion。

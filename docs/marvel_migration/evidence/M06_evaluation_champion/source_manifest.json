@@ -1,0 +1,115 @@
+{
+  "schema": "guandan-marvel-m06-source-manifest-v1",
+  "stage": "M06_evaluation_champion",
+  "reference_commit": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+  "files": [
+    {
+      "path": "guandan_marvel/evaluation/__init__.py",
+      "role": "public M06 API",
+      "bytes": 1167,
+      "sha256": "c789a3870c1422d49e4841761f13b60be939cf966906fc4bc9639ee2fd4a15b3"
+    },
+    {
+      "path": "guandan_marvel/evaluation/common.py",
+      "role": "canonical hashes and atomic JSON",
+      "bytes": 2032,
+      "sha256": "0a6ce97f5d17f5b42310a411a6bafc7d4df4f57fb1e39a6ba0af3bb140337cdf"
+    },
+    {
+      "path": "guandan_marvel/evaluation/manifests.py",
+      "role": "deal isolation and final audit",
+      "bytes": 9373,
+      "sha256": "3edec5bbdaf1d3dee6460d201d5cfb1ab3d20c4cb22ac787968d4cfdcafdf686"
+    },
+    {
+      "path": "guandan_marvel/evaluation/checkpoints.py",
+      "role": "V2 identity loader, legacy identity, evaluation snapshot",
+      "bytes": 11488,
+      "sha256": "95d491efe7747601e14db93cab09c167d204f96babd69b8371ef1b52d96f2a7c"
+    },
+    {
+      "path": "guandan_marvel/evaluation/agents.py",
+      "role": "V2 sessions and rule/random/legacy adapters",
+      "bytes": 6506,
+      "sha256": "dd463831d94d76fd188391c615bedaf8a8fc222f6dfe7e30f1966b404c469f1c"
+    },
+    {
+      "path": "guandan_marvel/evaluation/host.py",
+      "role": "C++ GuanDan game host and four-seat rotation",
+      "bytes": 9338,
+      "sha256": "622cd2518cdf280aa6a1019ff771b67f8a536ed94976600727cb06d60332dc0f"
+    },
+    {
+      "path": "guandan_marvel/evaluation/stats.py",
+      "role": "deal-cluster CI and GuanDan metrics",
+      "bytes": 7521,
+      "sha256": "18757471f9217f9f69582c5b0f472f29496622f6104903550d0e4d2f6b5e4e0e"
+    },
+    {
+      "path": "guandan_marvel/evaluation/promotion.py",
+      "role": "promotion decision and atomic champion",
+      "bytes": 8461,
+      "sha256": "f25e507cd6fafe1b1264971c884596bf8d96eb63c2132ef0745173245378b3f1"
+    },
+    {
+      "path": "guandan_marvel/evaluation/pool.py",
+      "role": "weighted pool and recovery",
+      "bytes": 5632,
+      "sha256": "2053144413ce3565b1ceb1416b3bb63483c9ecdfb513ad4c777d08566d53a5bf"
+    },
+    {
+      "path": "guandan_marvel/evaluation/evaluator.py",
+      "role": "selection/final orchestration",
+      "bytes": 12109,
+      "sha256": "a7b7645b1a6d827263c604935abbe6d664abad258dd0af96d96f8305f5d16756"
+    },
+    {
+      "path": "guandan_marvel/evaluation/hooks.py",
+      "role": "non-blocking training hook",
+      "bytes": 3215,
+      "sha256": "f2ace461e478b34916ee6ac1b030256e60562efa5c5edff254829b2076f68732"
+    },
+    {
+      "path": "guandan_marvel/training/local.py",
+      "role": "durable-boundary hook integration",
+      "bytes": 39489,
+      "sha256": "e0666d46dec388b499586c28e533aee2032d4166546fe991bea4cdd04b7c7b8d"
+    },
+    {
+      "path": "scripts/run_marvel_m06_evaluation.py",
+      "role": "real checkpoint local exercise",
+      "bytes": 4505,
+      "sha256": "bc1eff2e6fe228669d2f3f6b9b8d4a1d5e2d8e7ab56f3f491101b986081c71e9"
+    },
+    {
+      "path": "tests/marvel_evaluation/conftest.py",
+      "role": "versioned checkpoint fixtures",
+      "bytes": 3079,
+      "sha256": "9b975a05877f96bd14c31fd0d45056108557d4eec664133ff26d7307dbee2bb5"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_manifests_checkpoints.py",
+      "role": "deal/checkpoint/final plan tests",
+      "bytes": 4716,
+      "sha256": "eeb8f19af627d8ebf0c3f3326b6d133699fa24d28e90b85455c790160eac34d8"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_stats.py",
+      "role": "cluster CI tests",
+      "bytes": 1994,
+      "sha256": "49c12500a1d5b45aa08b1e40cb9af0d79fd29822b5aa92fbce2bf80cd8360896"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_promotion_pool_hook.py",
+      "role": "atomicity/pool/final/hook tests",
+      "bytes": 8088,
+      "sha256": "4b4871120a5a6ba5c9e43d17607aac0fd7d51b5a8aa7670db64a6fb230440e0d"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_host_integration.py",
+      "role": "real C++/legacy host integration",
+      "bytes": 1112,
+      "sha256": "962d15e6cabb647437651d5b318470e16965a3628ca1215eacf1118927db3ef2"
+    }
+  ]
+}

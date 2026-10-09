@@ -280,3 +280,7 @@ M03 本地 runtime 已实现：
 `iteration` and `durable_updates` advance only after all actor/critic work and metric persistence complete. `learner_updates` may record partial work for diagnostics, while `durable_learner_updates` records the last checkpointable boundary. Catchable interruption/exception poisons trainer and sampler, rejects payload/save/retry, and requires reconstruction from the last complete checkpoint.
 
 Resume compatibility now compares the actual semantic configuration and component-level implementation fingerprint; resolved-config hash differences are not automatically compatible.
+
+## 12. M06 training evaluator hook
+
+训练器可在 durable iteration 边界附加 `TrainingEvaluatorHook`。每 N iteration 冻结 merged policy 为 `guandan-marvel-evaluation-checkpoint-v1`，后台执行 selection evaluation。Snapshot 不含 optimizer、sampler、replay 或 RNG resume state，不能训练恢复。已有评估 pending 时允许记录并跳过，不阻塞下一训练 iteration；调度错误不 poison trainer。Final holdout 不得由 training hook 调用。

@@ -1,0 +1,39 @@
+{
+  "schema": "guandan-marvel-m06-protocol-schema-v1",
+  "stage": "M06_evaluation_champion",
+  "date": "2026-10-10",
+  "schemas": {
+    "deals_manifest": "guandan-marvel-deals-manifest-v1",
+    "evaluation_plan": "guandan-marvel-evaluation-plan-v1",
+    "game_record": "guandan-marvel-evaluation-game-v1",
+    "clustered_summary": "guandan-marvel-clustered-summary-v1",
+    "promotion_decision": "guandan-marvel-promotion-decision-v1",
+    "champion_manifest": "guandan-marvel-champion-manifest-v1",
+    "opponent_pool": "guandan-marvel-opponent-pool-v1",
+    "evaluation_checkpoint": "guandan-marvel-evaluation-checkpoint-v1",
+    "final_holdout_audit": "guandan-marvel-final-holdout-audit-v1",
+    "training_hook": "guandan-marvel-training-evaluator-hook-v1"
+  },
+  "fixed_matrix": [
+    "champion",
+    "rule",
+    "random",
+    "legacy",
+    "opponent_pool"
+  ],
+  "seat_rotations": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "cluster_unit": "base_deal_with_four_seat_rotations",
+  "backend": "cpp",
+  "fabledan_in_scope": false,
+  "promotion_states": [
+    "promote",
+    "reject",
+    "inconclusive"
+  ],
+  "final_can_promote": false
+}
