@@ -185,11 +185,11 @@
   "protected_files_unchanged": true,
   "reference_repo_clean": true,
   "registration_commit_embedded": false,
-  "repair_implementation_commit": null,
+  "repair_implementation_commit": "758b2e97fd3bf0103fa1046a72bf6ed4a8cf3600",
   "runs_root": "runs/M05_differential_performance_repair/20261009_repair_review",
   "schema": "guandan-marvel-stage-repair-report-v1",
   "stage": "M05_differential_performance_repair",
-  "status": "incomplete",
+  "status": "blocked",
   "tests": {
     "a00_fixed": true,
     "default_collection_exit": 2,

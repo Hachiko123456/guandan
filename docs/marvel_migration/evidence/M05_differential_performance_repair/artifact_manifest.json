@@ -1,5 +1,6 @@
 {
   "date": "2026-10-09",
+  "implementation_commit": "758b2e97fd3bf0103fa1046a72bf6ed4a8cf3600",
   "large_artifacts_committed": false,
   "original_evidence_preserved": true,
   "original_runs_preserved": true,
@@ -231,28 +232,34 @@
       "sha256": "54e83785ac53ad78bc8eee88415a7a1b3fca1b2658e853441616541fe461622c"
     },
     {
-      "bytes": 7339,
+      "bytes": 7377,
       "git_tracked": true,
       "path": "docs/marvel_migration/evidence/M05_differential_performance_repair/verification.json",
-      "sha256": "72151e2bcfff3e71fe00bb426437d0a043c1bb3abe0e6be2c6f8c0df1d8c0df6"
+      "sha256": "37ebbbd77804343168be49a17bec881a4bd15c6e9af2f5754cf4e24067089f7e"
     },
     {
-      "bytes": 9913,
+      "bytes": 9904,
       "git_tracked": true,
       "path": "docs/marvel_migration/reports/M05_differential_performance_repair.md",
-      "sha256": "34aa197eb861fec4b3bf81020696ce79a8736d3d055627a6d71bd70156934b7a"
+      "sha256": "46f032e0c15444088cf8993ba223a4d83bb6b07f0d6bfad3539ebe7d31a100f2"
     },
     {
-      "bytes": 10308,
+      "bytes": 10343,
       "git_tracked": true,
       "path": "docs/marvel_migration/reports/M05_differential_performance_repair.json",
-      "sha256": "5ee3b9fd0c32f3d0dadc8165565a778dbf74c6680a4a45b21c157c68c26e07f4"
+      "sha256": "cbd8e5bb7aa70ed067fead02f69d96bde649c2a80de7499a1d23c914a430e663"
     },
     {
       "bytes": 4512,
       "git_tracked": true,
       "path": "docs/marvel_migration/M05_DIFFERENTIAL_PERFORMANCE_REPAIR_PROTOCOL.md",
       "sha256": "7c6a59046302740c25fe85f5f1fe56635608e636c47b508f9b8729089428a834"
+    },
+    {
+      "bytes": 12096,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/STATUS.yaml",
+      "sha256": "962ba11246b9ec2fb9707cbeb66c4f37d27936c72fcbc5a8f5c228e0e6e12686"
     }
   ]
 }

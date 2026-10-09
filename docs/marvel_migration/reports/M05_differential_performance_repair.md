@@ -3,8 +3,8 @@
 - 日期：2026-10-09
 - 分支：`codex/marvel-guandan-migration`
 - 原始实现 commit：`4ba65bfa20df2843fbc3cefb5299e885c14e2479`
-- 补修实现 commit：待第一笔实现提交后由登记提交固定
-- 阶段状态：`incomplete`（正确性与实现补修通过，真实性能门槛未通过）
+- 补修实现 commit：`758b2e97fd3bf0103fa1046a72bf6ed4a8cf3600`
+- 阶段状态：`blocked`（正确性与实现补修通过，真实性能门槛未通过）
 - 下一阶段：M06 保持 blocked
 
 ## 范围

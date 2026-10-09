@@ -137,12 +137,14 @@ stages:
     blockers: []
 
   M05_differential_performance:
-    status: in_progress
+    status: blocked
     accepted: false
-    commit: 4ba65bfa20df2843fbc3cefb5299e885c14e2479
+    commit: 758b2e97fd3bf0103fa1046a72bf6ed4a8cf3600
     original_implementation_commit: 4ba65bfa20df2843fbc3cefb5299e885c14e2479
-    repair_implementation_commit: null
+    repair_implementation_commit: 758b2e97fd3bf0103fa1046a72bf6ed4a8cf3600
     repair_acceptance_commit: null
+    repair_registration_commit: null
+    registration_note: blocked-state registration commit SHA is reported in the final response; no acceptance commit exists
     reports:
       - docs/marvel_migration/reports/M05_differential_performance.md
       - docs/marvel_migration/reports/M05_differential_performance.json
