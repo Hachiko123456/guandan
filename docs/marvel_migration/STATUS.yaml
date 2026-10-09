@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M05_differential_performance_repair
+current_stage: M05_performance_finish
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -137,13 +137,15 @@ stages:
     blockers: []
 
   M05_differential_performance:
-    status: blocked
+    status: in_progress
     accepted: false
     commit: 758b2e97fd3bf0103fa1046a72bf6ed4a8cf3600
     original_implementation_commit: 4ba65bfa20df2843fbc3cefb5299e885c14e2479
     repair_implementation_commit: 758b2e97fd3bf0103fa1046a72bf6ed4a8cf3600
     repair_acceptance_commit: null
     repair_registration_commit: null
+    performance_finish_implementation_commit: null
+    performance_finish_registration_commit: null
     registration_note: blocked-state registration commit SHA is reported in the final response; no acceptance commit exists
     reports:
       - docs/marvel_migration/reports/M05_differential_performance.md
@@ -177,8 +179,23 @@ stages:
       - docs/marvel_migration/evidence/M05_differential_performance_repair/environment.json
       - docs/marvel_migration/evidence/M05_differential_performance_repair/verification.json
       - docs/marvel_migration/evidence/M05_differential_performance_repair/artifact_manifest.json
+    performance_finish_reports:
+      - docs/marvel_migration/reports/M05_performance_finish.md
+      - docs/marvel_migration/reports/M05_performance_finish.json
+    performance_finish_evidence:
+      - docs/marvel_migration/evidence/M05_performance_finish/baseline_manifest.json
+      - docs/marvel_migration/evidence/M05_performance_finish/profile_summary.json
+      - docs/marvel_migration/evidence/M05_performance_finish/experiments.json
+      - docs/marvel_migration/evidence/M05_performance_finish/performance_summary.json
+      - docs/marvel_migration/evidence/M05_performance_finish/correctness.json
+      - docs/marvel_migration/evidence/M05_performance_finish/test_results.json
+      - docs/marvel_migration/evidence/M05_performance_finish/build_and_recovery.json
+      - docs/marvel_migration/evidence/M05_performance_finish/source_manifest.json
+      - docs/marvel_migration/evidence/M05_performance_finish/environment.json
+      - docs/marvel_migration/evidence/M05_performance_finish/verification.json
+      - docs/marvel_migration/evidence/M05_performance_finish/artifact_manifest.json
     blockers:
-      - real frozen Transformer rollout speedup 1.580x is below the conservative 2x end-to-end gate
+      - real frozen Transformer primary paired median speedup 1.636x is below the 2x gate after three bounded optimization rounds
 
   M06_evaluation_champion:
     status: blocked

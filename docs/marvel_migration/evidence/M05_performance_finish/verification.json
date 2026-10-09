@@ -1,0 +1,21 @@
+{
+  "accepted": false,
+  "baseline_speedup": 1.596545611656347,
+  "blockers": [
+    "real frozen Transformer primary paired median speedup remains below 2x after three bounded optimization rounds"
+  ],
+  "correctness_valid": true,
+  "final_speedup": 1.6359769458438593,
+  "fixed_batch_speedup": 2.050500469537274,
+  "fixed_single_speedup": 3.202622103753068,
+  "full_iteration_speedup": 1.0840783354992432,
+  "generalization_speedup": 1.5852854548521904,
+  "implementation_commit": null,
+  "m06_allowed": false,
+  "old_cpp_to_new_cpp": 1.1295382006753947,
+  "passes": false,
+  "schema": "guandan-marvel-m05-performance-verification-v1",
+  "stage": "M05_performance_finish",
+  "tests_valid": true,
+  "threshold": 2.0
+}

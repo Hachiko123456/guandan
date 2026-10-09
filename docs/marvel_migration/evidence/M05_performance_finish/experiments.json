@@ -1,0 +1,86 @@
+{
+  "baseline": {
+    "generalization_cpp_median": 8.700071500003105,
+    "generalization_python_median": 13.086987700000464,
+    "generalization_speedup": 1.5042390973448658,
+    "primary_actions": 1027,
+    "primary_cpp_median": 4.551908600005845,
+    "primary_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c",
+    "primary_python_median": 7.2673297000001185,
+    "primary_speedup": 1.596545611656347
+  },
+  "final": {
+    "generalization_cpp_median": 7.828747600004135,
+    "generalization_python_median": 12.41079969999555,
+    "generalization_speedup": 1.5852854548521904,
+    "primary_actions": 1027,
+    "primary_cpp_median": 4.029884599993238,
+    "primary_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c",
+    "primary_python_median": 6.59279830000014,
+    "primary_speedup": 1.6359769458438593
+  },
+  "final_old_cpp_to_new_cpp": 1.1295382006753947,
+  "final_old_python_to_new_python": 1.1023133682096666,
+  "maximum_rounds": 3,
+  "rounds": [
+    {
+      "change": "history/KV remains B*P; gather acting observer before state MLP and encode shared candidates once instead of four times",
+      "decision": "kept",
+      "equivalence": "probability/value rtol1e-6 atol1e-7; loss/gradient rtol1e-5 atol1e-6; trajectory digest exact",
+      "metrics": {
+        "generalization_cpp_median": 8.481623799998488,
+        "generalization_python_median": 13.583923799997137,
+        "generalization_speedup": 1.601571128396376,
+        "primary_actions": 1027,
+        "primary_cpp_median": 4.2787905000004685,
+        "primary_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c",
+        "primary_python_median": 7.001145499998529,
+        "primary_speedup": 1.6362440507423213
+      },
+      "name": "active-only post-decoder heads",
+      "old_cpp_to_new_cpp": 1.0638306783202744,
+      "round": 1
+    },
+    {
+      "change": "removed one full Game copy used only for event construction",
+      "decision": "reverted",
+      "metrics": {
+        "generalization_cpp_median": 8.04250100000354,
+        "generalization_python_median": 12.808136999999988,
+        "generalization_speedup": 1.592556469684536,
+        "primary_actions": 1027,
+        "primary_cpp_median": 4.1556357000008575,
+        "primary_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c",
+        "primary_python_median": 6.634605999999621,
+        "primary_speedup": 1.5965321503033225
+      },
+      "name": "lightweight step-event snapshot",
+      "reason": "no stable paired-ratio gain and would expand C++ semantic validation scope",
+      "round": 2
+    },
+    {
+      "change": "removed redundant inner Game copy while retaining outer EnvBatch transaction",
+      "decision": "reverted",
+      "metrics": {
+        "generalization_cpp_median": 7.865772500001185,
+        "generalization_python_median": 13.031421200001205,
+        "generalization_speedup": 1.6567249052778021,
+        "primary_actions": 1027,
+        "primary_cpp_median": 4.12242420000257,
+        "primary_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c",
+        "primary_python_median": 6.713577400005306,
+        "primary_speedup": 1.628550841517261
+      },
+      "name": "outer transaction direct mutation",
+      "reason": "only modest C++ improvement, gate still failed, and retaining it would require full 10k/100k revalidation",
+      "round": 3
+    }
+  ],
+  "schema": "guandan-marvel-m05-performance-experiments-v1",
+  "stage": "M05_performance_finish",
+  "tooling_experiment": {
+    "decision": "not retained",
+    "name": "torch.compile/Inductor",
+    "reason": "Windows environment failed first on locale decoding and then InvalidCxxCompiler because MSVC cl was unavailable; no benchmark ratio claimed"
+  }
+}

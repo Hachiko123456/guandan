@@ -1,0 +1,130 @@
+{
+  "blocking_passed": true,
+  "commands": [
+    {
+      "blocking": true,
+      "command": "python -m pytest tests/marvel_training/test_agent_active_head_optimization.py -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 2,
+        "time": 6.36
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_performance_finish/20261009_finish/tests/agent_equivalence.junit.xml",
+      "junit_sha256": "b3f9d3106520405c67f47fd6c3f304df9c74d621c790f8170b325d1c77956290",
+      "log": "runs/M05_performance_finish/20261009_finish/tests/agent_equivalence.log",
+      "log_sha256": "43d02e0ed28bbfd52c0ec9da3a0d0f3d37b52088fcc3a6c25e59130447e13763",
+      "name": "agent_equivalence"
+    },
+    {
+      "blocking": true,
+      "command": "python -m pytest tests/marvel_differential/test_backend_imports.py tests/marvel_training/test_backend_identity.py -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 10,
+        "time": 26.571
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_performance_finish/20261009_finish/tests/backend_checkpoint.junit.xml",
+      "junit_sha256": "9d5eb8d6cf4932abea8c4f6b639c491474771ef1937fa7b3c997acce920f253f",
+      "log": "runs/M05_performance_finish/20261009_finish/tests/backend_checkpoint.log",
+      "log_sha256": "f55ee29d6ed1308f4d990b7176a139f6d7c078c0ac2bc5cf4d73c7495e654d6f",
+      "name": "backend_checkpoint"
+    },
+    {
+      "blocking": true,
+      "command": "python -m pytest tests/marvel_differential tests/marvel_cpp -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 118,
+        "time": 51.797
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_performance_finish/20261009_finish/tests/m05_cpp_scoped.junit.xml",
+      "junit_sha256": "384e62bed46b71be91c93c2670e95b3323a41bc32735f983ed5b1e321d2d6b7e",
+      "log": "runs/M05_performance_finish/20261009_finish/tests/m05_cpp_scoped.log",
+      "log_sha256": "403b5c80cf0c8c434a38a3559957f2921848e4d39fb267154b6ded8f07e70ecc",
+      "name": "m05_cpp_scoped"
+    },
+    {
+      "blocking": true,
+      "command": "python -m pytest tests/marvel_core tests/marvel_adapter tests/marvel_training -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 88,
+        "time": 102.002
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_performance_finish/20261009_finish/tests/m01_m03_regression.junit.xml",
+      "junit_sha256": "b2efb13185179a798c1a50447c2ab651e5819c34d54d3e53ee861f4091152e1e",
+      "log": "runs/M05_performance_finish/20261009_finish/tests/m01_m03_regression.log",
+      "log_sha256": "7154c77ee378217ddb71d0d1e0f8e8032bdc9b155bf7c7c6ca64fb5a5f9d6c94",
+      "name": "m01_m03_regression"
+    },
+    {
+      "blocking": true,
+      "command": "python -m pytest tests/acceptance/test_a00_specification.py ... test_a04_environment.py -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 157,
+        "time": 13.094
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_performance_finish/20261009_finish/tests/a00_a04_protected.junit.xml",
+      "junit_sha256": "505e257e6dcecf860c69c56b4357d2c443b3fc26649135b57ea1f7fc9a89f04e",
+      "log": "runs/M05_performance_finish/20261009_finish/tests/a00_a04_protected.log",
+      "log_sha256": "5a0dfd596d5acfe4a4affec92342951c3c8a09f6e9fec21619b71eb93bb3bb9c",
+      "name": "a00_a04_protected"
+    },
+    {
+      "blocking": false,
+      "command": "python -m pytest --import-mode=importlib -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 10,
+        "tests": 1406,
+        "time": 450.14
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_performance_finish/20261009_finish/tests/full_importlib.junit.xml",
+      "junit_sha256": "6ce538503eb54207420823e555f9253f367e6446cdc0e8211b1892dec198101e",
+      "log": "runs/M05_performance_finish/20261009_finish/tests/full_importlib.log",
+      "log_sha256": "6948a04a6535d8e63fdfcdc27c9306106465985dd23b1a974ba9a4727939d2db",
+      "name": "full_importlib"
+    },
+    {
+      "blocking": false,
+      "command": "python -m pytest -q",
+      "exit_code": 2,
+      "log": "runs/M05_performance_finish/20261009_finish/tests/full_default.log",
+      "log_sha256": "e603aa4cbd3c3c5cd8e9e21799319d0376c2891422be95697f0b92ff22e60330",
+      "name": "full_default",
+      "note": "Pre-existing duplicate test_training_smoke.py basename collection collision under default import mode."
+    }
+  ],
+  "full_importlib": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 1396,
+    "skipped": 10
+  },
+  "primary_nonoverlapping": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 363,
+    "skipped": 0
+  },
+  "schema": "guandan-marvel-m05-performance-test-results-v1",
+  "stage": "M05_performance_finish"
+}

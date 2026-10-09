@@ -1,0 +1,1127 @@
+{
+  "complete_iteration": {
+    "gating": false,
+    "lanes": {
+      "cpp": {
+        "completed_games": 1,
+        "env_steps": 338,
+        "game_steps": 151,
+        "peak_rss_bytes": 1927872512,
+        "process_cpu_seconds": 20.328125,
+        "rss_delta_peak_bytes": 841306112,
+        "runtime_backend": "cpp",
+        "segments_seconds": {
+          "learner": 1.7185449000025983,
+          "rollout": 2.524892200002796
+        },
+        "trajectory_length": 338.0,
+        "wall_seconds": 4.463141399995948
+      },
+      "python_reference": {
+        "completed_games": 1,
+        "env_steps": 338,
+        "game_steps": 151,
+        "peak_rss_bytes": 1866948608,
+        "process_cpu_seconds": 25.515625,
+        "rss_delta_peak_bytes": 786272256,
+        "runtime_backend": "python_reference",
+        "segments_seconds": {
+          "learner": 1.6132064000048558,
+          "rollout": 2.855019100003119
+        },
+        "trajectory_length": 338.0,
+        "wall_seconds": 4.838394900005369
+      }
+    },
+    "learner_ratio": 0.9387048310477176,
+    "note": "Diagnostic complete iteration: the identical neural policy and learner dominate wall time, so the historical gate was evaluated on matched environment and deterministic-selector workloads; a real Agent lane is supplied by the M05 repair benchmark.",
+    "rollout_speedup": 1.1307489088048819,
+    "speedup": 1.0840783354992432,
+    "workload": {
+      "agent_epoch": 1,
+      "algorithm": "IPPO",
+      "learner_unchanged": true,
+      "same_deal": {
+        "deal": [
+          [
+            1,
+            2,
+            58,
+            6,
+            7,
+            62,
+            11,
+            65,
+            73,
+            75,
+            27,
+            82,
+            84,
+            85,
+            86,
+            33,
+            34,
+            90,
+            39,
+            41,
+            45,
+            99,
+            47,
+            48,
+            50,
+            104,
+            105
+          ],
+          [
+            54,
+            3,
+            57,
+            9,
+            10,
+            12,
+            14,
+            69,
+            17,
+            72,
+            19,
+            20,
+            22,
+            81,
+            29,
+            32,
+            36,
+            91,
+            93,
+            40,
+            94,
+            44,
+            100,
+            101,
+            102,
+            52,
+            107
+          ],
+          [
+            0,
+            55,
+            56,
+            5,
+            59,
+            61,
+            68,
+            70,
+            18,
+            21,
+            76,
+            23,
+            77,
+            78,
+            25,
+            26,
+            80,
+            83,
+            31,
+            88,
+            35,
+            37,
+            42,
+            43,
+            103,
+            51,
+            53
+          ],
+          [
+            4,
+            60,
+            8,
+            63,
+            64,
+            66,
+            13,
+            67,
+            15,
+            16,
+            71,
+            74,
+            24,
+            79,
+            28,
+            30,
+            87,
+            89,
+            38,
+            92,
+            95,
+            96,
+            97,
+            98,
+            46,
+            49,
+            106
+          ]
+        ],
+        "game_index": 40000,
+        "leader_seat": 0,
+        "level_rank": 15,
+        "previous_result": null,
+        "seed": 5090000
+      },
+      "same_model_state": true,
+      "same_seed": 99001
+    }
+  },
+  "continue_cost": "Further work likely requires deeper KV/Transformer inference specialization or major C++ transaction/state data-structure work, followed by expanded checkpoint and potentially full 10k/100k validation.",
+  "fixed_workloads": {
+    "batch": {
+      "cpp": {
+        "peak_rss_bytes_max": 333152256,
+        "process_cpu_seconds_median": 14.671875,
+        "repetitions": 3,
+        "result": {
+          "backend": "cpp",
+          "batch_size": 16,
+          "cycles": 4,
+          "prefix_steps": 64,
+          "segments_seconds": {
+            "environment": 14.193575500015868,
+            "setup": 0.6568057999975281
+          },
+          "trajectory_digest": "9b1208b8de78e060389263854230683265ff12d46ed4f5c4bb2711a7792e4fb2",
+          "transitions": 4096
+        },
+        "rss_delta_peak_bytes_max": 33865728,
+        "segments_seconds": {
+          "environment": 14.193575500015868,
+          "setup": 0.6568057999975281
+        },
+        "throughput_per_second": 275.6206706997256,
+        "unit": "token_transitions",
+        "wall_seconds_median": 14.861004400001548,
+        "wall_seconds_samples": [
+          14.249281900003552,
+          14.861004400001548,
+          16.154254900000524
+        ],
+        "work": 4096
+      },
+      "name": "environment_batch_fixed_prefix",
+      "passes_threshold": true,
+      "python_reference": {
+        "peak_rss_bytes_max": 311169024,
+        "process_cpu_seconds_median": 30.265625,
+        "repetitions": 3,
+        "result": {
+          "backend": "python_reference",
+          "batch_size": 16,
+          "cycles": 4,
+          "prefix_steps": 64,
+          "segments_seconds": {
+            "environment": 29.302627599943662,
+            "setup": 1.1626787000059267
+          },
+          "trajectory_digest": "9b1208b8de78e060389263854230683265ff12d46ed4f5c4bb2711a7792e4fb2",
+          "transitions": 4096
+        },
+        "rss_delta_peak_bytes_max": 13684736,
+        "segments_seconds": {
+          "environment": 29.302627599943662,
+          "setup": 1.1626787000059267
+        },
+        "throughput_per_second": 134.41629240978594,
+        "unit": "token_transitions",
+        "wall_seconds_median": 30.47249649999867,
+        "wall_seconds_samples": [
+          28.92580209999869,
+          30.47249649999867,
+          30.712769999998272
+        ],
+        "work": 4096
+      },
+      "speedup": 2.050500469537274,
+      "threshold": 2.0,
+      "unit": "token_transitions",
+      "work": 4096
+    },
+    "deterministic_selector": {
+      "cpp": {
+        "peak_rss_bytes_max": 316407808,
+        "process_cpu_seconds_median": 4.75,
+        "repetitions": 3,
+        "result": {
+          "backend": "cpp",
+          "completed_games": 16,
+          "segments_seconds": {
+            "deterministic_selector": 0.24749050022364827,
+            "environment": 4.059462899938808,
+            "observation_to_torch": 0.30098819990234915
+          },
+          "trajectory_digest": "0f65c046fbd97b4b04367d3fc612f474786fe76b422ef13dab00db87671d51ad",
+          "transitions": 4400
+        },
+        "rss_delta_peak_bytes_max": 8130560,
+        "segments_seconds": {
+          "deterministic_selector": 0.24749050022364827,
+          "environment": 4.059462899938808,
+          "observation_to_torch": 0.30098819990234915
+        },
+        "throughput_per_second": 920.1931343171486,
+        "unit": "token_transitions",
+        "wall_seconds_median": 4.781604900003003,
+        "wall_seconds_samples": [
+          4.781604900003003,
+          4.911247700001695,
+          4.6907404999947175
+        ],
+        "work": 4400
+      },
+      "name": "end_to_end_deterministic_selector_rollout",
+      "passes_threshold": true,
+      "python_reference": {
+        "peak_rss_bytes_max": 307965952,
+        "process_cpu_seconds_median": 13.25,
+        "repetitions": 3,
+        "result": {
+          "backend": "python_reference",
+          "completed_games": 16,
+          "segments_seconds": {
+            "deterministic_selector": 0.30898289948527236,
+            "environment": 12.437219699662819,
+            "observation_to_torch": 0.32045460009976523
+          },
+          "trajectory_digest": "0f65c046fbd97b4b04367d3fc612f474786fe76b422ef13dab00db87671d51ad",
+          "transitions": 4400
+        },
+        "rss_delta_peak_bytes_max": 32768,
+        "segments_seconds": {
+          "deterministic_selector": 0.30898289948527236,
+          "environment": 12.437219699662819,
+          "observation_to_torch": 0.32045460009976523
+        },
+        "throughput_per_second": 330.68307135273517,
+        "unit": "token_transitions",
+        "wall_seconds_median": 13.30579150000267,
+        "wall_seconds_samples": [
+          13.622911400001612,
+          13.226785899998504,
+          13.30579150000267
+        ],
+        "work": 4400
+      },
+      "speedup": 2.782704087490439,
+      "threshold": 2.0,
+      "unit": "token_transitions",
+      "work": 4400
+    },
+    "single": {
+      "cpp": {
+        "peak_rss_bytes_max": 300179456,
+        "process_cpu_seconds_median": 3.96875,
+        "repetitions": 3,
+        "result": {
+          "backend": "cpp",
+          "completed_games": 16,
+          "segments_seconds": {
+            "environment": 3.8303373999660835,
+            "setup": 0.15968239999347134
+          },
+          "trajectory_digest": "cf08da49e466af49604a71ddc9fb1939e47c288b518037e6919ccac4895a4822",
+          "transitions": 5150
+        },
+        "rss_delta_peak_bytes_max": 6311936,
+        "segments_seconds": {
+          "environment": 3.8303373999660835,
+          "setup": 0.15968239999347134
+        },
+        "throughput_per_second": 1286.3563327440095,
+        "unit": "token_transitions",
+        "wall_seconds_median": 4.0035562999983085,
+        "wall_seconds_samples": [
+          3.9951029000003473,
+          4.0035562999983085,
+          4.011471400001028
+        ],
+        "work": 5150
+      },
+      "name": "environment_single_complete_games",
+      "passes_threshold": true,
+      "python_reference": {
+        "peak_rss_bytes_max": 293330944,
+        "process_cpu_seconds_median": 12.8125,
+        "repetitions": 3,
+        "result": {
+          "backend": "python_reference",
+          "completed_games": 16,
+          "segments_seconds": {
+            "environment": 12.597458399795869,
+            "setup": 0.21184929997252766
+          },
+          "trajectory_digest": "cf08da49e466af49604a71ddc9fb1939e47c288b518037e6919ccac4895a4822",
+          "transitions": 5150
+        },
+        "rss_delta_peak_bytes_max": 1175552,
+        "segments_seconds": {
+          "environment": 12.597458399795869,
+          "setup": 0.21184929997252766
+        },
+        "throughput_per_second": 401.6572330642952,
+        "unit": "token_transitions",
+        "wall_seconds_median": 12.821877899994433,
+        "wall_seconds_samples": [
+          12.821877899994433,
+          13.272531900001923,
+          12.79059789999883
+        ],
+        "work": 5150
+      },
+      "speedup": 3.202622103753068,
+      "threshold": 2.0,
+      "unit": "token_transitions",
+      "work": 5150
+    }
+  },
+  "gate": {
+    "actual": 1.6359769458438593,
+    "passes": false,
+    "threshold": 2.0
+  },
+  "generalization": {
+    "cpp": {
+      "actions": 1744,
+      "completed_games": 8,
+      "median_actions_per_second": 222.7687095186309,
+      "median_wall_seconds": 7.828747600004135,
+      "peak_rss_bytes_max": 327081984,
+      "representative_segments_seconds": {
+        "cache_prepare": 0.0019045999870286323,
+        "environment_setup": 0.05943489999481244,
+        "environment_step": 2.8032332000657334,
+        "model_forward_with_cache": 4.043551799906709,
+        "observation_conversion": 0.13598550019378308,
+        "sampling_and_action_marshalling": 0.2940352999357856,
+        "trajectory_buffer_and_commit": 0.3845106002263492
+      },
+      "samples": [
+        {
+          "actions": 1744,
+          "actions_per_second": 212.71015891767092,
+          "backend": "cpp",
+          "completed_games": 8,
+          "measured_wall_seconds": 8.199440999997023,
+          "peak_rss_bytes": 325353472,
+          "process_cpu_seconds": 8.078125,
+          "rollout_seconds": 8.198950199999672,
+          "rss_before_bytes": 320577536,
+          "rss_delta_peak_bytes": 4775936,
+          "segment_call_counts": {
+            "environment_step": 1744,
+            "model_forward_with_cache": 1744,
+            "observation_conversion": 1744,
+            "sampling_and_action_marshalling": 1744,
+            "trajectory_buffer_and_commit": 1744
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.001907800011395011,
+            "environment_setup": 0.057733199988433626,
+            "environment_step": 2.9733417000243207,
+            "model_forward_with_cache": 4.202763800160028,
+            "observation_conversion": 0.14258830017206492,
+            "sampling_and_action_marshalling": 0.3060266997490544,
+            "trajectory_buffer_and_commit": 0.4038401998041081
+          },
+          "trajectory_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760"
+        },
+        {
+          "actions": 1744,
+          "actions_per_second": 222.78301487487252,
+          "backend": "cpp",
+          "completed_games": 8,
+          "measured_wall_seconds": 7.828747600004135,
+          "peak_rss_bytes": 326742016,
+          "process_cpu_seconds": 7.796875,
+          "rollout_seconds": 7.828244899996207,
+          "rss_before_bytes": 325332992,
+          "rss_delta_peak_bytes": 1409024,
+          "segment_call_counts": {
+            "environment_step": 1744,
+            "model_forward_with_cache": 1744,
+            "observation_conversion": 1744,
+            "sampling_and_action_marshalling": 1744,
+            "trajectory_buffer_and_commit": 1744
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0019045999870286323,
+            "environment_setup": 0.05943489999481244,
+            "environment_step": 2.8032332000657334,
+            "model_forward_with_cache": 4.043551799906709,
+            "observation_conversion": 0.13598550019378308,
+            "sampling_and_action_marshalling": 0.2940352999357856,
+            "trajectory_buffer_and_commit": 0.3845106002263492
+          },
+          "trajectory_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760"
+        },
+        {
+          "actions": 1744,
+          "actions_per_second": 226.35536798568037,
+          "backend": "cpp",
+          "completed_games": 8,
+          "measured_wall_seconds": 7.705193299996608,
+          "peak_rss_bytes": 326496256,
+          "process_cpu_seconds": 7.671875,
+          "rollout_seconds": 7.704699100002472,
+          "rss_before_bytes": 326373376,
+          "rss_delta_peak_bytes": 122880,
+          "segment_call_counts": {
+            "environment_step": 1744,
+            "model_forward_with_cache": 1744,
+            "observation_conversion": 1744,
+            "sampling_and_action_marshalling": 1744,
+            "trajectory_buffer_and_commit": 1744
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0018867000108002685,
+            "environment_setup": 0.05740350000996841,
+            "environment_step": 2.7764001001269207,
+            "model_forward_with_cache": 3.9661469002021477,
+            "observation_conversion": 0.13211880000017118,
+            "sampling_and_action_marshalling": 0.29034300008788705,
+            "trajectory_buffer_and_commit": 0.37819919992034556
+          },
+          "trajectory_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760"
+        },
+        {
+          "actions": 1744,
+          "actions_per_second": 221.10318037275374,
+          "backend": "cpp",
+          "completed_games": 8,
+          "measured_wall_seconds": 7.8883352000048035,
+          "peak_rss_bytes": 326230016,
+          "process_cpu_seconds": 7.859375,
+          "rollout_seconds": 7.887720099999569,
+          "rss_before_bytes": 323452928,
+          "rss_delta_peak_bytes": 2777088,
+          "segment_call_counts": {
+            "environment_step": 1744,
+            "model_forward_with_cache": 1744,
+            "observation_conversion": 1744,
+            "sampling_and_action_marshalling": 1744,
+            "trajectory_buffer_and_commit": 1744
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0020663999966927804,
+            "environment_setup": 0.058020499993290287,
+            "environment_step": 2.8773437002455466,
+            "model_forward_with_cache": 4.031327500233601,
+            "observation_conversion": 0.13364960018225247,
+            "sampling_and_action_marshalling": 0.29498349995265016,
+            "trajectory_buffer_and_commit": 0.3850297998797032
+          },
+          "trajectory_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760"
+        },
+        {
+          "actions": 1744,
+          "actions_per_second": 224.74941020672935,
+          "backend": "cpp",
+          "completed_games": 8,
+          "measured_wall_seconds": 7.760358399995312,
+          "peak_rss_bytes": 327081984,
+          "process_cpu_seconds": 7.71875,
+          "rollout_seconds": 7.7597534000015,
+          "rss_before_bytes": 325664768,
+          "rss_delta_peak_bytes": 1417216,
+          "segment_call_counts": {
+            "environment_step": 1744,
+            "model_forward_with_cache": 1744,
+            "observation_conversion": 1744,
+            "sampling_and_action_marshalling": 1744,
+            "trajectory_buffer_and_commit": 1744
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0019098999982816167,
+            "environment_setup": 0.059728699998231605,
+            "environment_step": 2.793898699863348,
+            "model_forward_with_cache": 3.9962434002154623,
+            "observation_conversion": 0.13267849989642855,
+            "sampling_and_action_marshalling": 0.28998290001618443,
+            "trajectory_buffer_and_commit": 0.38138770001387456
+          },
+          "trajectory_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760"
+        }
+      ],
+      "trajectory_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760",
+      "wall_max_seconds": 8.199440999997023,
+      "wall_min_seconds": 7.705193299996608,
+      "wall_stdev_seconds": 0.1729428077841034
+    },
+    "cpp_faster": true,
+    "matched_actions": 1744,
+    "matched_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760",
+    "orders": [
+      [
+        "python_reference",
+        "cpp"
+      ],
+      [
+        "cpp",
+        "python_reference"
+      ],
+      [
+        "python_reference",
+        "cpp"
+      ],
+      [
+        "cpp",
+        "python_reference"
+      ],
+      [
+        "python_reference",
+        "cpp"
+      ]
+    ],
+    "python_reference": {
+      "actions": 1744,
+      "completed_games": 8,
+      "median_actions_per_second": 140.52277388705463,
+      "median_wall_seconds": 12.41079969999555,
+      "peak_rss_bytes_max": 327053312,
+      "representative_segments_seconds": {
+        "cache_prepare": 0.0020369000048958696,
+        "environment_setup": 0.09427759999380214,
+        "environment_step": 7.263779599816189,
+        "model_forward_with_cache": 4.106325300097524,
+        "observation_conversion": 0.11921169995912351,
+        "sampling_and_action_marshalling": 0.31196000005002134,
+        "trajectory_buffer_and_commit": 0.4009427999408217
+      },
+      "samples": [
+        {
+          "actions": 1744,
+          "actions_per_second": 139.46625305331733,
+          "backend": "python_reference",
+          "completed_games": 8,
+          "measured_wall_seconds": 12.505293299996993,
+          "peak_rss_bytes": 320786432,
+          "process_cpu_seconds": 12.4375,
+          "rollout_seconds": 12.50481719999516,
+          "rss_before_bytes": 319606784,
+          "rss_delta_peak_bytes": 1179648,
+          "segment_call_counts": {
+            "environment_step": 1744,
+            "model_forward_with_cache": 1744,
+            "observation_conversion": 1744,
+            "sampling_and_action_marshalling": 1744,
+            "trajectory_buffer_and_commit": 1744
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.001937499997438863,
+            "environment_setup": 0.09756679998099571,
+            "environment_step": 7.318772300015553,
+            "model_forward_with_cache": 4.13489350011514,
+            "observation_conversion": 0.12062030001106905,
+            "sampling_and_action_marshalling": 0.31417569985205773,
+            "trajectory_buffer_and_commit": 0.40430919984646607
+          },
+          "trajectory_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760"
+        },
+        {
+          "actions": 1744,
+          "actions_per_second": 140.15777731374254,
+          "backend": "python_reference",
+          "completed_games": 8,
+          "measured_wall_seconds": 12.44359390000318,
+          "peak_rss_bytes": 327053312,
+          "process_cpu_seconds": 12.359375,
+          "rollout_seconds": 12.443119699993986,
+          "rss_before_bytes": 326717440,
+          "rss_delta_peak_bytes": 335872,
+          "segment_call_counts": {
+            "environment_step": 1744,
+            "model_forward_with_cache": 1744,
+            "observation_conversion": 1744,
+            "sampling_and_action_marshalling": 1744,
+            "trajectory_buffer_and_commit": 1744
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0023676999990129843,
+            "environment_setup": 0.09810299998935079,
+            "environment_step": 7.281808700034162,
+            "model_forward_with_cache": 4.114050099946326,
+            "observation_conversion": 0.11856699992495123,
+            "sampling_and_action_marshalling": 0.314932100038277,
+            "trajectory_buffer_and_commit": 0.40059240006667096
+          },
+          "trajectory_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760"
+        },
+        {
+          "actions": 1744,
+          "actions_per_second": 140.52822367557567,
+          "backend": "python_reference",
+          "completed_games": 8,
+          "measured_wall_seconds": 12.41079969999555,
+          "peak_rss_bytes": 326393856,
+          "process_cpu_seconds": 12.296875,
+          "rollout_seconds": 12.410318399997777,
+          "rss_before_bytes": 324845568,
+          "rss_delta_peak_bytes": 1548288,
+          "segment_call_counts": {
+            "environment_step": 1744,
+            "model_forward_with_cache": 1744,
+            "observation_conversion": 1744,
+            "sampling_and_action_marshalling": 1744,
+            "trajectory_buffer_and_commit": 1744
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0020369000048958696,
+            "environment_setup": 0.09427759999380214,
+            "environment_step": 7.263779599816189,
+            "model_forward_with_cache": 4.106325300097524,
+            "observation_conversion": 0.11921169995912351,
+            "sampling_and_action_marshalling": 0.31196000005002134,
+            "trajectory_buffer_and_commit": 0.4009427999408217
+          },
+          "trajectory_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760"
+        },
+        {
+          "actions": 1744,
+          "actions_per_second": 141.79595784441312,
+          "backend": "python_reference",
+          "completed_games": 8,
+          "measured_wall_seconds": 12.299843400003738,
+          "peak_rss_bytes": 326234112,
+          "process_cpu_seconds": 12.25,
+          "rollout_seconds": 12.29936330000055,
+          "rss_before_bytes": 326209536,
+          "rss_delta_peak_bytes": 24576,
+          "segment_call_counts": {
+            "environment_step": 1744,
+            "model_forward_with_cache": 1744,
+            "observation_conversion": 1744,
+            "sampling_and_action_marshalling": 1744,
+            "trajectory_buffer_and_commit": 1744
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0019178000002284534,
+            "environment_setup": 0.09546429999318207,
+            "environment_step": 7.19478910008911,
+            "model_forward_with_cache": 4.069244899932528,
+            "observation_conversion": 0.11849169992638053,
+            "sampling_and_action_marshalling": 0.30845330000738613,
+            "trajectory_buffer_and_commit": 0.40020180013380013
+          },
+          "trajectory_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760"
+        },
+        {
+          "actions": 1744,
+          "actions_per_second": 141.52765814400328,
+          "backend": "python_reference",
+          "completed_games": 8,
+          "measured_wall_seconds": 12.323182700005418,
+          "peak_rss_bytes": 325689344,
+          "process_cpu_seconds": 12.21875,
+          "rollout_seconds": 12.322679700002482,
+          "rss_before_bytes": 322822144,
+          "rss_delta_peak_bytes": 2867200,
+          "segment_call_counts": {
+            "environment_step": 1744,
+            "model_forward_with_cache": 1744,
+            "observation_conversion": 1744,
+            "sampling_and_action_marshalling": 1744,
+            "trajectory_buffer_and_commit": 1744
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0018995999853359535,
+            "environment_setup": 0.09623679998185253,
+            "environment_step": 7.231578600192734,
+            "model_forward_with_cache": 4.057837899737933,
+            "observation_conversion": 0.11727869991591433,
+            "sampling_and_action_marshalling": 0.3107046999721206,
+            "trajectory_buffer_and_commit": 0.39559680008824216
+          },
+          "trajectory_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760"
+        }
+      ],
+      "trajectory_digest": "d59b093dd5fe1d597e00105e865a487aef92be37e7161791e08c30e8cf398760",
+      "wall_max_seconds": 12.505293299996993,
+      "wall_min_seconds": 12.299843400003738,
+      "wall_stdev_seconds": 0.07612649300899177
+    },
+    "speedup": 1.5852854548521904
+  },
+  "overall_gain": {
+    "old_cpp_to_new_cpp": 1.1295382006753947,
+    "old_python_to_new_python": 1.1023133682096666,
+    "speedup_ratio_change": 1.0246979064673285
+  },
+  "primary": {
+    "cpp": {
+      "actions": 1027,
+      "completed_games": 4,
+      "median_actions_per_second": 254.84600725334002,
+      "median_wall_seconds": 4.029884599993238,
+      "peak_rss_bytes_max": 319664128,
+      "representative_segments_seconds": {
+        "cache_prepare": 0.001032899999700021,
+        "environment_setup": 0.020583299999998417,
+        "environment_step": 1.1522535001131473,
+        "model_forward_with_cache": 2.3294880000903504,
+        "observation_conversion": 0.0759000001125969,
+        "sampling_and_action_marshalling": 0.16968150003958726,
+        "trajectory_buffer_and_commit": 0.22024850003799656
+      },
+      "samples": [
+        {
+          "actions": 1027,
+          "actions_per_second": 255.88653647150912,
+          "backend": "cpp",
+          "completed_games": 4,
+          "measured_wall_seconds": 4.014001099996676,
+          "peak_rss_bytes": 318586880,
+          "process_cpu_seconds": 4.015625,
+          "rollout_seconds": 4.0134975999972085,
+          "rss_before_bytes": 316919808,
+          "rss_delta_peak_bytes": 1667072,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0010178999946219847,
+            "environment_setup": 0.02075600000534905,
+            "environment_step": 1.1492384999146452,
+            "model_forward_with_cache": 2.322805199997674,
+            "observation_conversion": 0.07477930014283629,
+            "sampling_and_action_marshalling": 0.16757110017351806,
+            "trajectory_buffer_and_commit": 0.2178315000346629
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        },
+        {
+          "actions": 1027,
+          "actions_per_second": 252.48518438077176,
+          "backend": "cpp",
+          "completed_games": 4,
+          "measured_wall_seconds": 4.068079700002272,
+          "peak_rss_bytes": 318668800,
+          "process_cpu_seconds": 4.0625,
+          "rollout_seconds": 4.067565400000603,
+          "rss_before_bytes": 318566400,
+          "rss_delta_peak_bytes": 102400,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0008863999973982573,
+            "environment_setup": 0.019989100001112092,
+            "environment_step": 1.1699868001232971,
+            "model_forward_with_cache": 2.353344100098184,
+            "observation_conversion": 0.07597959996928694,
+            "sampling_and_action_marshalling": 0.17000689996348228,
+            "trajectory_buffer_and_commit": 0.21679870003572432
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        },
+        {
+          "actions": 1027,
+          "actions_per_second": 255.31300267854536,
+          "backend": "cpp",
+          "completed_games": 4,
+          "measured_wall_seconds": 4.0229787999996915,
+          "peak_rss_bytes": 319631360,
+          "process_cpu_seconds": 4.015625,
+          "rollout_seconds": 4.022513500000059,
+          "rss_before_bytes": 316174336,
+          "rss_delta_peak_bytes": 3457024,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0013095999966026284,
+            "environment_setup": 0.02114149999397341,
+            "environment_step": 1.1529434000403853,
+            "model_forward_with_cache": 2.3247527998464648,
+            "observation_conversion": 0.0766857000780874,
+            "sampling_and_action_marshalling": 0.1678595998819219,
+            "trajectory_buffer_and_commit": 0.21825480006373255
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        },
+        {
+          "actions": 1027,
+          "actions_per_second": 252.4260614693585,
+          "backend": "cpp",
+          "completed_games": 4,
+          "measured_wall_seconds": 4.069006999998237,
+          "peak_rss_bytes": 319664128,
+          "process_cpu_seconds": 4.078125,
+          "rollout_seconds": 4.0685181000008015,
+          "rss_before_bytes": 319606784,
+          "rss_delta_peak_bytes": 57344,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.001012600005196873,
+            "environment_setup": 0.021406699997896794,
+            "environment_step": 1.17970299989247,
+            "model_forward_with_cache": 2.340048299971386,
+            "observation_conversion": 0.0760640999651514,
+            "sampling_and_action_marshalling": 0.1707186000639922,
+            "trajectory_buffer_and_commit": 0.2198869000421837
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        },
+        {
+          "actions": 1027,
+          "actions_per_second": 254.880268442701,
+          "backend": "cpp",
+          "completed_games": 4,
+          "measured_wall_seconds": 4.029884599993238,
+          "peak_rss_bytes": 319664128,
+          "process_cpu_seconds": 4.03125,
+          "rollout_seconds": 4.029342900001211,
+          "rss_before_bytes": 319553536,
+          "rss_delta_peak_bytes": 110592,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.001032899999700021,
+            "environment_setup": 0.020583299999998417,
+            "environment_step": 1.1522535001131473,
+            "model_forward_with_cache": 2.3294880000903504,
+            "observation_conversion": 0.0759000001125969,
+            "sampling_and_action_marshalling": 0.16968150003958726,
+            "trajectory_buffer_and_commit": 0.22024850003799656
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        }
+      ],
+      "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c",
+      "wall_max_seconds": 4.069006999998237,
+      "wall_min_seconds": 4.014001099996676,
+      "wall_stdev_seconds": 0.02321524745925864
+    },
+    "matched_actions": 1027,
+    "matched_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c",
+    "orders": [
+      [
+        "python_reference",
+        "cpp"
+      ],
+      [
+        "cpp",
+        "python_reference"
+      ],
+      [
+        "python_reference",
+        "cpp"
+      ],
+      [
+        "cpp",
+        "python_reference"
+      ],
+      [
+        "python_reference",
+        "cpp"
+      ]
+    ],
+    "passes_2x": false,
+    "python_reference": {
+      "actions": 1027,
+      "completed_games": 4,
+      "median_actions_per_second": 155.77603822643536,
+      "median_wall_seconds": 6.59279830000014,
+      "peak_rss_bytes_max": 319827968,
+      "representative_segments_seconds": {
+        "cache_prepare": 0.0009128000092459843,
+        "environment_setup": 0.034998600007384084,
+        "environment_step": 3.548169199966651,
+        "model_forward_with_cache": 2.4465365001451573,
+        "observation_conversion": 0.0701601000255323,
+        "sampling_and_action_marshalling": 0.18735980012570508,
+        "trajectory_buffer_and_commit": 0.23775930002011592
+      },
+      "samples": [
+        {
+          "actions": 1027,
+          "actions_per_second": 155.78889067148444,
+          "backend": "python_reference",
+          "completed_games": 4,
+          "measured_wall_seconds": 6.59279830000014,
+          "peak_rss_bytes": 316940288,
+          "process_cpu_seconds": 6.578125,
+          "rollout_seconds": 6.592254399998637,
+          "rss_before_bytes": 312725504,
+          "rss_delta_peak_bytes": 4214784,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0009128000092459843,
+            "environment_setup": 0.034998600007384084,
+            "environment_step": 3.548169199966651,
+            "model_forward_with_cache": 2.4465365001451573,
+            "observation_conversion": 0.0701601000255323,
+            "sampling_and_action_marshalling": 0.18735980012570508,
+            "trajectory_buffer_and_commit": 0.23775930002011592
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        },
+        {
+          "actions": 1027,
+          "actions_per_second": 150.90712151567158,
+          "backend": "python_reference",
+          "completed_games": 4,
+          "measured_wall_seconds": 6.806015399997705,
+          "peak_rss_bytes": 319627264,
+          "process_cpu_seconds": 6.75,
+          "rollout_seconds": 6.8055105000021285,
+          "rss_before_bytes": 318603264,
+          "rss_delta_peak_bytes": 1024000,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0010097999984282069,
+            "environment_setup": 0.036936999997124076,
+            "environment_step": 3.6616848001649487,
+            "model_forward_with_cache": 2.527018000051612,
+            "observation_conversion": 0.07114979984908132,
+            "sampling_and_action_marshalling": 0.19318469989229925,
+            "trajectory_buffer_and_commit": 0.24551139998220606
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        },
+        {
+          "actions": 1027,
+          "actions_per_second": 153.05256637335614,
+          "backend": "python_reference",
+          "completed_games": 4,
+          "measured_wall_seconds": 6.710586100001819,
+          "peak_rss_bytes": 319827968,
+          "process_cpu_seconds": 6.609375,
+          "rollout_seconds": 6.71011290000024,
+          "rss_before_bytes": 319225856,
+          "rss_delta_peak_bytes": 602112,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0009299999946961179,
+            "environment_setup": 0.035059000001638196,
+            "environment_step": 3.624394300073618,
+            "model_forward_with_cache": 2.477924600127153,
+            "observation_conversion": 0.07258729997556657,
+            "sampling_and_action_marshalling": 0.19026420006412081,
+            "trajectory_buffer_and_commit": 0.24046590014040703
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        },
+        {
+          "actions": 1027,
+          "actions_per_second": 159.47594248732676,
+          "backend": "python_reference",
+          "completed_games": 4,
+          "measured_wall_seconds": 6.4403696000008495,
+          "peak_rss_bytes": 319246336,
+          "process_cpu_seconds": 6.46875,
+          "rollout_seconds": 6.439842799998587,
+          "rss_before_bytes": 317562880,
+          "rss_delta_peak_bytes": 1683456,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0009214000019710511,
+            "environment_setup": 0.03564639999967767,
+            "environment_step": 3.447537600011856,
+            "model_forward_with_cache": 2.407043999985035,
+            "observation_conversion": 0.06965209983900422,
+            "sampling_and_action_marshalling": 0.18247480002901284,
+            "trajectory_buffer_and_commit": 0.23177270003361627
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        },
+        {
+          "actions": 1027,
+          "actions_per_second": 159.59684748514238,
+          "backend": "python_reference",
+          "completed_games": 4,
+          "measured_wall_seconds": 6.435525500004587,
+          "peak_rss_bytes": 319574016,
+          "process_cpu_seconds": 6.328125,
+          "rollout_seconds": 6.434964200001559,
+          "rss_before_bytes": 319225856,
+          "rss_delta_peak_bytes": 348160,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0009280999947804958,
+            "environment_setup": 0.03498349998699268,
+            "environment_step": 3.4411492000872386,
+            "model_forward_with_cache": 2.4055794998275815,
+            "observation_conversion": 0.06971279988647439,
+            "sampling_and_action_marshalling": 0.18542659997183364,
+            "trajectory_buffer_and_commit": 0.23236319998977706
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        }
+      ],
+      "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c",
+      "wall_max_seconds": 6.806015399997705,
+      "wall_min_seconds": 6.435525500004587,
+      "wall_stdev_seconds": 0.14643358412070126
+    },
+    "speedup": 1.6359769458438593
+  },
+  "remaining_cost": {
+    "additional_cpp_seconds_to_remove": 0.733485449993168,
+    "cpp_environment_fraction": 0.28592717025075126,
+    "cpp_environment_seconds": 1.1522535001131473,
+    "cpp_non_environment_seconds": 2.877631099880091,
+    "interpretation": "At current Python wall, reaching 2x requires removing ~0.73s from C++ total: about 64% of its environment segment, or about 57% of common non-environment work if applied symmetrically.",
+    "required_cpp_wall_for_2x": 3.29639915000007,
+    "zero_cpp_environment_upper_bound": 2.2910505451080434
+  },
+  "schema": "guandan-marvel-m05-performance-summary-v1",
+  "stage": "M05_performance_finish"
+}

@@ -1,0 +1,263 @@
+{
+  "checkpoint_artifact": {
+    "algorithms": {
+      "ippo": {
+        "checkpoints": [
+          {
+            "backend": "python_reference",
+            "backend_identity_hash": "b5e3d707bc24f9c2dd588c3d2e5f42df741bc1bcaf978bcb60b6f46877d18b08",
+            "buffer_schema": "guandan-marvel-buffer-v2",
+            "bytes": 34885741,
+            "durable_updates": 1,
+            "iteration": 1,
+            "merged_policy": {
+              "beta": 0.0,
+              "identity": "current_policy_copy",
+              "not_smoothed_when_beta_zero": true
+            },
+            "path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\training_smoke\\ippo\\checkpoints\\guandan-marvel-v2-ippo-iter000001.pt",
+            "replay_persistence": null,
+            "resume_classification": "exact_resume",
+            "sampler_contract": "guandan-marvel-sampler-contract-v2",
+            "semantic_contract_hash": "225f6a601950b8d12c686aac7f26d389d34a60b3d2ad483aeb08a0a10187b16c",
+            "sha256": "a31af5cd83e6b195f2123bc46e1d8bb5a468877701b959a5a2f45a8ad3212df7",
+            "source_hash": "2d54693598f91f41f204d1896a9e0da31227535252d3eb323d748b697a9b3a6e"
+          },
+          {
+            "backend": "python_reference",
+            "backend_identity_hash": "b5e3d707bc24f9c2dd588c3d2e5f42df741bc1bcaf978bcb60b6f46877d18b08",
+            "buffer_schema": "guandan-marvel-buffer-v2",
+            "bytes": 34885805,
+            "durable_updates": 2,
+            "iteration": 2,
+            "merged_policy": {
+              "beta": 0.0,
+              "identity": "current_policy_copy",
+              "not_smoothed_when_beta_zero": true
+            },
+            "path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\training_smoke\\ippo\\checkpoints\\guandan-marvel-v2-ippo-iter000002.pt",
+            "replay_persistence": null,
+            "resume_classification": "exact_resume",
+            "sampler_contract": "guandan-marvel-sampler-contract-v2",
+            "semantic_contract_hash": "225f6a601950b8d12c686aac7f26d389d34a60b3d2ad483aeb08a0a10187b16c",
+            "sha256": "af137f7f2a8efa16d2d3e8ace12d811654d3d8a29152cad76df9dc23e43b96bf",
+            "source_hash": "2d54693598f91f41f204d1896a9e0da31227535252d3eb323d748b697a9b3a6e"
+          }
+        ],
+        "classification": {
+          "backend_change": "migration",
+          "compatible": "compatible_resume",
+          "evaluation": "evaluation_only",
+          "exact": "exact_resume",
+          "legacy_v1_training_resume_rejected": true,
+          "migration": "migration",
+          "warm_restart": null
+        }
+      },
+      "vrpo": {
+        "checkpoints": [
+          {
+            "backend": "python_reference",
+            "backend_identity_hash": "b5e3d707bc24f9c2dd588c3d2e5f42df741bc1bcaf978bcb60b6f46877d18b08",
+            "buffer_schema": "guandan-marvel-buffer-v2",
+            "bytes": 47083246,
+            "durable_updates": 1,
+            "iteration": 1,
+            "merged_policy": {
+              "beta": 0.0,
+              "identity": "current_policy_copy",
+              "not_smoothed_when_beta_zero": true
+            },
+            "path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\training_smoke\\vrpo\\checkpoints\\guandan-marvel-v2-vrpo-iter000001.pt",
+            "replay_persistence": "persisted",
+            "resume_classification": "exact_resume",
+            "sampler_contract": "guandan-marvel-sampler-contract-v2",
+            "semantic_contract_hash": "1b766300147e61e1563f8a8da41b33e42399831414f385b38de92e7b233af80b",
+            "sha256": "17d5aa2f184698929771f1b7443d8ce385ce28f983efc77697f7624c1f409bc7",
+            "source_hash": "2d54693598f91f41f204d1896a9e0da31227535252d3eb323d748b697a9b3a6e"
+          },
+          {
+            "backend": "python_reference",
+            "backend_identity_hash": "b5e3d707bc24f9c2dd588c3d2e5f42df741bc1bcaf978bcb60b6f46877d18b08",
+            "buffer_schema": "guandan-marvel-buffer-v2",
+            "bytes": 47083310,
+            "durable_updates": 2,
+            "iteration": 2,
+            "merged_policy": {
+              "beta": 0.0,
+              "identity": "current_policy_copy",
+              "not_smoothed_when_beta_zero": true
+            },
+            "path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\training_smoke\\vrpo\\checkpoints\\guandan-marvel-v2-vrpo-iter000002.pt",
+            "replay_persistence": "persisted",
+            "resume_classification": "exact_resume",
+            "sampler_contract": "guandan-marvel-sampler-contract-v2",
+            "semantic_contract_hash": "1b766300147e61e1563f8a8da41b33e42399831414f385b38de92e7b233af80b",
+            "sha256": "0301d0c38befbb6f74a0683e8ea7c0db35e848d7d6de4c0ca424afa6a6f8c0d4",
+            "source_hash": "2d54693598f91f41f204d1896a9e0da31227535252d3eb323d748b697a9b3a6e"
+          }
+        ],
+        "classification": {
+          "backend_change": "migration",
+          "compatible": "compatible_resume",
+          "evaluation": "evaluation_only",
+          "exact": "exact_resume",
+          "legacy_v1_training_resume_rejected": true,
+          "migration": "migration",
+          "warm_restart": "warm_restart"
+        }
+      }
+    },
+    "schema": "guandan-marvel-m03-artifact-verification-v1",
+    "summary_path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\training_smoke\\summary.json",
+    "summary_sha256": "f5c397348781516a35b209ec42f2df9ecef046f97f1a7371acb4736d267f979e"
+  },
+  "cpp_checkpoint": {
+    "build_identity_change": {
+      "error": "checkpoint cannot continue training: kind=migration; backend_identity.hash: checkpoint='8dc49930eb24623038c6c89bcce35c7c4aeb9c402b1853545e40ffeb3b3e77f7' expected='a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54'; backend_identity.implementation.extension_sha256: checkpoint='0000000000000000000000000000000000000000000000000000000000000000' expected='6ee894ceca752517c7731e8087dd8640d2997a222788e9208494473e0968be9d'",
+      "poisoned": true,
+      "rejected": true
+    },
+    "checkpoint": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\cpp_checkpoint\\cpp-backend-iter000001-v4.pt",
+    "cross_backend": {
+      "error": "checkpoint cannot continue training: kind=migration; backend_identity.backend: checkpoint='cpp' expected='python_reference'; backend_identity.game_identifier: checkpoint='GuandanMARVELV2Cpp' expected='GuandanMARVELV2PythonReference'; backend_identity.hash: checkpoint='a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54' expected='7381b4a0a9a40f3cccdcf4342f3fd2834b961efaa39cb659ba92254ca81a82f0'; backend_identity.implementation.compiler: checkpoint='11.2.0' expected=<missing>; backend_identity.implementation.current_source_manifest: checkpoint={'schema': 'guandan-native-build-identity-v1', 'files': [{'path': 'nanopokerlib/cpp/bindings.cpp', 'bytes': 52333, 'sha256': 'd587f419ed0e2c546ec6c1a7bbf1eb38d55f5c4ecbb53abd91059ae2afb27837'}, {'path': 'nanopokerlib/cpp/core/types.hpp', 'bytes': 1335, 'sha256': '22d1c11274f4da56175bc3859e2e89731ce0e03e7640071ebbca66da566d51da'}, {'path': 'nanopokerlib/cpp/guandan/guandan.cpp', 'bytes': 84623, 'sha256': 'f76dc6ef216c560b889aa662c5bcebb0cbe7a3e3b7e49a3ec24dd1989147a14c'}, {'path': 'nanopokerlib/cpp/guandan/guandan.hpp', 'bytes': 10600, 'sha256': '7501b4af2ef02053324b64868cbf368383be3f3548d944b35efa6aa2371f1ccd'}], 'hash': '40058234af8227e9f0a0aa8c555959717e277f4ac16ed5094a918a32d46f6898'} expected=<missing>; backend_identity.implementation.cxx_standard: checkpoint=202002 expected=<missing>; backend_identity.implementation.embedded_source_sha256: checkpoint='40058234af8227e9f0a0aa8c555959717e277f4ac16ed5094a918a32d46f6898' expected=<missing>; backend_identity.implementation.extension_filename: checkpoint='_guandan_cpp.cp312-win_amd64.pyd' expected=<missing>; backend_identity.implementation.extension_module: checkpoint='nanopokerlib._guandan_cpp' expected=<missing>; backend_identity.implementation.extension_path: checkpoint='D:\\\\project\\\\guandan\\\\nanopokerlib\\\\_guandan_cpp.cp312-win_amd64.pyd' expected=<missing>; backend_identity.implementation.extension_sha256: checkpoint='6ee894ceca752517c7731e8087dd8640d2997a222788e9208494473e0968be9d' expected=<missing>; backend_identity.implementation.kind: checkpoint=<missing> expected='python_source'; backend_identity.implementation.module: checkpoint=<missing> expected='guandan_marvel.python_game'; backend_identity.implementation.python_cache_tag: checkpoint='cpython-312' expected=<missing>; backend_identity.implementation.python_implementation: checkpoint='CPython' expected=<missing>; backend_identity.implementation.python_version: checkpoint='3.12.0' expected=<missing>; backend_identity.implementation.schema: checkpoint='guandan-native-build-identity-v1' expected=<missing>; backend_identity.implementation.source_matches_loaded_binary: checkpoint=True expected=<missing>; backend_identity.module: checkpoint='guandan_marvel.cpp_game' expected='guandan_marvel.python_game'",
+      "poisoned": true,
+      "rejected": true
+    },
+    "first_iteration": {
+      "backend": "cpp",
+      "iteration": 1
+    },
+    "logging_only_change": {
+      "decision": "compatible_resume"
+    },
+    "same_backend_same_build": {
+      "continued_iteration": 2,
+      "decision": "exact_resume"
+    },
+    "schema": "guandan-marvel-m05-cpp-checkpoint-verification-v1",
+    "source_identity": {
+      "backend": "cpp",
+      "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+      "embedded_source_sha256": "40058234af8227e9f0a0aa8c555959717e277f4ac16ed5094a918a32d46f6898",
+      "extension_path": "D:\\project\\guandan\\nanopokerlib\\_guandan_cpp.cp312-win_amd64.pyd",
+      "extension_sha256": "6ee894ceca752517c7731e8087dd8640d2997a222788e9208494473e0968be9d",
+      "source_hash": "2c0cf2a79b41c14f5056cfba6f0a17f3a8987003c1381b924aeb49d5666d4d76",
+      "source_matches_loaded_binary": true
+    },
+    "valid": true
+  },
+  "extension": {
+    "compiler": "11.2.0",
+    "current_source_manifest": {
+      "files": [
+        {
+          "bytes": 52333,
+          "path": "nanopokerlib/cpp/bindings.cpp",
+          "sha256": "d587f419ed0e2c546ec6c1a7bbf1eb38d55f5c4ecbb53abd91059ae2afb27837"
+        },
+        {
+          "bytes": 1335,
+          "path": "nanopokerlib/cpp/core/types.hpp",
+          "sha256": "22d1c11274f4da56175bc3859e2e89731ce0e03e7640071ebbca66da566d51da"
+        },
+        {
+          "bytes": 84623,
+          "path": "nanopokerlib/cpp/guandan/guandan.cpp",
+          "sha256": "f76dc6ef216c560b889aa662c5bcebb0cbe7a3e3b7e49a3ec24dd1989147a14c"
+        },
+        {
+          "bytes": 10600,
+          "path": "nanopokerlib/cpp/guandan/guandan.hpp",
+          "sha256": "7501b4af2ef02053324b64868cbf368383be3f3548d944b35efa6aa2371f1ccd"
+        }
+      ],
+      "hash": "40058234af8227e9f0a0aa8c555959717e277f4ac16ed5094a918a32d46f6898",
+      "schema": "guandan-native-build-identity-v1"
+    },
+    "cxx_standard": 202002,
+    "embedded_source_sha256": "40058234af8227e9f0a0aa8c555959717e277f4ac16ed5094a918a32d46f6898",
+    "extension_filename": "_guandan_cpp.cp312-win_amd64.pyd",
+    "extension_module": "nanopokerlib._guandan_cpp",
+    "extension_path": "D:\\project\\guandan\\nanopokerlib\\_guandan_cpp.cp312-win_amd64.pyd",
+    "extension_sha256": "6ee894ceca752517c7731e8087dd8640d2997a222788e9208494473e0968be9d",
+    "python_cache_tag": "cpython-312",
+    "python_implementation": "CPython",
+    "python_version": "3.12.0",
+    "schema": "guandan-native-build-identity-v1",
+    "source_matches_loaded_binary": true
+  },
+  "isolated_wheel": {
+    "install": {
+      "exit_code": 0,
+      "stderr": "\n[notice] A new release of pip is available: 23.2.1 -> 26.2.1\n[notice] To update, run: python.exe -m pip install --upgrade pip\n",
+      "stdout": "Processing d:\\project\\guandan\\runs\\m05_performance_finish\\20261009_finish\\wheel\\guandan_train-0.1.0-cp312-cp312-win_amd64.whl\nInstalling collected packages: guandan-train\nSuccessfully installed guandan-train-0.1.0\n"
+    },
+    "scenarios": [
+      {
+        "command": [
+          "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-c",
+          "import guandan_marvel as g; assert g.game.BACKEND=='python_reference'; assert g.default_game.BACKEND=='cpp'; assert hasattr(g.default_game,'EnvBatch'); print(g.__file__); print(g.default_game.get_backend_build_identity()['extension_path'])"
+        ],
+        "cwd": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\wheel_verify\\outside-cwd",
+        "exit_code": 0,
+        "pythonpath": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\wheel_verify\\isolated-wheel",
+        "stderr": "",
+        "stdout": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\wheel_verify\\isolated-wheel\\guandan_marvel\\__init__.py\nD:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\wheel_verify\\isolated-wheel\\nanopokerlib\\_guandan_cpp.cp312-win_amd64.pyd\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-c",
+          "from nanopokerlib import guandan as n; import guandan_marvel as g; assert hasattr(n,'EnvBatch'); assert hasattr(g.get_game_backend(),'EnvBatch'); print(n.__file__)"
+        ],
+        "cwd": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\wheel_verify\\outside-cwd",
+        "exit_code": 0,
+        "pythonpath": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\wheel_verify\\isolated-wheel",
+        "stderr": "",
+        "stdout": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\wheel_verify\\isolated-wheel\\nanopokerlib\\guandan.py\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-c",
+          "import guandan_marvel.config,sys; assert 'nanopokerlib._guandan_cpp' not in sys.modules; print('config-only-ok')"
+        ],
+        "cwd": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\wheel_verify\\outside-cwd",
+        "exit_code": 0,
+        "pythonpath": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\wheel_verify\\isolated-wheel",
+        "stderr": "",
+        "stdout": "config-only-ok\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-c",
+          "import guandan_marvel as g; p=g.get_game_backend('python_reference'); assert p.BACKEND=='python_reference' and hasattr(p,'EnvBatch')\ntry: g.get_game_backend('cpp')\nexcept g.BackendUnavailableError: print('no-native-ok')\nelse: raise AssertionError('silent fallback')"
+        ],
+        "cwd": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\wheel_verify\\outside-cwd",
+        "exit_code": 0,
+        "pythonpath": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\wheel_verify\\isolated-no-native",
+        "stderr": "",
+        "stdout": "no-native-ok\n"
+      }
+    ],
+    "schema": "guandan-marvel-m05-isolated-wheel-imports-v1",
+    "valid": true,
+    "wheel": {
+      "bytes": 1190221,
+      "path": "D:\\project\\guandan\\runs\\M05_performance_finish\\20261009_finish\\wheel\\guandan_train-0.1.0-cp312-cp312-win_amd64.whl",
+      "sha256": "dc8f013cf7821815fb42afbb7b1978e7c58e88ae933bce3c993cead52f31e711"
+    }
+  },
+  "schema": "guandan-marvel-m05-performance-build-recovery-v1",
+  "stage": "M05_performance_finish",
+  "wheel": {
+    "build_log": "runs/M05_performance_finish/20261009_finish/wheel_build.log",
+    "build_log_sha256": "8fca0d1887eba21543b4f8f5dc0caae732fb48c29b195233347cd3deea859760",
+    "bytes": 1190221,
+    "path": "runs/M05_performance_finish/20261009_finish/wheel/guandan_train-0.1.0-cp312-cp312-win_amd64.whl",
+    "sha256": "dc8f013cf7821815fb42afbb7b1978e7c58e88ae933bce3c993cead52f31e711"
+  }
+}

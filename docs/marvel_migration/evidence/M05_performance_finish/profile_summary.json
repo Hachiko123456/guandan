@@ -1,0 +1,96 @@
+{
+  "baseline_primary": {
+    "cpp_segments": {
+      "cache_prepare": {
+        "seconds": 0.0010520000068936497,
+        "wall_fraction": 0.00023111184765271843
+      },
+      "environment_setup": {
+        "seconds": 0.021392299997387454,
+        "wall_fraction": 0.00469963302807969
+      },
+      "environment_step": {
+        "seconds": 1.2488976998865837,
+        "wall_fraction": 0.2743679211583862
+      },
+      "model_forward_with_cache": {
+        "seconds": 2.700998700107448,
+        "wall_fraction": 0.5933771825084492
+      },
+      "observation_conversion": {
+        "seconds": 0.08488060020317789,
+        "wall_fraction": 0.018647254956540404
+      },
+      "sampling_and_action_marshalling": {
+        "seconds": 0.18974639991938602,
+        "wall_fraction": 0.04168501975613974
+      },
+      "trajectory_buffer_and_commit": {
+        "seconds": 0.23689449996163603,
+        "wall_fraction": 0.05204289470164929
+      }
+    },
+    "cpp_wall": 4.551908600005845,
+    "python_segments": {
+      "cache_prepare": {
+        "seconds": 0.0009838000041781925,
+        "wall_fraction": 0.0001353729698238648
+      },
+      "environment_setup": {
+        "seconds": 0.0385865999996895,
+        "wall_fraction": 0.005309598104471422
+      },
+      "environment_step": {
+        "seconds": 3.8227304999600165,
+        "wall_fraction": 0.5260158349441548
+      },
+      "model_forward_with_cache": {
+        "seconds": 2.7865123000883614,
+        "wall_fraction": 0.38343001007485816
+      },
+      "observation_conversion": {
+        "seconds": 0.07861800012324238,
+        "wall_fraction": 0.010818003774239264
+      },
+      "sampling_and_action_marshalling": {
+        "seconds": 0.2075972998572979,
+        "wall_fraction": 0.028565829324806127
+      },
+      "trajectory_buffer_and_commit": {
+        "seconds": 0.25489180001750356,
+        "wall_fraction": 0.035073652983915043
+      }
+    },
+    "python_wall": 7.2673297000001185,
+    "speedup": 1.596545611656347
+  },
+  "hotspots": [
+    {
+      "candidate": "gather active observer before state/action/policy heads",
+      "evidence": "largest C++ segment (~59% baseline wall); decoder must retain all four observer histories, but post-decoder heads repeated inactive work",
+      "name": "model_forward_with_cache",
+      "risk": "model math/gradients",
+      "verification": "probability/value/loss/gradient tolerance plus matched trajectory digest"
+    },
+    {
+      "candidate": "lightweight event snapshot and outer-transaction-only mutation",
+      "evidence": "C++ environment ~27% baseline wall; Game is copied at batch and token transaction boundaries",
+      "name": "cpp_environment_transaction_copies",
+      "risk": "batch atomicity/rollback and full differential requirement",
+      "verification": "C++ transactional tests and 10k/100k if retained"
+    },
+    {
+      "candidate": "none retained",
+      "evidence": "conversion+sampling+buffer ~11% wall; too small alone to close gate",
+      "name": "tensor_and_buffer_overhead",
+      "risk": "sampler semantics"
+    }
+  ],
+  "profiling_samples_not_used_for_speedup": true,
+  "schema": "guandan-marvel-m05-performance-profile-summary-v1",
+  "stage": "M05_performance_finish",
+  "torch_profile_artifacts": [
+    "runs/M05_performance_finish/20261009_finish/profile_baseline.json",
+    "runs/M05_performance_finish/20261009_finish/profile_final.json"
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "all_unchanged": true,
+  "files": [
+    {
+      "bytes": 7279,
+      "path": "guandan_marvel/model/agent.py",
+      "sha256": "a8a8edb37e1b8e6ee84d925eb98519e48ad64cad601dc9da5e9694fc98ee4252"
+    },
+    {
+      "bytes": 8993,
+      "path": "scripts/benchmark_marvel_m05_finish.py",
+      "sha256": "0b82a106007bbe6131cb5be7c0d3a23820db978e5e019de9c5978f7bc0efe60f"
+    },
+    {
+      "bytes": 2124,
+      "path": "scripts/profile_marvel_m05_finish.py",
+      "sha256": "43ba9f9d248034576772fb03468dd5744025a77bf18f163831babd525df27862"
+    },
+    {
+      "bytes": 6189,
+      "path": "tests/marvel_training/test_agent_active_head_optimization.py",
+      "sha256": "8e962e0473053981ab268e832ad16e053b8602b395847210a37c7c200a8a7fa7"
+    },
+    {
+      "bytes": 3443,
+      "path": "docs/marvel_migration/M05_PERFORMANCE_FINISH_PROTOCOL.md",
+      "sha256": "5388da0cb7752adac4c4afd45732e8166b28e50c6c90432264ac8dd5482e1044"
+    },
+    {
+      "bytes": 4049,
+      "path": "docs/marvel_migration/00_README.md",
+      "sha256": "f0cf99538d047a9a777f841ec67666a363e62a0195266733153556e6fdb78c74"
+    }
+  ],
+  "protected_and_environment_files": [
+    {
+      "baseline_sha256": "dcbf3a8dbdbc910fec9d37935f83d6980bc33a308400a5aa99f00b100bb68dca",
+      "current_sha256": "dcbf3a8dbdbc910fec9d37935f83d6980bc33a308400a5aa99f00b100bb68dca",
+      "path": "guandan/cards.py",
+      "unchanged": true
+    },
+    {
+      "baseline_sha256": "a375a28964ecc6ef36dd5a487d9c039b422afd78c68ce54ac970265d64efacc8",
+      "current_sha256": "a375a28964ecc6ef36dd5a487d9c039b422afd78c68ce54ac970265d64efacc8",
+      "path": "guandan/combos.py",
+      "unchanged": true
+    },
+    {
+      "baseline_sha256": "b7df95a68e58bb7422e7f94b67649d7adf9a2b043b9b89f9d26ca06a21c251b0",
+      "current_sha256": "b7df95a68e58bb7422e7f94b67649d7adf9a2b043b9b89f9d26ca06a21c251b0",
+      "path": "guandan/round.py",
+      "unchanged": true
+    },
+    {
+      "baseline_sha256": "20f08df290a04678c89b0d29713683474dc0ff7f737b13ce607346e2913d5925",
+      "current_sha256": "20f08df290a04678c89b0d29713683474dc0ff7f737b13ce607346e2913d5925",
+      "path": "guandan/state.py",
+      "unchanged": true
+    },
+    {
+      "baseline_sha256": "e53a4576d41adfea27684aa8f20d2043feff5ad6a6a44ad7fe7be57cbeefa928",
+      "current_sha256": "e53a4576d41adfea27684aa8f20d2043feff5ad6a6a44ad7fe7be57cbeefa928",
+      "path": "docs/rules.md",
+      "unchanged": true
+    },
+    {
+      "baseline_sha256": "e6f138c76ed5c0b0e64e389b4d8ebaad36fed06a9d1eead3e442405c5cedfec4",
+      "current_sha256": "e6f138c76ed5c0b0e64e389b4d8ebaad36fed06a9d1eead3e442405c5cedfec4",
+      "path": "guandan_marvel/game.py",
+      "unchanged": true
+    },
+    {
+      "baseline_sha256": "5838cfadfe3f7c29ab10465727c24ac829f89769b382af11864b024b5ce95b48",
+      "current_sha256": "5838cfadfe3f7c29ab10465727c24ac829f89769b382af11864b024b5ce95b48",
+      "path": "nanopokerlib/cpp/guandan/guandan.cpp",
+      "unchanged": true
+    },
+    {
+      "baseline_sha256": "eb66228e5865a913e4a0852fe1f5e2bf3762305a8362087a6fed355da6f37e4c",
+      "current_sha256": "eb66228e5865a913e4a0852fe1f5e2bf3762305a8362087a6fed355da6f37e4c",
+      "path": "nanopokerlib/cpp/guandan/guandan.hpp",
+      "unchanged": true
+    },
+    {
+      "baseline_sha256": "15f3c55d73925edb89301ac441fb8affe12a305b94f22e9b4283f1f51179d9f1",
+      "current_sha256": "15f3c55d73925edb89301ac441fb8affe12a305b94f22e9b4283f1f51179d9f1",
+      "path": "nanopokerlib/cpp/bindings.cpp",
+      "unchanged": true
+    }
+  ],
+  "reference_repo": {
+    "clean": true,
+    "head": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+    "status_short": []
+  },
+  "schema": "guandan-marvel-m05-performance-source-manifest-v1",
+  "source_parent_commit": "3aee75fdeece3fc9f142f93c9fb971fe59954bd8",
+  "stage": "M05_performance_finish"
+}

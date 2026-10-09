@@ -201,3 +201,11 @@ VRPO replay 放 GPU、CPU pinned memory 或分级缓存，由显存和吞吐决�
 决定：checkpoint v4 的 exact/compatible resume 必须匹配实际 backend、backend-specific source fingerprint 和原生 binary/build identity。v3 缺失这些字段时只允许 migration/evaluation-only，不自动补全。
 
 决定：原 2.976× lane 重新命名为 deterministic selector rollout。总体计划对真实模型 end-to-end 门槛存在歧义时采用保守口径：真实 frozen Transformer rollout 也须 >=2× 才重新 accepted。当前补测未达到，因此 M05 保持未接受，M06 继续 blocked；learner 本身仍不要求 2×。
+
+### D014 真实 Agent 性能三轮停止决策
+
+决定：真实性能收尾固定 4 局/1,027 actions 主集合、8 局泛化集合、同一冻结权重和至少 5 次交替配对样本。最多实施三轮 profiler 驱动候选，不无限试错。
+
+Round 1 保留 active-only post-decoder heads；四座位 history/KV 仍完整更新，仅消除最终被 mask 的三份 state/action/policy head 重复计算。Round 2 event snapshot 和 Round 3 outer-transaction mutation 因收益不足且扩大 C++ 差分风险而撤回。
+
+最终真实 Agent speedup 1.636×，未达到 2×。尽管 fixed-action single/batch 继续超过 2×，不得据此替代真实模型门槛。M05 继续 blocked；继续深度优化或调整门槛必须由用户明确决定。

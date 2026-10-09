@@ -89,17 +89,6 @@ class Agent(BaseMarvelModule):
             past_key_values.populate(temp_cache, flat_num_steps)
             return None
 
-        player_range = self.player_index.to(device = device)
-        active_mask = (player_ids.unsqueeze(-1) == player_range) & (player_ids.unsqueeze(-1) >= 0)
-        flat_active_mask = active_mask.permute(0, 2, 1).reshape(B * P, T).to(dtype = torch.bool)
-
-        flat_obs_channels = self._flatten_players(obs_channels, name = "obs_channels")
-        flat_avail_tokens = avail_tokens.repeat_interleave(P, dim = 0).reshape(B * P, T, A, L_act)
-        flat_avail_weights = (
-            avail_weights.repeat_interleave(P, dim = 0).reshape(B * P, T, A)
-            * flat_time_mask.unsqueeze(-1).to(dtype = avail_weights.dtype)
-        )
-
         decoded, _ = self._encode_history(
             flat_obs_tokens,
             flat_player_ids,
@@ -107,44 +96,44 @@ class Agent(BaseMarvelModule):
             use_cache = use_cache,
             past_key_values = past_key_values,
         )
-        fused_state = self._encode_state_features(decoded, flat_obs_channels, flat_time_mask)
 
-        player_state = self._apply_mask(fused_state, flat_active_mask)
-        action_feats, avail_mask = self._encode_action_features(
-            flat_avail_tokens,
-            flat_avail_weights,
-            flat_time_mask,
+        # History/KV state remains per observer (B*P), but only the acting
+        # player's state/action/policy heads affect the environment action.
+        # Gather that observer before the expensive MLP heads instead of
+        # encoding identical candidates four times and masking three copies.
+        decoded_by_player = self._unflatten_players(
+            decoded, batch_size = B, name = "decoded",
         )
-        avail_mask = avail_mask & flat_active_mask.unsqueeze(-1)
+        acting_players = player_ids.clamp(min = 0)
+        mask = player_ids >= 0
+        player_mask = mask & time_mask
+        decoded_index = acting_players.unsqueeze(-1).unsqueeze(-1).expand(
+            -1, -1, 1, decoded_by_player.shape[-1],
+        )
+        acting_decoded = decoded_by_player.gather(
+            dim = 2, index = decoded_index,
+        ).squeeze(2)
+        channel_index = acting_players.unsqueeze(-1).unsqueeze(-1).expand(
+            -1, -1, 1, obs_channels.shape[-1],
+        )
+        acting_channels = obs_channels.gather(
+            dim = 2, index = channel_index,
+        ).squeeze(2)
 
+        player_state = self._encode_state_features(
+            acting_decoded, acting_channels, player_mask,
+        )
+        action_feats, avail_mask = self._encode_action_features(
+            avail_tokens, avail_weights, player_mask,
+        )
         fused_action_state = player_state.unsqueeze(-2) * action_feats
         avail_logits = self.logit_head(fused_action_state).squeeze(-1)
         mask_value = torch.finfo(avail_logits.dtype).min
         avail_logits = avail_logits.masked_fill(~avail_mask, mask_value)
-        avail_logits = avail_logits + avail_mask.to(dtype = avail_logits.dtype) * flat_avail_weights.clamp(min = 1e-9).log()
+        avail_logits = avail_logits + avail_mask.to(dtype = avail_logits.dtype) * avail_weights.clamp(min = 1e-9).log()
 
-        flat_avail_probs = torch.softmax(avail_logits.float(), dim = -1)
-        flat_avail_probs = self._apply_mask(flat_avail_probs, avail_mask).to(dtype = avail_logits.dtype)
-
-        flat_state_values = None
-        if self.value_head is not None:
-            value_logits = self.value_head(player_state).squeeze(-1)
-            flat_state_values = self._apply_mask(value_logits, flat_active_mask)
-
-        BP, T, A = self._shape(flat_avail_probs, (None, None, None), "flat_avail_probs")
-        self._ensure(BP % self.num_players == 0, "Agent output batch must be divisible by number of players.")
-        self._shape(player_ids, (B, T), "player_ids")
-        self._shape(avail_weights, (B, T, A), "avail_weights")
-        self._shape(num_steps, (B,), "num_steps")
-
-        avail_probs_full = self._unflatten_players(flat_avail_probs, batch_size = B, name = "flat_avail_probs")
-        acting_players = player_ids.clamp(min = 0)
-        mask = player_ids >= 0
-        player_mask = mask & time_mask
-
-        acting_idx = acting_players.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, 1, A)
-        agent_probs = avail_probs_full.gather(dim = 2, index = acting_idx).squeeze(2)
-
+        agent_probs = torch.softmax(avail_logits.float(), dim = -1)
+        agent_probs = self._apply_mask(agent_probs, avail_mask).to(dtype = avail_logits.dtype)
         sum_weights = avail_weights.sum(dim = -1, keepdim = True)
         env_uniform = torch.full_like(avail_weights, 1.0 / avail_weights.size(-1))
         env_probs = torch.where(sum_weights > 0, avail_weights / sum_weights.clamp(min = 1e-9), env_uniform)
@@ -152,17 +141,16 @@ class Agent(BaseMarvelModule):
 
         state_values = None
         player_state_value = None
-        if flat_state_values is not None:
-            self._shape(flat_state_values, (BP, T), "flat_state_values")
-            state_values = self._unflatten_players(
-                flat_state_values,
-                batch_size = B,
-                name = "flat_state_values",
+        if self.value_head is not None:
+            value_logits = self.value_head(player_state).squeeze(-1)
+            player_state_value = self._apply_mask(value_logits, player_mask)
+            state_values = value_logits.new_zeros((B, T, P))
+            state_values.scatter_(
+                2,
+                acting_players.unsqueeze(-1),
+                player_state_value.unsqueeze(-1),
             )
             state_values = state_values * time_mask.unsqueeze(-1).to(state_values.dtype)
-            acting_idx_values = acting_players.unsqueeze(-1)
-            player_state_value = state_values.gather(dim = 2, index = acting_idx_values).squeeze(-1)
-            player_state_value = player_state_value * player_mask.to(player_state_value.dtype)
 
         return ActiveAgentOutput(
             avail_probs = avail_probs,
