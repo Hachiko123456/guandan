@@ -10,8 +10,10 @@ import torch
 from guandan_marvel.buffer import BufferConfig, TrajectoryBuffer
 from guandan_marvel.config import ModelConfig, TrainConfig
 from guandan_marvel.training.checkpoints import (
-    CheckpointCompatibilityError, TRAINING_CHECKPOINT_SCHEMA,
-    build_semantic_contract, classify_resume,
+    CheckpointCompatibilityError, PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA,
+    TRAINING_CHECKPOINT_SCHEMA, build_execution_fingerprint,
+    build_semantic_configuration, build_semantic_contract, classify_resume,
+    canonical_json_hash, compute_source_fingerprint, serialize_config,
 )
 from guandan_marvel.training.local import IPPOTrainer, VRPOTrainer
 from guandan_marvel.training.smoke import PythonReferenceSmokeGame
@@ -147,40 +149,99 @@ def test_vrpo_checkpoint_restores_replay_and_continues_update(tmp_path: Path) ->
     rejected = VRPOTrainer(cfg, game=game, run_dir=tmp_path / "vrpo-corrupt")
     with pytest.raises(ValueError, match="real terminal"):
         rejected.load_checkpoint(corrupt_path)
+    assert rejected.failed and rejected.sampler.failed
+    with pytest.raises(RuntimeError):
+        rejected.train_iteration()
+    with pytest.raises(RuntimeError):
+        rejected.save_checkpoint(tmp_path / "corrupt-must-not-save.pt")
 
 
-def test_resume_classification_all_categories_and_legacy_rejection() -> None:
+def test_resume_classification_all_categories_and_legacy_rejection(tmp_path: Path) -> None:
+    cfg, _game = _config(tmp_path, algorithm="vrpo", seed=1451)
+    semantic = build_semantic_configuration(cfg, algorithm="vrpo")
     contract = build_semantic_contract(
-        algorithm="vrpo", architecture="v1.3", game_identifier="test",
-        protocol_version="GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+        semantic_config=semantic,
         sampler_contract="sampler-v2", sampler_state_schema="sampler-state-v1",
         buffer_schema="buffer-v2", q_target_contract="q-v1",
     )
+    source_file = tmp_path / "source.py"
+    source_file.write_text("VALUE = 1\n", encoding="utf-8")
+    source = compute_source_fingerprint(tmp_path, {"test": ("source.py",)})
+    execution = build_execution_fingerprint("cpu")
+    resolved = serialize_config(cfg)
     base = {
         "schema": TRAINING_CHECKPOINT_SCHEMA,
         "semantic_contract": contract,
-        "source_hash": "source",
-        "resolved_config_hash": "config",
+        "source_fingerprint": source,
+        "execution_fingerprint": execution,
+        "resolved_config": resolved,
+        "resolved_config_hash": canonical_json_hash(resolved),
         "agent_resume_state_dict": {}, "agent_state_dict": {},
         "agent_optimizer_state_dict": {}, "critic_state_dict": {},
         "critic_optimizer_state_dict": {}, "replay_buffer_state": {},
         "iteration": 1, "durable_updates": 1, "counters": {},
         "rng_state": {}, "sampler_state": {}, "schedule_state": {},
-        "merged_policy": {}, "resolved_config": {},
+        "merged_policy": {},
     }
-    exact = classify_resume(base, expected_contract=contract, expected_source_hash="source", expected_config_hash="config", require_replay=True)
+    exact = classify_resume(
+        base, expected_contract=contract, expected_source_fingerprint=source,
+        expected_execution_fingerprint=execution, expected_config=resolved,
+        require_replay=True,
+    )
     assert exact.kind == "exact_resume"
-    compatible_payload = {**base, "source_hash": "other"}
-    assert classify_resume(compatible_payload, expected_contract=contract, expected_source_hash="source", expected_config_hash="config", require_replay=True).kind == "compatible_resume"
+
+    compatible_cfg = copy.deepcopy(resolved)
+    compatible_cfg["logging_dir"] = "different-log-dir"
+    compatible_cfg["run_name"] = "different-run-name"
+    compatible = classify_resume(
+        base, expected_contract=contract, expected_source_fingerprint=source,
+        expected_execution_fingerprint=execution, expected_config=compatible_cfg,
+        require_replay=True,
+    )
+    assert compatible.kind == "compatible_resume"
+    assert all("logging_dir" in reason or "run_name" in reason for reason in compatible.reasons)
+
     warm = dict(base); warm.pop("replay_buffer_state")
-    assert classify_resume(warm, expected_contract=contract, expected_source_hash="source", expected_config_hash="config", require_replay=True).kind == "warm_restart"
-    migration = copy.deepcopy(base); migration["semantic_contract"]["hash"] = "different"
-    assert classify_resume(migration, expected_contract=contract, expected_source_hash="source", expected_config_hash="config", require_replay=True).kind == "migration"
-    assert classify_resume(base, expected_contract=contract, expected_source_hash="source", expected_config_hash="config", require_replay=True, for_evaluation=True).kind == "evaluation_only"
+    assert classify_resume(
+        warm, expected_contract=contract, expected_source_fingerprint=source,
+        expected_execution_fingerprint=execution, expected_config=resolved,
+        require_replay=True,
+    ).kind == "warm_restart"
+
+    changed_cfg = copy.deepcopy(cfg)
+    changed_cfg.discount_gamma = 0.5
+    changed_semantic = build_semantic_configuration(changed_cfg, algorithm="vrpo")
+    changed_contract = build_semantic_contract(
+        semantic_config=changed_semantic,
+        sampler_contract="sampler-v2", sampler_state_schema="sampler-state-v1",
+        buffer_schema="buffer-v2", q_target_contract="q-v1",
+    )
+    migration = classify_resume(
+        base, expected_contract=changed_contract, expected_source_fingerprint=source,
+        expected_execution_fingerprint=execution, expected_config=serialize_config(changed_cfg),
+        require_replay=True,
+    )
+    assert migration.kind == "migration"
+    assert any("discount_gamma" in reason for reason in migration.reasons)
+
+    assert classify_resume(
+        base, expected_contract=contract, expected_source_fingerprint=source,
+        expected_execution_fingerprint=execution, expected_config=resolved,
+        require_replay=True, for_evaluation=True,
+    ).kind == "evaluation_only"
+    old_m03 = {"schema": PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA}
+    assert classify_resume(
+        old_m03, expected_contract=contract, expected_source_fingerprint=source,
+        expected_execution_fingerprint=execution, expected_config=resolved,
+        require_replay=False,
+    ).kind == "migration"
     legacy = {"checkpoint_version": 2, "action_version": "GD-ACTION-0.1", "environment_version": "GD-ENV-0.1"}
     with pytest.raises(CheckpointCompatibilityError, match="legacy V1"):
-        classify_resume(legacy, expected_contract=contract, expected_source_hash="source", expected_config_hash="config", require_replay=False)
-    assert classify_resume(legacy, expected_contract=contract, expected_source_hash="source", expected_config_hash="config", require_replay=False, for_evaluation=True).kind == "evaluation_only"
+        classify_resume(
+            legacy, expected_contract=contract, expected_source_fingerprint=source,
+            expected_execution_fingerprint=execution, expected_config=resolved,
+            require_replay=False,
+        )
 
 
 def test_incomplete_rollout_does_not_add_replay_or_durable_update(tmp_path: Path, monkeypatch) -> None:

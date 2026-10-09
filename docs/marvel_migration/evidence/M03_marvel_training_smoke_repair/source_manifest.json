@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-09",
+  "files": [
+    {
+      "bytes": 25452,
+      "origin": "modified",
+      "path": "guandan_marvel/runtime/sampler.py",
+      "role": "catch BaseException and explicit external invalidation",
+      "sha256": "abf910febf3c3a5a7bdc7fbf975ca9fb5d52965082bb35f4931003b4fcad983b"
+    },
+    {
+      "bytes": 18023,
+      "origin": "rewritten",
+      "path": "guandan_marvel/training/checkpoints.py",
+      "role": "checkpoint v3 semantic/source/execution integrity and classification",
+      "sha256": "549028729e559f4b2e83f16946bf6763b8c7800b1bd6efb54c14028c27b32b04"
+    },
+    {
+      "bytes": 36689,
+      "origin": "modified",
+      "path": "guandan_marvel/training/local.py",
+      "role": "trainer lifecycle/durable boundary/load poison/source inventory",
+      "sha256": "cc97797097b53f5f1762bbc57fd87f939a7ba2945fcf962e4a8d576338149a3d"
+    },
+    {
+      "bytes": 1839,
+      "origin": "modified",
+      "path": "guandan_marvel/training/__init__.py",
+      "role": "repaired checkpoint API exports",
+      "sha256": "d30be13c0639d3f787d5dac1b6c3cef02f3223bfb4b0401655d488db58ac8d79"
+    },
+    {
+      "bytes": 12882,
+      "origin": "modified",
+      "path": "tests/marvel_training/test_training_smoke.py",
+      "role": "v3 classifications and failed-load invalidation",
+      "sha256": "7a088bb0882b5bd0a9985a4e7e8d6df65083239823cf98fca5f5d13f03ff3b99"
+    },
+    {
+      "bytes": 12148,
+      "origin": "new",
+      "path": "tests/marvel_training/test_training_repair.py",
+      "role": "interrupt/semantic/source/load regression suite",
+      "sha256": "a28065d07ac00df68a091473c1cc38b9fbe11f1f15faccba7f06166bc85beebd"
+    },
+    {
+      "bytes": 7088,
+      "origin": "modified",
+      "path": "scripts/run_marvel_training_smoke.py",
+      "role": "source component/execution/semantic hashes",
+      "sha256": "e91a1e6f4019fd93bcb5d6c5273c09c41756b5125a13627ab0c8eb4fc08d544a"
+    },
+    {
+      "bytes": 8725,
+      "origin": "modified",
+      "path": "scripts/verify_marvel_training_artifacts.py",
+      "role": "v3 integrity and classifications",
+      "sha256": "53e060057c1eab0a4b4bbb31c933dcd2316beec951dc6919c2136331f272d0aa"
+    },
+    {
+      "bytes": 7738,
+      "origin": "new",
+      "path": "scripts/verify_marvel_training_repair.py",
+      "role": "real interruption and semantic repair evidence",
+      "sha256": "c1069892297629807506c49a505f66273500661533688841fc30e45cfde76ffc"
+    }
+  ],
+  "original_acceptance_tag": "refs/tags/m03-marvel-training-smoke-accepted",
+  "original_implementation_commit": "4968840679ea031ec7b69132cebd862efa302c17",
+  "protected_rule_files_modified": false,
+  "reference_commit": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+  "reference_repository_modified": false,
+  "schema": "guandan-marvel-m03-repair-source-manifest-v1",
+  "stage": "M03_marvel_training_smoke_repair"
+}

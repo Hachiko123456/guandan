@@ -168,3 +168,20 @@ VRPO replay 放 GPU、CPU pinned memory 或分级缓存，由显存和吞吐决�
 证据：exact continuation tests 和 `checkpoint_verification.json`。
 影响：checkpoint 较大，但 local smoke 可证明 exact resume；缺 replay 自动分类 warm restart。
 回滚方式：未来若改为外部 replay artifact，必须升级 schema 并明确恢复分类。
+### D020 M03 catchable interruption strategy
+日期：2026-10-09
+状态：accepted
+候选方案：每 optimizer step 深拷贝回滚；异常后 poison。
+决定：采用 trainer+sampler poison。捕获 `BaseException` 后记录 partial work、拒绝 payload/save/retry，并重新抛出。恢复只能新建实例并加载最后完整 checkpoint。
+证据：M03 repair interruption tests 和 `repair_verification.json`。
+影响：正常 step 无完整深拷贝开销；不承诺平台硬杀恢复。
+回滚方式：只有实现并验证模型/optimizer/env/buffer/RNG/cache 原子回滚后才可允许原实例继续。
+
+### D021 M03 semantic/source compatibility policy
+日期：2026-10-09
+状态：accepted
+候选方案：resolved config hash 不同即 compatible；完整语义/源码逐项比较。
+决定：checkpoint v3 嵌入 semantic config、组件级 source fingerprint 和 execution fingerprint。仅批准的日志/显示/运行控制字段可 compatible；模型、gamma、optimizer、schedule、sampling、replay、源码、设备和依赖变化保守 migration/reject。
+证据：真实 gamma/decoder-head checkpoint tests、source fixture mutation 和 artifact verifier。
+影响：pre-repair v2 不再作为 exact/compatible training resume。
+回滚方式：未来若增加安全迁移器，必须使用新 schema 和逐字段转换证据。

@@ -275,3 +275,8 @@ M03 本地 runtime 已实现：
 - incomplete/nonterminal batch 不增加 durable update。
 
 实际验收 profile 使用 CPU、16/24 小模型、`T=512`、rollout/collect/replay=1；它只证明训练语义。
+## 12. M03 interruption/durable boundary repair（2026-10-09）
+
+`iteration` and `durable_updates` advance only after all actor/critic work and metric persistence complete. `learner_updates` may record partial work for diagnostics, while `durable_learner_updates` records the last checkpointable boundary. Catchable interruption/exception poisons trainer and sampler, rejects payload/save/retry, and requires reconstruction from the last complete checkpoint.
+
+Resume compatibility now compares the actual semantic configuration and component-level implementation fingerprint; resolved-config hash differences are not automatically compatible.

@@ -26,8 +26,9 @@ from guandan_marvel.runtime.sampler import (
 )
 from guandan_marvel.training.checkpoints import (
     TRAINING_CHECKPOINT_SCHEMA, CheckpointCompatibilityError, TrainingCheckpointStore,
-    build_semantic_contract, canonical_json_hash, capture_rng_state, classify_resume,
-    compute_source_hash, restore_rng_state, serialize_config,
+    build_execution_fingerprint, build_semantic_configuration, build_semantic_contract,
+    canonical_json_hash, capture_rng_state, classify_resume,
+    compute_source_fingerprint, restore_rng_state, serialize_config,
 )
 from guandan_marvel.training.gae import compute_gae_from_qvalue, compute_gae_from_value
 from guandan_marvel.training.losses import (
@@ -40,26 +41,44 @@ from guandan_marvel.training.validation import (
 )
 from guandan_marvel.utils import set_global_seed
 
-M03_RUNTIME_SCHEMA = "guandan-marvel-m03-local-runtime-v1"
+M03_RUNTIME_SCHEMA = "guandan-marvel-m03-local-runtime-v2"
 VRPO_Q_TARGET_CONTRACT = "guandan-marvel-vrpo-q-lambda-td1-v1"
-_SOURCE_PATHS = (
-    "guandan_marvel/buffer.py",
-    "guandan_marvel/config.py",
-    "guandan_marvel/env_batch.py",
-    "guandan_marvel/model/agent.py",
-    "guandan_marvel/model/base.py",
-    "guandan_marvel/model/critic.py",
-    "guandan_marvel/runtime/sampler.py",
-    "guandan_marvel/training/checkpoints.py",
-    "guandan_marvel/training/gae.py",
-    "guandan_marvel/training/local.py",
-    "guandan_marvel/training/losses.py",
-    "guandan_marvel/training/metrics.py",
-    "guandan_marvel/training/smoke.py",
-    "guandan_marvel/training/ippo.py",
-    "guandan_marvel/training/vrpo.py",
-    "guandan_marvel/training/validation.py",
-)
+RUNTIME_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
+    "guandan_rules": (
+        "guandan/cards.py", "guandan/combos.py", "guandan/round.py",
+        "guandan/state.py", "guandan/action_state.py", "guandan/encoding.py",
+        "guandan/environment.py", "guandan/environment_types.py", "guandan/env_batch.py",
+    ),
+    "game_adapter": (
+        "guandan_marvel/__init__.py", "guandan_marvel/game.py",
+        "guandan_marvel/env_batch.py", "guandan_marvel/buffer.py",
+    ),
+    "model": (
+        "guandan_marvel/model/__init__.py", "guandan_marvel/model/agent.py",
+        "guandan_marvel/model/base.py", "guandan_marvel/model/cache.py",
+        "guandan_marvel/model/checkpointable.py", "guandan_marvel/model/critic.py",
+        "guandan_marvel/model/tensordict.py", "guandan_marvel/model/trainable.py",
+        "guandan_marvel/model/transformer.py", "guandan_marvel/model/types.py",
+    ),
+    "optimization": (
+        "guandan_marvel/optim/__init__.py", "guandan_marvel/optim/common.py",
+        "guandan_marvel/optim/muon.py",
+    ),
+    "runtime": (
+        "guandan_marvel/config.py", "guandan_marvel/runtime/__init__.py",
+        "guandan_marvel/runtime/compilation.py", "guandan_marvel/runtime/logger.py",
+        "guandan_marvel/runtime/sampler.py", "guandan_marvel/utils.py",
+    ),
+    "training": (
+        "guandan_marvel/training/__init__.py", "guandan_marvel/training/checkpoints.py",
+        "guandan_marvel/training/gae.py",
+        "guandan_marvel/training/ippo.py", "guandan_marvel/training/local.py",
+        "guandan_marvel/training/losses.py", "guandan_marvel/training/metrics.py",
+        "guandan_marvel/training/schedules.py", "guandan_marvel/training/smoke.py",
+        "guandan_marvel/training/validation.py", "guandan_marvel/training/vrpo.py",
+    ),
+}
+
 
 
 def _git_head(root: Path) -> str:
@@ -119,24 +138,32 @@ class LocalTrainerBase:
         self.iteration = 0
         self.durable_updates = 0
         self.learner_updates = 0
+        self.durable_learner_updates = 0
         self.completed_games_total = 0
         self.failed = False
         self.failure: dict[str, object] | None = None
+        self.iteration_status = "idle"
+        self.active_iteration: int | None = None
+        self._iteration_start_learner_updates = 0
         self.last_metrics: dict[str, object] = {}
         self.last_trajectory_keys: tuple[str, ...] = ()
         self.last_trajectory_num_steps: tuple[int, ...] = ()
         self.last_policy_epochs = 0
         self.last_critic_batch_sources: tuple[str, ...] = ()
         self.repo_root = Path(__file__).resolve().parents[2]
-        self.source_hash = compute_source_hash(self.repo_root, _SOURCE_PATHS)
+        self.source_fingerprint = compute_source_fingerprint(
+            self.repo_root, RUNTIME_SOURCE_COMPONENTS,
+        )
+        self.source_hash = str(self.source_fingerprint["hash"])
+        self.execution_fingerprint = build_execution_fingerprint(self.device)
         self.source_parent_commit = _git_head(self.repo_root)
         self.resolved_config = serialize_config(cfg)
         self.resolved_config_hash = canonical_json_hash(self.resolved_config)
+        self.semantic_configuration = build_semantic_configuration(
+            cfg, algorithm=self.algorithm,
+        )
         self.semantic_contract = build_semantic_contract(
-            algorithm=self.algorithm,
-            architecture=cfg.model.architecture,
-            game_identifier=cfg.game.identifier,
-            protocol_version=cfg.game.protocol_version,
+            semantic_config=self.semantic_configuration,
             sampler_contract=SAMPLER_CONTRACT_SCHEMA,
             sampler_state_schema=SAMPLER_STATE_SCHEMA,
             buffer_schema=BUFFER_STATE_SCHEMA,
@@ -162,18 +189,54 @@ class LocalTrainerBase:
         return ModuleCompiler.from_cfg(self.cfg).compile(module)
 
     def _require_healthy(self) -> None:
-        if self.failed:
-            raise RuntimeError(f"trainer is unusable after failed iteration: {self.failure}")
+        if self.failed or self.iteration_status == "failed":
+            raise RuntimeError(f"trainer is unusable after failed iteration/load: {self.failure}")
+        if self.sampler.failed:
+            raise RuntimeError(f"trainer sampler is unusable: {self.sampler.failure_info}")
 
-    def _poison(self, *, stage: str, error: Exception) -> None:
+    def _begin_iteration(self) -> None:
+        self._require_healthy()
+        if self.iteration_status in {"running", "loading"} or self.active_iteration is not None:
+            raise RuntimeError("trainer already has an active operation")
+        self.iteration_status = "running"
+        self.active_iteration = self.iteration + 1
+        self._iteration_start_learner_updates = self.learner_updates
+
+    def _begin_load(self) -> None:
+        self._require_healthy()
+        if self.iteration_status in {"running", "loading"} or self.active_iteration is not None:
+            raise RuntimeError("cannot load while an iteration or load is active")
+        self.iteration_status = "loading"
+
+    def _poison(self, *, stage: str, error: BaseException) -> None:
+        partial_updates = max(0, self.learner_updates - self._iteration_start_learner_updates)
         self.failed = True
+        self.iteration_status = "failed"
         self.failure = {
             "stage": stage,
             "error_type": type(error).__name__,
             "error": str(error),
+            "active_iteration": self.active_iteration,
+            "iteration": self.iteration,
             "durable_updates": self.durable_updates,
+            "durable_learner_updates": self.durable_learner_updates,
+            "learner_updates_observed": self.learner_updates,
+            "partial_learner_updates": partial_updates,
             "exact_resume_allowed": False,
         }
+        if not self.sampler.failed:
+            self.sampler.invalidate(stage=f"trainer:{stage}", error=error)
+
+    def _require_checkpointable(self) -> None:
+        self._require_healthy()
+        if self.iteration_status in {"running", "loading"} or self.active_iteration is not None:
+            raise RuntimeError("checkpoint is forbidden while an iteration/load is active")
+        if self.iteration != self.durable_updates:
+            raise RuntimeError("checkpoint counters are not at a durable iteration boundary")
+        if self.learner_updates != self.durable_learner_updates:
+            raise RuntimeError("checkpoint contains partial learner updates outside a durable boundary")
+        if self.durable_updates <= 0:
+            raise RuntimeError("refusing to checkpoint before a durable learner update")
 
     def _collect(self, agent_model: nn.Module):
         started = time.perf_counter()
@@ -223,34 +286,44 @@ class LocalTrainerBase:
         return metrics
 
     def _finish_iteration(self, *, metrics: dict[str, object], completed_games: int) -> dict[str, object]:
-        self.iteration += 1
-        self.durable_updates += 1
-        self.completed_games_total += completed_games
-        metrics["statistics/iterations"] = self.iteration
-        metrics["statistics/durable_updates"] = self.durable_updates
-        metrics["statistics/completed_games_total"] = self.completed_games_total
+        if self.iteration_status != "running" or self.active_iteration is None:
+            raise RuntimeError("cannot finish without an active iteration")
+        target_iteration = self.active_iteration
+        target_durable = self.durable_updates + 1
+        target_completed = self.completed_games_total + completed_games
+        metrics["statistics/iterations"] = target_iteration
+        metrics["statistics/durable_updates"] = target_durable
+        metrics["statistics/completed_games_total"] = target_completed
         _finite_metrics(metrics)
-        self.metrics.log(metrics, step=self.iteration)
+        self.metrics.log(metrics, step=target_iteration)
+        self.iteration = target_iteration
+        self.durable_updates = target_durable
+        self.durable_learner_updates = self.learner_updates
+        self.completed_games_total = target_completed
+        self.iteration_status = "completed"
+        self.active_iteration = None
         self.last_metrics = dict(metrics)
         return dict(metrics)
 
     def _checkpoint_common(self) -> dict[str, object]:
-        self._require_healthy()
-        if self.durable_updates <= 0:
-            raise RuntimeError("refusing to checkpoint before a durable learner update")
+        self._require_checkpointable()
         return {
             "schema": TRAINING_CHECKPOINT_SCHEMA,
             "algorithm": self.algorithm,
             "architecture": self.cfg.model.architecture,
             "protocol_version": self.cfg.game.protocol_version,
             "semantic_contract": self.semantic_contract,
+            "source_fingerprint": self.source_fingerprint,
             "source_hash": self.source_hash,
+            "execution_fingerprint": self.execution_fingerprint,
             "source_parent_commit": self.source_parent_commit,
             "resolved_config": self.resolved_config,
             "resolved_config_hash": self.resolved_config_hash,
             "iteration": self.iteration,
             "durable_updates": self.durable_updates,
             "learner_updates": self.learner_updates,
+            "durable_learner_updates": self.durable_learner_updates,
+            "iteration_status": self.iteration_status,
             "counters": {
                 "total_env_steps": self.sampler.total_env_steps,
                 "total_game_steps": self.sampler.total_game_steps,
@@ -269,26 +342,36 @@ class LocalTrainerBase:
             "resume_classification": "exact_resume",
         }
 
-    def _load_common(self, payload: Mapping[str, object], *, require_replay: bool):
+    def _classify_checkpoint(self, payload: Mapping[str, object], *, require_replay: bool):
         decision = classify_resume(
             payload,
             expected_contract=self.semantic_contract,
-            expected_source_hash=self.source_hash,
-            expected_config_hash=self.resolved_config_hash,
+            expected_source_fingerprint=self.source_fingerprint,
+            expected_execution_fingerprint=self.execution_fingerprint,
+            expected_config=self.resolved_config,
             require_replay=require_replay,
         )
         if decision.kind not in {"exact_resume", "compatible_resume"}:
             raise CheckpointCompatibilityError(
-                f"checkpoint cannot continue local training as exact/compatible resume: {decision}"
+                f"checkpoint cannot continue training: kind={decision.kind}; "
+                + "; ".join(decision.reasons)
             )
+        return decision
+
+    def _load_common_state(self, payload: Mapping[str, object]) -> None:
         self.iteration = int(payload["iteration"])
         self.durable_updates = int(payload["durable_updates"])
         self.learner_updates = int(payload.get("learner_updates", self.durable_updates))
+        self.durable_learner_updates = int(payload.get("durable_learner_updates", self.learner_updates))
         counters = payload["counters"]
         self.completed_games_total = int(counters["completed_games_total"])
         self.sampler.load_state_dict(payload["sampler_state"])
         restore_rng_state(payload["rng_state"])
-        return decision
+        self.iteration_status = "completed"
+        self.active_iteration = None
+        self.failed = False
+        self.failure = None
+
 
 
 class IPPOTrainer(LocalTrainerBase):
@@ -309,7 +392,7 @@ class IPPOTrainer(LocalTrainerBase):
         )
 
     def train_iteration(self) -> dict[str, object]:
-        self._require_healthy()
+        self._begin_iteration()
         stage = "collect"
         try:
             schedule = compute_agent_schedule(self.cfg, iteration=self.iteration + 1)
@@ -384,7 +467,7 @@ class IPPOTrainer(LocalTrainerBase):
                 "perf/learner_seconds": learner_seconds,
             })
             return self._finish_iteration(metrics=metrics, completed_games=validation.completed_games)
-        except Exception as error:
+        except BaseException as error:
             self._poison(stage=stage, error=error)
             raise
 
@@ -406,22 +489,19 @@ class IPPOTrainer(LocalTrainerBase):
         return TrainingCheckpointStore.save(self.checkpoint_payload(), destination)
 
     def load_checkpoint(self, path: str | Path):
-        payload = TrainingCheckpointStore.load(path, device=self.device)
-        decision = classify_resume(
-            payload,
-            expected_contract=self.semantic_contract,
-            expected_source_hash=self.source_hash,
-            expected_config_hash=self.resolved_config_hash,
-            require_replay=False,
-        )
-        if decision.kind not in {"exact_resume", "compatible_resume"}:
-            raise CheckpointCompatibilityError(str(decision))
-        self.agent_resume.load_state_dict(payload["agent_resume_state_dict"], strict=True)
-        self.agent_merged.load_state_dict(payload["agent_state_dict"], strict=True)
-        _load_optimizer_state(self.agent_optimizer, payload["agent_optimizer_state_dict"])
-        result = self._load_common(payload, require_replay=False)
-        self.merge_updater.set_reference_iteration(self.iteration)
-        return result
+        self._begin_load()
+        try:
+            payload = TrainingCheckpointStore.load(path, device=self.device)
+            decision = self._classify_checkpoint(payload, require_replay=False)
+            self.agent_resume.load_state_dict(payload["agent_resume_state_dict"], strict=True)
+            self.agent_merged.load_state_dict(payload["agent_state_dict"], strict=True)
+            _load_optimizer_state(self.agent_optimizer, payload["agent_optimizer_state_dict"])
+            self._load_common_state(payload)
+            self.merge_updater.set_reference_iteration(self.iteration)
+            return decision
+        except BaseException as error:
+            self._poison(stage="checkpoint_load", error=error)
+            raise
 
 
 class VRPOTrainer(LocalTrainerBase):
@@ -466,7 +546,7 @@ class VRPOTrainer(LocalTrainerBase):
             )
 
     def train_iteration(self) -> dict[str, object]:
-        self._require_healthy()
+        self._begin_iteration()
         stage = "collect"
         try:
             schedule = compute_agent_schedule(self.cfg, iteration=self.iteration + 1)
@@ -578,11 +658,12 @@ class VRPOTrainer(LocalTrainerBase):
                 "perf/learner_seconds": learner_seconds,
             })
             return self._finish_iteration(metrics=metrics, completed_games=validation.completed_games)
-        except Exception as error:
+        except BaseException as error:
             self._poison(stage=stage, error=error)
             raise
 
     def checkpoint_payload(self) -> dict[str, object]:
+        self._require_checkpointable()
         self._validate_replay_storage()
         payload = {
             **self._checkpoint_common(),
@@ -609,29 +690,26 @@ class VRPOTrainer(LocalTrainerBase):
         return TrainingCheckpointStore.save(self.checkpoint_payload(), destination)
 
     def load_checkpoint(self, path: str | Path):
-        payload = TrainingCheckpointStore.load(path, device=self.device)
-        decision = classify_resume(
-            payload,
-            expected_contract=self.semantic_contract,
-            expected_source_hash=self.source_hash,
-            expected_config_hash=self.resolved_config_hash,
-            require_replay=True,
-        )
-        if decision.kind not in {"exact_resume", "compatible_resume"}:
-            raise CheckpointCompatibilityError(str(decision))
-        self.agent_resume.load_state_dict(payload["agent_resume_state_dict"], strict=True)
-        self.agent_merged.load_state_dict(payload["agent_state_dict"], strict=True)
-        self.critic.load_state_dict(payload["critic_state_dict"], strict=True)
-        _load_optimizer_state(self.agent_optimizer, payload["agent_optimizer_state_dict"])
-        _load_optimizer_state(self.critic_optimizer, payload["critic_optimizer_state_dict"])
-        self.replay_buffer.load_state_dict(payload["replay_buffer_state"])
-        self._validate_replay_storage()
-        result = self._load_common(payload, require_replay=True)
-        self.merge_updater.set_reference_iteration(self.iteration)
-        return result
+        self._begin_load()
+        try:
+            payload = TrainingCheckpointStore.load(path, device=self.device)
+            decision = self._classify_checkpoint(payload, require_replay=True)
+            self.agent_resume.load_state_dict(payload["agent_resume_state_dict"], strict=True)
+            self.agent_merged.load_state_dict(payload["agent_state_dict"], strict=True)
+            self.critic.load_state_dict(payload["critic_state_dict"], strict=True)
+            _load_optimizer_state(self.agent_optimizer, payload["agent_optimizer_state_dict"])
+            _load_optimizer_state(self.critic_optimizer, payload["critic_optimizer_state_dict"])
+            self.replay_buffer.load_state_dict(payload["replay_buffer_state"])
+            self._validate_replay_storage()
+            self._load_common_state(payload)
+            self.merge_updater.set_reference_iteration(self.iteration)
+            return decision
+        except BaseException as error:
+            self._poison(stage="checkpoint_load", error=error)
+            raise
 
 
 __all__ = [
-    "IPPOTrainer", "LocalTrainerBase", "M03_RUNTIME_SCHEMA", "VRPOTrainer",
+    "IPPOTrainer", "LocalTrainerBase", "M03_RUNTIME_SCHEMA", "RUNTIME_SOURCE_COMPONENTS", "VRPOTrainer",
     "VRPO_Q_TARGET_CONTRACT",
 ]

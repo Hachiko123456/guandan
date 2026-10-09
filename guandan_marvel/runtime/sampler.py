@@ -152,7 +152,7 @@ class Sampler:
                 f"from a known-consistent state (failure={info})"
             )
 
-    def _mark_failed(self, *, stage: str, error: Exception) -> None:
+    def _mark_failed(self, *, stage: str, error: BaseException) -> None:
         self._failed = True
         self._failure_info = {
             "schema": SAMPLER_CONTRACT_SCHEMA,
@@ -166,6 +166,13 @@ class Sampler:
             "attempted_env_steps": self.attempted_env_steps,
             "failed_env_steps": self.failed_env_steps,
         }
+
+    def invalidate(self, *, stage: str, error: BaseException) -> None:
+        """Permanently disable this sampler after an owning trainer becomes inconsistent."""
+        if not self._failed:
+            self.failed_env_steps += self.rollout_batch_size
+            self.rejected_rollout_steps += 1
+            self._mark_failed(stage=stage, error=error)
 
     def prepare_agent_cache(self, *, agent_model: Any) -> None:
         """Ensure the decoder KV cache is initialized and aligned with rollout history."""
@@ -522,7 +529,7 @@ class Sampler:
             self.total_env_steps += self.rollout_batch_size
             self.total_game_steps += int(action_is_commit.sum().item())
             return step_done_mask
-        except Exception as error:
+        except BaseException as error:
             self.failed_env_steps += self.rollout_batch_size
             self.rejected_rollout_steps += 1
             self._mark_failed(stage=stage, error=error)

@@ -1,0 +1,421 @@
+{
+  "checkpoint": {
+    "bytes": 34887551,
+    "path": "runs\\M03_marvel_training_smoke_repair\\20261009_repair_validation_final\\guandan-marvel-v2-ippo-iter000001-v3.pt",
+    "sha256": "27714fd557acb6fbf93c005b6994a8278b4d7361af7ed49affedcf7306449bcf"
+  },
+  "compatible_logging_change": {
+    "decision": "compatible_resume",
+    "reasons": [
+      "logging_dir: checkpoint='runs\\\\M03_marvel_training_smoke_repair\\\\20261009_repair_validation_final\\\\configured' expected='runs\\\\M03_marvel_training_smoke_repair\\\\20261009_repair_validation_final\\\\other-logs'",
+      "run_name: checkpoint='m03-repair-ippo' expected='other-run-name'"
+    ]
+  },
+  "date": "2026-10-09",
+  "execution_fingerprint": {
+    "cuda_available": false,
+    "device_type": "cpu",
+    "hash": "13b9bbb8673f7fd5d29eeea3f1d603d2c6091eea30f57c930046c25be5802aac",
+    "numpy": "2.3.5",
+    "python": "3.12.0",
+    "schema": "guandan-marvel-execution-fingerprint-v1",
+    "torch": "2.13.0+cpu"
+  },
+  "interrupt": {
+    "changed_weight_tensors": 33,
+    "checkpoint_payload": {
+      "error": "trainer is unusable after failed iteration/load: {'stage': 'policy_update', 'error_type': 'KeyboardInterrupt', 'error': 'verification interrupt after optimizer step', 'active_iteration': 2, 'iteration': 1, 'durable_updates': 1, 'durable_learner_updates': 2, 'learner_updates_observed': 3, 'partial_learner_updates': 1, 'exact_resume_allowed': False}",
+      "error_type": "RuntimeError",
+      "rejected": true
+    },
+    "durable_learner_updates": 2,
+    "durable_updates": 1,
+    "exception": {
+      "message": "verification interrupt after optimizer step",
+      "type": "KeyboardInterrupt"
+    },
+    "failure": {
+      "active_iteration": 2,
+      "durable_learner_updates": 2,
+      "durable_updates": 1,
+      "error": "verification interrupt after optimizer step",
+      "error_type": "KeyboardInterrupt",
+      "exact_resume_allowed": false,
+      "iteration": 1,
+      "learner_updates_observed": 3,
+      "partial_learner_updates": 1,
+      "stage": "policy_update"
+    },
+    "iteration": 1,
+    "iteration_status": "failed",
+    "learner_updates_observed": 3,
+    "previous_checkpoint_unchanged": true,
+    "retry_iteration": {
+      "error": "trainer is unusable after failed iteration/load: {'stage': 'policy_update', 'error_type': 'KeyboardInterrupt', 'error': 'verification interrupt after optimizer step', 'active_iteration': 2, 'iteration': 1, 'durable_updates': 1, 'durable_learner_updates': 2, 'learner_updates_observed': 3, 'partial_learner_updates': 1, 'exact_resume_allowed': False}",
+      "error_type": "RuntimeError",
+      "rejected": true
+    },
+    "retry_sampler": {
+      "error": "sampler is unusable after a failed rollout; construct or restore a new sampler from a known-consistent state (failure={'schema': 'guandan-marvel-sampler-contract-v2', 'strategy': 'poison_on_failure', 'stage': 'trainer:policy_update', 'error_type': 'KeyboardInterrupt', 'error': 'verification interrupt after optimizer step', 'exact_resume_allowed': False, 'completed_env_steps': 601, 'completed_game_steps': 234, 'attempted_env_steps': 601, 'failed_env_steps': 1})",
+      "error_type": "SamplerFailedStateError",
+      "rejected": true
+    },
+    "sampler_failed": true,
+    "save_checkpoint": {
+      "error": "trainer is unusable after failed iteration/load: {'stage': 'policy_update', 'error_type': 'KeyboardInterrupt', 'error': 'verification interrupt after optimizer step', 'active_iteration': 2, 'iteration': 1, 'durable_updates': 1, 'durable_learner_updates': 2, 'learner_updates_observed': 3, 'partial_learner_updates': 1, 'exact_resume_allowed': False}",
+      "error_type": "RuntimeError",
+      "rejected": true
+    },
+    "trainer_failed": true
+  },
+  "model_strength_claim": false,
+  "original_implementation_commit": "4968840679ea031ec7b69132cebd862efa302c17",
+  "recovery_from_last_complete_checkpoint": {
+    "completed_games": 2,
+    "decision": "exact_resume",
+    "durable_updates": 2,
+    "iteration": 2
+  },
+  "schema": "guandan-marvel-m03-repair-verification-v1",
+  "semantic_changes": {
+    "decoder_heads": {
+      "error": "checkpoint cannot continue training: kind=migration; semantic_contract.hash: checkpoint='95498b06c2264b2c5b5bf546a6a45ac3b98cbc38903d5bdef2a76cb65dfdf7c2' expected='9185d8e3da6f84202040646779524aad606d26bcf7d3602fa09c657032d8d8d9'; semantic_contract.semantic_config.hash: checkpoint='cdef7a2cdc2f772353a5bc85177d31c5683f24a31301563c10bd7812b955de64' expected='9f9822b4187ccdd2f236d3896a790494ecad5efccf5c7cab17907040ac26ac51'; semantic_contract.semantic_config.model.decoder_heads: checkpoint=4 expected=2",
+      "loaded": false,
+      "sampler_failed": true,
+      "save_rejected": {
+        "error": "trainer is unusable after failed iteration/load: {'stage': 'checkpoint_load', 'error_type': 'CheckpointCompatibilityError', 'error': \"checkpoint cannot continue training: kind=migration; semantic_contract.hash: checkpoint='95498b06c2264b2c5b5bf546a6a45ac3b98cbc38903d5bdef2a76cb65dfdf7c2' expected='9185d8e3da6f84202040646779524aad606d26bcf7d3602fa09c657032d8d8d9'; semantic_contract.semantic_config.hash: checkpoint='cdef7a2cdc2f772353a5bc85177d31c5683f24a31301563c10bd7812b955de64' expected='9f9822b4187ccdd2f236d3896a790494ecad5efccf5c7cab17907040ac26ac51'; semantic_contract.semantic_config.model.decoder_heads: checkpoint=4 expected=2\", 'active_iteration': None, 'iteration': 0, 'durable_updates': 0, 'durable_learner_updates': 0, 'learner_updates_observed': 0, 'partial_learner_updates': 0, 'exact_resume_allowed': False}",
+        "error_type": "RuntimeError",
+        "rejected": true
+      },
+      "trainer_failed": true
+    },
+    "discount_gamma": {
+      "error": "checkpoint cannot continue training: kind=migration; semantic_contract.hash: checkpoint='95498b06c2264b2c5b5bf546a6a45ac3b98cbc38903d5bdef2a76cb65dfdf7c2' expected='0446af551a21579b769d61201b7ed6b49a4921753c811ac7280bf89cbe2ac0a4'; semantic_contract.semantic_config.discount_gamma: checkpoint=1.0 expected=0.5; semantic_contract.semantic_config.hash: checkpoint='cdef7a2cdc2f772353a5bc85177d31c5683f24a31301563c10bd7812b955de64' expected='69e2867ca14d5e99021d850fc627096f47359a0481ed7c4af60d8705f837d9c3'",
+      "loaded": false,
+      "sampler_failed": true,
+      "save_rejected": {
+        "error": "trainer is unusable after failed iteration/load: {'stage': 'checkpoint_load', 'error_type': 'CheckpointCompatibilityError', 'error': \"checkpoint cannot continue training: kind=migration; semantic_contract.hash: checkpoint='95498b06c2264b2c5b5bf546a6a45ac3b98cbc38903d5bdef2a76cb65dfdf7c2' expected='0446af551a21579b769d61201b7ed6b49a4921753c811ac7280bf89cbe2ac0a4'; semantic_contract.semantic_config.discount_gamma: checkpoint=1.0 expected=0.5; semantic_contract.semantic_config.hash: checkpoint='cdef7a2cdc2f772353a5bc85177d31c5683f24a31301563c10bd7812b955de64' expected='69e2867ca14d5e99021d850fc627096f47359a0481ed7c4af60d8705f837d9c3'\", 'active_iteration': None, 'iteration': 0, 'durable_updates': 0, 'durable_learner_updates': 0, 'learner_updates_observed': 0, 'partial_learner_updates': 0, 'exact_resume_allowed': False}",
+        "error_type": "RuntimeError",
+        "rejected": true
+      },
+      "trainer_failed": true
+    }
+  },
+  "semantic_configuration": {
+    "algorithm": "ippo",
+    "critic_update": null,
+    "discount_gamma": 1.0,
+    "execution_semantics": {
+      "amp_enabled": false,
+      "compile": {
+        "backend": "inductor",
+        "dynamic_shapes": false,
+        "enabled": false
+      },
+      "ddp": {
+        "backend": "nccl",
+        "enabled": false,
+        "find_unused_parameters": false,
+        "require_cuda": true
+      },
+      "deterministic": false,
+      "deterministic_disable_tf32": false
+    },
+    "game": {
+      "identifier": "GuandanMARVELV2PythonReference-local-smoke-T512",
+      "max_action_tokens": 8,
+      "max_available_actions": 256,
+      "max_game_horizon": 512,
+      "max_observation_tokens": 48,
+      "num_channels": 512,
+      "num_players": 4,
+      "num_tokens": 320,
+      "pad_token": 0,
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL"
+    },
+    "hash": "cdef7a2cdc2f772353a5bc85177d31c5683f24a31301563c10bd7812b955de64",
+    "merged_policy": {
+      "beta": 0.0,
+      "definition": "current_policy_copy"
+    },
+    "model": {
+      "action_layers": 1,
+      "architecture": "v1.3",
+      "decoder_heads": 4,
+      "decoder_layers": 1,
+      "feature_dim": 24,
+      "ffn_ratio": 2,
+      "fuse_layers": 1,
+      "history_dim": 16,
+      "state_layers": 1
+    },
+    "optimizer": {
+      "adam_beta1": 0.9,
+      "adam_beta2": 0.999,
+      "grad_max_norm": 1.0,
+      "muon_beta1": 0.95,
+      "use_muon": false,
+      "weight_decay": 0.01
+    },
+    "policy_update": {
+      "agent_epoch": 2,
+      "base_clip_coef": 0.02,
+      "base_lr": 0.0004,
+      "base_reg_coef": 0.1,
+      "gae_lambda": 0.95,
+      "mini_batches": 1,
+      "value_loss_coef": 0.5
+    },
+    "sampling_and_replay": {
+      "checkpoint_replay_buffer": true,
+      "collect_batch_size": 1,
+      "replay_buffer_device": "cpu",
+      "replay_buffer_scale": 1,
+      "rollout_batch_size": 1,
+      "seed": 4101
+    },
+    "schedule": {
+      "agent_lr_decay_power": 1.0,
+      "clip_coef_decay_power": 1.0,
+      "critic_lr_decay_power": 0.5,
+      "lr_stable_iterations": 500,
+      "reg_coef_decay_power": 0.5,
+      "reg_stable_iterations": 500
+    },
+    "schema": "guandan-marvel-semantic-config-v1"
+  },
+  "semantic_contract": {
+    "buffer_schema": "guandan-marvel-buffer-v2",
+    "hash": "95498b06c2264b2c5b5bf546a6a45ac3b98cbc38903d5bdef2a76cb65dfdf7c2",
+    "on_policy": {
+      "eligibility_field": "on_policy_valid",
+      "forced_action_indices": null,
+      "old_probability_field": "behavior_action_prob",
+      "purpose": "on_policy",
+      "reference_policy_field": "policy_probs",
+      "sampling_temperature": 1.0
+    },
+    "q_target_contract": null,
+    "sampler_contract": "guandan-marvel-sampler-contract-v2",
+    "sampler_state_schema": "guandan-marvel-sampler-state-v1",
+    "schema": "guandan-marvel-training-contract-v2",
+    "semantic_config": {
+      "algorithm": "ippo",
+      "critic_update": null,
+      "discount_gamma": 1.0,
+      "execution_semantics": {
+        "amp_enabled": false,
+        "compile": {
+          "backend": "inductor",
+          "dynamic_shapes": false,
+          "enabled": false
+        },
+        "ddp": {
+          "backend": "nccl",
+          "enabled": false,
+          "find_unused_parameters": false,
+          "require_cuda": true
+        },
+        "deterministic": false,
+        "deterministic_disable_tf32": false
+      },
+      "game": {
+        "identifier": "GuandanMARVELV2PythonReference-local-smoke-T512",
+        "max_action_tokens": 8,
+        "max_available_actions": 256,
+        "max_game_horizon": 512,
+        "max_observation_tokens": 48,
+        "num_channels": 512,
+        "num_players": 4,
+        "num_tokens": 320,
+        "pad_token": 0,
+        "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL"
+      },
+      "hash": "cdef7a2cdc2f772353a5bc85177d31c5683f24a31301563c10bd7812b955de64",
+      "merged_policy": {
+        "beta": 0.0,
+        "definition": "current_policy_copy"
+      },
+      "model": {
+        "action_layers": 1,
+        "architecture": "v1.3",
+        "decoder_heads": 4,
+        "decoder_layers": 1,
+        "feature_dim": 24,
+        "ffn_ratio": 2,
+        "fuse_layers": 1,
+        "history_dim": 16,
+        "state_layers": 1
+      },
+      "optimizer": {
+        "adam_beta1": 0.9,
+        "adam_beta2": 0.999,
+        "grad_max_norm": 1.0,
+        "muon_beta1": 0.95,
+        "use_muon": false,
+        "weight_decay": 0.01
+      },
+      "policy_update": {
+        "agent_epoch": 2,
+        "base_clip_coef": 0.02,
+        "base_lr": 0.0004,
+        "base_reg_coef": 0.1,
+        "gae_lambda": 0.95,
+        "mini_batches": 1,
+        "value_loss_coef": 0.5
+      },
+      "sampling_and_replay": {
+        "checkpoint_replay_buffer": true,
+        "collect_batch_size": 1,
+        "replay_buffer_device": "cpu",
+        "replay_buffer_scale": 1,
+        "rollout_batch_size": 1,
+        "seed": 4101
+      },
+      "schedule": {
+        "agent_lr_decay_power": 1.0,
+        "clip_coef_decay_power": 1.0,
+        "critic_lr_decay_power": 0.5,
+        "lr_stable_iterations": 500,
+        "reg_coef_decay_power": 0.5,
+        "reg_stable_iterations": 500
+      },
+      "schema": "guandan-marvel-semantic-config-v1"
+    }
+  },
+  "source_fingerprint": {
+    "components": {
+      "game_adapter": {
+        "files": [
+          "guandan_marvel/__init__.py",
+          "guandan_marvel/buffer.py",
+          "guandan_marvel/env_batch.py",
+          "guandan_marvel/game.py"
+        ],
+        "hash": "1f0440e3c6b25e2b2fdca94c322a576dcc69be37ff612e0f14c698fd17061e29"
+      },
+      "guandan_rules": {
+        "files": [
+          "guandan/action_state.py",
+          "guandan/cards.py",
+          "guandan/combos.py",
+          "guandan/encoding.py",
+          "guandan/env_batch.py",
+          "guandan/environment.py",
+          "guandan/environment_types.py",
+          "guandan/round.py",
+          "guandan/state.py"
+        ],
+        "hash": "3e0cac7d0ed8997428cd04c9b14c0c5b52cfcfb3fde3e9524a393a11bf569702"
+      },
+      "model": {
+        "files": [
+          "guandan_marvel/model/__init__.py",
+          "guandan_marvel/model/agent.py",
+          "guandan_marvel/model/base.py",
+          "guandan_marvel/model/cache.py",
+          "guandan_marvel/model/checkpointable.py",
+          "guandan_marvel/model/critic.py",
+          "guandan_marvel/model/tensordict.py",
+          "guandan_marvel/model/trainable.py",
+          "guandan_marvel/model/transformer.py",
+          "guandan_marvel/model/types.py"
+        ],
+        "hash": "6cf340ffea79a72ba0afdd7cb1ddf3bd71e7923343a0e094d2aa02b2e5334d0c"
+      },
+      "optimization": {
+        "files": [
+          "guandan_marvel/optim/__init__.py",
+          "guandan_marvel/optim/common.py",
+          "guandan_marvel/optim/muon.py"
+        ],
+        "hash": "68d346ef3df38ba36b31372ad0aee976c528931759917e39738d5dcd28eba9ef"
+      },
+      "runtime": {
+        "files": [
+          "guandan_marvel/config.py",
+          "guandan_marvel/runtime/__init__.py",
+          "guandan_marvel/runtime/compilation.py",
+          "guandan_marvel/runtime/logger.py",
+          "guandan_marvel/runtime/sampler.py",
+          "guandan_marvel/utils.py"
+        ],
+        "hash": "3888948da17e6a188330e1961667b0abb370ac680a643e42c19a1e8a7ceae52e"
+      },
+      "training": {
+        "files": [
+          "guandan_marvel/training/__init__.py",
+          "guandan_marvel/training/checkpoints.py",
+          "guandan_marvel/training/gae.py",
+          "guandan_marvel/training/ippo.py",
+          "guandan_marvel/training/local.py",
+          "guandan_marvel/training/losses.py",
+          "guandan_marvel/training/metrics.py",
+          "guandan_marvel/training/schedules.py",
+          "guandan_marvel/training/smoke.py",
+          "guandan_marvel/training/validation.py",
+          "guandan_marvel/training/vrpo.py"
+        ],
+        "hash": "f6dfadb97de32fbaaa77a624409fcf52dbdde19a56693bf8f374af70e30938fd"
+      }
+    },
+    "declared_inventory": {
+      "game_adapter": [
+        "guandan_marvel/__init__.py",
+        "guandan_marvel/game.py",
+        "guandan_marvel/env_batch.py",
+        "guandan_marvel/buffer.py"
+      ],
+      "guandan_rules": [
+        "guandan/cards.py",
+        "guandan/combos.py",
+        "guandan/round.py",
+        "guandan/state.py",
+        "guandan/action_state.py",
+        "guandan/encoding.py",
+        "guandan/environment.py",
+        "guandan/environment_types.py",
+        "guandan/env_batch.py"
+      ],
+      "model": [
+        "guandan_marvel/model/__init__.py",
+        "guandan_marvel/model/agent.py",
+        "guandan_marvel/model/base.py",
+        "guandan_marvel/model/cache.py",
+        "guandan_marvel/model/checkpointable.py",
+        "guandan_marvel/model/critic.py",
+        "guandan_marvel/model/tensordict.py",
+        "guandan_marvel/model/trainable.py",
+        "guandan_marvel/model/transformer.py",
+        "guandan_marvel/model/types.py"
+      ],
+      "optimization": [
+        "guandan_marvel/optim/__init__.py",
+        "guandan_marvel/optim/common.py",
+        "guandan_marvel/optim/muon.py"
+      ],
+      "runtime": [
+        "guandan_marvel/config.py",
+        "guandan_marvel/runtime/__init__.py",
+        "guandan_marvel/runtime/compilation.py",
+        "guandan_marvel/runtime/logger.py",
+        "guandan_marvel/runtime/sampler.py",
+        "guandan_marvel/utils.py"
+      ],
+      "training": [
+        "guandan_marvel/training/__init__.py",
+        "guandan_marvel/training/checkpoints.py",
+        "guandan_marvel/training/gae.py",
+        "guandan_marvel/training/ippo.py",
+        "guandan_marvel/training/local.py",
+        "guandan_marvel/training/losses.py",
+        "guandan_marvel/training/metrics.py",
+        "guandan_marvel/training/schedules.py",
+        "guandan_marvel/training/smoke.py",
+        "guandan_marvel/training/validation.py",
+        "guandan_marvel/training/vrpo.py"
+      ]
+    },
+    "hash": "83158ea4fa6fbb07966b469f273c7fe623750d2aa95e93c39a26a261c741e35c"
+  }
+}

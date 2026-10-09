@@ -112,3 +112,14 @@ M03 canonical schema：`guandan-marvel-training-checkpoint-v2`。至少保存：
 - merged policy identity，beta=0 明确为 `current_policy_copy`。
 
 文件名带算法和 iteration：`guandan-marvel-v2-{ippo|vrpo}-iterNNNNNN.pt`。M03 continuation verifier 已验证 exact resume 后模型权重、采样计数和下一次更新一致。
+## 9. M03 repair checkpoint v3（2026-10-09）
+
+Canonical training schema upgrades to `guandan-marvel-training-checkpoint-v3`; semantic contract upgrades to `guandan-marvel-training-contract-v2`. New fields include hashed semantic configuration, component-level source fingerprint, execution/dependency fingerprint, durable learner boundary and explicit iteration lifecycle.
+
+- pre-repair v2: training resume classification is `migration`; explicit evaluation/artifact inspection remains allowed;
+- exact: semantic/source/execution fingerprints and all required runtime state match;
+- compatible: only approved logging/display/run-control fields differ;
+- warm restart: continuation state such as replay/optimizer/sampler is missing;
+- migration/reject: gamma/model heads/optimizer/schedule/sampling/replay/source/device/dependency semantics differ or declared hashes are inconsistent.
+
+A trainer whose load fails is poisoned and cannot train or save. A catchable interruption during an iteration poisons trainer+sampler; only the last complete checkpoint may be loaded into a new instance.

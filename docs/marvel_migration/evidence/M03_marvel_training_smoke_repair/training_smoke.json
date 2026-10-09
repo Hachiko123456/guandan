@@ -1,0 +1,203 @@
+{
+  "algorithms": {
+    "ippo": {
+      "amp_enabled": false,
+      "checkpoints": [
+        {
+          "bytes": 34884973,
+          "path": "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\ippo\\checkpoints\\guandan-marvel-v2-ippo-iter000001.pt",
+          "sha256": "179b322f589b262a3afb1fead13d4586dcc87029df554d1ff1f238a1fd7aabf7"
+        },
+        {
+          "bytes": 34884973,
+          "path": "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\ippo\\checkpoints\\guandan-marvel-v2-ippo-iter000002.pt",
+          "sha256": "bb8c70c4c07351e4ed3e4a592389774075eda2dfca085c730491087cad753af3"
+        }
+      ],
+      "compile_enabled": false,
+      "completed_games": 2,
+      "durable_updates": 2,
+      "execution_fingerprint_hash": "13b9bbb8673f7fd5d29eeea3f1d603d2c6091eea30f57c930046c25be5802aac",
+      "final_metrics": {
+        "agent/adv_mean": 0.02498788759112358,
+        "agent/adv_std": 0.22924773395061493,
+        "agent/clip_coef": 0.02,
+        "agent/clip_frac": 0.11575562506914139,
+        "agent/grad_norm": 0.15398597717285156,
+        "agent/kl_ref": 8.336124301422387e-05,
+        "agent/kl_unif": 0.021736513823270798,
+        "agent/learning_rate": 0.0004,
+        "agent/pg_loss": -0.00046850976650603116,
+        "agent/reg_coef": 0.1,
+        "agent/value_loss": 0.026350338011980057,
+        "health/action_capacity_overflows": 0,
+        "health/horizon_overflows": 0,
+        "health/illegal_actions": 0,
+        "health/nonfinite_gradients": 0,
+        "health/nonfinite_losses": 0,
+        "health/truncated_games": 0,
+        "memory/sampler_bytes_per_rank_estimate": 34268184,
+        "statistics/completed_games_total": 2,
+        "statistics/durable_updates": 2,
+        "statistics/env_steps_mean": 311.0,
+        "statistics/env_steps_total": 645,
+        "statistics/game_steps_mean": 136.0,
+        "statistics/game_steps_total": 293,
+        "statistics/iterations": 2,
+        "statistics/learner_updates": 4,
+        "statistics/return_team0_mean": -1.0,
+        "statistics/return_team1_mean": 1.0,
+        "statistics/trajectories": 1,
+        "statistics/trajectory_length_mean": 311.0
+      },
+      "iterations": 2,
+      "learner_updates": 4,
+      "merged_policy_identity": "current_policy_copy",
+      "metrics_jsonl": [
+        "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\ippo\\phase1\\ippo_metrics.jsonl",
+        "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\ippo\\phase2\\ippo_metrics.jsonl"
+      ],
+      "optimizer": "adamw",
+      "replay_memory": null,
+      "resume_decision": "exact_resume",
+      "sampler_memory_bytes": 34268184,
+      "semantic_configuration_hash": "a8129618ad86f4b89a4f1443bd063a6dbf7f847acb0b5346b1ca0c655aaed37b",
+      "semantic_contract_hash": "511a66069725c5a20491cf55d18cd34a8b898c21d4985d1a4f7828013e119275",
+      "source_component_hashes": {
+        "game_adapter": "1f0440e3c6b25e2b2fdca94c322a576dcc69be37ff612e0f14c698fd17061e29",
+        "guandan_rules": "3e0cac7d0ed8997428cd04c9b14c0c5b52cfcfb3fde3e9524a393a11bf569702",
+        "model": "6cf340ffea79a72ba0afdd7cb1ddf3bd71e7923343a0e094d2aa02b2e5334d0c",
+        "optimization": "68d346ef3df38ba36b31372ad0aee976c528931759917e39738d5dcd28eba9ef",
+        "runtime": "3888948da17e6a188330e1961667b0abb370ac680a643e42c19a1e8a7ceae52e",
+        "training": "f6dfadb97de32fbaaa77a624409fcf52dbdde19a56693bf8f374af70e30938fd"
+      },
+      "source_hash": "83158ea4fa6fbb07966b469f273c7fe623750d2aa95e93c39a26a261c741e35c",
+      "total_env_steps": 645,
+      "total_game_steps": 293,
+      "trajectory_lengths": [
+        334,
+        311
+      ]
+    },
+    "vrpo": {
+      "amp_enabled": false,
+      "checkpoints": [
+        {
+          "bytes": 47082414,
+          "path": "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\vrpo\\checkpoints\\guandan-marvel-v2-vrpo-iter000001.pt",
+          "sha256": "334f45778947981de633d52ad998a0ceb58cfe0f762b43c5fcfc0dbcbe869fbb"
+        },
+        {
+          "bytes": 47082478,
+          "path": "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\vrpo\\checkpoints\\guandan-marvel-v2-vrpo-iter000002.pt",
+          "sha256": "c30209d216a0045584a059571eb70a80ab2b7f463b64889a0fbd3081ae421105"
+        }
+      ],
+      "compile_enabled": false,
+      "completed_games": 2,
+      "durable_updates": 2,
+      "execution_fingerprint_hash": "13b9bbb8673f7fd5d29eeea3f1d603d2c6091eea30f57c930046c25be5802aac",
+      "final_metrics": {
+        "agent/adv_mean": -0.036655254662036896,
+        "agent/adv_std": 0.17405220866203308,
+        "agent/clip_coef": 0.02,
+        "agent/clip_frac": 0.012121211737394333,
+        "agent/grad_norm": 0.0844983235001564,
+        "agent/kl_ref": 7.501300387957599e-06,
+        "agent/kl_unif": 0.025293748825788498,
+        "agent/learning_rate": 0.0004,
+        "agent/pg_loss": -0.0009128628298640251,
+        "agent/reg_coef": 0.1,
+        "buffer/replay_buffer_size": 1,
+        "critic/grad_norm": 0.050269629806280136,
+        "critic/learning_rate": 0.0004,
+        "critic/qv_lbd_loss": 0.015554728917777538,
+        "critic/qv_td1_loss": 0.0015842289431020617,
+        "health/action_capacity_overflows": 0,
+        "health/horizon_overflows": 0,
+        "health/illegal_actions": 0,
+        "health/nonfinite_gradients": 0,
+        "health/nonfinite_losses": 0,
+        "health/truncated_games": 0,
+        "memory/replay_buffer_bytes_estimate": 11422728,
+        "memory/sampler_bytes_per_rank_estimate": 34268184,
+        "statistics/completed_games_total": 2,
+        "statistics/durable_updates": 2,
+        "statistics/env_steps_mean": 330.0,
+        "statistics/env_steps_total": 634,
+        "statistics/game_steps_mean": 139.0,
+        "statistics/game_steps_total": 266,
+        "statistics/iterations": 2,
+        "statistics/learner_updates": 8,
+        "statistics/return_team0_mean": 1.0,
+        "statistics/return_team1_mean": -1.0,
+        "statistics/trajectories": 1,
+        "statistics/trajectory_length_mean": 330.0
+      },
+      "iterations": 2,
+      "learner_updates": 8,
+      "merged_policy_identity": "current_policy_copy",
+      "metrics_jsonl": [
+        "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\vrpo\\phase1\\vrpo_metrics.jsonl",
+        "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\vrpo\\phase2\\vrpo_metrics.jsonl"
+      ],
+      "optimizer": "adamw",
+      "replay_memory": {
+        "bytes": 11422728,
+        "capacity": 1
+      },
+      "resume_decision": "exact_resume",
+      "sampler_memory_bytes": 34268184,
+      "semantic_configuration_hash": "b5549383aa0867864b119c616b157c9047aed84eee80587c4eb276bdd0d51216",
+      "semantic_contract_hash": "221e4fdd17cfb86e289884407867eee8a5abdda65f2b0ab38c4dec1436018643",
+      "source_component_hashes": {
+        "game_adapter": "1f0440e3c6b25e2b2fdca94c322a576dcc69be37ff612e0f14c698fd17061e29",
+        "guandan_rules": "3e0cac7d0ed8997428cd04c9b14c0c5b52cfcfb3fde3e9524a393a11bf569702",
+        "model": "6cf340ffea79a72ba0afdd7cb1ddf3bd71e7923343a0e094d2aa02b2e5334d0c",
+        "optimization": "68d346ef3df38ba36b31372ad0aee976c528931759917e39738d5dcd28eba9ef",
+        "runtime": "3888948da17e6a188330e1961667b0abb370ac680a643e42c19a1e8a7ceae52e",
+        "training": "f6dfadb97de32fbaaa77a624409fcf52dbdde19a56693bf8f374af70e30938fd"
+      },
+      "source_hash": "83158ea4fa6fbb07966b469f273c7fe623750d2aa95e93c39a26a261c741e35c",
+      "total_env_steps": 634,
+      "total_game_steps": 266,
+      "trajectory_lengths": [
+        304,
+        330
+      ]
+    }
+  },
+  "backend": "python_reference",
+  "date": "2026-10-09",
+  "default_protocol_horizon": 4096,
+  "game_identifier": "GuandanMARVELV2PythonReference-local-smoke-T512",
+  "model_strength_claim": false,
+  "profile": {
+    "agent_epoch": 2,
+    "amp": false,
+    "collect_batch_size": 1,
+    "compile": false,
+    "critic_aux_epoch": 2,
+    "mini_batches": 1,
+    "model": {
+      "action_layers": 1,
+      "decoder_heads": 4,
+      "decoder_layers": 1,
+      "feature_dim": 24,
+      "fuse_layers": 1,
+      "history_dim": 16,
+      "state_layers": 1
+    },
+    "muon": false,
+    "optimizer": "AdamW",
+    "replay_buffer_scale": 1,
+    "rollout_batch_size": 1
+  },
+  "reduced_horizon_disclaimer": true,
+  "remote_verified": false,
+  "run_id": "20261009_cpu_smoke_repair_acceptance",
+  "schema": "guandan-marvel-m03-repair-training-smoke-v1",
+  "smoke_horizon": 512,
+  "summary_path": "runs/M03_marvel_training_smoke_repair/20261009_cpu_smoke_repair_acceptance/summary.json",
+  "summary_sha256": "f93e4db9066354ecebd392954a5157605a69fac548edee3820b06fd7abb50988"
+}

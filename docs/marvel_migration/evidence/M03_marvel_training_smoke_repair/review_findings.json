@@ -1,0 +1,52 @@
+{
+  "both_findings_reproduced": true,
+  "date": "2026-10-09",
+  "keyboard_interrupt": {
+    "after": {
+      "durable_updates": 1,
+      "iteration": 1,
+      "learner_updates": 3,
+      "sampler_failed": false,
+      "trainer_failed": false
+    },
+    "before": {
+      "durable_updates": 1,
+      "iteration": 1,
+      "learner_updates": 2
+    },
+    "changed_weight_tensors": 33,
+    "checkpoint_payload": {
+      "durable_updates": 1,
+      "iteration": 1,
+      "learner_updates": 3,
+      "resume_classification": "exact_resume"
+    },
+    "checkpoint_payload_error": null,
+    "checkpoint_payload_succeeded": true,
+    "exception": {
+      "message": "injected after optimizer step",
+      "type": "KeyboardInterrupt"
+    },
+    "reproduced": true
+  },
+  "original_acceptance_tag": "refs/tags/m03-marvel-training-smoke-accepted",
+  "original_implementation_commit": "4968840679ea031ec7b69132cebd862efa302c17",
+  "pre_repair_log": "runs/M03_marvel_training_smoke_repair/20261009_pre_repair/reproduction.json",
+  "schema": "guandan-marvel-m03-repair-findings-v1",
+  "semantic_config": {
+    "decoder_heads_2": {
+      "decision": "compatible_resume",
+      "loaded": true,
+      "reasons": [
+        "resolved config hash differs while semantic contract matches"
+      ]
+    },
+    "gamma_0_5": {
+      "decision": "compatible_resume",
+      "loaded": true,
+      "reasons": [
+        "resolved config hash differs while semantic contract matches"
+      ]
+    }
+  }
+}

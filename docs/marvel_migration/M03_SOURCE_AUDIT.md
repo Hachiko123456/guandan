@@ -37,3 +37,10 @@
 - 不允许 temperature/forced evaluation trajectory 进入 learner。
 
 参考仓库只读，运行时代码不依赖其绝对路径。
+## M03 补修审计（2026-10-09）
+
+- interruption 修复只修改本地 trainer/sampler 生命周期，不改变 IPPO/VRPO 数学目标；
+- checkpoint contract v3 和 semantic contract v2 为本仓库重写，不从参考项目复制；
+- source fingerprint 清单扩展到实际执行的 Guandan 规则、环境、adapter、Transformer/cache、optimizer/Muon、sampler/runtime、GAE/loss/schedule/validation/metrics；
+- fingerprint 不包含 runs、日志、checkpoint、临时目录或参考 checkout；
+- 原始 M03 tag `m03-marvel-training-smoke-accepted` 保持指向 `4968840...`，旧证据不覆盖。

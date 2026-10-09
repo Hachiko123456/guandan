@@ -16,7 +16,8 @@ import torch
 
 from guandan_marvel.training.checkpoints import (
     CheckpointCompatibilityError, TRAINING_CHECKPOINT_SCHEMA,
-    classify_resume,
+    canonical_json_hash, classify_resume, validate_declared_hash,
+    validate_source_fingerprint,
 )
 
 
@@ -83,26 +84,44 @@ def main() -> int:
             })
         final_payload = torch.load(Path(record["checkpoints"][-1]["path"]), map_location="cpu", weights_only=False)
         contract = final_payload["semantic_contract"]
+        validate_declared_hash(final_payload["semantic_contract"], name="semantic_contract")
+        validate_declared_hash(final_payload["semantic_contract"]["semantic_config"], name="semantic_config")
+        validate_source_fingerprint(final_payload["source_fingerprint"], name="source_fingerprint")
+        validate_declared_hash(final_payload["execution_fingerprint"], name="execution_fingerprint")
         exact = classify_resume(
-            final_payload, expected_contract=contract,
-            expected_source_hash=final_payload["source_hash"],
-            expected_config_hash=final_payload["resolved_config_hash"],
+            final_payload,
+            expected_contract=contract,
+            expected_source_fingerprint=final_payload["source_fingerprint"],
+            expected_execution_fingerprint=final_payload["execution_fingerprint"],
+            expected_config=final_payload["resolved_config"],
             require_replay=algorithm == "vrpo",
         )
-        compatible_payload = dict(final_payload)
-        compatible_payload["source_hash"] = "different-source-same-contract"
+        compatible_config = copy.deepcopy(final_payload["resolved_config"])
+        compatible_config["logging_dir"] = "artifact-verifier-different-log-dir"
+        compatible_config["run_name"] = "artifact-verifier-different-run-name"
         compatible = classify_resume(
-            compatible_payload, expected_contract=contract,
-            expected_source_hash=final_payload["source_hash"],
-            expected_config_hash=final_payload["resolved_config_hash"],
+            final_payload,
+            expected_contract=contract,
+            expected_source_fingerprint=final_payload["source_fingerprint"],
+            expected_execution_fingerprint=final_payload["execution_fingerprint"],
+            expected_config=compatible_config,
             require_replay=algorithm == "vrpo",
         )
-        migration_payload = copy.deepcopy(final_payload)
-        migration_payload["semantic_contract"]["hash"] = "mismatch"
+        migration_contract = copy.deepcopy(contract)
+        migration_semantic = migration_contract["semantic_config"]
+        migration_semantic["discount_gamma"] = 0.5
+        migration_semantic["hash"] = canonical_json_hash({
+            key: value for key, value in migration_semantic.items() if key != "hash"
+        })
+        migration_contract["hash"] = canonical_json_hash({
+            key: value for key, value in migration_contract.items() if key != "hash"
+        })
         migration = classify_resume(
-            migration_payload, expected_contract=contract,
-            expected_source_hash=final_payload["source_hash"],
-            expected_config_hash=final_payload["resolved_config_hash"],
+            final_payload,
+            expected_contract=migration_contract,
+            expected_source_fingerprint=final_payload["source_fingerprint"],
+            expected_execution_fingerprint=final_payload["execution_fingerprint"],
+            expected_config=final_payload["resolved_config"],
             require_replay=algorithm == "vrpo",
         )
         warm_kind = None
@@ -110,15 +129,19 @@ def main() -> int:
             warm_payload = dict(final_payload)
             warm_payload.pop("replay_buffer_state")
             warm_kind = classify_resume(
-                warm_payload, expected_contract=contract,
-                expected_source_hash=final_payload["source_hash"],
-                expected_config_hash=final_payload["resolved_config_hash"],
+                warm_payload,
+                expected_contract=contract,
+                expected_source_fingerprint=final_payload["source_fingerprint"],
+                expected_execution_fingerprint=final_payload["execution_fingerprint"],
+                expected_config=final_payload["resolved_config"],
                 require_replay=True,
             ).kind
         evaluation = classify_resume(
-            final_payload, expected_contract=contract,
-            expected_source_hash=final_payload["source_hash"],
-            expected_config_hash=final_payload["resolved_config_hash"],
+            final_payload,
+            expected_contract=contract,
+            expected_source_fingerprint=final_payload["source_fingerprint"],
+            expected_execution_fingerprint=final_payload["execution_fingerprint"],
+            expected_config=final_payload["resolved_config"],
             require_replay=algorithm == "vrpo", for_evaluation=True,
         )
         legacy_rejected = False
@@ -126,8 +149,9 @@ def main() -> int:
             classify_resume(
                 {"protocol_version": "GD-ACTION-0.1|GD-ENV-0.1"},
                 expected_contract=contract,
-                expected_source_hash=final_payload["source_hash"],
-                expected_config_hash=final_payload["resolved_config_hash"],
+                expected_source_fingerprint=final_payload["source_fingerprint"],
+                expected_execution_fingerprint=final_payload["execution_fingerprint"],
+                expected_config=final_payload["resolved_config"],
                 require_replay=False,
             )
         except CheckpointCompatibilityError:

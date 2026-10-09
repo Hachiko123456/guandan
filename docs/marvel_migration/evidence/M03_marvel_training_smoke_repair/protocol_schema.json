@@ -1,0 +1,88 @@
+{
+  "buffer_schema": "guandan-marvel-buffer-v2",
+  "checkpoint_schema": "guandan-marvel-training-checkpoint-v3",
+  "compatible_config_roots": [
+    "checkpoint_interval",
+    "debug",
+    "evaluation_interval",
+    "logging_dir",
+    "param_stats_interval",
+    "project_name",
+    "resume_from",
+    "run_name",
+    "total_iterations"
+  ],
+  "date": "2026-10-09",
+  "execution_fingerprint_schema": "guandan-marvel-execution-fingerprint-v1",
+  "interruption_strategy": "poison trainer and sampler; reject payload/save/retry; reconstruct from last complete checkpoint",
+  "old_checkpoint_policy": {
+    "guandan-marvel-training-checkpoint-v2": "migration for training resume; evaluation/artifact inspection only",
+    "legacy_v1": "training resume rejected"
+  },
+  "pre_repair_checkpoint_schema": "guandan-marvel-training-checkpoint-v2",
+  "runtime_schema": "guandan-marvel-m03-local-runtime-v2",
+  "sampler_contract": "guandan-marvel-sampler-contract-v2",
+  "sampler_state_schema": "guandan-marvel-sampler-state-v1",
+  "schema": "guandan-marvel-m03-repair-protocol-manifest-v1",
+  "semantic_config_schema": "guandan-marvel-semantic-config-v1",
+  "semantic_contract_schema": "guandan-marvel-training-contract-v2",
+  "source_components": {
+    "game_adapter": [
+      "guandan_marvel/__init__.py",
+      "guandan_marvel/game.py",
+      "guandan_marvel/env_batch.py",
+      "guandan_marvel/buffer.py"
+    ],
+    "guandan_rules": [
+      "guandan/cards.py",
+      "guandan/combos.py",
+      "guandan/round.py",
+      "guandan/state.py",
+      "guandan/action_state.py",
+      "guandan/encoding.py",
+      "guandan/environment.py",
+      "guandan/environment_types.py",
+      "guandan/env_batch.py"
+    ],
+    "model": [
+      "guandan_marvel/model/__init__.py",
+      "guandan_marvel/model/agent.py",
+      "guandan_marvel/model/base.py",
+      "guandan_marvel/model/cache.py",
+      "guandan_marvel/model/checkpointable.py",
+      "guandan_marvel/model/critic.py",
+      "guandan_marvel/model/tensordict.py",
+      "guandan_marvel/model/trainable.py",
+      "guandan_marvel/model/transformer.py",
+      "guandan_marvel/model/types.py"
+    ],
+    "optimization": [
+      "guandan_marvel/optim/__init__.py",
+      "guandan_marvel/optim/common.py",
+      "guandan_marvel/optim/muon.py"
+    ],
+    "runtime": [
+      "guandan_marvel/config.py",
+      "guandan_marvel/runtime/__init__.py",
+      "guandan_marvel/runtime/compilation.py",
+      "guandan_marvel/runtime/logger.py",
+      "guandan_marvel/runtime/sampler.py",
+      "guandan_marvel/utils.py"
+    ],
+    "training": [
+      "guandan_marvel/training/__init__.py",
+      "guandan_marvel/training/checkpoints.py",
+      "guandan_marvel/training/gae.py",
+      "guandan_marvel/training/ippo.py",
+      "guandan_marvel/training/local.py",
+      "guandan_marvel/training/losses.py",
+      "guandan_marvel/training/metrics.py",
+      "guandan_marvel/training/schedules.py",
+      "guandan_marvel/training/smoke.py",
+      "guandan_marvel/training/validation.py",
+      "guandan_marvel/training/vrpo.py"
+    ]
+  },
+  "source_fingerprint_schema": "guandan-marvel-source-fingerprint-v1",
+  "vrpo_q_target_contract": "guandan-marvel-vrpo-q-lambda-td1-v1"
+}

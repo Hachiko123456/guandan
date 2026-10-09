@@ -1,0 +1,99 @@
+{
+  "algorithms": {
+    "ippo": {
+      "checkpoints": [
+        {
+          "buffer_schema": "guandan-marvel-buffer-v2",
+          "bytes": 34884973,
+          "durable_updates": 1,
+          "iteration": 1,
+          "merged_policy": {
+            "beta": 0.0,
+            "identity": "current_policy_copy",
+            "not_smoothed_when_beta_zero": true
+          },
+          "path": "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\ippo\\checkpoints\\guandan-marvel-v2-ippo-iter000001.pt",
+          "replay_persistence": null,
+          "resume_classification": "exact_resume",
+          "sampler_contract": "guandan-marvel-sampler-contract-v2",
+          "semantic_contract_hash": "511a66069725c5a20491cf55d18cd34a8b898c21d4985d1a4f7828013e119275",
+          "sha256": "179b322f589b262a3afb1fead13d4586dcc87029df554d1ff1f238a1fd7aabf7"
+        },
+        {
+          "buffer_schema": "guandan-marvel-buffer-v2",
+          "bytes": 34884973,
+          "durable_updates": 2,
+          "iteration": 2,
+          "merged_policy": {
+            "beta": 0.0,
+            "identity": "current_policy_copy",
+            "not_smoothed_when_beta_zero": true
+          },
+          "path": "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\ippo\\checkpoints\\guandan-marvel-v2-ippo-iter000002.pt",
+          "replay_persistence": null,
+          "resume_classification": "exact_resume",
+          "sampler_contract": "guandan-marvel-sampler-contract-v2",
+          "semantic_contract_hash": "511a66069725c5a20491cf55d18cd34a8b898c21d4985d1a4f7828013e119275",
+          "sha256": "bb8c70c4c07351e4ed3e4a592389774075eda2dfca085c730491087cad753af3"
+        }
+      ],
+      "classification": {
+        "compatible": "compatible_resume",
+        "evaluation": "evaluation_only",
+        "exact": "exact_resume",
+        "legacy_v1_training_resume_rejected": true,
+        "migration": "migration",
+        "warm_restart": null
+      }
+    },
+    "vrpo": {
+      "checkpoints": [
+        {
+          "buffer_schema": "guandan-marvel-buffer-v2",
+          "bytes": 47082414,
+          "durable_updates": 1,
+          "iteration": 1,
+          "merged_policy": {
+            "beta": 0.0,
+            "identity": "current_policy_copy",
+            "not_smoothed_when_beta_zero": true
+          },
+          "path": "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\vrpo\\checkpoints\\guandan-marvel-v2-vrpo-iter000001.pt",
+          "replay_persistence": "persisted",
+          "resume_classification": "exact_resume",
+          "sampler_contract": "guandan-marvel-sampler-contract-v2",
+          "semantic_contract_hash": "221e4fdd17cfb86e289884407867eee8a5abdda65f2b0ab38c4dec1436018643",
+          "sha256": "334f45778947981de633d52ad998a0ceb58cfe0f762b43c5fcfc0dbcbe869fbb"
+        },
+        {
+          "buffer_schema": "guandan-marvel-buffer-v2",
+          "bytes": 47082478,
+          "durable_updates": 2,
+          "iteration": 2,
+          "merged_policy": {
+            "beta": 0.0,
+            "identity": "current_policy_copy",
+            "not_smoothed_when_beta_zero": true
+          },
+          "path": "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\vrpo\\checkpoints\\guandan-marvel-v2-vrpo-iter000002.pt",
+          "replay_persistence": "persisted",
+          "resume_classification": "exact_resume",
+          "sampler_contract": "guandan-marvel-sampler-contract-v2",
+          "semantic_contract_hash": "221e4fdd17cfb86e289884407867eee8a5abdda65f2b0ab38c4dec1436018643",
+          "sha256": "c30209d216a0045584a059571eb70a80ab2b7f463b64889a0fbd3081ae421105"
+        }
+      ],
+      "classification": {
+        "compatible": "compatible_resume",
+        "evaluation": "evaluation_only",
+        "exact": "exact_resume",
+        "legacy_v1_training_resume_rejected": true,
+        "migration": "migration",
+        "warm_restart": "warm_restart"
+      }
+    }
+  },
+  "schema": "guandan-marvel-m03-artifact-verification-v1",
+  "summary_path": "runs\\M03_marvel_training_smoke_repair\\20261009_cpu_smoke_repair_acceptance\\summary.json",
+  "summary_sha256": "f93e4db9066354ecebd392954a5157605a69fac548edee3820b06fd7abb50988"
+}

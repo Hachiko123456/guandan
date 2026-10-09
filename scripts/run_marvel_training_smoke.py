@@ -100,6 +100,12 @@ def run_algorithm(*, algorithm: str, game: PythonReferenceSmokeGame, root: Path,
         ],
         "metrics_jsonl": [str(phase1.metrics_path), str(phase2.metrics_path)],
         "source_hash": phase2.source_hash,
+        "source_component_hashes": {
+            name: component["hash"]
+            for name, component in phase2.source_fingerprint["components"].items()
+        },
+        "execution_fingerprint_hash": phase2.execution_fingerprint["hash"],
+        "semantic_configuration_hash": phase2.semantic_configuration["hash"],
         "semantic_contract_hash": phase2.semantic_contract["hash"],
     }
 

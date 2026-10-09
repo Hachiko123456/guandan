@@ -1,0 +1,150 @@
+{
+  "date": "2026-10-09",
+  "execution_fingerprint": {
+    "cuda_available": false,
+    "device_type": "cpu",
+    "hash": "13b9bbb8673f7fd5d29eeea3f1d603d2c6091eea30f57c930046c25be5802aac",
+    "numpy": "2.3.5",
+    "python": "3.12.0",
+    "schema": "guandan-marvel-execution-fingerprint-v1",
+    "torch": "2.13.0+cpu"
+  },
+  "schema": "guandan-marvel-m03-repair-source-fingerprint-evidence-v1",
+  "semantic_configuration_hash": "cdef7a2cdc2f772353a5bc85177d31c5683f24a31301563c10bd7812b955de64",
+  "semantic_contract_hash": "95498b06c2264b2c5b5bf546a6a45ac3b98cbc38903d5bdef2a76cb65dfdf7c2",
+  "source_fingerprint": {
+    "components": {
+      "game_adapter": {
+        "files": [
+          "guandan_marvel/__init__.py",
+          "guandan_marvel/buffer.py",
+          "guandan_marvel/env_batch.py",
+          "guandan_marvel/game.py"
+        ],
+        "hash": "1f0440e3c6b25e2b2fdca94c322a576dcc69be37ff612e0f14c698fd17061e29"
+      },
+      "guandan_rules": {
+        "files": [
+          "guandan/action_state.py",
+          "guandan/cards.py",
+          "guandan/combos.py",
+          "guandan/encoding.py",
+          "guandan/env_batch.py",
+          "guandan/environment.py",
+          "guandan/environment_types.py",
+          "guandan/round.py",
+          "guandan/state.py"
+        ],
+        "hash": "3e0cac7d0ed8997428cd04c9b14c0c5b52cfcfb3fde3e9524a393a11bf569702"
+      },
+      "model": {
+        "files": [
+          "guandan_marvel/model/__init__.py",
+          "guandan_marvel/model/agent.py",
+          "guandan_marvel/model/base.py",
+          "guandan_marvel/model/cache.py",
+          "guandan_marvel/model/checkpointable.py",
+          "guandan_marvel/model/critic.py",
+          "guandan_marvel/model/tensordict.py",
+          "guandan_marvel/model/trainable.py",
+          "guandan_marvel/model/transformer.py",
+          "guandan_marvel/model/types.py"
+        ],
+        "hash": "6cf340ffea79a72ba0afdd7cb1ddf3bd71e7923343a0e094d2aa02b2e5334d0c"
+      },
+      "optimization": {
+        "files": [
+          "guandan_marvel/optim/__init__.py",
+          "guandan_marvel/optim/common.py",
+          "guandan_marvel/optim/muon.py"
+        ],
+        "hash": "68d346ef3df38ba36b31372ad0aee976c528931759917e39738d5dcd28eba9ef"
+      },
+      "runtime": {
+        "files": [
+          "guandan_marvel/config.py",
+          "guandan_marvel/runtime/__init__.py",
+          "guandan_marvel/runtime/compilation.py",
+          "guandan_marvel/runtime/logger.py",
+          "guandan_marvel/runtime/sampler.py",
+          "guandan_marvel/utils.py"
+        ],
+        "hash": "3888948da17e6a188330e1961667b0abb370ac680a643e42c19a1e8a7ceae52e"
+      },
+      "training": {
+        "files": [
+          "guandan_marvel/training/__init__.py",
+          "guandan_marvel/training/checkpoints.py",
+          "guandan_marvel/training/gae.py",
+          "guandan_marvel/training/ippo.py",
+          "guandan_marvel/training/local.py",
+          "guandan_marvel/training/losses.py",
+          "guandan_marvel/training/metrics.py",
+          "guandan_marvel/training/schedules.py",
+          "guandan_marvel/training/smoke.py",
+          "guandan_marvel/training/validation.py",
+          "guandan_marvel/training/vrpo.py"
+        ],
+        "hash": "f6dfadb97de32fbaaa77a624409fcf52dbdde19a56693bf8f374af70e30938fd"
+      }
+    },
+    "declared_inventory": {
+      "game_adapter": [
+        "guandan_marvel/__init__.py",
+        "guandan_marvel/game.py",
+        "guandan_marvel/env_batch.py",
+        "guandan_marvel/buffer.py"
+      ],
+      "guandan_rules": [
+        "guandan/cards.py",
+        "guandan/combos.py",
+        "guandan/round.py",
+        "guandan/state.py",
+        "guandan/action_state.py",
+        "guandan/encoding.py",
+        "guandan/environment.py",
+        "guandan/environment_types.py",
+        "guandan/env_batch.py"
+      ],
+      "model": [
+        "guandan_marvel/model/__init__.py",
+        "guandan_marvel/model/agent.py",
+        "guandan_marvel/model/base.py",
+        "guandan_marvel/model/cache.py",
+        "guandan_marvel/model/checkpointable.py",
+        "guandan_marvel/model/critic.py",
+        "guandan_marvel/model/tensordict.py",
+        "guandan_marvel/model/trainable.py",
+        "guandan_marvel/model/transformer.py",
+        "guandan_marvel/model/types.py"
+      ],
+      "optimization": [
+        "guandan_marvel/optim/__init__.py",
+        "guandan_marvel/optim/common.py",
+        "guandan_marvel/optim/muon.py"
+      ],
+      "runtime": [
+        "guandan_marvel/config.py",
+        "guandan_marvel/runtime/__init__.py",
+        "guandan_marvel/runtime/compilation.py",
+        "guandan_marvel/runtime/logger.py",
+        "guandan_marvel/runtime/sampler.py",
+        "guandan_marvel/utils.py"
+      ],
+      "training": [
+        "guandan_marvel/training/__init__.py",
+        "guandan_marvel/training/checkpoints.py",
+        "guandan_marvel/training/gae.py",
+        "guandan_marvel/training/ippo.py",
+        "guandan_marvel/training/local.py",
+        "guandan_marvel/training/losses.py",
+        "guandan_marvel/training/metrics.py",
+        "guandan_marvel/training/schedules.py",
+        "guandan_marvel/training/smoke.py",
+        "guandan_marvel/training/validation.py",
+        "guandan_marvel/training/vrpo.py"
+      ]
+    },
+    "hash": "83158ea4fa6fbb07966b469f273c7fe623750d2aa95e93c39a26a261c741e35c"
+  }
+}

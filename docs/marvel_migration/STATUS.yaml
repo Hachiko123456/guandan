@@ -1,12 +1,12 @@
 project: guandan-marvel-migration
 version: 0.1.0
-last_updated: 2026-10-08
+last_updated: 2026-10-09
 workspace: D:\project\guandan
 reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M04_cpp_runtime
+current_stage: M03_marvel_training_smoke_repair
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -62,12 +62,14 @@ stages:
     blockers: []
 
   M03_marvel_training_smoke:
-    status: accepted
-    accepted: true
-    commit: refs/tags/m03-marvel-training-smoke-accepted
+    status: in_progress
+    accepted: false
+    commit: 4968840679ea031ec7b69132cebd862efa302c17
     reports:
       - docs/marvel_migration/reports/M03_marvel_training_smoke.md
       - docs/marvel_migration/reports/M03_marvel_training_smoke.json
+      - docs/marvel_migration/reports/M03_marvel_training_smoke_repair.md
+      - docs/marvel_migration/reports/M03_marvel_training_smoke_repair.json
     evidence:
       - docs/marvel_migration/evidence/M03_marvel_training_smoke/protocol_schema.json
       - docs/marvel_migration/evidence/M03_marvel_training_smoke/memory_preflight.json
@@ -77,14 +79,25 @@ stages:
       - docs/marvel_migration/evidence/M03_marvel_training_smoke/test_results.json
       - docs/marvel_migration/evidence/M03_marvel_training_smoke/source_manifest.json
       - docs/marvel_migration/evidence/M03_marvel_training_smoke/artifact_manifest.json
-    blockers: []
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/repair_summary.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/review_findings.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/protocol_schema.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/repair_verification.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/training_smoke.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/checkpoint_verification.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/source_fingerprint.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/test_results.json
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/source_manifest.json
+    blockers:
+      - repair implementation commit identity is pending acceptance registration
 
   M04_cpp_runtime:
-    status: not_started
+    status: blocked
     accepted: false
     commit: null
     reports: []
-    blockers: []
+    blockers:
+      - M03_marvel_training_smoke repair is not accepted
 
   M05_differential_performance:
     status: blocked

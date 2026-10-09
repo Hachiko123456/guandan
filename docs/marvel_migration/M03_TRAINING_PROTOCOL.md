@@ -1,9 +1,9 @@
 # M03 MARVEL Local Training Protocol
 
-- 日期：2026-10-08
-- runtime schema：`guandan-marvel-m03-local-runtime-v1`
-- checkpoint schema：`guandan-marvel-training-checkpoint-v2`
-- semantic contract：`guandan-marvel-training-contract-v1`
+- 日期：2026-10-09
+- runtime schema：`guandan-marvel-m03-local-runtime-v2`
+- checkpoint schema：`guandan-marvel-training-checkpoint-v3`
+- semantic contract：`guandan-marvel-training-contract-v2`
 - trajectory schema：`guandan-marvel-complete-trajectory-v1`
 - sampler：`guandan-marvel-sampler-contract-v2`
 - buffer：`guandan-marvel-buffer-v2`
@@ -116,3 +116,49 @@ AMP=false
 ```
 
 These values are correctness-only and are not the MARVEL 128/256 formal baseline.
+## Interruption and lifecycle contract (repair)
+
+Trainer lifecycle is explicit: `idle -> running -> completed`, or `running/loading -> failed`. A durable checkpoint is permitted only when:
+
+- no iteration/load is active;
+- trainer and sampler are healthy;
+- `iteration == durable_updates`;
+- `learner_updates == durable_learner_updates`;
+- at least one durable iteration exists.
+
+`RuntimeError`, `KeyboardInterrupt`, and other catchable `BaseException` values poison both trainer and sampler and are re-raised. Partial optimizer work remains diagnostic only and cannot be saved or resumed. Recovery requires a new instance loading the last complete checkpoint. Platform hard-kill/power-loss outside Python exception handling is not claimed recoverable.
+
+## Semantic configuration v1
+
+The v2 semantic contract embeds a hashed `guandan-marvel-semantic-config-v1` covering all consumed training semantics:
+
+- complete model structure, including decoder heads/layers and state/action/fuse dimensions;
+- complete game tensor/protocol specification;
+- gamma, IPPO/VRPO GAE, epochs, clip/reg/value coefficients and learning rates;
+- optimizer type/betas/weight decay/gradient clipping;
+- schedule powers/stable iterations;
+- merged policy beta/definition;
+- seed, rollout/collect/replay/minibatch and replay persistence;
+- deterministic/TF32, AMP, compile and DDP execution semantics;
+- sampler/buffer/Q-target contracts.
+
+Only explicit non-semantic fields may produce `compatible_resume`: project/run name, logging directory, debug/log intervals, total requested iterations and resume path. Gamma, model heads, optimizer, schedule, sampling, replay, source, device or dependency changes are migration/rejection, not compatible resume.
+
+Declared hashes for resolved config, semantic config, semantic contract, source fingerprint and execution fingerprint are recomputed during classification. Errors identify concrete differing paths.
+
+## Source and execution fingerprint boundary
+
+`guandan-marvel-source-fingerprint-v1` stores component/file-level hashes for:
+
+- A01/A02/A03/A04 rule and environment code;
+- V2 game adapter and buffer;
+- model/Transformer/cache/tensordict code;
+- optimizer/Muon code;
+- sampler/compile/logger/config utilities;
+- GAE/loss/schedule/checkpoint/trainer/validation/metrics code.
+
+`exact_resume` additionally requires the same Python, PyTorch, NumPy, device type and CUDA availability fingerprint. No unverified bitwise exact guarantee is made across devices or dependency versions. Source or execution changes conservatively classify as migration unless a future version adds a specifically verified compatibility rule.
+
+## Pre-repair checkpoint boundary
+
+`guandan-marvel-training-checkpoint-v2` remains readable for artifact inspection/evaluation classification but lacks semantic-config/source-fingerprint v1 and cannot be exact/compatible training resume under the repaired contract. New acceptance checkpoints use v3.
