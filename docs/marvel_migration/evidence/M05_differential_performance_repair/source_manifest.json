@@ -1,0 +1,187 @@
+{
+  "date": "2026-10-09",
+  "files": [
+    {
+      "bytes": 3786,
+      "path": "guandan_marvel/__init__.py",
+      "sha256": "5f3d5d94c50d45236af018265aab976cba3975a6b3fc3b95c290eab70568536b"
+    },
+    {
+      "bytes": 1327,
+      "path": "guandan_marvel/backends.py",
+      "sha256": "d8ceda6988cd589e83f0a5ba74379e74766110b3173f505fe0a33fad66a7b3da"
+    },
+    {
+      "bytes": 508,
+      "path": "guandan_marvel/python_game.py",
+      "sha256": "3e9a9789f3541a89b8824bfff76ea1cdf24f3f08b9d8ca902e8c414fc098404a"
+    },
+    {
+      "bytes": 464,
+      "path": "guandan_marvel/cpp_game.py",
+      "sha256": "20aa32521a40ecefc9d9d0850b1cc97ed0e255e5346acee04c8a9f8b49dd4d4f"
+    },
+    {
+      "bytes": 450,
+      "path": "nanopokerlib/__init__.py",
+      "sha256": "02863457b72f269171c186d6f0710e3a10ec666250aa89e86077c49cd9b8146f"
+    },
+    {
+      "bytes": 3157,
+      "path": "nanopokerlib/guandan.py",
+      "sha256": "743b50cb447eb1ca76ed64d391f2b1f22e3871a822b02d6e17b0c364c009e0d8"
+    },
+    {
+      "bytes": 1804,
+      "path": "nanopokerlib/build_identity.py",
+      "sha256": "c696cee5a6d007b2e745e362f5be2634836a12fb2ba8d49ac593fcb1e70635f8"
+    },
+    {
+      "bytes": 247,
+      "path": "nanopokerlib/cpp/guandan_build_identity.hpp",
+      "sha256": "f7aad8aea49e4ff9c2a2b71c106624bdcb921f316d361ee7b75e345d6184407c"
+    },
+    {
+      "bytes": 52333,
+      "path": "nanopokerlib/cpp/bindings.cpp",
+      "sha256": "d587f419ed0e2c546ec6c1a7bbf1eb38d55f5c4ecbb53abd91059ae2afb27837"
+    },
+    {
+      "bytes": 5440,
+      "path": "setup.py",
+      "sha256": "f02b8fa989ce7469ebd6802eda3ef471ff8c4d7b114641b20215ff947f4b531a"
+    },
+    {
+      "bytes": 182,
+      "path": "MANIFEST.in",
+      "sha256": "d2946eadc802f33318d48bc9f59f10fd2fd9855792b491ec3ae965b0e8f4c6aa"
+    },
+    {
+      "bytes": 26901,
+      "path": "guandan_marvel/runtime/sampler.py",
+      "sha256": "c0442ecf7db7e2f40c7dc90d51dbd7fed1ef888f42316b627a4651e66f8a21b6"
+    },
+    {
+      "bytes": 22115,
+      "path": "guandan_marvel/training/checkpoints.py",
+      "sha256": "a6384eaac6319c902ab166b57eaabda51246f7cedda4bbfec5a1f1215f7bef3f"
+    },
+    {
+      "bytes": 39139,
+      "path": "guandan_marvel/training/local.py",
+      "sha256": "61bcb39a8d8c97bef68daafb1c3c7d216e4369ccbe3d2baac23633b0269b176c"
+    },
+    {
+      "bytes": 1737,
+      "path": "guandan_marvel/training/smoke.py",
+      "sha256": "c3db303fc13057dbb359d044a3d7827cc65260731a5aae7a708139c082231856"
+    },
+    {
+      "bytes": 23328,
+      "path": "scripts/benchmark_marvel_m05.py",
+      "sha256": "debbd581b159608567d182c70b5ab12ea2194752c76254558e85c7eeee4d4d19"
+    },
+    {
+      "bytes": 12503,
+      "path": "scripts/benchmark_marvel_m05_repair.py",
+      "sha256": "241327be09ef15d6cdec4a3bffd3a5a9995ca5427c610399ba1a0c88183b1354"
+    },
+    {
+      "bytes": 4342,
+      "path": "scripts/verify_marvel_m05_imports.py",
+      "sha256": "412ed727f6e085b25b78d464f9abc2b27d06db3ca4fbcc622e7e85ca5238cccf"
+    },
+    {
+      "bytes": 5970,
+      "path": "scripts/verify_marvel_m05_repair.py",
+      "sha256": "32013b4515aadd440da836f8f55b39308dc068ebad897de7993da8afb128af3d"
+    },
+    {
+      "bytes": 6318,
+      "path": "scripts/verify_marvel_cpp_checkpoint_identity.py",
+      "sha256": "e965f8807b7ba5ed751a4717575b8dcf995e6644b0488dd5d561497ebf5ab40e"
+    },
+    {
+      "bytes": 10533,
+      "path": "scripts/verify_marvel_training_artifacts.py",
+      "sha256": "5f36764a03da36f46d1a64dcd76d404584f26f0ea8700559da6d9f61daf86e82"
+    },
+    {
+      "bytes": 3284,
+      "path": "tests/marvel_differential/test_backend_imports.py",
+      "sha256": "c1f241312f19880c33c79a4738b04c3fb63ff4f66b6eba1780bb197e349da494"
+    },
+    {
+      "bytes": 4848,
+      "path": "tests/marvel_differential/test_m05_differential.py",
+      "sha256": "09e444547b8f9bbc243f8109caa5a490b6e346e7cae03be79f6c46db07a16b7d"
+    },
+    {
+      "bytes": 8127,
+      "path": "tests/marvel_training/test_backend_identity.py",
+      "sha256": "615b5cc06cc90c1ec962dbd775f95352c358f7220b830a963d91b34e9966148d"
+    },
+    {
+      "bytes": 13402,
+      "path": "tests/marvel_training/test_training_smoke.py",
+      "sha256": "c5d5b5219c7a5d4038c96aacf42b67c7f22fe40a4949020b0b536c62c64d0f70"
+    },
+    {
+      "bytes": 6256,
+      "path": "tests/marvel_cpp/test_batch.py",
+      "sha256": "01d5bfbc643ae00255dd6a0e10f8d94b54f4af399b90c6ea95a079e19c7a3e3d"
+    },
+    {
+      "bytes": 4512,
+      "path": "docs/marvel_migration/M05_DIFFERENTIAL_PERFORMANCE_REPAIR_PROTOCOL.md",
+      "sha256": "7c6a59046302740c25fe85f5f1fe56635608e636c47b508f9b8729089428a834"
+    },
+    {
+      "bytes": 5981,
+      "path": "docs/marvel_migration/09_CHECKPOINT_COMPATIBILITY.md",
+      "sha256": "9ebcd362969667dbff76e7cde2912ebdafecbf27d94ebcdccb404ec0c9182ea0"
+    }
+  ],
+  "protected_files": [
+    {
+      "current_sha256": "dcbf3a8dbdbc910fec9d37935f83d6980bc33a308400a5aa99f00b100bb68dca",
+      "original_sha256": "dcbf3a8dbdbc910fec9d37935f83d6980bc33a308400a5aa99f00b100bb68dca",
+      "path": "guandan/cards.py",
+      "unchanged": true
+    },
+    {
+      "current_sha256": "a375a28964ecc6ef36dd5a487d9c039b422afd78c68ce54ac970265d64efacc8",
+      "original_sha256": "a375a28964ecc6ef36dd5a487d9c039b422afd78c68ce54ac970265d64efacc8",
+      "path": "guandan/combos.py",
+      "unchanged": true
+    },
+    {
+      "current_sha256": "b7df95a68e58bb7422e7f94b67649d7adf9a2b043b9b89f9d26ca06a21c251b0",
+      "original_sha256": "b7df95a68e58bb7422e7f94b67649d7adf9a2b043b9b89f9d26ca06a21c251b0",
+      "path": "guandan/round.py",
+      "unchanged": true
+    },
+    {
+      "current_sha256": "20f08df290a04678c89b0d29713683474dc0ff7f737b13ce607346e2913d5925",
+      "original_sha256": "20f08df290a04678c89b0d29713683474dc0ff7f737b13ce607346e2913d5925",
+      "path": "guandan/state.py",
+      "unchanged": true
+    },
+    {
+      "current_sha256": "e53a4576d41adfea27684aa8f20d2043feff5ad6a6a44ad7fe7be57cbeefa928",
+      "original_sha256": "e53a4576d41adfea27684aa8f20d2043feff5ad6a6a44ad7fe7be57cbeefa928",
+      "path": "docs/rules.md",
+      "unchanged": true
+    }
+  ],
+  "protected_files_unchanged": true,
+  "reference_repo": {
+    "clean": true,
+    "head": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+    "path": "D:\\project\\doudizhu",
+    "status_short": []
+  },
+  "schema": "guandan-marvel-m05-repair-source-manifest-v1",
+  "source_parent_commit": "4ba65bfa20df2843fbc3cefb5299e885c14e2479",
+  "stage": "M05_differential_performance_repair"
+}

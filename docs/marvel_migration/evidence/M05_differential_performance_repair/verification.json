@@ -1,0 +1,154 @@
+{
+  "accepted": false,
+  "blockers": [
+    "real frozen Transformer rollout speedup is below the conservative 2x end-to-end gate"
+  ],
+  "checkpoint_identity": {
+    "artifact_verifier": {
+      "algorithms": {
+        "ippo": {
+          "checkpoints": [
+            {
+              "backend": "python_reference",
+              "backend_identity_hash": "b5e3d707bc24f9c2dd588c3d2e5f42df741bc1bcaf978bcb60b6f46877d18b08",
+              "buffer_schema": "guandan-marvel-buffer-v2",
+              "bytes": 34885805,
+              "durable_updates": 1,
+              "iteration": 1,
+              "merged_policy": {
+                "beta": 0.0,
+                "identity": "current_policy_copy",
+                "not_smoothed_when_beta_zero": true
+              },
+              "path": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\training_smoke_v4_final\\ippo\\checkpoints\\guandan-marvel-v2-ippo-iter000001.pt",
+              "replay_persistence": null,
+              "resume_classification": "exact_resume",
+              "sampler_contract": "guandan-marvel-sampler-contract-v2",
+              "semantic_contract_hash": "225f6a601950b8d12c686aac7f26d389d34a60b3d2ad483aeb08a0a10187b16c",
+              "sha256": "3f14b2213001ecffde4eb00a6965a370096f0e18b9fbaf9c855036677a9b8d7f",
+              "source_hash": "4988ba32eb864f7ececfd2eee887d2a540ce99cf8070ee057f9bd27e6fc793de"
+            },
+            {
+              "backend": "python_reference",
+              "backend_identity_hash": "b5e3d707bc24f9c2dd588c3d2e5f42df741bc1bcaf978bcb60b6f46877d18b08",
+              "buffer_schema": "guandan-marvel-buffer-v2",
+              "bytes": 34885805,
+              "durable_updates": 2,
+              "iteration": 2,
+              "merged_policy": {
+                "beta": 0.0,
+                "identity": "current_policy_copy",
+                "not_smoothed_when_beta_zero": true
+              },
+              "path": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\training_smoke_v4_final\\ippo\\checkpoints\\guandan-marvel-v2-ippo-iter000002.pt",
+              "replay_persistence": null,
+              "resume_classification": "exact_resume",
+              "sampler_contract": "guandan-marvel-sampler-contract-v2",
+              "semantic_contract_hash": "225f6a601950b8d12c686aac7f26d389d34a60b3d2ad483aeb08a0a10187b16c",
+              "sha256": "5cd85ad70a612ff2e7ee9ac509f1d57394d01e5c516118af1abd5c241a55dafe",
+              "source_hash": "4988ba32eb864f7ececfd2eee887d2a540ce99cf8070ee057f9bd27e6fc793de"
+            }
+          ],
+          "classification": {
+            "backend_change": "migration",
+            "compatible": "compatible_resume",
+            "evaluation": "evaluation_only",
+            "exact": "exact_resume",
+            "legacy_v1_training_resume_rejected": true,
+            "migration": "migration",
+            "warm_restart": null
+          }
+        },
+        "vrpo": {
+          "checkpoints": [
+            {
+              "backend": "python_reference",
+              "backend_identity_hash": "b5e3d707bc24f9c2dd588c3d2e5f42df741bc1bcaf978bcb60b6f46877d18b08",
+              "buffer_schema": "guandan-marvel-buffer-v2",
+              "bytes": 47083310,
+              "durable_updates": 1,
+              "iteration": 1,
+              "merged_policy": {
+                "beta": 0.0,
+                "identity": "current_policy_copy",
+                "not_smoothed_when_beta_zero": true
+              },
+              "path": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\training_smoke_v4_final\\vrpo\\checkpoints\\guandan-marvel-v2-vrpo-iter000001.pt",
+              "replay_persistence": "persisted",
+              "resume_classification": "exact_resume",
+              "sampler_contract": "guandan-marvel-sampler-contract-v2",
+              "semantic_contract_hash": "1b766300147e61e1563f8a8da41b33e42399831414f385b38de92e7b233af80b",
+              "sha256": "b0e643bb4c45d7aa66130ce93a71b6818fc98b23f049c2fc187a2af929d54f83",
+              "source_hash": "4988ba32eb864f7ececfd2eee887d2a540ce99cf8070ee057f9bd27e6fc793de"
+            },
+            {
+              "backend": "python_reference",
+              "backend_identity_hash": "b5e3d707bc24f9c2dd588c3d2e5f42df741bc1bcaf978bcb60b6f46877d18b08",
+              "buffer_schema": "guandan-marvel-buffer-v2",
+              "bytes": 47083310,
+              "durable_updates": 2,
+              "iteration": 2,
+              "merged_policy": {
+                "beta": 0.0,
+                "identity": "current_policy_copy",
+                "not_smoothed_when_beta_zero": true
+              },
+              "path": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\training_smoke_v4_final\\vrpo\\checkpoints\\guandan-marvel-v2-vrpo-iter000002.pt",
+              "replay_persistence": "persisted",
+              "resume_classification": "exact_resume",
+              "sampler_contract": "guandan-marvel-sampler-contract-v2",
+              "semantic_contract_hash": "1b766300147e61e1563f8a8da41b33e42399831414f385b38de92e7b233af80b",
+              "sha256": "c913313e69f9c26b02f461e42c9a4e0ad1b463eda648ad5d01adfb7039d1927f",
+              "source_hash": "4988ba32eb864f7ececfd2eee887d2a540ce99cf8070ee057f9bd27e6fc793de"
+            }
+          ],
+          "classification": {
+            "backend_change": "migration",
+            "compatible": "compatible_resume",
+            "evaluation": "evaluation_only",
+            "exact": "exact_resume",
+            "legacy_v1_training_resume_rejected": true,
+            "migration": "migration",
+            "warm_restart": "warm_restart"
+          }
+        }
+      },
+      "schema": "guandan-marvel-m03-artifact-verification-v1",
+      "summary_path": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\training_smoke_v4_final\\summary.json",
+      "summary_sha256": "f50aff1696e0801912b82a19aa79aeccd20050ea6ae7fbced5d096111e656ade"
+    },
+    "cpp_valid": true,
+    "schema": "guandan-marvel-training-checkpoint-v4"
+  },
+  "correctness": {
+    "current_sample_replay_valid": true,
+    "historical_10k_100k_retained": true,
+    "levels_replayed": 13,
+    "semantic_execution_files_unchanged": true
+  },
+  "date": "2026-10-09",
+  "implementation_commit": null,
+  "imports": {
+    "cpp_without_extension_rejected": true,
+    "isolated_wheel_valid": true,
+    "original_issue_reproduced": true,
+    "python_without_extension": true,
+    "source_fixed": true
+  },
+  "m06_allowed": false,
+  "performance": {
+    "full_iteration_speedup": 1.0603647306902375,
+    "historical_deterministic_selector_speedup": 2.9755799791382764,
+    "real_agent_passes": false,
+    "real_agent_threshold": 2.0,
+    "real_frozen_transformer_speedup": 1.5804796793897875
+  },
+  "schema": "guandan-marvel-m05-repair-verification-v1",
+  "stage": "M05_differential_performance_repair",
+  "tests": {
+    "a00_heading_failure_fixed": true,
+    "blocking_passed": true,
+    "default_collection_error_documented": true,
+    "full_importlib_passed": true
+  }
+}

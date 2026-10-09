@@ -26,8 +26,8 @@ from guandan_marvel.runtime.sampler import (
 )
 from guandan_marvel.training.checkpoints import (
     TRAINING_CHECKPOINT_SCHEMA, CheckpointCompatibilityError, TrainingCheckpointStore,
-    build_execution_fingerprint, build_semantic_configuration, build_semantic_contract,
-    canonical_json_hash, capture_rng_state, classify_resume,
+    build_backend_identity, build_execution_fingerprint, build_semantic_configuration,
+    build_semantic_contract, canonical_json_hash, capture_rng_state, classify_resume,
     compute_source_fingerprint, restore_rng_state, serialize_config,
 )
 from guandan_marvel.training.gae import compute_gae_from_qvalue, compute_gae_from_value
@@ -43,14 +43,14 @@ from guandan_marvel.utils import set_global_seed
 
 M03_RUNTIME_SCHEMA = "guandan-marvel-m03-local-runtime-v2"
 VRPO_Q_TARGET_CONTRACT = "guandan-marvel-vrpo-q-lambda-td1-v1"
-RUNTIME_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
+COMMON_RUNTIME_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
     "guandan_rules": (
         "guandan/cards.py", "guandan/combos.py", "guandan/round.py",
         "guandan/state.py", "guandan/action_state.py", "guandan/encoding.py",
         "guandan/environment.py", "guandan/environment_types.py", "guandan/env_batch.py",
     ),
-    "game_adapter": (
-        "guandan_marvel/__init__.py", "guandan_marvel/game.py",
+    "game_adapter_common": (
+        "guandan_marvel/__init__.py", "guandan_marvel/backends.py",
         "guandan_marvel/env_batch.py", "guandan_marvel/buffer.py",
     ),
     "model": (
@@ -71,13 +71,54 @@ RUNTIME_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
     ),
     "training": (
         "guandan_marvel/training/__init__.py", "guandan_marvel/training/checkpoints.py",
-        "guandan_marvel/training/gae.py",
-        "guandan_marvel/training/ippo.py", "guandan_marvel/training/local.py",
-        "guandan_marvel/training/losses.py", "guandan_marvel/training/metrics.py",
-        "guandan_marvel/training/schedules.py", "guandan_marvel/training/smoke.py",
-        "guandan_marvel/training/validation.py", "guandan_marvel/training/vrpo.py",
+        "guandan_marvel/training/gae.py", "guandan_marvel/training/ippo.py",
+        "guandan_marvel/training/local.py", "guandan_marvel/training/losses.py",
+        "guandan_marvel/training/metrics.py", "guandan_marvel/training/schedules.py",
+        "guandan_marvel/training/smoke.py", "guandan_marvel/training/validation.py",
+        "guandan_marvel/training/vrpo.py",
     ),
 }
+PYTHON_BACKEND_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
+    "python_backend": (
+        "guandan_marvel/game.py", "guandan_marvel/python_game.py",
+    ),
+}
+CPP_BACKEND_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
+    "cpp_backend_wrapper": (
+        "guandan_marvel/cpp_game.py", "nanopokerlib/__init__.py",
+        "nanopokerlib/guandan.py", "nanopokerlib/build_identity.py",
+    ),
+    "cpp_native_source": (
+        "nanopokerlib/cpp/bindings.cpp", "nanopokerlib/cpp/core/types.hpp",
+        "nanopokerlib/cpp/guandan/guandan.cpp", "nanopokerlib/cpp/guandan/guandan.hpp",
+        "nanopokerlib/cpp/guandan_build_identity.hpp", "setup.py", "MANIFEST.in",
+    ),
+}
+# Union retained for source-inventory tooling and tests. Trainers use only the
+# component set for the backend that is actually executing.
+RUNTIME_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
+    **COMMON_RUNTIME_SOURCE_COMPONENTS,
+    **PYTHON_BACKEND_SOURCE_COMPONENTS,
+    **CPP_BACKEND_SOURCE_COMPONENTS,
+}
+
+
+def runtime_source_components(backend: str, root: Path) -> dict[str, tuple[str, ...]]:
+    components = dict(COMMON_RUNTIME_SOURCE_COMPONENTS)
+    if backend == "python_reference":
+        components.update(PYTHON_BACKEND_SOURCE_COMPONENTS)
+    elif backend == "cpp":
+        components.update(CPP_BACKEND_SOURCE_COMPONENTS)
+    else:
+        raise CheckpointCompatibilityError(f"unsupported runtime backend {backend!r}")
+    # A clean wheel may intentionally omit native source files. The loaded
+    # extension still carries its embedded source digest and binary identity.
+    return {
+        name: tuple(path for path in paths if (root / path).is_file())
+        for name, paths in components.items()
+        if any((root / path).is_file() for path in paths)
+    }
+
 
 
 
@@ -151,8 +192,13 @@ class LocalTrainerBase:
         self.last_policy_epochs = 0
         self.last_critic_batch_sources: tuple[str, ...] = ()
         self.repo_root = Path(__file__).resolve().parents[2]
+        self.backend_identity = build_backend_identity(game)
+        self.backend_name = str(self.backend_identity["backend"])
+        self.runtime_source_components = runtime_source_components(
+            self.backend_name, self.repo_root,
+        )
         self.source_fingerprint = compute_source_fingerprint(
-            self.repo_root, RUNTIME_SOURCE_COMPONENTS,
+            self.repo_root, self.runtime_source_components,
         )
         self.source_hash = str(self.source_fingerprint["hash"])
         self.execution_fingerprint = build_execution_fingerprint(self.device)
@@ -312,6 +358,8 @@ class LocalTrainerBase:
             "algorithm": self.algorithm,
             "architecture": self.cfg.model.architecture,
             "protocol_version": self.cfg.game.protocol_version,
+            "backend": self.backend_name,
+            "backend_identity": self.backend_identity,
             "semantic_contract": self.semantic_contract,
             "source_fingerprint": self.source_fingerprint,
             "source_hash": self.source_hash,
@@ -348,6 +396,7 @@ class LocalTrainerBase:
             expected_contract=self.semantic_contract,
             expected_source_fingerprint=self.source_fingerprint,
             expected_execution_fingerprint=self.execution_fingerprint,
+            expected_backend_identity=self.backend_identity,
             expected_config=self.resolved_config,
             require_replay=require_replay,
         )
@@ -710,6 +759,9 @@ class VRPOTrainer(LocalTrainerBase):
 
 
 __all__ = [
-    "IPPOTrainer", "LocalTrainerBase", "M03_RUNTIME_SCHEMA", "RUNTIME_SOURCE_COMPONENTS", "VRPOTrainer",
+    "COMMON_RUNTIME_SOURCE_COMPONENTS", "CPP_BACKEND_SOURCE_COMPONENTS",
+    "IPPOTrainer", "LocalTrainerBase", "M03_RUNTIME_SCHEMA",
+    "PYTHON_BACKEND_SOURCE_COMPONENTS", "RUNTIME_SOURCE_COMPONENTS", "VRPOTrainer",
+    "runtime_source_components",
     "VRPO_Q_TARGET_CONTRACT",
 ]

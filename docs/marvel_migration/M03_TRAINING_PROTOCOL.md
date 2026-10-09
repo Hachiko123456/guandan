@@ -1,4 +1,4 @@
-# M03 MARVEL Local Training Protocol
+# M03 MARVEL 本地训练协议
 
 - 日期：2026-10-09
 - runtime schema：`guandan-marvel-m03-local-runtime-v2`

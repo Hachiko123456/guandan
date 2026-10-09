@@ -1,0 +1,35 @@
+{
+  "build_identity_change": {
+    "error": "checkpoint cannot continue training: kind=migration; backend_identity.hash: checkpoint='8dc49930eb24623038c6c89bcce35c7c4aeb9c402b1853545e40ffeb3b3e77f7' expected='315b4ad752e08ad340f3cec58a6a9f98a3b446a3bc8173e491d01506566486d0'; backend_identity.implementation.extension_sha256: checkpoint='0000000000000000000000000000000000000000000000000000000000000000' expected='ce6bb30501ca8967776ba7bbbc11bdd7e7f0255bf496d240f62d23551c103d00'",
+    "poisoned": true,
+    "rejected": true
+  },
+  "checkpoint": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\cpp_checkpoint_final\\cpp-backend-iter000001-v4.pt",
+  "cross_backend": {
+    "error": "checkpoint cannot continue training: kind=migration; backend_identity.backend: checkpoint='cpp' expected='python_reference'; backend_identity.game_identifier: checkpoint='GuandanMARVELV2Cpp' expected='GuandanMARVELV2PythonReference'; backend_identity.hash: checkpoint='315b4ad752e08ad340f3cec58a6a9f98a3b446a3bc8173e491d01506566486d0' expected='7381b4a0a9a40f3cccdcf4342f3fd2834b961efaa39cb659ba92254ca81a82f0'; backend_identity.implementation.compiler: checkpoint='11.2.0' expected=<missing>; backend_identity.implementation.current_source_manifest: checkpoint={'schema': 'guandan-native-build-identity-v1', 'files': [{'path': 'nanopokerlib/cpp/bindings.cpp', 'bytes': 52333, 'sha256': 'd587f419ed0e2c546ec6c1a7bbf1eb38d55f5c4ecbb53abd91059ae2afb27837'}, {'path': 'nanopokerlib/cpp/core/types.hpp', 'bytes': 1335, 'sha256': '22d1c11274f4da56175bc3859e2e89731ce0e03e7640071ebbca66da566d51da'}, {'path': 'nanopokerlib/cpp/guandan/guandan.cpp', 'bytes': 84623, 'sha256': 'f76dc6ef216c560b889aa662c5bcebb0cbe7a3e3b7e49a3ec24dd1989147a14c'}, {'path': 'nanopokerlib/cpp/guandan/guandan.hpp', 'bytes': 10600, 'sha256': '7501b4af2ef02053324b64868cbf368383be3f3548d944b35efa6aa2371f1ccd'}], 'hash': '40058234af8227e9f0a0aa8c555959717e277f4ac16ed5094a918a32d46f6898'} expected=<missing>; backend_identity.implementation.cxx_standard: checkpoint=202002 expected=<missing>; backend_identity.implementation.embedded_source_sha256: checkpoint='40058234af8227e9f0a0aa8c555959717e277f4ac16ed5094a918a32d46f6898' expected=<missing>; backend_identity.implementation.extension_filename: checkpoint='_guandan_cpp.cp312-win_amd64.pyd' expected=<missing>; backend_identity.implementation.extension_module: checkpoint='nanopokerlib._guandan_cpp' expected=<missing>; backend_identity.implementation.extension_path: checkpoint='D:\\\\project\\\\guandan\\\\nanopokerlib\\\\_guandan_cpp.cp312-win_amd64.pyd' expected=<missing>; backend_identity.implementation.extension_sha256: checkpoint='ce6bb30501ca8967776ba7bbbc11bdd7e7f0255bf496d240f62d23551c103d00' expected=<missing>; backend_identity.implementation.kind: checkpoint=<missing> expected='python_source'; backend_identity.implementation.module: checkpoint=<missing> expected='guandan_marvel.python_game'; backend_identity.implementation.python_cache_tag: checkpoint='cpython-312' expected=<missing>; backend_identity.implementation.python_implementation: checkpoint='CPython' expected=<missing>; backend_identity.implementation.python_version: checkpoint='3.12.0' expected=<missing>; backend_identity.implementation.schema: checkpoint='guandan-native-build-identity-v1' expected=<missing>; backend_identity.implementation.source_matches_loaded_binary: checkpoint=True expected=<missing>; backend_identity.module: checkpoint='guandan_marvel.cpp_game' expected='guandan_marvel.python_game'",
+    "poisoned": true,
+    "rejected": true
+  },
+  "first_iteration": {
+    "backend": "cpp",
+    "iteration": 1
+  },
+  "logging_only_change": {
+    "decision": "compatible_resume"
+  },
+  "same_backend_same_build": {
+    "continued_iteration": 2,
+    "decision": "exact_resume"
+  },
+  "schema": "guandan-marvel-m05-cpp-checkpoint-verification-v1",
+  "source_identity": {
+    "backend": "cpp",
+    "backend_identity_hash": "315b4ad752e08ad340f3cec58a6a9f98a3b446a3bc8173e491d01506566486d0",
+    "embedded_source_sha256": "40058234af8227e9f0a0aa8c555959717e277f4ac16ed5094a918a32d46f6898",
+    "extension_path": "D:\\project\\guandan\\nanopokerlib\\_guandan_cpp.cp312-win_amd64.pyd",
+    "extension_sha256": "ce6bb30501ca8967776ba7bbbc11bdd7e7f0255bf496d240f62d23551c103d00",
+    "source_hash": "32ec24b8dd313be7e1c5fd8180eafacc129e6652bd80e50f53a48abae87c3672",
+    "source_matches_loaded_binary": true
+  },
+  "valid": true
+}

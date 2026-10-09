@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import os
 from pathlib import Path
 import platform
@@ -10,6 +11,15 @@ import sysconfig
 
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
+
+_identity_spec = importlib.util.spec_from_file_location(
+    "guandan_build_identity", Path(__file__).resolve().parent / "nanopokerlib" / "build_identity.py",
+)
+if _identity_spec is None or _identity_spec.loader is None:
+    raise RuntimeError("cannot load native build identity helper")
+_identity_module = importlib.util.module_from_spec(_identity_spec)
+_identity_spec.loader.exec_module(_identity_module)
+compute_native_source_manifest = _identity_module.compute_native_source_manifest
 
 
 ROOT = Path(__file__).resolve().parent
@@ -35,7 +45,16 @@ class GuandanBuildExt(build_ext):
         output.parent.mkdir(parents=True, exist_ok=True)
         build_temp = Path(self.build_temp).resolve()
         build_temp.mkdir(parents=True, exist_ok=True)
+        native_manifest = compute_native_source_manifest(ROOT)
+        generated_identity = build_temp / "guandan_build_identity.hpp"
+        generated_identity.write_text(
+            "#pragma once\n"
+            f"#define GUANDAN_BUILD_SOURCE_SHA256 \"{native_manifest['hash']}\"\n"
+            f"#define GUANDAN_BUILD_IDENTITY_SCHEMA \"{native_manifest['schema']}\"\n",
+            encoding="utf-8",
+        )
         include_args = [
+            f"-I{build_temp}",
             f"-I{pybind11.get_include()}",
             f"-I{sysconfig.get_paths()['include']}",
             f"-I{ROOT / 'nanopokerlib' / 'cpp'}",

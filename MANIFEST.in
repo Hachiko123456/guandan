@@ -2,3 +2,4 @@ include nanopokerlib/LICENSE
 include nanopokerlib/NOTICE.md
 include nanopokerlib/README.md
 recursive-include nanopokerlib/cpp *.hpp *.cpp
+include nanopokerlib/build_identity.py

@@ -78,6 +78,9 @@ def main() -> int:
                 "resume_classification": payload["resume_classification"],
                 "merged_policy": payload["merged_policy"],
                 "semantic_contract_hash": payload["semantic_contract"]["hash"],
+                "backend": payload["backend"],
+                "backend_identity_hash": payload["backend_identity"]["hash"],
+                "source_hash": payload["source_hash"],
                 "buffer_schema": payload["semantic_contract"]["buffer_schema"],
                 "sampler_contract": payload["semantic_contract"]["sampler_contract"],
                 "replay_persistence": payload.get("replay_persistence"),
@@ -88,11 +91,13 @@ def main() -> int:
         validate_declared_hash(final_payload["semantic_contract"]["semantic_config"], name="semantic_config")
         validate_source_fingerprint(final_payload["source_fingerprint"], name="source_fingerprint")
         validate_declared_hash(final_payload["execution_fingerprint"], name="execution_fingerprint")
+        validate_declared_hash(final_payload["backend_identity"], name="backend_identity")
         exact = classify_resume(
             final_payload,
             expected_contract=contract,
             expected_source_fingerprint=final_payload["source_fingerprint"],
             expected_execution_fingerprint=final_payload["execution_fingerprint"],
+            expected_backend_identity=final_payload["backend_identity"],
             expected_config=final_payload["resolved_config"],
             require_replay=algorithm == "vrpo",
         )
@@ -104,6 +109,7 @@ def main() -> int:
             expected_contract=contract,
             expected_source_fingerprint=final_payload["source_fingerprint"],
             expected_execution_fingerprint=final_payload["execution_fingerprint"],
+            expected_backend_identity=final_payload["backend_identity"],
             expected_config=compatible_config,
             require_replay=algorithm == "vrpo",
         )
@@ -121,6 +127,23 @@ def main() -> int:
             expected_contract=migration_contract,
             expected_source_fingerprint=final_payload["source_fingerprint"],
             expected_execution_fingerprint=final_payload["execution_fingerprint"],
+            expected_backend_identity=final_payload["backend_identity"],
+            expected_config=final_payload["resolved_config"],
+            require_replay=algorithm == "vrpo",
+        )
+        backend_expected = copy.deepcopy(final_payload["backend_identity"])
+        backend_expected["backend"] = (
+            "cpp" if backend_expected["backend"] == "python_reference" else "python_reference"
+        )
+        backend_expected["hash"] = canonical_json_hash({
+            key: value for key, value in backend_expected.items() if key != "hash"
+        })
+        backend_migration = classify_resume(
+            final_payload,
+            expected_contract=contract,
+            expected_source_fingerprint=final_payload["source_fingerprint"],
+            expected_execution_fingerprint=final_payload["execution_fingerprint"],
+            expected_backend_identity=backend_expected,
             expected_config=final_payload["resolved_config"],
             require_replay=algorithm == "vrpo",
         )
@@ -133,6 +156,7 @@ def main() -> int:
                 expected_contract=contract,
                 expected_source_fingerprint=final_payload["source_fingerprint"],
                 expected_execution_fingerprint=final_payload["execution_fingerprint"],
+                expected_backend_identity=final_payload["backend_identity"],
                 expected_config=final_payload["resolved_config"],
                 require_replay=True,
             ).kind
@@ -141,6 +165,7 @@ def main() -> int:
             expected_contract=contract,
             expected_source_fingerprint=final_payload["source_fingerprint"],
             expected_execution_fingerprint=final_payload["execution_fingerprint"],
+            expected_backend_identity=final_payload["backend_identity"],
             expected_config=final_payload["resolved_config"],
             require_replay=algorithm == "vrpo", for_evaluation=True,
         )
@@ -151,6 +176,7 @@ def main() -> int:
                 expected_contract=contract,
                 expected_source_fingerprint=final_payload["source_fingerprint"],
                 expected_execution_fingerprint=final_payload["execution_fingerprint"],
+                expected_backend_identity=final_payload["backend_identity"],
                 expected_config=final_payload["resolved_config"],
                 require_replay=False,
             )
@@ -163,6 +189,7 @@ def main() -> int:
                 "compatible": compatible.kind,
                 "warm_restart": warm_kind,
                 "migration": migration.kind,
+                "backend_change": backend_migration.kind,
                 "evaluation": evaluation.kind,
                 "legacy_v1_training_resume_rejected": legacy_rejected,
             },

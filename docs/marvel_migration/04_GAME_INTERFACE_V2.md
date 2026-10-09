@@ -153,3 +153,9 @@ C++ action row 的全部八个 NumPy integer 字段必须在任何窄化转换�
 M05 使用匹配 deal/action corpus 对 Python oracle 与 C++ runtime 执行逐状态差分，覆盖 legal rows、`is_commit`、四座位观测、privileged ownership、reward、terminal、serialization/resume 和完整 trajectory digest。验收规模为 10,000 完整局与 100,000 随机中间状态，0 mismatch；固定单环境、batch 和冻结策略端到端 workload 的最小实测加速为 2.173×。完整协议和证据边界见 `M05_DIFFERENTIAL_PERFORMANCE_PROTOCOL.md`。
 
 通过后 package-level `guandan_marvel.game` 切换为 C++ 正式训练默认；Python oracle 保留为 `guandan_marvel.python_game`。显式请求 C++ 扩展失败时禁止回退。该结论不构成模型强度、Kaggle 或 GPU 利用率结论。
+
+## 14. M05 backend/import 与 checkpoint identity 补修（2026-10-09）
+
+Package initialization 不再 eager-import C++ extension。默认训练 backend 通过 `default_game` / selector 获取；历史 `guandan_marvel.game` 与直接模块导入统一表示 Python oracle，消除包属性与同名模块的身份歧义。先导入 `nanopokerlib.guandan` 或先导入 `guandan_marvel` 均得到完整 C++ `EnvBatch`；无扩展时显式 Python oracle 仍可用，C++ 请求明确失败。
+
+C++ extension 暴露编译时嵌入的 native source digest、编译器和 C++ standard；Python wrapper 记录实际 binary SHA-256、路径和 Python ABI。Checkpoint v4 将实际 backend/source/build identity 纳入 fail-closed resume。该补修不修改动作、观测、奖励或规则执行语义。

@@ -1,0 +1,552 @@
+{
+  "actions_counted": 3243977,
+  "all_13_levels_replayed": true,
+  "counts_valid": true,
+  "directed_complex_actions": {
+    "case_count": 13,
+    "cases": [
+      {
+        "family": "single",
+        "name": "single",
+        "natural_wild_ids": [],
+        "states": 4,
+        "tokens": [
+          8,
+          64,
+          7
+        ],
+        "wild_assignments": []
+      },
+      {
+        "family": "single",
+        "name": "single-natural-wild",
+        "natural_wild_ids": [
+          6
+        ],
+        "states": 5,
+        "tokens": [
+          8,
+          70,
+          178,
+          7
+        ],
+        "wild_assignments": [
+          [
+            6,
+            4,
+            2
+          ]
+        ]
+      },
+      {
+        "family": "pair",
+        "name": "pair",
+        "natural_wild_ids": [],
+        "states": 6,
+        "tokens": [
+          9,
+          18,
+          64,
+          118,
+          7
+        ],
+        "wild_assignments": []
+      },
+      {
+        "family": "triple",
+        "name": "triple",
+        "natural_wild_ids": [],
+        "states": 7,
+        "tokens": [
+          10,
+          18,
+          64,
+          65,
+          66,
+          7
+        ],
+        "wild_assignments": []
+      },
+      {
+        "family": "full_house",
+        "name": "full-house-two-wild-targets",
+        "natural_wild_ids": [],
+        "states": 12,
+        "tokens": [
+          11,
+          18,
+          20,
+          64,
+          65,
+          66,
+          70,
+          124,
+          180,
+          180,
+          7
+        ],
+        "wild_assignments": [
+          [
+            6,
+            5,
+            0
+          ],
+          [
+            60,
+            5,
+            0
+          ]
+        ]
+      },
+      {
+        "family": "full_house",
+        "name": "full-house-natural-and-substituted",
+        "natural_wild_ids": [
+          6
+        ],
+        "states": 12,
+        "tokens": [
+          11,
+          18,
+          19,
+          64,
+          65,
+          66,
+          70,
+          124,
+          178,
+          176,
+          7
+        ],
+        "wild_assignments": [
+          [
+            6,
+            4,
+            2
+          ],
+          [
+            60,
+            4,
+            0
+          ]
+        ]
+      },
+      {
+        "family": "straight",
+        "name": "straight",
+        "natural_wild_ids": [],
+        "states": 9,
+        "tokens": [
+          12,
+          18,
+          64,
+          68,
+          72,
+          76,
+          80,
+          7
+        ],
+        "wild_assignments": []
+      },
+      {
+        "family": "pair_sequence",
+        "name": "pair-sequence",
+        "natural_wild_ids": [],
+        "states": 11,
+        "tokens": [
+          13,
+          18,
+          41,
+          64,
+          118,
+          68,
+          122,
+          72,
+          126,
+          7
+        ],
+        "wild_assignments": []
+      },
+      {
+        "family": "triple_sequence",
+        "name": "triple-sequence",
+        "natural_wild_ids": [],
+        "states": 11,
+        "tokens": [
+          14,
+          18,
+          40,
+          64,
+          65,
+          66,
+          68,
+          69,
+          71,
+          7
+        ],
+        "wild_assignments": []
+      },
+      {
+        "family": "rank_bomb",
+        "name": "rank-bomb-ten-two-wilds",
+        "natural_wild_ids": [],
+        "states": 17,
+        "tokens": [
+          15,
+          18,
+          48,
+          64,
+          65,
+          66,
+          67,
+          70,
+          118,
+          119,
+          120,
+          121,
+          124,
+          172,
+          172,
+          7
+        ],
+        "wild_assignments": [
+          [
+            6,
+            3,
+            0
+          ],
+          [
+            60,
+            3,
+            0
+          ]
+        ]
+      },
+      {
+        "family": "straight_flush",
+        "name": "straight-flush-substituted-wild",
+        "natural_wild_ids": [],
+        "states": 11,
+        "tokens": [
+          16,
+          36,
+          18,
+          67,
+          70,
+          75,
+          79,
+          83,
+          179,
+          7
+        ],
+        "wild_assignments": [
+          [
+            6,
+            4,
+            3
+          ]
+        ]
+      },
+      {
+        "family": "straight_flush",
+        "name": "straight-flush-natural-wild",
+        "natural_wild_ids": [
+          6
+        ],
+        "states": 11,
+        "tokens": [
+          16,
+          35,
+          18,
+          66,
+          70,
+          74,
+          78,
+          82,
+          178,
+          7
+        ],
+        "wild_assignments": [
+          [
+            6,
+            4,
+            2
+          ]
+        ]
+      },
+      {
+        "family": "four_kings",
+        "name": "four-kings",
+        "natural_wild_ids": [],
+        "states": 7,
+        "tokens": [
+          17,
+          116,
+          117,
+          170,
+          171,
+          7
+        ],
+        "wild_assignments": []
+      }
+    ],
+    "families": {
+      "four_kings": 1,
+      "full_house": 2,
+      "pair": 1,
+      "pair_sequence": 1,
+      "rank_bomb": 1,
+      "single": 2,
+      "straight": 1,
+      "straight_flush": 2,
+      "triple": 1,
+      "triple_sequence": 1
+    },
+    "missing_families": [],
+    "natural_wild_declarations": 3,
+    "substituted_wild_declarations": 9,
+    "valid": true
+  },
+  "inherited_evidence": {
+    "actions": 3243977,
+    "complete_games": 10000,
+    "intermediate_state_subset": 100000,
+    "manifest": "docs/marvel_migration/evidence/M05_differential_performance/corpus_manifest.json",
+    "mismatches": 0,
+    "serialization_roundtrips": 10000,
+    "states_compared": 3253977,
+    "summary": "docs/marvel_migration/evidence/M05_differential_performance/differential_summary.json"
+  },
+  "original_implementation_commit": "4ba65bfa20df2843fbc3cefb5299e885c14e2479",
+  "privacy_reorders": {
+    "case_count": 4,
+    "cases": [
+      {
+        "cpp_equal": true,
+        "cross_backend_equal": true,
+        "observer": 0,
+        "python_equal": true,
+        "swapped_hidden_seats": [
+          1,
+          2
+        ]
+      },
+      {
+        "cpp_equal": true,
+        "cross_backend_equal": true,
+        "observer": 1,
+        "python_equal": true,
+        "swapped_hidden_seats": [
+          0,
+          2
+        ]
+      },
+      {
+        "cpp_equal": true,
+        "cross_backend_equal": true,
+        "observer": 2,
+        "python_equal": true,
+        "swapped_hidden_seats": [
+          0,
+          1
+        ]
+      },
+      {
+        "cpp_equal": true,
+        "cross_backend_equal": true,
+        "observer": 3,
+        "python_equal": true,
+        "swapped_hidden_seats": [
+          0,
+          1
+        ]
+      }
+    ],
+    "valid": true
+  },
+  "records_counted": 10000,
+  "replayed_13_levels": [
+    {
+      "game_index": 0,
+      "level_rank": 3,
+      "steps": 317,
+      "trajectory_digest": "ce70566d9bb77024304ece70e8703125ca2268f572a46840e8ed86925dcda18a"
+    },
+    {
+      "game_index": 66,
+      "level_rank": 4,
+      "steps": 338,
+      "trajectory_digest": "560bc9d8764add2fd1629242a6f05be60084aeec2f8aff05207a54387bb8f614"
+    },
+    {
+      "game_index": 54,
+      "level_rank": 5,
+      "steps": 350,
+      "trajectory_digest": "a0f1be37aa1e7a59a89ec731182f8230e599498d67d3b2642c7f3624903d10f2"
+    },
+    {
+      "game_index": 42,
+      "level_rank": 6,
+      "steps": 288,
+      "trajectory_digest": "8a5bcd97e99aa05c840c7c8b10fccb75955351af92c781f787c4ed2648410e9d"
+    },
+    {
+      "game_index": 30,
+      "level_rank": 7,
+      "steps": 338,
+      "trajectory_digest": "f0752d996f40dfc4368fa43a3b8e30b88b70922b42583d02fadc44f3150e096b"
+    },
+    {
+      "game_index": 18,
+      "level_rank": 8,
+      "steps": 331,
+      "trajectory_digest": "f7cf1a22aeb01883a8caef4c44c2a9b55b4309a4b4657ac8981b48d11828249f"
+    },
+    {
+      "game_index": 6,
+      "level_rank": 9,
+      "steps": 330,
+      "trajectory_digest": "3c05949754422e98e9d5669e93707b9b4ab455a3636d33ae4c6fe376989811bd"
+    },
+    {
+      "game_index": 72,
+      "level_rank": 10,
+      "steps": 306,
+      "trajectory_digest": "9b3bec2deb6ddf6de701c5db98c349332c602cdb041f408c900af20875d75346"
+    },
+    {
+      "game_index": 60,
+      "level_rank": 11,
+      "steps": 363,
+      "trajectory_digest": "f26c2eb367671bde71e248c8636f49f1656cc4b4f8e79ad390c891b2c081c5db"
+    },
+    {
+      "game_index": 48,
+      "level_rank": 12,
+      "steps": 331,
+      "trajectory_digest": "ea97e80f596294fbf4f60c12b09749f8f3cf47b3caf1d3b3ea1d7ef37b11aecb"
+    },
+    {
+      "game_index": 36,
+      "level_rank": 13,
+      "steps": 337,
+      "trajectory_digest": "d26b05b0648cc9c738766da9994b602f318e39bb5635d057c5554f422c3ac3ba"
+    },
+    {
+      "game_index": 24,
+      "level_rank": 14,
+      "steps": 299,
+      "trajectory_digest": "ae06c2e471aa0b13625071714d69126f1641a1dd759c229754a6e30b14240d87"
+    },
+    {
+      "game_index": 12,
+      "level_rank": 15,
+      "steps": 305,
+      "trajectory_digest": "4694089efb2064967acdef0748051a7acf7ae90ae30b0f6b6c5c8135a235a9be"
+    }
+  ],
+  "schema": "guandan-marvel-m05-repair-corpus-verification-v1",
+  "semantic_execution_files_unchanged": true,
+  "semantic_files": [
+    {
+      "current_sha256": "dcbf3a8dbdbc910fec9d37935f83d6980bc33a308400a5aa99f00b100bb68dca",
+      "original_sha256": "dcbf3a8dbdbc910fec9d37935f83d6980bc33a308400a5aa99f00b100bb68dca",
+      "path": "guandan/cards.py",
+      "unchanged": true
+    },
+    {
+      "current_sha256": "a375a28964ecc6ef36dd5a487d9c039b422afd78c68ce54ac970265d64efacc8",
+      "original_sha256": "a375a28964ecc6ef36dd5a487d9c039b422afd78c68ce54ac970265d64efacc8",
+      "path": "guandan/combos.py",
+      "unchanged": true
+    },
+    {
+      "current_sha256": "b7df95a68e58bb7422e7f94b67649d7adf9a2b043b9b89f9d26ca06a21c251b0",
+      "original_sha256": "b7df95a68e58bb7422e7f94b67649d7adf9a2b043b9b89f9d26ca06a21c251b0",
+      "path": "guandan/round.py",
+      "unchanged": true
+    },
+    {
+      "current_sha256": "20f08df290a04678c89b0d29713683474dc0ff7f737b13ce607346e2913d5925",
+      "original_sha256": "20f08df290a04678c89b0d29713683474dc0ff7f737b13ce607346e2913d5925",
+      "path": "guandan/state.py",
+      "unchanged": true
+    },
+    {
+      "current_sha256": "e53a4576d41adfea27684aa8f20d2043feff5ad6a6a44ad7fe7be57cbeefa928",
+      "original_sha256": "e53a4576d41adfea27684aa8f20d2043feff5ad6a6a44ad7fe7be57cbeefa928",
+      "path": "docs/rules.md",
+      "unchanged": true
+    },
+    {
+      "current_sha256": "e6f138c76ed5c0b0e64e389b4d8ebaad36fed06a9d1eead3e442405c5cedfec4",
+      "original_sha256": "e6f138c76ed5c0b0e64e389b4d8ebaad36fed06a9d1eead3e442405c5cedfec4",
+      "path": "guandan_marvel/game.py",
+      "unchanged": true
+    },
+    {
+      "current_sha256": "5838cfadfe3f7c29ab10465727c24ac829f89769b382af11864b024b5ce95b48",
+      "original_sha256": "5838cfadfe3f7c29ab10465727c24ac829f89769b382af11864b024b5ce95b48",
+      "path": "nanopokerlib/cpp/guandan/guandan.cpp",
+      "unchanged": true
+    },
+    {
+      "current_sha256": "eb66228e5865a913e4a0852fe1f5e2bf3762305a8362087a6fed355da6f37e4c",
+      "original_sha256": "eb66228e5865a913e4a0852fe1f5e2bf3762305a8362087a6fed355da6f37e4c",
+      "path": "nanopokerlib/cpp/guandan/guandan.hpp",
+      "unchanged": true
+    }
+  ],
+  "shards": [
+    {
+      "actual_bytes": 1402072,
+      "actual_sha256": "25c6ab084d5abd3b2954c50daa5193b5dc6a346689aa6581e6b30d5bb254832b",
+      "expected_bytes": 1402072,
+      "expected_sha256": "25c6ab084d5abd3b2954c50daa5193b5dc6a346689aa6581e6b30d5bb254832b",
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-00.jsonl.gz",
+      "valid": true
+    },
+    {
+      "actual_bytes": 1411518,
+      "actual_sha256": "126131dab31e9bc95729a5d7ac34557f6e4539d4058653f2c9dc2d1bcb5f3d7a",
+      "expected_bytes": 1411518,
+      "expected_sha256": "126131dab31e9bc95729a5d7ac34557f6e4539d4058653f2c9dc2d1bcb5f3d7a",
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-01.jsonl.gz",
+      "valid": true
+    },
+    {
+      "actual_bytes": 1403686,
+      "actual_sha256": "ba0a20d1a87e7a383545b201afcf7e5a2feb3d6768190a245dda3bd238afeba4",
+      "expected_bytes": 1403686,
+      "expected_sha256": "ba0a20d1a87e7a383545b201afcf7e5a2feb3d6768190a245dda3bd238afeba4",
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-02.jsonl.gz",
+      "valid": true
+    },
+    {
+      "actual_bytes": 1408450,
+      "actual_sha256": "b63c5ed653bc371bfa835ddb57986ff8604bc6dc13aad48a1c1cc0be879c89b2",
+      "expected_bytes": 1408450,
+      "expected_sha256": "b63c5ed653bc371bfa835ddb57986ff8604bc6dc13aad48a1c1cc0be879c89b2",
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-03.jsonl.gz",
+      "valid": true
+    },
+    {
+      "actual_bytes": 1404477,
+      "actual_sha256": "92956e1108a0cb6f7dae7b65ef708e008481496552c9703ac5c5e49ae8bcbedb",
+      "expected_bytes": 1404477,
+      "expected_sha256": "92956e1108a0cb6f7dae7b65ef708e008481496552c9703ac5c5e49ae8bcbedb",
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-04.jsonl.gz",
+      "valid": true
+    },
+    {
+      "actual_bytes": 1408295,
+      "actual_sha256": "6bc81afe226af073c81d204735d2143b8222a2c01aecb397aed29396c9157375",
+      "expected_bytes": 1408295,
+      "expected_sha256": "6bc81afe226af073c81d204735d2143b8222a2c01aecb397aed29396c9157375",
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-05.jsonl.gz",
+      "valid": true
+    }
+  ],
+  "stage": "M05_differential_performance_repair",
+  "valid": true
+}

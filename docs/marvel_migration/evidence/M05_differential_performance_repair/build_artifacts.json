@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-09",
+  "forced_rebuild": {
+    "command": "python setup.py build_ext --inplace --force",
+    "exit_code": 0,
+    "log": "runs/M05_differential_performance_repair/20261009_repair_review/inplace_force_rebuild.log",
+    "log_sha256": "dee7d51ac6834438239c89b73717d1ba2194f61ebef0948582b878e8c7f0ea16"
+  },
+  "inplace_extension": {
+    "compiler": "11.2.0",
+    "current_source_manifest": {
+      "files": [
+        {
+          "bytes": 52333,
+          "path": "nanopokerlib/cpp/bindings.cpp",
+          "sha256": "d587f419ed0e2c546ec6c1a7bbf1eb38d55f5c4ecbb53abd91059ae2afb27837"
+        },
+        {
+          "bytes": 1335,
+          "path": "nanopokerlib/cpp/core/types.hpp",
+          "sha256": "22d1c11274f4da56175bc3859e2e89731ce0e03e7640071ebbca66da566d51da"
+        },
+        {
+          "bytes": 84623,
+          "path": "nanopokerlib/cpp/guandan/guandan.cpp",
+          "sha256": "f76dc6ef216c560b889aa662c5bcebb0cbe7a3e3b7e49a3ec24dd1989147a14c"
+        },
+        {
+          "bytes": 10600,
+          "path": "nanopokerlib/cpp/guandan/guandan.hpp",
+          "sha256": "7501b4af2ef02053324b64868cbf368383be3f3548d944b35efa6aa2371f1ccd"
+        }
+      ],
+      "hash": "40058234af8227e9f0a0aa8c555959717e277f4ac16ed5094a918a32d46f6898",
+      "schema": "guandan-native-build-identity-v1"
+    },
+    "cxx_standard": 202002,
+    "embedded_source_sha256": "40058234af8227e9f0a0aa8c555959717e277f4ac16ed5094a918a32d46f6898",
+    "extension_filename": "_guandan_cpp.cp312-win_amd64.pyd",
+    "extension_module": "nanopokerlib._guandan_cpp",
+    "extension_path": "D:\\project\\guandan\\nanopokerlib\\_guandan_cpp.cp312-win_amd64.pyd",
+    "extension_sha256": "ce6bb30501ca8967776ba7bbbc11bdd7e7f0255bf496d240f62d23551c103d00",
+    "python_cache_tag": "cpython-312",
+    "python_implementation": "CPython",
+    "python_version": "3.12.0",
+    "schema": "guandan-native-build-identity-v1",
+    "source_matches_loaded_binary": true
+  },
+  "isolated_verification": {
+    "path": "runs/M05_differential_performance_repair/20261009_repair_review/isolated_wheel_imports_final.json",
+    "sha256": "0612edf0ca0ea141651dd4d6e9750c86a4bcf26117d27fa1d4cc9498086b2cca",
+    "valid": true
+  },
+  "schema": "guandan-marvel-m05-repair-build-artifacts-v1",
+  "stage": "M05_differential_performance_repair",
+  "wheel": {
+    "bytes": 1190323,
+    "command": "python -m pip wheel . --no-deps --no-build-isolation --no-cache-dir",
+    "exit_code": 0,
+    "log": "runs/M05_differential_performance_repair/20261009_repair_review/wheel_build_final.log",
+    "log_sha256": "cfa389c2cc7e57440c2a797ed5d12ac308a781807033c5afc2aeba1c1e77bbb5",
+    "path": "runs/M05_differential_performance_repair/20261009_repair_review/wheel_final/guandan_train-0.1.0-cp312-cp312-win_amd64.whl",
+    "sha256": "74e9c38093dd892ad1461e4cd878dc2a65619323fda4a3a367c31ff18f69fec4"
+  }
+}

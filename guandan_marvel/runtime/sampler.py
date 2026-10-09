@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import time
 from dataclasses import dataclass
 from typing import Any, Callable, Mapping, Optional
 
@@ -37,6 +38,7 @@ class SamplerConfig:
     field_specs: Optional[Mapping[str, FieldSpecLike]] = None
     env_seed: int | None = 0
     state_logger: Optional[Callable[[Any, int], None]] = None
+    timing_callback: Optional[Callable[[str, float], None]] = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "device", torch.device(self.device))
@@ -425,6 +427,7 @@ class Sampler:
         self.attempted_env_steps += self.rollout_batch_size
         stage = "agent_forward"
         try:
+            agent_started = time.perf_counter()
             step_rollout = TensorDict(
                 {
                     "num_steps": torch.ones(self.rollout_batch_size, dtype=torch.long, device=self.device),
@@ -443,6 +446,11 @@ class Sampler:
                 past_key_values=self.agent_kv,
             )
             policy_probs = per_env_output.avail_probs.squeeze(1).float()
+            if self.config.timing_callback is not None:
+                self.config.timing_callback(
+                    "model_forward_with_cache", time.perf_counter() - agent_started,
+                )
+            sampling_started = time.perf_counter()
             avail_weights_f = self.parsed_envs_step["avail_weights"].float()
             avail_mask = avail_weights_f > 0
             if tuple(policy_probs.shape) != tuple(avail_weights_f.shape):
@@ -505,9 +513,25 @@ class Sampler:
                 action_taken=action_taken,
             )
 
+            if self.config.timing_callback is not None:
+                self.config.timing_callback(
+                    "sampling_and_action_marshalling",
+                    time.perf_counter() - sampling_started,
+                )
             stage = "environment_step"
+            environment_started = time.perf_counter()
             envs_step = self.envs.step(actions)
+            if self.config.timing_callback is not None:
+                self.config.timing_callback(
+                    "environment_step", time.perf_counter() - environment_started,
+                )
+            conversion_started = time.perf_counter()
             next_parsed_envs_step = EnvStepBatch.from_env_step(envs_step, self.config)
+            if self.config.timing_callback is not None:
+                self.config.timing_callback(
+                    "observation_conversion", time.perf_counter() - conversion_started,
+                )
+            bookkeeping_started = time.perf_counter()
             outcome = next_parsed_envs_step.outcome
             step_done_mask = outcome["is_terminal"].to(dtype=torch.bool)
             transition = self.parsed_envs_step.build_transition(outcome)
@@ -520,6 +544,11 @@ class Sampler:
                 for index in step_done_mask.nonzero().flatten().tolist():
                     self._terminal_info_queue.append(dict(envs_step.infos[index]))
 
+            if self.config.timing_callback is not None:
+                self.config.timing_callback(
+                    "trajectory_buffer_and_commit",
+                    time.perf_counter() - bookkeeping_started,
+                )
             stage = "publish"
             self.parsed_envs_step = next_parsed_envs_step
             self.last_step_rewards = outcome["rewards"].to(

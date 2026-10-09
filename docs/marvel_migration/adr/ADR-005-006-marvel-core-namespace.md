@@ -1,4 +1,4 @@
-# ADR-005/006: MARVEL core package namespace and source integration
+# ADR-005/006：MARVEL 核心包命名空间与来源集成
 
 - Date: 2026-10-08
 - Status: accepted

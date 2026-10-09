@@ -1,0 +1,132 @@
+{
+  "blocking_commands_passed": true,
+  "commands": [
+    {
+      "blocking": true,
+      "command": "python -m pytest tests/marvel_differential/test_backend_imports.py tests/marvel_training/test_backend_identity.py -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 10,
+        "time": 22.399
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_differential_performance_repair/20261009_repair_review/tests/backend_import_checkpoint_final.junit.xml",
+      "junit_sha256": "4937c3dbd5aa48a9028043fc5d43969a270038cf4c2175c1cf582863c75fd76f",
+      "log": "runs/M05_differential_performance_repair/20261009_repair_review/tests/backend_import_checkpoint_final.log",
+      "log_sha256": "0a9510c8589289e3d0922a310117d918b1e49446241df7d630a1147b7860fee3",
+      "name": "backend_import_checkpoint"
+    },
+    {
+      "blocking": true,
+      "command": "python -m pytest tests/marvel_differential tests/marvel_cpp -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 118,
+        "time": 49.167
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_differential_performance_repair/20261009_repair_review/tests/m05_cpp_scoped_final.junit.xml",
+      "junit_sha256": "425dfbdad7fa947a06bbe7ef43ac38216050eeebdca9c6f068005218213d665d",
+      "log": "runs/M05_differential_performance_repair/20261009_repair_review/tests/m05_cpp_scoped_final.log",
+      "log_sha256": "0784c863d26cb5bf59ade7b70e9e3efa6515d17d7122e65779c8c90a33143cb3",
+      "name": "m05_cpp_scoped"
+    },
+    {
+      "blocking": true,
+      "command": "python -m pytest tests/marvel_core tests/marvel_adapter tests/marvel_training -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 86,
+        "time": 95.427
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_differential_performance_repair/20261009_repair_review/tests/m01_m03_regression_final.junit.xml",
+      "junit_sha256": "f40befe8139aeb55434c49ad74da6fafb9efb713045e46bd94294f78f1a7bad2",
+      "log": "runs/M05_differential_performance_repair/20261009_repair_review/tests/m01_m03_regression_final.log",
+      "log_sha256": "73c51fcfe8774d378ac56836bcd072ece3c260a67a19bc4f76e8e40ea2045f1c",
+      "name": "m01_m03_regression"
+    },
+    {
+      "blocking": true,
+      "command": "python -m pytest tests/acceptance/test_a00_specification.py tests/acceptance/test_a01_cards.py tests/acceptance/test_a02_rules.py tests/acceptance/test_a02_a03_defect_fix.py tests/acceptance/test_a03_actions.py tests/acceptance/test_a04_environment.py -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 157,
+        "time": 10.483
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_differential_performance_repair/20261009_repair_review/tests/a00_a04_protected_final.junit.xml",
+      "junit_sha256": "4ac6a7eb6b4e1adc0bf08eca70ad95e4f4d43f2a5fe5b6c2477dc2fdb1bdc47e",
+      "log": "runs/M05_differential_performance_repair/20261009_repair_review/tests/a00_a04_protected_final.log",
+      "log_sha256": "7a7cf7a454d2e9e8ec11acf766a16af610651face12cd0eba72c1aef6061083b",
+      "name": "a00_a04_protected"
+    },
+    {
+      "blocking": false,
+      "command": "python -m pytest --import-mode=importlib -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 10,
+        "tests": 1404,
+        "time": 423.132
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_differential_performance_repair/20261009_repair_review/tests/full_importlib_final.junit.xml",
+      "junit_sha256": "e07ae70aecd252d055046d1476b7f1d0b1e5ed21667ff84f34eaeda0a0fe568c",
+      "log": "runs/M05_differential_performance_repair/20261009_repair_review/tests/full_importlib_final.log",
+      "log_sha256": "7783648824c1118b42892db5034ebff2ec918cd95f9cffd52a31af0f00769e14",
+      "name": "full_importlib"
+    },
+    {
+      "blocking": false,
+      "command": "python -m pytest -q",
+      "exit_code": 2,
+      "log": "runs/M05_differential_performance_repair/20261009_repair_review/tests/full_default.log",
+      "log_sha256": "a4772c4af9696fdca779025624c3e77fe9851e120bc990662ed50f9c5dfd395a",
+      "name": "full_default_collection",
+      "note": "Default import mode has a pre-existing duplicate basename collision between tests/integration/test_training_smoke.py and tests/marvel_training/test_training_smoke.py; importlib mode completes the full suite."
+    },
+    {
+      "blocking": false,
+      "command": "python -m pytest tests/marvel_core tests/marvel_adapter tests/marvel_training -q",
+      "counts": {
+        "errors": 0,
+        "failures": 19,
+        "skipped": 0,
+        "tests": 86,
+        "time": 86.442
+      },
+      "exit_code": 1,
+      "junit": "runs/M05_differential_performance_repair/20261009_repair_review/tests/m01_m03_regression.junit.xml",
+      "junit_sha256": "afc4e94003148c5bb9417d6a9d61564d3304ab89c7d7745be820a1797dc57498",
+      "log": "runs/M05_differential_performance_repair/20261009_repair_review/tests/m01_m03_regression.log",
+      "log_sha256": "1fd5dcf8ac1bbfed992daf8190accb37b430b02407470f9cab3cf06346137e88",
+      "name": "superseded_regression_attempt",
+      "note": "Run before fixing python_game public-constant mirroring; retained and superseded by m01_m03_regression_final."
+    }
+  ],
+  "date": "2026-10-09",
+  "full_importlib": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 1394,
+    "skipped": 10
+  },
+  "primary_nonoverlapping": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 361,
+    "skipped": 0
+  },
+  "schema": "guandan-marvel-m05-repair-test-results-v1",
+  "stage": "M05_differential_performance_repair"
+}

@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M06_evaluation_champion
+current_stage: M05_differential_performance_repair
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -137,11 +137,12 @@ stages:
     blockers: []
 
   M05_differential_performance:
-    status: accepted
-    accepted: true
-    commit: null
-    commit_embedded: false
-    commit_note: atomic commit SHA is reported in the final response and Git history because a commit cannot contain its own SHA
+    status: in_progress
+    accepted: false
+    commit: 4ba65bfa20df2843fbc3cefb5299e885c14e2479
+    original_implementation_commit: 4ba65bfa20df2843fbc3cefb5299e885c14e2479
+    repair_implementation_commit: null
+    repair_acceptance_commit: null
     reports:
       - docs/marvel_migration/reports/M05_differential_performance.md
       - docs/marvel_migration/reports/M05_differential_performance.json
@@ -156,14 +157,34 @@ stages:
       - docs/marvel_migration/evidence/M05_differential_performance/source_manifest.json
       - docs/marvel_migration/evidence/M05_differential_performance/environment.json
       - docs/marvel_migration/evidence/M05_differential_performance/artifact_manifest.json
-    blockers: []
+    repair_reports:
+      - docs/marvel_migration/reports/M05_differential_performance_repair.md
+      - docs/marvel_migration/reports/M05_differential_performance_repair.json
+    repair_evidence:
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/review_findings.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/import_reproduction.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/isolated_wheel_imports.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/cpp_checkpoint_identity.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/checkpoint_artifact_verification.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/corpus_replay_verification.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/benchmark_repair.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/test_results.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/build_artifacts.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/document_revisions.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/source_manifest.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/environment.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/verification.json
+      - docs/marvel_migration/evidence/M05_differential_performance_repair/artifact_manifest.json
+    blockers:
+      - real frozen Transformer rollout speedup 1.580x is below the conservative 2x end-to-end gate
 
   M06_evaluation_champion:
-    status: not_started
+    status: blocked
     accepted: false
     commit: null
     reports: []
-    blockers: []
+    blockers:
+      - M05_differential_performance repair is not accepted
 
   M07_kaggle_t4x2:
     status: blocked

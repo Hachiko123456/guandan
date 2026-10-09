@@ -11,7 +11,7 @@ from guandan_marvel.buffer import BufferConfig, TrajectoryBuffer
 from guandan_marvel.config import ModelConfig, TrainConfig
 from guandan_marvel.training.checkpoints import (
     CheckpointCompatibilityError, PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA,
-    TRAINING_CHECKPOINT_SCHEMA, build_execution_fingerprint,
+    TRAINING_CHECKPOINT_SCHEMA, build_backend_identity, build_execution_fingerprint,
     build_semantic_configuration, build_semantic_contract, classify_resume,
     canonical_json_hash, compute_source_fingerprint, serialize_config,
 )
@@ -157,7 +157,7 @@ def test_vrpo_checkpoint_restores_replay_and_continues_update(tmp_path: Path) ->
 
 
 def test_resume_classification_all_categories_and_legacy_rejection(tmp_path: Path) -> None:
-    cfg, _game = _config(tmp_path, algorithm="vrpo", seed=1451)
+    cfg, game = _config(tmp_path, algorithm="vrpo", seed=1451)
     semantic = build_semantic_configuration(cfg, algorithm="vrpo")
     contract = build_semantic_contract(
         semantic_config=semantic,
@@ -168,11 +168,15 @@ def test_resume_classification_all_categories_and_legacy_rejection(tmp_path: Pat
     source_file.write_text("VALUE = 1\n", encoding="utf-8")
     source = compute_source_fingerprint(tmp_path, {"test": ("source.py",)})
     execution = build_execution_fingerprint("cpu")
+    backend_identity = build_backend_identity(game)
     resolved = serialize_config(cfg)
     base = {
         "schema": TRAINING_CHECKPOINT_SCHEMA,
         "semantic_contract": contract,
+        "backend": backend_identity["backend"],
+        "backend_identity": backend_identity,
         "source_fingerprint": source,
+        "source_hash": source["hash"],
         "execution_fingerprint": execution,
         "resolved_config": resolved,
         "resolved_config_hash": canonical_json_hash(resolved),
@@ -185,7 +189,7 @@ def test_resume_classification_all_categories_and_legacy_rejection(tmp_path: Pat
     }
     exact = classify_resume(
         base, expected_contract=contract, expected_source_fingerprint=source,
-        expected_execution_fingerprint=execution, expected_config=resolved,
+        expected_execution_fingerprint=execution, expected_backend_identity=backend_identity, expected_config=resolved,
         require_replay=True,
     )
     assert exact.kind == "exact_resume"
@@ -195,7 +199,7 @@ def test_resume_classification_all_categories_and_legacy_rejection(tmp_path: Pat
     compatible_cfg["run_name"] = "different-run-name"
     compatible = classify_resume(
         base, expected_contract=contract, expected_source_fingerprint=source,
-        expected_execution_fingerprint=execution, expected_config=compatible_cfg,
+        expected_execution_fingerprint=execution, expected_backend_identity=backend_identity, expected_config=compatible_cfg,
         require_replay=True,
     )
     assert compatible.kind == "compatible_resume"
@@ -204,7 +208,7 @@ def test_resume_classification_all_categories_and_legacy_rejection(tmp_path: Pat
     warm = dict(base); warm.pop("replay_buffer_state")
     assert classify_resume(
         warm, expected_contract=contract, expected_source_fingerprint=source,
-        expected_execution_fingerprint=execution, expected_config=resolved,
+        expected_execution_fingerprint=execution, expected_backend_identity=backend_identity, expected_config=resolved,
         require_replay=True,
     ).kind == "warm_restart"
 
@@ -218,7 +222,7 @@ def test_resume_classification_all_categories_and_legacy_rejection(tmp_path: Pat
     )
     migration = classify_resume(
         base, expected_contract=changed_contract, expected_source_fingerprint=source,
-        expected_execution_fingerprint=execution, expected_config=serialize_config(changed_cfg),
+        expected_execution_fingerprint=execution, expected_backend_identity=backend_identity, expected_config=serialize_config(changed_cfg),
         require_replay=True,
     )
     assert migration.kind == "migration"
@@ -226,20 +230,20 @@ def test_resume_classification_all_categories_and_legacy_rejection(tmp_path: Pat
 
     assert classify_resume(
         base, expected_contract=contract, expected_source_fingerprint=source,
-        expected_execution_fingerprint=execution, expected_config=resolved,
+        expected_execution_fingerprint=execution, expected_backend_identity=backend_identity, expected_config=resolved,
         require_replay=True, for_evaluation=True,
     ).kind == "evaluation_only"
     old_m03 = {"schema": PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA}
     assert classify_resume(
         old_m03, expected_contract=contract, expected_source_fingerprint=source,
-        expected_execution_fingerprint=execution, expected_config=resolved,
+        expected_execution_fingerprint=execution, expected_backend_identity=backend_identity, expected_config=resolved,
         require_replay=False,
     ).kind == "migration"
     legacy = {"checkpoint_version": 2, "action_version": "GD-ACTION-0.1", "environment_version": "GD-ENV-0.1"}
     with pytest.raises(CheckpointCompatibilityError, match="legacy V1"):
         classify_resume(
             legacy, expected_contract=contract, expected_source_fingerprint=source,
-            expected_execution_fingerprint=execution, expected_config=resolved,
+            expected_execution_fingerprint=execution, expected_backend_identity=backend_identity, expected_config=resolved,
             require_replay=False,
         )
 

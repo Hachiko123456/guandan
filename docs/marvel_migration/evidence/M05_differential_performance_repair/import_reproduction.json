@@ -1,0 +1,44 @@
+{
+  "fixed_source": {
+    "order_a": {
+      "code": "import guandan_marvel as g; print(g.game.BACKEND,g.default_game.BACKEND,hasattr(g.default_game,'EnvBatch'))",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "python_reference cpp True\n"
+    },
+    "order_b": {
+      "code": "from nanopokerlib import guandan; import guandan_marvel as g; print(hasattr(guandan,'EnvBatch'),hasattr(g.default_game,'EnvBatch'),hasattr(g.get_game_backend(),'EnvBatch'))",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "True True True\n"
+    }
+  },
+  "original_commit": "4ba65bfa20df2843fbc3cefb5299e885c14e2479",
+  "original_with_extension": {
+    "module_identity": {
+      "code": "import importlib,guandan_marvel as g; m=importlib.import_module('guandan_marvel.game'); print(g.game.__name__,m.__name__,g.game is m,g.python_game is m); import guandan_marvel.python_game",
+      "exit_code": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'guandan_marvel.python_game'\n",
+      "stdout": "guandan_marvel.cpp_game guandan_marvel.game False True\n"
+    },
+    "order_a": {
+      "code": "import guandan_marvel as g; print(hasattr(g.game,'EnvBatch'),hasattr(g.get_game_backend(),'EnvBatch'))",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "True True\n"
+    },
+    "order_b": {
+      "code": "from nanopokerlib import guandan; import guandan_marvel as g; print(hasattr(guandan,'EnvBatch'),hasattr(g.game,'EnvBatch'),hasattr(g.get_game_backend(),'EnvBatch'))",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "True False False\n"
+    }
+  },
+  "original_without_extension": {
+    "code": "import guandan_marvel as g; print(g.get_game_backend('python_reference').BACKEND)",
+    "exit_code": 1,
+    "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\original_4ba65bf_source\\guandan_marvel\\__init__.py\", line 8, in <module>\n    from . import cpp_game\n  File \"D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\original_4ba65bf_source\\guandan_marvel\\cpp_game.py\", line 8, in <module>\n    from nanopokerlib.guandan import *  # noqa: F401,F403\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\original_4ba65bf_source\\nanopokerlib\\__init__.py\", line 3, in <module>\n    from . import guandan\n  File \"D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\original_4ba65bf_source\\nanopokerlib\\guandan.py\", line 9, in <module>\n    from ._guandan_cpp import *  # noqa: F401,F403\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'nanopokerlib._guandan_cpp'\n",
+    "stdout": ""
+  },
+  "schema": "guandan-marvel-m05-import-reproduction-v1"
+}

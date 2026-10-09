@@ -14,12 +14,14 @@ from typing import Any, Mapping, Sequence
 import numpy as np
 import torch
 
-TRAINING_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v3"
+TRAINING_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v4"
+PRE_BACKEND_IDENTITY_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v3"
 PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v2"
-TRAINING_SEMANTIC_CONTRACT_SCHEMA = "guandan-marvel-training-contract-v2"
+TRAINING_SEMANTIC_CONTRACT_SCHEMA = "guandan-marvel-training-contract-v3"
 SEMANTIC_CONFIG_SCHEMA = "guandan-marvel-semantic-config-v1"
 SOURCE_FINGERPRINT_SCHEMA = "guandan-marvel-source-fingerprint-v1"
 EXECUTION_FINGERPRINT_SCHEMA = "guandan-marvel-execution-fingerprint-v1"
+BACKEND_IDENTITY_SCHEMA = "guandan-marvel-backend-identity-v1"
 RESUME_KINDS = frozenset({
     "exact_resume", "compatible_resume", "warm_restart", "migration", "evaluation_only",
 })
@@ -262,6 +264,50 @@ def build_execution_fingerprint(device: torch.device | str) -> dict[str, object]
     return {**payload, "hash": canonical_json_hash(payload)}
 
 
+def build_backend_identity(game: object) -> dict[str, object]:
+    backend = str(getattr(game, "BACKEND", "")).strip()
+    if backend not in {"python_reference", "cpp"}:
+        raise CheckpointCompatibilityError(
+            f"runtime game must declare BACKEND as python_reference or cpp, got {backend!r}"
+        )
+    identifier = str(getattr(game, "identifier", getattr(game, "GAME_IDENTIFIER", "")))
+    protocol = str(getattr(game, "protocol_version", ""))
+    module_name = str(getattr(game, "__name__", f"{type(game).__module__}.{type(game).__qualname__}"))
+    implementation: dict[str, object]
+    if backend == "cpp":
+        builder = getattr(game, "get_backend_build_identity", None)
+        if not callable(builder):
+            raise CheckpointCompatibilityError("cpp backend does not expose build identity")
+        implementation = dict(builder())
+        if implementation.get("source_matches_loaded_binary") is False:
+            raise CheckpointCompatibilityError(
+                "loaded cpp extension was built from different native sources"
+            )
+        required = {
+            "schema", "extension_module", "extension_path", "extension_sha256",
+            "embedded_source_sha256", "compiler", "cxx_standard",
+        }
+        missing = sorted(required - set(implementation))
+        if missing:
+            raise CheckpointCompatibilityError(
+                "cpp build identity is incomplete: " + ", ".join(missing)
+            )
+    else:
+        implementation = {
+            "kind": "python_source",
+            "module": module_name,
+        }
+    payload = {
+        "schema": BACKEND_IDENTITY_SCHEMA,
+        "backend": backend,
+        "module": module_name,
+        "game_identifier": identifier,
+        "protocol_version": protocol,
+        "implementation": implementation,
+    }
+    return {**payload, "hash": canonical_json_hash(payload)}
+
+
 def capture_rng_state() -> dict[str, object]:
     return {
         "python": random.getstate(),
@@ -288,6 +334,7 @@ def classify_resume(
     expected_contract: Mapping[str, object],
     expected_source_fingerprint: Mapping[str, object],
     expected_execution_fingerprint: Mapping[str, object],
+    expected_backend_identity: Mapping[str, object],
     expected_config: Mapping[str, object],
     require_replay: bool,
     for_evaluation: bool = False,
@@ -307,10 +354,33 @@ def classify_resume(
             "migration",
             ("pre-repair checkpoint lacks semantic_config v1 and source_fingerprint v1",),
         )
+    if schema == PRE_BACKEND_IDENTITY_CHECKPOINT_SCHEMA:
+        if for_evaluation:
+            return ResumeDecision("evaluation_only", ("pre-backend-identity checkpoint",))
+        return ResumeDecision(
+            "migration",
+            ("checkpoint lacks explicit runtime backend and native build identity",),
+        )
     if schema != TRAINING_CHECKPOINT_SCHEMA:
         raise CheckpointCompatibilityError(f"unsupported checkpoint schema {schema!r}")
     if for_evaluation:
         return ResumeDecision("evaluation_only", ("explicit evaluation load",))
+
+    checkpoint_backend = checkpoint.get("backend_identity")
+    if not isinstance(checkpoint_backend, Mapping):
+        return ResumeDecision("migration", ("backend_identity is missing",))
+    validate_declared_hash(checkpoint_backend, name="backend_identity")
+    validate_declared_hash(expected_backend_identity, name="expected_backend_identity")
+    backend_diffs = _mapping_differences(
+        checkpoint_backend, expected_backend_identity, "backend_identity"
+    )
+    if backend_diffs:
+        return ResumeDecision("migration", tuple(backend_diffs))
+    if checkpoint.get("backend") != expected_backend_identity.get("backend"):
+        return ResumeDecision("migration", (
+            f"backend: checkpoint={checkpoint.get('backend')!r} "
+            f"expected={expected_backend_identity.get('backend')!r}",
+        ))
 
     checkpoint_contract = checkpoint.get("semantic_contract")
     if not isinstance(checkpoint_contract, Mapping):
@@ -343,6 +413,10 @@ def classify_resume(
         return ResumeDecision("migration", ("source_fingerprint is missing",))
     validate_source_fingerprint(checkpoint_source, name="source_fingerprint")
     validate_source_fingerprint(expected_source_fingerprint, name="expected_source_fingerprint")
+    if checkpoint.get("source_hash") != checkpoint_source.get("hash"):
+        raise CheckpointCompatibilityError(
+            "source_hash is inconsistent with source_fingerprint.hash"
+        )
     source_diffs = _mapping_differences(checkpoint_source, expected_source_fingerprint, "source_fingerprint")
     if source_diffs:
         return ResumeDecision("migration", tuple(source_diffs))
@@ -360,7 +434,8 @@ def classify_resume(
         "agent_resume_state_dict", "agent_state_dict", "agent_optimizer_state_dict",
         "iteration", "durable_updates", "counters", "rng_state", "sampler_state",
         "schedule_state", "merged_policy", "resolved_config", "resolved_config_hash",
-        "source_fingerprint", "execution_fingerprint",
+        "source_fingerprint", "source_hash", "execution_fingerprint",
+        "backend", "backend_identity",
     }
     if checkpoint_semantic.get("algorithm") == "vrpo":
         required.update({"critic_state_dict", "critic_optimizer_state_dict"})
@@ -403,12 +478,14 @@ class TrainingCheckpointStore:
 
 
 __all__ = [
-    "CheckpointCompatibilityError", "EXECUTION_FINGERPRINT_SCHEMA",
-    "NON_SEMANTIC_CONFIG_PATHS", "PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA",
+    "BACKEND_IDENTITY_SCHEMA", "CheckpointCompatibilityError",
+    "EXECUTION_FINGERPRINT_SCHEMA", "NON_SEMANTIC_CONFIG_PATHS",
+    "PRE_BACKEND_IDENTITY_CHECKPOINT_SCHEMA", "PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA",
     "RESUME_KINDS", "ResumeDecision", "SEMANTIC_CONFIG_SCHEMA",
     "SOURCE_FINGERPRINT_SCHEMA", "TRAINING_CHECKPOINT_SCHEMA",
     "TRAINING_SEMANTIC_CONTRACT_SCHEMA", "TrainingCheckpointStore",
-    "build_execution_fingerprint", "build_semantic_configuration",
+    "build_backend_identity", "build_execution_fingerprint",
+    "build_semantic_configuration",
     "build_semantic_contract", "canonical_json_hash", "capture_rng_state",
     "classify_resume", "compute_source_fingerprint", "config_differences",
     "restore_rng_state", "serialize_config", "validate_declared_hash",

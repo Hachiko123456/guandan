@@ -193,3 +193,11 @@ VRPO replay 放 GPU、CPU pinned memory 或分级缓存，由显存和吞吐决�
 决定：正确性 10k/100k 为 0 mismatch 且性能门槛通过后，正式训练默认切换为 C++；Python reference 继续保留为显式 oracle，不允许 silent fallback。
 
 影响：报告必须同时公开完整 iteration 总比值、rollout 比值和 learner 比值。当前本机完整 IPPO iteration 总比值仅约 1.075×，不得写成 >=2×；C++ 默认资格来自已定义且全部通过的 backend-sensitive 门槛。
+
+### D013 默认 backend 导入、恢复身份与真实性能补修
+
+决定：包根使用 extension-free lazy API；`default_game` 表示默认 C++，历史 `game` 固定为 Python oracle。禁止通过 `sys.modules` 重载、吞掉 ImportError 或 fallback 掩盖循环导入。
+
+决定：checkpoint v4 的 exact/compatible resume 必须匹配实际 backend、backend-specific source fingerprint 和原生 binary/build identity。v3 缺失这些字段时只允许 migration/evaluation-only，不自动补全。
+
+决定：原 2.976× lane 重新命名为 deterministic selector rollout。总体计划对真实模型 end-to-end 门槛存在歧义时采用保守口径：真实 frozen Transformer rollout 也须 >=2× 才重新 accepted。当前补测未达到，因此 M05 保持未接受，M06 继续 blocked；learner 本身仍不要求 2×。

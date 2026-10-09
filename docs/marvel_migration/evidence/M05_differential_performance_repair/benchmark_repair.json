@@ -1,0 +1,434 @@
+{
+  "acceptance_decision_point": {
+    "interpretation": "The master M05 plan lists end-to-end rollout within the >=2x performance comparison. The repair therefore treats the real frozen Transformer rollout as required for conservative re-acceptance; learner computation itself is not required to accelerate 2x.",
+    "passes": false,
+    "real_agent_2x_required": true
+  },
+  "complete_ippo_iteration": {
+    "gating": false,
+    "lanes": {
+      "cpp": {
+        "completed_games": 1,
+        "env_steps": 338,
+        "game_steps": 151,
+        "peak_rss_bytes": 2102304768,
+        "process_cpu_seconds": 5.0625,
+        "rss_delta_peak_bytes": 904347648,
+        "runtime_backend": "cpp",
+        "segments_seconds": {
+          "learner": 2.917833799998334,
+          "rollout": 2.1595330000054673
+        },
+        "trajectory_length": 338.0,
+        "wall_seconds": 5.102219399996102
+      },
+      "python_reference": {
+        "completed_games": 1,
+        "env_steps": 338,
+        "game_steps": 151,
+        "peak_rss_bytes": 2121072640,
+        "process_cpu_seconds": 5.4375,
+        "rss_delta_peak_bytes": 1054380032,
+        "runtime_backend": "python_reference",
+        "segments_seconds": {
+          "learner": 3.0272085000033258,
+          "rollout": 2.357985299997381
+        },
+        "trajectory_length": 338.0,
+        "wall_seconds": 5.410213499999372
+      }
+    },
+    "learner_ratio": 1.0374848971881312,
+    "note": "Diagnostic complete iteration: the identical neural policy and learner dominate wall time, so the historical gate was evaluated on matched environment and deterministic-selector workloads; a real Agent lane is supplied by the M05 repair benchmark.",
+    "rollout_speedup": 1.0918959330519196,
+    "speedup": 1.0603647306902375,
+    "workload": {
+      "agent_epoch": 1,
+      "algorithm": "IPPO",
+      "learner_unchanged": true,
+      "same_deal": {
+        "deal": [
+          [
+            1,
+            2,
+            58,
+            6,
+            7,
+            62,
+            11,
+            65,
+            73,
+            75,
+            27,
+            82,
+            84,
+            85,
+            86,
+            33,
+            34,
+            90,
+            39,
+            41,
+            45,
+            99,
+            47,
+            48,
+            50,
+            104,
+            105
+          ],
+          [
+            54,
+            3,
+            57,
+            9,
+            10,
+            12,
+            14,
+            69,
+            17,
+            72,
+            19,
+            20,
+            22,
+            81,
+            29,
+            32,
+            36,
+            91,
+            93,
+            40,
+            94,
+            44,
+            100,
+            101,
+            102,
+            52,
+            107
+          ],
+          [
+            0,
+            55,
+            56,
+            5,
+            59,
+            61,
+            68,
+            70,
+            18,
+            21,
+            76,
+            23,
+            77,
+            78,
+            25,
+            26,
+            80,
+            83,
+            31,
+            88,
+            35,
+            37,
+            42,
+            43,
+            103,
+            51,
+            53
+          ],
+          [
+            4,
+            60,
+            8,
+            63,
+            64,
+            66,
+            13,
+            67,
+            15,
+            16,
+            71,
+            74,
+            24,
+            79,
+            28,
+            30,
+            87,
+            89,
+            38,
+            92,
+            95,
+            96,
+            97,
+            98,
+            46,
+            49,
+            106
+          ]
+        ],
+        "game_index": 40000,
+        "leader_seat": 0,
+        "level_rank": 15,
+        "previous_result": null,
+        "seed": 5090000
+      },
+      "same_model_state": true,
+      "same_seed": 99001
+    }
+  },
+  "historical_deterministic_selector": {
+    "corrected_description": "deterministic selector / fixed-action-rule rollout; no Transformer Agent forward pass",
+    "historical_lane_name": "end_to_end_frozen_policy_rollout",
+    "retained": true,
+    "source": "runs/M05_differential_performance/20261009_acceptance/benchmark.json",
+    "speedup": 2.9755799791382764
+  },
+  "real_frozen_transformer_rollout": {
+    "cpp": {
+      "actions": 1027,
+      "completed_games": 4,
+      "median_actions_per_second": 257.16301666296073,
+      "median_wall_seconds": 3.9935757999992347,
+      "representative_segments_seconds": {
+        "cache_prepare": 0.0008777999973972328,
+        "environment_setup": 0.018871399995987304,
+        "environment_step": 1.1099421999897459,
+        "model_forward_with_cache": 2.369951200002106,
+        "observation_conversion": 0.06565680012863595,
+        "sampling_and_action_marshalling": 0.16515449995495146,
+        "trajectory_buffer_and_commit": 0.20432720001554117
+      },
+      "samples": [
+        {
+          "actions": 1027,
+          "actions_per_second": 255.74950155609372,
+          "backend": "cpp",
+          "completed_games": 4,
+          "measured_wall_seconds": 4.015674599999329,
+          "process_cpu_seconds": 4.0,
+          "rollout_seconds": 4.015648100001272,
+          "rss_after_bytes": 326938624,
+          "rss_before_bytes": 317747200,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0009253000098397024,
+            "environment_setup": 0.019582399996579625,
+            "environment_step": 1.1145769000868313,
+            "model_forward_with_cache": 2.382192600154667,
+            "observation_conversion": 0.06679009991785279,
+            "sampling_and_action_marshalling": 0.1658404998597689,
+            "trajectory_buffer_and_commit": 0.20571129997551907
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        },
+        {
+          "actions": 1027,
+          "actions_per_second": 259.1213555631441,
+          "backend": "cpp",
+          "completed_games": 4,
+          "measured_wall_seconds": 3.9634208000061335,
+          "process_cpu_seconds": 3.96875,
+          "rollout_seconds": 3.9633939000050304,
+          "rss_after_bytes": 319664128,
+          "rss_before_bytes": 326938624,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0008751999994274229,
+            "environment_setup": 0.019485799995891284,
+            "environment_step": 1.1060048999497667,
+            "model_forward_with_cache": 2.349620099994354,
+            "observation_conversion": 0.06456780013104435,
+            "sampling_and_action_marshalling": 0.16207470010704128,
+            "trajectory_buffer_and_commit": 0.20323450001887977
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        },
+        {
+          "actions": 1027,
+          "actions_per_second": 257.16474243843874,
+          "backend": "cpp",
+          "completed_games": 4,
+          "measured_wall_seconds": 3.9935757999992347,
+          "process_cpu_seconds": 3.984375,
+          "rollout_seconds": 3.993548999998893,
+          "rss_after_bytes": 321396736,
+          "rss_before_bytes": 320540672,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0008777999973972328,
+            "environment_setup": 0.018871399995987304,
+            "environment_step": 1.1099421999897459,
+            "model_forward_with_cache": 2.369951200002106,
+            "observation_conversion": 0.06565680012863595,
+            "sampling_and_action_marshalling": 0.16515449995495146,
+            "trajectory_buffer_and_commit": 0.20432720001554117
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        }
+      ],
+      "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+    },
+    "matched_actions": 1027,
+    "matched_trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c",
+    "passes_2x": false,
+    "python_reference": {
+      "actions": 1027,
+      "completed_games": 4,
+      "median_actions_per_second": 162.7120044733822,
+      "median_wall_seconds": 6.311765400001605,
+      "representative_segments_seconds": {
+        "cache_prepare": 0.0009425999960512854,
+        "environment_setup": 0.03503629999613622,
+        "environment_step": 3.3249776000375277,
+        "model_forward_with_cache": 2.4326506999859703,
+        "observation_conversion": 0.05965869995270623,
+        "sampling_and_action_marshalling": 0.1765038000230561,
+        "trajectory_buffer_and_commit": 0.21853120006562676
+      },
+      "samples": [
+        {
+          "actions": 1027,
+          "actions_per_second": 162.71265926658003,
+          "backend": "python_reference",
+          "completed_games": 4,
+          "measured_wall_seconds": 6.311765400001605,
+          "process_cpu_seconds": 6.265625,
+          "rollout_seconds": 6.311740000004647,
+          "rss_after_bytes": 317747200,
+          "rss_before_bytes": 314376192,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0009425999960512854,
+            "environment_setup": 0.03503629999613622,
+            "environment_step": 3.3249776000375277,
+            "model_forward_with_cache": 2.4326506999859703,
+            "observation_conversion": 0.05965869995270623,
+            "sampling_and_action_marshalling": 0.1765038000230561,
+            "trajectory_buffer_and_commit": 0.21853120006562676
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        },
+        {
+          "actions": 1027,
+          "actions_per_second": 162.77235781750753,
+          "backend": "python_reference",
+          "completed_games": 4,
+          "measured_wall_seconds": 6.309451499997522,
+          "process_cpu_seconds": 6.28125,
+          "rollout_seconds": 6.309425100000226,
+          "rss_after_bytes": 319733760,
+          "rss_before_bytes": 319664128,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0009108999947784469,
+            "environment_setup": 0.03302519999851938,
+            "environment_step": 3.3250420001058956,
+            "model_forward_with_cache": 2.433374199878017,
+            "observation_conversion": 0.05868410003313329,
+            "sampling_and_action_marshalling": 0.17626350007776637,
+            "trajectory_buffer_and_commit": 0.2186499999515945
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        },
+        {
+          "actions": 1027,
+          "actions_per_second": 161.75920936749162,
+          "backend": "python_reference",
+          "completed_games": 4,
+          "measured_wall_seconds": 6.348969999999099,
+          "process_cpu_seconds": 6.28125,
+          "rollout_seconds": 6.34894300000451,
+          "rss_after_bytes": 320540672,
+          "rss_before_bytes": 319733760,
+          "segment_call_counts": {
+            "environment_step": 1027,
+            "model_forward_with_cache": 1027,
+            "observation_conversion": 1027,
+            "sampling_and_action_marshalling": 1027,
+            "trajectory_buffer_and_commit": 1027
+          },
+          "segments_seconds": {
+            "cache_prepare": 0.0009065000049304217,
+            "environment_setup": 0.03312929999810876,
+            "environment_step": 3.342665000069246,
+            "model_forward_with_cache": 2.449314800025604,
+            "observation_conversion": 0.05979950005712453,
+            "sampling_and_action_marshalling": 0.17805009996664012,
+            "trajectory_buffer_and_commit": 0.22059339993575122
+          },
+          "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+        }
+      ],
+      "trajectory_digest": "76f3c5a4ff937e1afa035a2b0962644a945fe03f11a17fb9dae1f25d2b75453c"
+    },
+    "speedup": 1.5804796793897875,
+    "threshold": 2.0
+  },
+  "schema": "guandan-marvel-m05-repair-benchmark-v1",
+  "stage": "M05_differential_performance_repair",
+  "timestamp_unix": 1791553030.2609239,
+  "valid": false,
+  "workload": {
+    "alternating_order": [
+      [
+        "python_reference",
+        "cpp"
+      ],
+      [
+        "cpp",
+        "python_reference"
+      ],
+      [
+        "python_reference",
+        "cpp"
+      ]
+    ],
+    "games": 4,
+    "mode": "eval+torch.inference_mode",
+    "model": {
+      "action_layers": 1,
+      "architecture": "v1.3",
+      "decoder_heads": 4,
+      "decoder_layers": 1,
+      "feature_dim": 24,
+      "fuse_layers": 1,
+      "history_dim": 16,
+      "state_layers": 1
+    },
+    "repetitions": 3,
+    "same_device": "cpu",
+    "same_frozen_weights": true,
+    "same_materialized_deals": true,
+    "sampling": "greedy temperature=0",
+    "torch_num_threads": 1
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-09",
+  "findings": [
+    {
+      "fixed": true,
+      "id": "M05-R1",
+      "reproduced": true,
+      "severity": "blocker",
+      "title": "native-first import leaves default C++ module partial"
+    },
+    {
+      "fixed": true,
+      "id": "M05-R2",
+      "reproduced": true,
+      "severity": "blocker",
+      "title": "explicit Python oracle unavailable without native extension"
+    },
+    {
+      "fixed": true,
+      "id": "M05-R3",
+      "reproduced": true,
+      "severity": "blocker",
+      "title": "runtime source fingerprint omitted actual C++ implementation/build"
+    },
+    {
+      "fixed_description": true,
+      "id": "M05-R4",
+      "real_agent_speedup": 1.5804796793897875,
+      "reproduced": true,
+      "severity": "high",
+      "title": "2.976x lane used deterministic selector rather than Transformer Agent"
+    },
+    {
+      "commit_identity_pending_implementation_commit": true,
+      "heading_fixed": true,
+      "id": "M05-R5",
+      "reproduced": true,
+      "severity": "medium",
+      "title": "A00 headings and M05 commit identity incomplete"
+    }
+  ],
+  "original_implementation_commit": "4ba65bfa20df2843fbc3cefb5299e885c14e2479",
+  "schema": "guandan-marvel-m05-repair-review-findings-v1",
+  "stage": "M05_differential_performance_repair"
+}

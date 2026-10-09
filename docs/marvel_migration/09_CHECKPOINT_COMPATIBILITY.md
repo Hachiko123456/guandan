@@ -123,3 +123,11 @@ Canonical training schema upgrades to `guandan-marvel-training-checkpoint-v3`; s
 - migration/reject: gamma/model heads/optimizer/schedule/sampling/replay/source/device/dependency semantics differ or declared hashes are inconsistent.
 
 A trainer whose load fails is poisoned and cannot train or save. A catchable interruption during an iteration poisons trainer+sampler; only the last complete checkpoint may be loaded into a new instance.
+
+## 10. M05 backend/build identity repair（2026-10-09）
+
+Canonical training schema upgrades to `guandan-marvel-training-checkpoint-v4`; semantic contract upgrades to `guandan-marvel-training-contract-v3`. Every training checkpoint records the actual runtime `backend` and a hash-protected `guandan-marvel-backend-identity-v1` object.
+
+For `python_reference`, identity and source fingerprint are generated without importing the native extension. For `cpp`, identity includes the loaded extension path, binary SHA-256, compiler/C++ standard/Python ABI, compile-time embedded native-source digest and, when source files are available, a comparison against the current native-source manifest. Wrapper, native source/header, build identity or binary changes are not exact-compatible.
+
+`python_reference` and `cpp` checkpoints are never automatically cross-resumed. A v3 checkpoint that lacks backend/build identity is `migration` for training or `evaluation_only` under an explicit evaluation load; current backend data must not be injected to relabel it exact. Logging/run-directory-only changes remain compatible only when backend, source, binary, semantic and execution identities otherwise match. Any failed load continues to poison trainer and sampler.

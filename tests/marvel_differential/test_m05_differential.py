@@ -9,7 +9,7 @@ import pytest
 
 from guandan.cards import Rank
 from guandan.state import RoundState
-from guandan_marvel import DEFAULT_BACKEND, game, get_game_backend, python_game
+from guandan_marvel import DEFAULT_BACKEND, default_game, game, get_game_backend, python_game
 from guandan_marvel.testing.differential import (
     CORPUS_SCHEMA,
     FIXTURE_SCHEMA,
@@ -25,9 +25,11 @@ from guandan_marvel.testing.differential import (
 from nanopokerlib import guandan as cpp_game
 
 
-def test_cpp_is_default_and_python_oracle_is_explicit_without_fallback():
+def test_cpp_default_and_python_oracle_paths_are_unambiguous():
     assert DEFAULT_BACKEND == "cpp"
-    assert game.BACKEND == "cpp"
+    assert default_game.BACKEND == "cpp"
+    assert game.BACKEND == "python_reference"
+    assert game.EnvBatch is python_game.EnvBatch
     assert get_game_backend().BACKEND == "cpp"
     assert get_game_backend("python_reference") is python_game
     assert get_game_backend("cpp").BACKEND == "cpp"

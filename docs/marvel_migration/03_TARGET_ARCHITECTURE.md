@@ -85,4 +85,8 @@ backend=cpp
 - champion manifest 必须包含模型、协议、源码、配置和评估数据身份。
 ## 6. M04 实现状态（2026-10-09）
 
-`nanopokerlib.guandan` 提供显式 `backend=cpp` 的 pybind `EnvBatch`，并保持与 M02 相同的 tensor shape/protocol version。M05 已完成 10,000 完整局、100,000 中间状态和固定工作负载性能门槛；正式训练默认现为 `cpp`。Python oracle 保留为 `guandan_marvel.python_game` / `backend=python_reference`，且不允许 silent fallback。
+`nanopokerlib.guandan` 提供显式 `backend=cpp` 的 pybind `EnvBatch`，并保持与 M02 相同的 tensor shape/protocol version。原 M05 已完成 10,000 完整局和 100,000 中间状态且 0 mismatch；补修保留该证据。
+
+公共导入契约使用延迟加载：`guandan_marvel.default_game` / `get_game_backend()` 取得默认 C++，`guandan_marvel.cpp_game` 显式取得 C++，`guandan_marvel.python_game` 显式取得 Python oracle；历史 `guandan_marvel.game` 与直接导入同名模块均固定为 Python oracle。配置和模型基础模块不强制加载扩展，显式 C++ 缺失时 fail closed。
+
+性能补测发现真实 frozen Transformer rollout 未达到保守的 2× end-to-end 门槛，因此当前 M05 补修未重新 accepted，M06 保持 blocked。

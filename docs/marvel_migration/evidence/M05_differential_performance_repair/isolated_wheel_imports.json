@@ -1,0 +1,64 @@
+{
+  "install": {
+    "exit_code": 0,
+    "stderr": "\n[notice] A new release of pip is available: 23.2.1 -> 26.2.1\n[notice] To update, run: python.exe -m pip install --upgrade pip\n",
+    "stdout": "Processing d:\\project\\guandan\\runs\\m05_differential_performance_repair\\20261009_repair_review\\wheel_final\\guandan_train-0.1.0-cp312-cp312-win_amd64.whl\nInstalling collected packages: guandan-train\nSuccessfully installed guandan-train-0.1.0\n"
+  },
+  "scenarios": [
+    {
+      "command": [
+        "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-c",
+        "import guandan_marvel as g; assert g.game.BACKEND=='python_reference'; assert g.default_game.BACKEND=='cpp'; assert hasattr(g.default_game,'EnvBatch'); print(g.__file__); print(g.default_game.get_backend_build_identity()['extension_path'])"
+      ],
+      "cwd": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\wheel_verification_final\\outside-cwd",
+      "exit_code": 0,
+      "pythonpath": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\wheel_verification_final\\isolated-wheel",
+      "stderr": "",
+      "stdout": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\wheel_verification_final\\isolated-wheel\\guandan_marvel\\__init__.py\nD:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\wheel_verification_final\\isolated-wheel\\nanopokerlib\\_guandan_cpp.cp312-win_amd64.pyd\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-c",
+        "from nanopokerlib import guandan as n; import guandan_marvel as g; assert hasattr(n,'EnvBatch'); assert hasattr(g.get_game_backend(),'EnvBatch'); print(n.__file__)"
+      ],
+      "cwd": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\wheel_verification_final\\outside-cwd",
+      "exit_code": 0,
+      "pythonpath": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\wheel_verification_final\\isolated-wheel",
+      "stderr": "",
+      "stdout": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\wheel_verification_final\\isolated-wheel\\nanopokerlib\\guandan.py\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-c",
+        "import guandan_marvel.config,sys; assert 'nanopokerlib._guandan_cpp' not in sys.modules; print('config-only-ok')"
+      ],
+      "cwd": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\wheel_verification_final\\outside-cwd",
+      "exit_code": 0,
+      "pythonpath": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\wheel_verification_final\\isolated-wheel",
+      "stderr": "",
+      "stdout": "config-only-ok\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-c",
+        "import guandan_marvel as g; p=g.get_game_backend('python_reference'); assert p.BACKEND=='python_reference' and hasattr(p,'EnvBatch')\ntry: g.get_game_backend('cpp')\nexcept g.BackendUnavailableError: print('no-native-ok')\nelse: raise AssertionError('silent fallback')"
+      ],
+      "cwd": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\wheel_verification_final\\outside-cwd",
+      "exit_code": 0,
+      "pythonpath": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\wheel_verification_final\\isolated-no-native",
+      "stderr": "",
+      "stdout": "no-native-ok\n"
+    }
+  ],
+  "schema": "guandan-marvel-m05-isolated-wheel-imports-v1",
+  "valid": true,
+  "wheel": {
+    "bytes": 1190323,
+    "path": "D:\\project\\guandan\\runs\\M05_differential_performance_repair\\20261009_repair_review\\wheel_final\\guandan_train-0.1.0-cp312-cp312-win_amd64.whl",
+    "sha256": "74e9c38093dd892ad1461e4cd878dc2a65619323fda4a3a367c31ff18f69fec4"
+  }
+}

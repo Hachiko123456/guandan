@@ -268,7 +268,7 @@ def replay_batch(
     }
 
 
-def frozen_policy_rollout(backend: str, cases: list[DifferentialCase]) -> dict[str, Any]:
+def deterministic_selector_rollout(backend: str, cases: list[DifferentialCase]) -> dict[str, Any]:
     conversion_seconds = 0.0
     policy_seconds = 0.0
     environment_seconds = 0.0
@@ -297,7 +297,7 @@ def frozen_policy_rollout(backend: str, cases: list[DifferentialCase]) -> dict[s
             environment_seconds += time.perf_counter() - started
             transitions += 1
         else:
-            raise RuntimeError("frozen-policy rollout did not terminate")
+            raise RuntimeError("deterministic-selector rollout did not terminate")
     return {
         "backend": backend,
         "completed_games": len(cases),
@@ -305,7 +305,7 @@ def frozen_policy_rollout(backend: str, cases: list[DifferentialCase]) -> dict[s
         "trajectory_digest": digest.hexdigest(),
         "segments_seconds": {
             "observation_to_torch": conversion_seconds,
-            "frozen_policy": policy_seconds,
+            "deterministic_selector": policy_seconds,
             "environment": environment_seconds,
         },
     }
@@ -419,7 +419,7 @@ def benchmark_full_iteration(root: Path) -> dict[str, Any]:
             / records["cpp"]["segments_seconds"]["learner"]
         ),
         "gating": False,
-        "note": "Diagnostic complete iteration: the identical neural policy and learner dominate wall time, so the hard backend gate is evaluated on matched environment and frozen-policy rollout workloads.",
+        "note": "Diagnostic complete iteration: the identical neural policy and learner dominate wall time, so the historical gate was evaluated on matched environment and deterministic-selector workloads; a real Agent lane is supplied by the M05 repair benchmark.",
     }
 
 
@@ -499,11 +499,11 @@ def main() -> int:
     )
     # Obtain the exact work count before timing the pair.  Outputs are
     # deterministic for the fixed cases and policy.
-    end_probe = frozen_policy_rollout("python_reference", end_cases)
+    end_probe = deterministic_selector_rollout("python_reference", end_cases)
     end_to_end = lane_pair(
-        "end_to_end_frozen_policy_rollout",
-        lambda: frozen_policy_rollout("python_reference", end_cases),
-        lambda: frozen_policy_rollout("cpp", end_cases),
+        "end_to_end_deterministic_selector_rollout",
+        lambda: deterministic_selector_rollout("python_reference", end_cases),
+        lambda: deterministic_selector_rollout("cpp", end_cases),
         work=int(end_probe["transitions"]),
         unit="token_transitions",
         repetitions=args.repetitions,
@@ -534,7 +534,7 @@ def main() -> int:
         "workload": {
             "same_machine": True,
             "same_deals": True,
-            "same_action_rows_or_frozen_policy": True,
+            "same_action_rows_or_deterministic_selector": True,
             "single_games": args.games,
             "single_transitions": single_work,
             "batch_size": args.batch_size,
@@ -551,7 +551,7 @@ def main() -> int:
         },
         "gate": {
             "threshold": THRESHOLD,
-            "definition": "All matched environment-only and frozen-policy end-to-end rollout comparisons must reach >=2x. The unchanged full learner iteration is segmented and reported diagnostically because identical model/learner work is backend-independent.",
+            "definition": "All matched environment-only and deterministic-selector rollout comparisons must reach >=2x. The unchanged full learner iteration is segmented and reported diagnostically because identical model/learner work is backend-independent.",
             "gated_lanes": [lane["name"] for lane in gated],
             "minimum_speedup": min(lane["speedup"] for lane in gated),
             "passes": all(lane["passes_threshold"] for lane in gated),
@@ -562,6 +562,7 @@ def main() -> int:
         "notes": [
             "Torch is CPU-only in this environment; the installed NVIDIA GPU is inventoried but not used.",
             "No GPU busy loop or synthetic utilization workload is used.",
+            "The deterministic-selector lane does not execute the Transformer Agent and is not a neural inference benchmark.",
             "Model/learner bottlenecks are not mixed into the primary environment gate; the complete iteration provides explicit rollout and learner segments.",
         ],
     }

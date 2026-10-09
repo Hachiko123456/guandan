@@ -81,3 +81,9 @@ No GPU utilization workload is synthesized. When the local PyTorch build cannot 
 ## 6. Acceptance and claims
 
 M05 is accepted only when correctness is valid with zero mismatch and the minimum speedup across the three gated workloads is at least `2.0`. Acceptance authorizes the C++ default training backend; it does not claim model strength, Kaggle verification, dual-T4 utilization or practical playing strength.
+
+## 7. 2026-10-09 补修口径说明
+
+原 benchmark 中名为 `end_to_end_frozen_policy_rollout` 的 2.976× lane 实际使用确定性 action selector，没有执行 Transformer Agent forward。该历史 JSON 和数值保留不变，但不得再描述为 frozen Transformer。补修后的准确名称、真实 Agent 对照和保守验收决策见 `M05_DIFFERENTIAL_PERFORMANCE_REPAIR_PROTOCOL.md`。
+
+补修还将公共导入契约改为：`default_game` 是默认 C++，`python_game` 是显式 oracle，历史 `game` 始终是 Python-oracle 模块。训练 checkpoint v4 记录实际 backend 和加载的原生构建身份。

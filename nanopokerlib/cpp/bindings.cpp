@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "guandan/guandan.hpp"
+#include <guandan_build_identity.hpp>
 
 namespace py = pybind11;
 using namespace nanopokerlib::guandan;
@@ -849,6 +850,10 @@ PYBIND11_MODULE(_guandan_cpp, module) {
     module.attr("GAME_IDENTIFIER") = IDENTIFIER;
     module.attr("identifier") = IDENTIFIER;
     module.attr("protocol_version") = std::string(ACTION_VERSION) + "|" + ENV_VERSION + "|" + ENCODING_VERSION;
+    module.attr("BUILD_IDENTITY_SCHEMA") = GUANDAN_BUILD_IDENTITY_SCHEMA;
+    module.attr("BUILD_SOURCE_SHA256") = GUANDAN_BUILD_SOURCE_SHA256;
+    module.attr("BUILD_COMPILER") = __VERSION__;
+    module.attr("BUILD_CXX_STANDARD") = static_cast<long long>(__cplusplus);
 
     for (const auto& [name, value] : std::array<std::pair<const char*, int>, 25>{{
         {"BOS_TOKEN", BOS_TOKEN}, {"LEAD_PLAY_TOKEN", LEAD_PLAY_TOKEN}, {"FOLLOW_PLAY_TOKEN", FOLLOW_PLAY_TOKEN},

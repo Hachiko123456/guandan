@@ -1,4 +1,4 @@
-# M04 Guandan C++/pybind Runtime Protocol
+# M04 掼蛋 C++/pybind 运行时协议
 
 - 实现日期：2026-10-09
 - backend：`cpp`

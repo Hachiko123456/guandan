@@ -24,6 +24,7 @@ class PythonReferenceSmokeGame:
     def GAME_IDENTIFIER(self) -> str:
         return self.identifier
 
+    BACKEND = guandan_game.BACKEND
     num_players = guandan_game.num_players
     num_tokens = guandan_game.num_tokens
     num_channels = guandan_game.num_channels

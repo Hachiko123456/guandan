@@ -1,0 +1,39 @@
+{
+  "revisions": [
+    {
+      "body_unchanged": true,
+      "new_sha256": "35f9ea39bbb8e40edcc9f595f17ca1e9315e9e1044e4d97a15f6fb8f5f39c655",
+      "new_title": "# ADR-005/006\uff1aMARVEL \u6838\u5fc3\u5305\u547d\u540d\u7a7a\u95f4\u4e0e\u6765\u6e90\u96c6\u6210",
+      "old_sha256": "026d6b3ea7f0cc13e0aae019c1afdee7e862cd52532ac1baefeae810af760ac8",
+      "old_title": "# ADR-005/006: MARVEL core package namespace and source integration",
+      "path": "docs/marvel_migration/adr/ADR-005-006-marvel-core-namespace.md"
+    },
+    {
+      "body_unchanged": true,
+      "new_sha256": "a5614b8f31ab900e260e286e332e5ed88ef3879a8d3ad51ea8310790111ec1b0",
+      "new_title": "# M02 \u63bc\u86cb MARVEL V2 Python \u9002\u914d\u5668\u534f\u8bae",
+      "old_sha256": "3391e78b787fd14ad89a567a2ff4d9008d01eb71d97739e5da8ca58848bb50d8",
+      "old_title": "# M02 Guandan MARVEL V2 Python Adapter Protocol",
+      "path": "docs/marvel_migration/M02_ADAPTER_PROTOCOL.md"
+    },
+    {
+      "body_unchanged": true,
+      "new_sha256": "6c635e22befba120489a4b10835df0e3150acbdfa3f7e1d2e15e2d4f22960842",
+      "new_title": "# M03 MARVEL \u672c\u5730\u8bad\u7ec3\u534f\u8bae",
+      "old_sha256": "e04caf0f7fec1be780cd9ee963b8e8f2f86c71e4b036e691e53b8db6c02d17c5",
+      "old_title": "# M03 MARVEL Local Training Protocol",
+      "path": "docs/marvel_migration/M03_TRAINING_PROTOCOL.md"
+    },
+    {
+      "body_unchanged": true,
+      "new_sha256": "6490c119e0e03bc841282316f1eebb95e1e457301a4286bc9ce68a394c8ad027",
+      "new_title": "# M04 \u63bc\u86cb C++/pybind \u8fd0\u884c\u65f6\u534f\u8bae",
+      "old_sha256": "01e28eb62840e43579f6b51f31b4b6c8b950a79b68d3916703c75ed053f8be8f",
+      "old_title": "# M04 Guandan C++/pybind Runtime Protocol",
+      "path": "docs/marvel_migration/M04_CPP_RUNTIME_PROTOCOL.md"
+    }
+  ],
+  "schema": "guandan-marvel-m05-repair-document-revisions-v1",
+  "stage": "M05_differential_performance_repair",
+  "title_only": true
+}

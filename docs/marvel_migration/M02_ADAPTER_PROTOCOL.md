@@ -1,4 +1,4 @@
-# M02 Guandan MARVEL V2 Python Adapter Protocol
+# M02 掼蛋 MARVEL V2 Python 适配器协议
 
 - 实现日期：2026-10-08
 - backend：`python_reference`
