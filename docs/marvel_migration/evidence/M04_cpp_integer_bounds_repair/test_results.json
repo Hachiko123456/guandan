@@ -1,0 +1,152 @@
+{
+  "date": "2026-10-09",
+  "dedicated_repeated_checks": {
+    "deserialize_regression": 13,
+    "integer_bounds": 45,
+    "sampler_e2e": 2
+  },
+  "historical_not_rerun": [
+    "legacy unit/integration/property suite from previous M04 repair; not claimed as rerun in this narrowly scoped repair"
+  ],
+  "implementation_commit": null,
+  "new_skips": 0,
+  "other_commands": [
+    {
+      "command": "python setup.py build_ext --inplace --force",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/build.log",
+      "log_sha256": "75d4f9fe33fd4f61ef083ce821da6d005fff20c0a016bca6d01884f34565a279",
+      "name": "forced_build"
+    },
+    {
+      "command": "python scripts/verify_marvel_cpp_integer_bounds_repair.py --output docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/verification.json",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/verification.log",
+      "log_sha256": "68bdb8972bf0c36d2687f3c166f94e3dbc8a74799f671079ba074828a1b9d0ec",
+      "name": "verification"
+    },
+    {
+      "command": "python -m pip wheel . --no-deps --wheel-dir runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/wheel",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/wheel_build.log",
+      "log_sha256": "1ab577a5b8558ac353cebfe8f7107afe2c33a18ae6b60a8532e78a581954aa43",
+      "name": "wheel_build"
+    },
+    {
+      "command": "python -m pip install --no-deps --target <fresh-target> <wheel>",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/wheel_install.log",
+      "log_sha256": "5fd0a1f7cdf8df3c62e30999967cae62181af98fb6d312fb28b01fc2b826dd43",
+      "name": "wheel_install"
+    },
+    {
+      "command": "external cwd: legal decoded step, \u00b12**32 and UINT64_MAX rejection, serialize roundtrip",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/clean_wheel_import.log",
+      "log_sha256": "fb717f113388f423ff04218eb8cad71a7dd0b8bc7d432da939907fdd44e538ad",
+      "name": "clean_wheel_import"
+    }
+  ],
+  "primary_nonoverlapping_acceptance": {
+    "a01_a04_regression": 152,
+    "cpp_scoped": 109,
+    "failed": 0,
+    "m01_m03_regression": 81,
+    "passed": 342,
+    "skipped": 0
+  },
+  "pytest_commands": [
+    {
+      "command": "python -m pytest tests/marvel_cpp/test_action_integer_bounds.py -q --junitxml=runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/integer_bounds.junit.xml",
+      "duration_seconds": 9.667,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/integer_bounds.junit.xml",
+      "junit_sha256": "f9b316c0c48c56cb21652fb15c48be2b13f2a36a729a3f3f71c8436dc1acad80",
+      "log": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/integer_bounds.log",
+      "log_sha256": "7c08b60c5a66cfeff054436d00720fa306089f4fdb275b110dccf8c02cdb4af1",
+      "name": "integer_bounds",
+      "passed": 45,
+      "skipped": 0,
+      "tests": 45
+    },
+    {
+      "command": "python -m pytest tests/marvel_cpp -q --junitxml=runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/cpp_scoped.junit.xml",
+      "duration_seconds": 30.296,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/cpp_scoped.junit.xml",
+      "junit_sha256": "f0aaed22370e2b565b420ae8e14234d833b3ddb55bdc5bf552fe30c17201f40a",
+      "log": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/cpp_scoped.log",
+      "log_sha256": "8a87b59f519b1eb0ac46becfdbf810317b1f338475bd894aeadb6b3acaf129b5",
+      "name": "cpp_scoped",
+      "passed": 109,
+      "skipped": 0,
+      "tests": 109
+    },
+    {
+      "command": "python -m pytest tests/marvel_cpp/test_repair_sampler.py -q --junitxml=runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/sampler_e2e.junit.xml",
+      "duration_seconds": 9.14,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/sampler_e2e.junit.xml",
+      "junit_sha256": "80f7281c79ebc303d049c4e13e10473ee17728c8c2e2ccc525170e3bf1b78ad9",
+      "log": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/sampler_e2e.log",
+      "log_sha256": "89fc90778536d914ef722d3c0603e760e570cd69f9fe694b6a88497120f269d0",
+      "name": "sampler_e2e",
+      "passed": 2,
+      "skipped": 0,
+      "tests": 2
+    },
+    {
+      "command": "python -m pytest tests/marvel_cpp/test_repair_deserialize.py -q --junitxml=runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/deserialize_regression.junit.xml",
+      "duration_seconds": 13.54,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/deserialize_regression.junit.xml",
+      "junit_sha256": "07d87e34a4620ffee7263e2378726369e42e3fce856b98d2128f3e69ffd4343c",
+      "log": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/deserialize_regression.log",
+      "log_sha256": "cfd54b66e34e1eafd2d01000e7c0657d41be4785690733198b07a464360729be",
+      "name": "deserialize_regression",
+      "passed": 13,
+      "skipped": 0,
+      "tests": 13
+    },
+    {
+      "command": "python -m pytest tests/marvel_core tests/marvel_adapter tests/marvel_training -q --junitxml=runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/m01_m03_regression.junit.xml",
+      "duration_seconds": 100.403,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/m01_m03_regression.junit.xml",
+      "junit_sha256": "1117438b5ebe3729fe11d1973e3a74f7a1cd46d6bd27391a8a45c833813a8911",
+      "log": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/m01_m03_regression.log",
+      "log_sha256": "f1b9799c31ebbdfe91e0dcfcd3f4c59a400f84bb638d0e453da497cde61a89e5",
+      "name": "m01_m03_regression",
+      "passed": 81,
+      "skipped": 0,
+      "tests": 81
+    },
+    {
+      "command": "python -m pytest tests/acceptance/test_a01_cards.py tests/acceptance/test_a02_rules.py tests/acceptance/test_a02_a03_defect_fix.py tests/acceptance/test_a03_actions.py tests/acceptance/test_a04_environment.py -q --junitxml=runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/a01_a04_regression.junit.xml",
+      "duration_seconds": 10.393,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/a01_a04_regression.junit.xml",
+      "junit_sha256": "70ee96b718e2b1a23eb2a693b33cb1e5a32e71f9a84eb009ee011671181ae5d4",
+      "log": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/a01_a04_regression.log",
+      "log_sha256": "94bbd70352dbd13e72f47fff871eb58a335c5429a072aa3fc4a47b60f902a60e",
+      "name": "a01_a04_regression",
+      "passed": 152,
+      "skipped": 0,
+      "tests": 152
+    }
+  ],
+  "schema": "guandan-marvel-m04-cpp-integer-bounds-test-results-v1",
+  "stage": "M04_cpp_integer_bounds_repair"
+}

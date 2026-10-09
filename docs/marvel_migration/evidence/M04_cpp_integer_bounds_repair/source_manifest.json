@@ -1,0 +1,83 @@
+{
+  "baseline_commit": "1703456d0de1b0643513a37fcc7fd8f45482a7ef",
+  "date": "2026-10-09",
+  "files": [
+    {
+      "bytes": 52020,
+      "path": "nanopokerlib/cpp/bindings.cpp",
+      "sha256": "50cac479a57c4a2409c0824510bf1986f58ab382cc23428a4e956090be3b7bc3"
+    },
+    {
+      "bytes": 6089,
+      "path": "tests/marvel_cpp/test_action_integer_bounds.py",
+      "sha256": "df4d4d2fecb7d8e4ee76a8c074aa375301f117b967874334b3bbaef3ffcbbf2b"
+    },
+    {
+      "bytes": 8080,
+      "path": "scripts/verify_marvel_cpp_integer_bounds_repair.py",
+      "sha256": "47a29bb8fa0c0f988f3aaefe5d4ec4315ed19dc88972569f3cb0aafea9ac7f4f"
+    },
+    {
+      "bytes": 2654,
+      "path": "docs/marvel_migration/M04_CPP_INTEGER_BOUNDS_REPAIR_PROTOCOL.md",
+      "sha256": "339d9d9b99a7d48ae91d5ca603237f9e0b1a295ef5197821508d3905555f6011"
+    },
+    {
+      "bytes": 3910,
+      "path": "docs/marvel_migration/00_README.md",
+      "sha256": "7284e10112cea5ef4b527709330c2014017fec0075af92023c6b66b0dc8ba8c5"
+    },
+    {
+      "bytes": 5787,
+      "path": "docs/marvel_migration/04_GAME_INTERFACE_V2.md",
+      "sha256": "a177bcc3b81fbabc2fc1abfb491fa41e0b402ceb43a60c769e42e4ce1d5f920b"
+    }
+  ],
+  "implementation_commit": null,
+  "protected_files": [
+    {
+      "baseline_blob": "85734aa3039aa2e8b5850762ddb4903942fab09b",
+      "path": "guandan/cards.py",
+      "sha256": "1454a3f14fe21a52d6e9ff1afd9552ae8e14013950b9d579ecf221670dd89787",
+      "worktree_blob": "85734aa3039aa2e8b5850762ddb4903942fab09b"
+    },
+    {
+      "baseline_blob": "dc3aff35fa06aac6158d6381ade3370829692b26",
+      "path": "guandan/combos.py",
+      "sha256": "b81bff006536b7938c395eb21dd3a0e0ecaa522e64fbbd9df7e2f5148ae3f308",
+      "worktree_blob": "dc3aff35fa06aac6158d6381ade3370829692b26"
+    },
+    {
+      "baseline_blob": "2ba208d1fd79a8fef3debc4a1bc64493ca89f09b",
+      "path": "guandan/round.py",
+      "sha256": "4e357502b9ee63d15d0fedac91127f72e2c976279f18c76a762483df010fc21a",
+      "worktree_blob": "2ba208d1fd79a8fef3debc4a1bc64493ca89f09b"
+    },
+    {
+      "baseline_blob": "dca8b770bf5ebad206802ff7b0415f4384b1f16a",
+      "path": "guandan/state.py",
+      "sha256": "c0ffd8c50ac868a6e93b3cb19953b662e65ecf59a0d2d4dc334441ffee47159b",
+      "worktree_blob": "dca8b770bf5ebad206802ff7b0415f4384b1f16a"
+    },
+    {
+      "baseline_blob": "ac9074987065d6a228730b99973cf679d7711863",
+      "path": "docs/rules.md",
+      "sha256": "77679ef8bd454a5d84ec0c7c357165b13ef9078ecee9f7d381ebd63892e15a52",
+      "worktree_blob": "ac9074987065d6a228730b99973cf679d7711863"
+    },
+    {
+      "baseline_blob": "0423c36914481db0123ff2e3e0ee87f5f513760d",
+      "path": "guandan_marvel/runtime/sampler.py",
+      "sha256": "abf910febf3c3a5a7bdc7fbf975ca9fb5d52965082bb35f4931003b4fcad983b",
+      "worktree_blob": "0423c36914481db0123ff2e3e0ee87f5f513760d"
+    }
+  ],
+  "protected_files_unchanged": true,
+  "reference": {
+    "head": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+    "status_short": ""
+  },
+  "schema": "guandan-marvel-m04-cpp-integer-bounds-source-manifest-v1",
+  "scope_expanded": false,
+  "stage": "M04_cpp_integer_bounds_repair"
+}

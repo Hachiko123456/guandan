@@ -143,3 +143,7 @@ critic 不得修改 actor observation tensor，也不得通过共享缓存泄露
 ## 11. M04 补修后的动作/恢复契约（2026-10-09）
 
 C++ `EnvBatch.step()` 同时接受 NumPy structured rows 和 `actions_from_np(rows)` 返回的 `V2Action` 序列；两条路径执行相同的完整 row metadata 和 live-candidate 唯一匹配校验。C++ batch restore 严格拒绝无法完整解析的 RNG、非空尾随 RNG 内容、越界/负数/与 game token step 不一致的 trajectory counter，以及 horizon、history、prefix、terminal/truncated 不一致。正常 wire 未改变，serialization schema 保持 `guandan-marvel-cpp-runtime-v1`。完整补修边界见 `M04_CPP_RUNTIME_REPAIR_PROTOCOL.md`。
+
+## 12. C++ action row 原始整数范围（2026-10-09）
+
+C++ action row 的全部八个 NumPy integer 字段必须在任何窄化转换前满足 `0 <= value < NUM_TOKENS`。Signed dtype 无损读取为 `int64_t`，unsigned dtype 无损读取为 `uint64_t`；只有全部原始值通过后才转换为 C++ `int`。禁止通过 32-bit 截断、取模、裁剪或饱和转换把非法值变成合法 token。完整补修边界见 `M04_CPP_INTEGER_BOUNDS_REPAIR_PROTOCOL.md`。

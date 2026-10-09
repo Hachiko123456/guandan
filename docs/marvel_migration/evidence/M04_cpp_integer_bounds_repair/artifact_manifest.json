@@ -1,0 +1,77 @@
+{
+  "acceptance_registration_commit": null,
+  "artifacts": [
+    {
+      "bytes": 2414,
+      "path": "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/build_artifacts.json",
+      "sha256": "9aa9d32eeea831656267a867d4db6e0cfcf6f46dd4028f9e1d9d749c27964d98"
+    },
+    {
+      "bytes": 1081,
+      "path": "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/protocol_schema.json",
+      "sha256": "bf8632f4c44aea42697a9c061a6b0b02aac1c9276ef6b3b7fd866c2634a31ffd"
+    },
+    {
+      "bytes": 683,
+      "path": "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/repair_summary.json",
+      "sha256": "69f025ebbb09adb4826cd539a9e45edb0213abfd7550d4dc4c7d81e00ee35da8"
+    },
+    {
+      "bytes": 2608,
+      "path": "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/review_findings.json",
+      "sha256": "7f0754dfa571c7153d2ba82dccfe60984f4186655fadf43aa7543bf7f335bd68"
+    },
+    {
+      "bytes": 3208,
+      "path": "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/source_manifest.json",
+      "sha256": "3af2ae0a0711117320282bc4fd32d65097bf7a3e859d5a60f23abd6e160fd7ff"
+    },
+    {
+      "bytes": 7376,
+      "path": "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/test_results.json",
+      "sha256": "fa99b418043f246eeedd82e97b5e2d3104816a403f487727a1c458789d05bd0d"
+    },
+    {
+      "bytes": 10444,
+      "path": "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/verification.json",
+      "sha256": "88bda221ece9c3085efd9269f85465417c3de863b1480aeb332ad575f54992df"
+    },
+    {
+      "bytes": 5875,
+      "path": "docs/marvel_migration/reports/M04_cpp_integer_bounds_repair.md",
+      "sha256": "6ee23ead6a065609a5f3e8a1d959a0c1fa9778fe741687fa1016548cfef85aeb"
+    },
+    {
+      "bytes": 2872,
+      "path": "docs/marvel_migration/reports/M04_cpp_integer_bounds_repair.json",
+      "sha256": "608dad9f1638bb842a1b318c4a753ff178a0a2440098a4702147adca120fb27a"
+    },
+    {
+      "bytes": 2654,
+      "path": "docs/marvel_migration/M04_CPP_INTEGER_BOUNDS_REPAIR_PROTOCOL.md",
+      "sha256": "339d9d9b99a7d48ae91d5ca603237f9e0b1a295ef5197821508d3905555f6011"
+    },
+    {
+      "bytes": 3910,
+      "path": "docs/marvel_migration/00_README.md",
+      "sha256": "7284e10112cea5ef4b527709330c2014017fec0075af92023c6b66b0dc8ba8c5"
+    },
+    {
+      "bytes": 5787,
+      "path": "docs/marvel_migration/04_GAME_INTERFACE_V2.md",
+      "sha256": "a177bcc3b81fbabc2fc1abfb491fa41e0b402ceb43a60c769e42e4ce1d5f920b"
+    },
+    {
+      "bytes": 8998,
+      "path": "docs/marvel_migration/STATUS.yaml",
+      "sha256": "2ba264686226360610673c9340d3fa64a6321248433dbeebd47a78bc3037a19c"
+    }
+  ],
+  "baseline_acceptance_commit": "1703456d0de1b0643513a37fcc7fd8f45482a7ef",
+  "date": "2026-10-09",
+  "implementation_commit": null,
+  "large_artifacts_committed": false,
+  "large_artifacts_root": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance",
+  "schema": "guandan-marvel-m04-cpp-integer-bounds-artifact-manifest-v1",
+  "stage": "M04_cpp_integer_bounds_repair"
+}

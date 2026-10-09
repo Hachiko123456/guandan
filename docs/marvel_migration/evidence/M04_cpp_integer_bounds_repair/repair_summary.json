@@ -1,0 +1,26 @@
+{
+  "accepted": false,
+  "all_failure_states_unchanged": true,
+  "batch_atomic": true,
+  "boundary_cases": 13,
+  "date": "2026-10-09",
+  "default_backend_changed": false,
+  "field_cases": 24,
+  "fixed": true,
+  "identity_registration_pending": true,
+  "implementation_commit": null,
+  "issue_reproduced": true,
+  "legal_dtypes": [
+    "int32",
+    "int64",
+    "uint32",
+    "uint64"
+  ],
+  "m05_started": false,
+  "python_cpp_rejection": true,
+  "raw_and_decoded_rejected": true,
+  "rng_restore_modified": false,
+  "sampler_modified": false,
+  "schema": "guandan-marvel-m04-cpp-integer-bounds-repair-summary-v1",
+  "stage": "M04_cpp_integer_bounds_repair"
+}

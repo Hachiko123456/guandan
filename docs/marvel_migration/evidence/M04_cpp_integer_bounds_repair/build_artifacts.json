@@ -1,0 +1,57 @@
+{
+  "bindings_source": {
+    "bytes": 52020,
+    "path": "nanopokerlib/cpp/bindings.cpp",
+    "sha256": "50cac479a57c4a2409c0824510bf1986f58ab382cc23428a4e956090be3b7bc3"
+  },
+  "build_log": {
+    "exit_code": 0,
+    "path": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/build.log",
+    "sha256": "75d4f9fe33fd4f61ef083ce821da6d005fff20c0a016bca6d01884f34565a279"
+  },
+  "date": "2026-10-09",
+  "dependencies_log": {
+    "path": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/extension_dependencies.log",
+    "sha256": "d765a2c6820b561ee2472bb8166d8f2207b67cea57f116859a8968a27bf3ae2d"
+  },
+  "extension": {
+    "bytes": 3682524,
+    "committed": false,
+    "path": "nanopokerlib/_guandan_cpp.cp312-win_amd64.pyd",
+    "sha256": "54d54e1afb372059c7a796f61fedfa5484dffd42f595368646d53055b7ebc34b"
+  },
+  "implementation_commit": null,
+  "isolated_extension": {
+    "bytes": 3682524,
+    "path": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/wheel_install/nanopokerlib/_guandan_cpp.cp312-win_amd64.pyd",
+    "sha256": "387bdcbc088657bdb7e2cf22824e2c9b7058fd8a32758747c511fc732dbcd4cd"
+  },
+  "isolated_verification": {
+    "legal_decoded_step": true,
+    "path": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/clean_wheel_import.log",
+    "plus_minus_2p32_rejected": true,
+    "serialize_roundtrip": true,
+    "sha256": "fb717f113388f423ff04218eb8cad71a7dd0b8bc7d432da939907fdd44e538ad",
+    "uint64_max_rejected": true
+  },
+  "platform": "Windows-11-10.0.26200-SP0",
+  "pybind11": "2.13.6",
+  "python": {
+    "executable": "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "version": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]"
+  },
+  "schema": "guandan-marvel-m04-cpp-integer-bounds-build-artifacts-v1",
+  "stage": "M04_cpp_integer_bounds_repair",
+  "tools": {
+    "compiler": "C:\\mingw11.2.0\\bin\\g++.exe",
+    "compiler_version": "11.2.0",
+    "dlltool": "C:\\mingw11.2.0\\bin\\dlltool.exe",
+    "gendef": "C:\\mingw11.2.0\\bin\\gendef.exe"
+  },
+  "wheel": {
+    "bytes": 1178421,
+    "committed": false,
+    "path": "runs/M04_cpp_integer_bounds_repair/20261009_repair_acceptance/wheel/guandan_train-0.1.0-cp312-cp312-win_amd64.whl",
+    "sha256": "56914e40f56267344569fdb94ab546f61048658cfd3562d6793ccb3744c4ca12"
+  }
+}

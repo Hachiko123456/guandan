@@ -1,0 +1,79 @@
+{
+  "acceptance_registration_commit": null,
+  "accepted": false,
+  "branch": "codex/marvel-guandan-migration",
+  "build": {
+    "extension_sha256": "54d54e1afb372059c7a796f61fedfa5484dffd42f595368646d53055b7ebc34b",
+    "external_cwd": true,
+    "forced": true,
+    "isolated_wheel": true,
+    "wheel_sha256": "56914e40f56267344569fdb94ab546f61048658cfd3562d6793ccb3744c4ca12"
+  },
+  "date": "2026-10-09",
+  "default_backend_changed": false,
+  "evidence": [
+    "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/review_findings.json",
+    "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/protocol_schema.json",
+    "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/verification.json",
+    "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/repair_summary.json",
+    "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/test_results.json",
+    "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/source_manifest.json",
+    "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/build_artifacts.json",
+    "docs/marvel_migration/evidence/M04_cpp_integer_bounds_repair/artifact_manifest.json"
+  ],
+  "fix": {
+    "all_fields": 8,
+    "boundary_cases": 13,
+    "clamp_modulo_saturation": false,
+    "field_offset_cases": 24,
+    "range": "0 <= value < NUM_TOKENS",
+    "range_before_narrowing": true,
+    "signed_read": "int64_t",
+    "unsigned_read": "uint64_t"
+  },
+  "identity_registration_pending": true,
+  "implementation_commit": null,
+  "interfaces": {
+    "batch_atomic": true,
+    "decoded_actions_rejected": true,
+    "legal_dtypes": [
+      "int32",
+      "int64",
+      "uint32",
+      "uint64"
+    ],
+    "non_native_endian": true,
+    "noncontiguous": true,
+    "raw_rows_rejected": true
+  },
+  "issue": {
+    "legal_payload": 8,
+    "negative_wrap": -4294967288,
+    "original_cpp_accepted": true,
+    "positive_wrap": 4294967304,
+    "python_reference_rejected": true,
+    "reproduced": true
+  },
+  "m05_started": false,
+  "original_implementation_commit": "75735031721a44304ffe4d7be7fc1532fadd0ba6",
+  "previous_acceptance_commit": "1703456d0de1b0643513a37fcc7fd8f45482a7ef",
+  "previous_repair_implementation_commit": "ff0d1d097d8989ff9037c303493002a2a4c1388a",
+  "protected_files_unchanged": true,
+  "rng_restore_modified": false,
+  "sampler_modified": false,
+  "schema": "guandan-marvel-stage-repair-report-v1",
+  "stage": "M04_cpp_integer_bounds_repair",
+  "status": "locally_verified_pending_identity_registration",
+  "tests": {
+    "a01_a04": 152,
+    "cpp_scoped": 109,
+    "deserialize_dedicated": 13,
+    "failed": 0,
+    "integer_bounds_dedicated": 45,
+    "legacy_suite_rerun": false,
+    "m01_m03": 81,
+    "primary_nonoverlapping_passed": 342,
+    "sampler_dedicated": 2,
+    "skipped": 0
+  }
+}

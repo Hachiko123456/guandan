@@ -292,10 +292,26 @@ core::ActionRow parse_action_row(const py::handle& row) {
         (array.dtype().kind() != 'i' && array.dtype().kind() != 'u')) {
         throw std::invalid_argument("action row must be an integer vector with shape (8,)");
     }
-    py::array_t<std::int64_t, py::array::c_style | py::array::forcecast> values(array);
-    const auto view = values.unchecked<1>();
     core::ActionRow result;
-    for (int index = 0; index < MAX_ACTION_TOKENS; ++index) result.tokens[index] = static_cast<int>(view(index));
+    if (array.dtype().kind() == 'i') {
+        py::array_t<std::int64_t, py::array::c_style | py::array::forcecast> values(array);
+        const auto view = values.unchecked<1>();
+        std::array<std::int64_t, MAX_ACTION_TOKENS> raw_values{};
+        for (int index = 0; index < MAX_ACTION_TOKENS; ++index) raw_values[index] = view(index);
+        for (const std::int64_t value : raw_values) {
+            if (value < 0 || value >= static_cast<std::int64_t>(NUM_TOKENS)) throw ProtocolError("action row token outside V2 vocabulary before signed integer narrowing");
+        }
+        for (int index = 0; index < MAX_ACTION_TOKENS; ++index) result.tokens[index] = static_cast<int>(raw_values[index]);
+    } else {
+        py::array_t<std::uint64_t, py::array::c_style | py::array::forcecast> values(array);
+        const auto view = values.unchecked<1>();
+        std::array<std::uint64_t, MAX_ACTION_TOKENS> raw_values{};
+        for (int index = 0; index < MAX_ACTION_TOKENS; ++index) raw_values[index] = view(index);
+        for (const std::uint64_t value : raw_values) {
+            if (value >= static_cast<std::uint64_t>(NUM_TOKENS)) throw ProtocolError("action row token outside V2 vocabulary before unsigned integer narrowing");
+        }
+        for (int index = 0; index < MAX_ACTION_TOKENS; ++index) result.tokens[index] = static_cast<int>(raw_values[index]);
+    }
     result.token_id = result.tokens[5];
     result.phase_token = result.tokens[1];
     result.prefix_stage = result.tokens[2] - ACTION_STAGE_BASE;

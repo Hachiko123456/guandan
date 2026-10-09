@@ -1,0 +1,429 @@
+{
+  "batch_atomicity": {
+    "all_slots_and_rng_unchanged": true,
+    "entry_results": {
+      "decoded": {
+        "message": "action row token outside V2 vocabulary before unsigned integer narrowing",
+        "rejected": true,
+        "state_unchanged": true,
+        "type": "ProtocolError"
+      },
+      "raw": {
+        "message": "action row token outside V2 vocabulary before unsigned integer narrowing",
+        "rejected": true,
+        "state_unchanged": true,
+        "type": "ProtocolError"
+      }
+    },
+    "message": "action row token outside V2 vocabulary before unsigned integer narrowing",
+    "rejected": true,
+    "type": "ProtocolError"
+  },
+  "boundary_coverage": [
+    {
+      "decoded_rejected": true,
+      "dtype": "int32",
+      "raw_rejected": true,
+      "raw_value": -1,
+      "state_unchanged": true
+    },
+    {
+      "decoded_rejected": true,
+      "dtype": "int32",
+      "raw_rejected": true,
+      "raw_value": 320,
+      "state_unchanged": true
+    },
+    {
+      "decoded_rejected": true,
+      "dtype": "int32",
+      "raw_rejected": true,
+      "raw_value": -2147483648,
+      "state_unchanged": true
+    },
+    {
+      "decoded_rejected": true,
+      "dtype": "int32",
+      "raw_rejected": true,
+      "raw_value": 2147483647,
+      "state_unchanged": true
+    },
+    {
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "raw_rejected": true,
+      "raw_value": -9223372036854775808,
+      "state_unchanged": true
+    },
+    {
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "raw_rejected": true,
+      "raw_value": 9223372036854775807,
+      "state_unchanged": true
+    },
+    {
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "raw_rejected": true,
+      "raw_value": 4294967304,
+      "state_unchanged": true
+    },
+    {
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "raw_rejected": true,
+      "raw_value": -4294967288,
+      "state_unchanged": true
+    },
+    {
+      "decoded_rejected": true,
+      "dtype": "uint32",
+      "raw_rejected": true,
+      "raw_value": 320,
+      "state_unchanged": true
+    },
+    {
+      "decoded_rejected": true,
+      "dtype": "uint32",
+      "raw_rejected": true,
+      "raw_value": 4294967295,
+      "state_unchanged": true
+    },
+    {
+      "decoded_rejected": true,
+      "dtype": "uint64",
+      "raw_rejected": true,
+      "raw_value": 9223372036854775808,
+      "state_unchanged": true
+    },
+    {
+      "decoded_rejected": true,
+      "dtype": "uint64",
+      "raw_rejected": true,
+      "raw_value": 18446744073709551615,
+      "state_unchanged": true
+    },
+    {
+      "decoded_rejected": true,
+      "dtype": "uint64",
+      "raw_rejected": true,
+      "raw_value": 4294967304,
+      "state_unchanged": true
+    }
+  ],
+  "environment": {
+    "extension_bytes": 3682524,
+    "extension_path": "D:\\project\\guandan\\nanopokerlib\\_guandan_cpp.cp312-win_amd64.pyd",
+    "extension_sha256": "54d54e1afb372059c7a796f61fedfa5484dffd42f595368646d53055b7ebc34b",
+    "numpy": "2.3.5",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]",
+    "python_executable": "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+  },
+  "field_coverage": [
+    {
+      "case": "signed_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 0,
+      "raw_rejected": true,
+      "raw_value": 4294967558,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_minus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 0,
+      "raw_rejected": true,
+      "raw_value": -4294967034,
+      "state_unchanged": true
+    },
+    {
+      "case": "unsigned_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "uint64",
+      "field": 0,
+      "raw_rejected": true,
+      "raw_value": 4294967558,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 1,
+      "raw_rejected": true,
+      "raw_value": 4294967298,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_minus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 1,
+      "raw_rejected": true,
+      "raw_value": -4294967294,
+      "state_unchanged": true
+    },
+    {
+      "case": "unsigned_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "uint64",
+      "field": 1,
+      "raw_rejected": true,
+      "raw_value": 4294967298,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 2,
+      "raw_rejected": true,
+      "raw_value": 4294967559,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_minus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 2,
+      "raw_rejected": true,
+      "raw_value": -4294967033,
+      "state_unchanged": true
+    },
+    {
+      "case": "unsigned_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "uint64",
+      "field": 2,
+      "raw_rejected": true,
+      "raw_value": 4294967559,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 3,
+      "raw_rejected": true,
+      "raw_value": 4294967594,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_minus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 3,
+      "raw_rejected": true,
+      "raw_value": -4294966998,
+      "state_unchanged": true
+    },
+    {
+      "case": "unsigned_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "uint64",
+      "field": 3,
+      "raw_rejected": true,
+      "raw_value": 4294967594,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 4,
+      "raw_rejected": true,
+      "raw_value": 4294967600,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_minus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 4,
+      "raw_rejected": true,
+      "raw_value": -4294966992,
+      "state_unchanged": true
+    },
+    {
+      "case": "unsigned_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "uint64",
+      "field": 4,
+      "raw_rejected": true,
+      "raw_value": 4294967600,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 5,
+      "raw_rejected": true,
+      "raw_value": 4294967304,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_minus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 5,
+      "raw_rejected": true,
+      "raw_value": -4294967288,
+      "state_unchanged": true
+    },
+    {
+      "case": "unsigned_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "uint64",
+      "field": 5,
+      "raw_rejected": true,
+      "raw_value": 4294967304,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 6,
+      "raw_rejected": true,
+      "raw_value": 4294967601,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_minus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 6,
+      "raw_rejected": true,
+      "raw_value": -4294966991,
+      "state_unchanged": true
+    },
+    {
+      "case": "unsigned_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "uint64",
+      "field": 6,
+      "raw_rejected": true,
+      "raw_value": 4294967601,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 7,
+      "raw_rejected": true,
+      "raw_value": 4294967603,
+      "state_unchanged": true
+    },
+    {
+      "case": "signed_minus_2p32",
+      "decoded_rejected": true,
+      "dtype": "int64",
+      "field": 7,
+      "raw_rejected": true,
+      "raw_value": -4294966989,
+      "state_unchanged": true
+    },
+    {
+      "case": "unsigned_plus_2p32",
+      "decoded_rejected": true,
+      "dtype": "uint64",
+      "field": 7,
+      "raw_rejected": true,
+      "raw_value": 4294967603,
+      "state_unchanged": true
+    }
+  ],
+  "legal_dtype_compatibility": [
+    {
+      "action_shape": [
+        2,
+        256,
+        8
+      ],
+      "dtype": "int32",
+      "player_ids": [
+        0,
+        0
+      ],
+      "serialized_equal": true
+    },
+    {
+      "action_shape": [
+        2,
+        256,
+        8
+      ],
+      "dtype": "int64",
+      "player_ids": [
+        0,
+        0
+      ],
+      "serialized_equal": true
+    },
+    {
+      "action_shape": [
+        2,
+        256,
+        8
+      ],
+      "dtype": "uint32",
+      "player_ids": [
+        0,
+        0
+      ],
+      "serialized_equal": true
+    },
+    {
+      "action_shape": [
+        2,
+        256,
+        8
+      ],
+      "dtype": "uint64",
+      "player_ids": [
+        0,
+        0
+      ],
+      "serialized_equal": true
+    }
+  ],
+  "python_cpp_rejection": [
+    {
+      "backend": "python",
+      "delta": 4294967296,
+      "rejected": true,
+      "state_unchanged": true,
+      "type": "ProtocolError"
+    },
+    {
+      "backend": "cpp",
+      "delta": 4294967296,
+      "rejected": true,
+      "state_unchanged": true,
+      "type": "ProtocolError"
+    },
+    {
+      "backend": "python",
+      "delta": -4294967296,
+      "rejected": true,
+      "state_unchanged": true,
+      "type": "ProtocolError"
+    },
+    {
+      "backend": "cpp",
+      "delta": -4294967296,
+      "rejected": true,
+      "state_unchanged": true,
+      "type": "ProtocolError"
+    }
+  ],
+  "schema": "guandan-marvel-m04-cpp-integer-bounds-repair-verification-v1",
+  "scope_note": "Narrow M04 integer-bounds repair only; M05 is not executed or claimed.",
+  "stage": "M04_cpp_integer_bounds_repair"
+}
