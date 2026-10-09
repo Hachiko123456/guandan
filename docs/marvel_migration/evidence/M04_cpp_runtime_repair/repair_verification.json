@@ -73,6 +73,7 @@
     "python_executable": "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
     "torch": "2.13.0+cpu"
   },
+  "repair_implementation_commit": "ff0d1d097d8989ff9037c303493002a2a4c1388a",
   "rng_auto_reset_continuation": {
     "post_reset_hands_sha256": "9950561b7b3873f340cc47a6eeca5756f4536d7182b247e3381187e9663520c3",
     "post_reset_token_step": 0,

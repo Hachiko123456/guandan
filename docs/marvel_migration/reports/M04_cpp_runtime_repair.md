@@ -3,9 +3,9 @@
 - 日期：2026-10-09
 - 分支：`codex/marvel-guandan-migration`
 - 原始实现 commit：`75735031721a44304ffe4d7be7fc1532fadd0ba6`
-- 补修实现 commit：待第一笔实现提交后登记
-- 验收登记 commit：待第二笔登记提交
-- 状态：`locally_verified_pending_identity_registration`
+- 补修实现 commit：`ff0d1d097d8989ff9037c303493002a2a4c1388a`
+- 验收登记 commit：本登记提交自身（不嵌入自引用 SHA；由 Git 和最终答复给出）
+- 状态：`accepted`
 - 环境：Windows 11；Python 3.12.0；PyTorch 2.13.0+cpu；NumPy 2.3.5；pybind11 2.13.6；MinGW g++ 11.2；CUDA unavailable
 
 ## 范围
@@ -184,4 +184,4 @@ python setup.py build_ext --inplace --force
 
 ## 当前结论
 
-代码和验证硬门槛已本地通过，但本报告尚未登记补修实现的稳定 commit SHA。第一笔实现提交完成后，由第二笔验收登记提交写入准确 SHA，并决定 M04 是否重新 `accepted`。当前不得启动 M05。
+补修实现已固定为 `ff0d1d097d8989ff9037c303493002a2a4c1388a`。动作接口、严格反序列化、真实 Agent + C++ Sampler、连续 collect、auto-reset、跨重开局 RNG continuation、强制构建、隔离 wheel 和全部回归硬门槛均通过。M04 已重新 `accepted`；M05 为 `not_started`、`accepted=false`、无 blocker，可以启动但本轮没有自动执行。

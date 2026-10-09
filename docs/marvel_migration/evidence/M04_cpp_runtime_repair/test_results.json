@@ -114,6 +114,7 @@
       "tests": 907
     }
   ],
+  "repair_implementation_commit": "ff0d1d097d8989ff9037c303493002a2a4c1388a",
   "schema": "guandan-marvel-m04-repair-test-results-v1",
   "skip_details": [
     {

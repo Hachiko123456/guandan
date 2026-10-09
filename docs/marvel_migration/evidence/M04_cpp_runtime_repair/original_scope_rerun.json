@@ -325,6 +325,7 @@
     "identifier": "GuandanMARVELV2Cpp",
     "serialization": "guandan-marvel-cpp-runtime-v1"
   },
+  "repair_implementation_commit": "ff0d1d097d8989ff9037c303493002a2a4c1388a",
   "schema": "guandan-marvel-m04-cpp-runtime-verification-v1",
   "scope_note": "Local M04 functional/smoke evidence only; not the M05 10k/100k differential or >=2x performance gate.",
   "stage": "M04_cpp_runtime",

@@ -40,6 +40,7 @@
     "executable": "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
     "version": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]"
   },
+  "repair_implementation_commit": "ff0d1d097d8989ff9037c303493002a2a4c1388a",
   "schema": "guandan-marvel-m04-repair-build-artifacts-v1",
   "source_sha256": {
     "nanopokerlib/cpp/bindings.cpp": "db22768c95abbdedd2336b0c67257f97e8c88ff2d32e45c8c5736dc080eed63a",
