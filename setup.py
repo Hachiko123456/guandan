@@ -52,14 +52,15 @@ class GuandanBuildExt(build_ext):
                 raise RuntimeError(f"Python DLL not found: {python_dll}")
             def_file = build_temp / f"python{sys.version_info.major}{sys.version_info.minor}.def"
             import_lib = build_temp / f"libpython{sys.version_info.major}{sys.version_info.minor}.a"
-            subprocess.check_call([gendef, str(python_dll)], cwd=build_temp)
+            gendef_command = [gendef, str(python_dll)]
+            print("Guandan build gendef command:", subprocess.list2cmdline(gendef_command))
+            subprocess.check_call(gendef_command, cwd=build_temp)
             generated = build_temp / python_dll.with_suffix(".def").name
             if generated != def_file:
                 generated.replace(def_file)
-            subprocess.check_call(
-                [dlltool, "-d", str(def_file), "-l", str(import_lib), "-D", python_dll.name],
-                cwd=build_temp,
-            )
+            dlltool_command = [dlltool, "-d", str(def_file), "-l", str(import_lib), "-D", python_dll.name]
+            print("Guandan build dlltool command:", subprocess.list2cmdline(dlltool_command))
+            subprocess.check_call(dlltool_command, cwd=build_temp)
             command = [
                 cxx,
                 "-O3",
@@ -96,7 +97,11 @@ class GuandanBuildExt(build_ext):
             ]
             if platform.system() == "Darwin":
                 command[1:1] = ["-undefined", "dynamic_lookup"]
-        self.announce("Building Guandan C++ runtime: " + " ".join(command), level=3)
+        print("Guandan build Python executable:", sys.executable)
+        print("Guandan build Python include:", sysconfig.get_paths()["include"])
+        print("Guandan build pybind11 include:", pybind11.get_include())
+        print("Guandan build compiler:", cxx)
+        print("Guandan build command:", subprocess.list2cmdline(command))
         subprocess.check_call(command, cwd=ROOT)
 
 

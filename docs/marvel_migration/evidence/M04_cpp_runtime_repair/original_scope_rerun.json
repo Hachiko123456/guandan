@@ -1,0 +1,332 @@
+{
+  "batch_smoke": {
+    "batch_size": 8,
+    "batch_steps": 351,
+    "card_conservation": true,
+    "elapsed_seconds": 2.1100882999999158,
+    "serialization_byte_stable": true,
+    "serialization_bytes": 67088,
+    "terminal_counts": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "token_transitions": 2808,
+    "token_transitions_per_second": 1330.7499975238534
+  },
+  "cards_and_levels": {
+    "all_values_checked": true,
+    "level_contexts": 13,
+    "physical_cards": 108
+  },
+  "directed_actions": [
+    {
+      "canonical_tokens": [
+        8,
+        64,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "single",
+      "max_legal_next_rows": 2,
+      "name": "single",
+      "wild_mode": "none"
+    },
+    {
+      "canonical_tokens": [
+        8,
+        70,
+        178,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "single",
+      "max_legal_next_rows": 2,
+      "name": "single-natural-wild",
+      "wild_mode": "natural"
+    },
+    {
+      "canonical_tokens": [
+        9,
+        18,
+        64,
+        118,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "pair",
+      "max_legal_next_rows": 3,
+      "name": "pair",
+      "wild_mode": "none"
+    },
+    {
+      "canonical_tokens": [
+        10,
+        18,
+        64,
+        65,
+        66,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "triple",
+      "max_legal_next_rows": 4,
+      "name": "triple",
+      "wild_mode": "none"
+    },
+    {
+      "canonical_tokens": [
+        11,
+        18,
+        20,
+        64,
+        65,
+        66,
+        70,
+        124,
+        180,
+        180,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "full_house",
+      "max_legal_next_rows": 12,
+      "name": "full-house-two-wild-targets",
+      "wild_mode": "substitute_multiple"
+    },
+    {
+      "canonical_tokens": [
+        11,
+        18,
+        19,
+        64,
+        65,
+        66,
+        70,
+        124,
+        178,
+        176,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "full_house",
+      "max_legal_next_rows": 12,
+      "name": "full-house-natural-and-substituted",
+      "wild_mode": "mixed_multiple"
+    },
+    {
+      "canonical_tokens": [
+        12,
+        18,
+        64,
+        68,
+        72,
+        76,
+        80,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "straight",
+      "max_legal_next_rows": 4,
+      "name": "straight",
+      "wild_mode": "none"
+    },
+    {
+      "canonical_tokens": [
+        13,
+        18,
+        41,
+        64,
+        118,
+        68,
+        122,
+        72,
+        126,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "pair_sequence",
+      "max_legal_next_rows": 5,
+      "name": "pair-sequence",
+      "wild_mode": "none"
+    },
+    {
+      "canonical_tokens": [
+        14,
+        18,
+        40,
+        64,
+        65,
+        66,
+        68,
+        69,
+        71,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "triple_sequence",
+      "max_legal_next_rows": 6,
+      "name": "triple-sequence",
+      "wild_mode": "none"
+    },
+    {
+      "canonical_tokens": [
+        15,
+        18,
+        48,
+        64,
+        65,
+        66,
+        67,
+        70,
+        118,
+        119,
+        120,
+        121,
+        124,
+        172,
+        172,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "rank_bomb",
+      "max_legal_next_rows": 7,
+      "name": "rank-bomb-ten-two-wilds",
+      "wild_mode": "substitute_multiple"
+    },
+    {
+      "canonical_tokens": [
+        16,
+        36,
+        18,
+        67,
+        70,
+        75,
+        79,
+        83,
+        179,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "straight_flush",
+      "max_legal_next_rows": 5,
+      "name": "straight-flush-substituted-wild",
+      "wild_mode": "substitute"
+    },
+    {
+      "canonical_tokens": [
+        16,
+        35,
+        18,
+        66,
+        70,
+        74,
+        78,
+        82,
+        178,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "straight_flush",
+      "max_legal_next_rows": 5,
+      "name": "straight-flush-natural-wild",
+      "wild_mode": "natural"
+    },
+    {
+      "canonical_tokens": [
+        17,
+        116,
+        117,
+        170,
+        171,
+        7
+      ],
+      "cpp_python_equal": true,
+      "family": "four_kings",
+      "max_legal_next_rows": 3,
+      "name": "four-kings",
+      "wild_mode": "none"
+    }
+  ],
+  "environment": {
+    "extension_bytes": 3682037,
+    "extension_path": "D:\\project\\guandan\\nanopokerlib\\_guandan_cpp.cp312-win_amd64.pyd",
+    "extension_sha256": "dcd3ebebc9a360b7d0cb2209b801c615a344f21598736085a3b4249ece66a099",
+    "numpy": "2.3.5",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]"
+  },
+  "full_game_smokes": [
+    {
+      "cpp_python_equal": true,
+      "level_rank": 9,
+      "max_legal_next_rows": 20,
+      "outcome_class": "HEAD_THIRD",
+      "ranking": [
+        3,
+        2,
+        1,
+        4
+      ],
+      "seed": 234,
+      "token_steps": 353
+    },
+    {
+      "cpp_python_equal": true,
+      "level_rank": 3,
+      "max_legal_next_rows": 22,
+      "outcome_class": "HEAD_THIRD",
+      "ranking": [
+        1,
+        4,
+        3,
+        2
+      ],
+      "seed": 991,
+      "token_steps": 351
+    },
+    {
+      "cpp_python_equal": true,
+      "level_rank": 15,
+      "max_legal_next_rows": 19,
+      "outcome_class": "HEAD_THIRD",
+      "ranking": [
+        1,
+        4,
+        3,
+        2
+      ],
+      "seed": 77,
+      "token_steps": 329
+    }
+  ],
+  "protocol": {
+    "action": "GD-ACTION-0.2-MARVEL",
+    "backend": "cpp",
+    "encoding": "GD-ENCODING-0.2-MARVEL",
+    "environment": "GD-ENV-0.2-MARVEL",
+    "game_spec": {
+      "identifier": "GuandanMARVELV2Cpp",
+      "max_action_tokens": 8,
+      "max_available_actions": 256,
+      "max_game_horizon": 4096,
+      "max_observation_tokens": 48,
+      "num_channels": 512,
+      "num_players": 4,
+      "num_tokens": 320,
+      "pad_token": 0,
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL"
+    },
+    "identifier": "GuandanMARVELV2Cpp",
+    "serialization": "guandan-marvel-cpp-runtime-v1"
+  },
+  "schema": "guandan-marvel-m04-cpp-runtime-verification-v1",
+  "scope_note": "Local M04 functional/smoke evidence only; not the M05 10k/100k differential or >=2x performance gate.",
+  "stage": "M04_cpp_runtime",
+  "timestamp_unix": 1791527542.9853435
+}

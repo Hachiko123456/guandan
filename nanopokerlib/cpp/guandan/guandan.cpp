@@ -1478,10 +1478,19 @@ ProtocolResult Game::step_token(int token_id) {
 
 void Game::check_invariants() const {
     state.check_invariants();
+    if (state.level_rank != config.level_rank) throw StateInvariantError("round level does not match game config");
+    if (state.previous_result != config.previous_result) throw StateInvariantError("round previous result does not match game config");
     if (token_step < 0 || token_step > config.max_token_steps) throw StateInvariantError("token step outside configured range");
     if (state.committed_step > token_step || state.committed_step != static_cast<int>(state.history.size())) throw StateInvariantError("committed/token step mismatch");
+    std::size_t expected_token_step = prefix_tokens.size();
+    for (const auto& action : state.history) expected_token_step += canonical_tokens(action).size();
+    if (expected_token_step != static_cast<std::size_t>(token_step)) throw StateInvariantError("token_step does not match committed history and live prefix");
+    if (prefix_tokens.size() > MAX_PREFIX_TOKENS || prefix_tokens.size() > static_cast<std::size_t>(token_step)) throw StateInvariantError("private prefix length is inconsistent with token_step");
     if (truncated != (token_step == config.max_token_steps && !state.done)) throw StateInvariantError("truncation flag mismatch");
-    if (state.done && !prefix_tokens.empty()) throw StateInvariantError("terminal state has private prefix");
+    if (state.done) {
+        if (!prefix_tokens.empty()) throw StateInvariantError("terminal state has private prefix");
+        if (state.finish_token_step != token_step || state.finish_committed_step != state.committed_step) throw StateInvariantError("terminal finish counters are inconsistent");
+    }
     if (!state.done && !truncated && legal_next_tokens().empty()) throw StateInvariantError("nonterminal state has no legal action");
 }
 

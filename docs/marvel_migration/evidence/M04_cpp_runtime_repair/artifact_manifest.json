@@ -1,0 +1,82 @@
+{
+  "acceptance_registration_commit": null,
+  "artifacts": [
+    {
+      "bytes": 2928,
+      "path": "docs/marvel_migration/evidence/M04_cpp_runtime_repair/build_artifacts.json",
+      "sha256": "d568c96a81c7298e90c8d3d22c1ff74de6f18808d5192bde647c28e2b17ea884"
+    },
+    {
+      "bytes": 7002,
+      "path": "docs/marvel_migration/evidence/M04_cpp_runtime_repair/original_scope_rerun.json",
+      "sha256": "e611505e7551c305152c3a0e43f2150015b29bd7f88767ae37c0368c635f4ceb"
+    },
+    {
+      "bytes": 1561,
+      "path": "docs/marvel_migration/evidence/M04_cpp_runtime_repair/protocol_schema.json",
+      "sha256": "c6530b1edf9f77a173b9aad0b4214fa60e794054cc16f12ce745e9694abf3d76"
+    },
+    {
+      "bytes": 1140,
+      "path": "docs/marvel_migration/evidence/M04_cpp_runtime_repair/repair_summary.json",
+      "sha256": "483c260c166aa38b2ec8259333d4ce6c878a07694faaac6dc51a604de0add807"
+    },
+    {
+      "bytes": 8425,
+      "path": "docs/marvel_migration/evidence/M04_cpp_runtime_repair/repair_verification.json",
+      "sha256": "777ca60d6275099f7245c90a57b71b4423dccdf5670fa063f3d8e3ac9ecd551d"
+    },
+    {
+      "bytes": 3034,
+      "path": "docs/marvel_migration/evidence/M04_cpp_runtime_repair/review_findings.json",
+      "sha256": "98daae10f1b284b4f38033bd7096c31578c10907b071f5dbcadd3a5089d9b997"
+    },
+    {
+      "bytes": 4954,
+      "path": "docs/marvel_migration/evidence/M04_cpp_runtime_repair/source_manifest.json",
+      "sha256": "e27a52fe36721c92f47a5a404ad0be7ddb45d543f8d80edc09695e68d9060d63"
+    },
+    {
+      "bytes": 8593,
+      "path": "docs/marvel_migration/evidence/M04_cpp_runtime_repair/test_results.json",
+      "sha256": "b942a7509aba24d1b88e3a1d2b87718931f208ca19f016d036ed627d8ba55c78"
+    },
+    {
+      "bytes": 7949,
+      "path": "docs/marvel_migration/reports/M04_cpp_runtime_repair.md",
+      "sha256": "f486189834111cdcd707f3e82f2e6c2b19072c5e554b6a3158cc2dcaf34a91c9"
+    },
+    {
+      "bytes": 2717,
+      "path": "docs/marvel_migration/reports/M04_cpp_runtime_repair.json",
+      "sha256": "23854d3e56e6d9cd5640698d1115d3000513dfb55f7bd61744cd050d64794814"
+    },
+    {
+      "bytes": 3697,
+      "path": "docs/marvel_migration/M04_CPP_RUNTIME_REPAIR_PROTOCOL.md",
+      "sha256": "4c8d338d9a8d408bf76acc9444bc027f7480c21b5fb4e221639644bdca1167b7"
+    },
+    {
+      "bytes": 3863,
+      "path": "docs/marvel_migration/00_README.md",
+      "sha256": "3d45d2fddaa92937cecf9ea29e4e278c7eddf3f832e5a2ef034758f3dec57752"
+    },
+    {
+      "bytes": 5307,
+      "path": "docs/marvel_migration/04_GAME_INTERFACE_V2.md",
+      "sha256": "32d61b7dd84aa521fbba4338db16fc657bdd43bc13ec4a839194729633e43027"
+    },
+    {
+      "bytes": 7860,
+      "path": "docs/marvel_migration/STATUS.yaml",
+      "sha256": "48846664a4d1fc55c0470d388e9216f86bcbc0c52588360d4cea12ae08ace264"
+    }
+  ],
+  "date": "2026-10-09",
+  "large_artifacts_committed": false,
+  "large_artifacts_root": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance",
+  "original_implementation_commit": "75735031721a44304ffe4d7be7fc1532fadd0ba6",
+  "repair_implementation_commit": null,
+  "schema": "guandan-marvel-m04-repair-artifact-manifest-v1",
+  "stage": "M04_cpp_runtime_repair"
+}

@@ -1,0 +1,48 @@
+{
+  "batch_failure_strategy": "trial_copy_all_slots_then_publish; any failure publishes no slot",
+  "date": "2026-10-09",
+  "default_backend": "python_reference",
+  "m05_status": "not_started",
+  "original_implementation_commit": "75735031721a44304ffe4d7be7fc1532fadd0ba6",
+  "repair_implementation_commit": null,
+  "restore_validation": [
+    "complete mt19937_64 parse",
+    "only trailing whitespace",
+    "batch lengths",
+    "trajectory range",
+    "trajectory_step equals game.token_step",
+    "batch/game horizon match",
+    "level and previous-result config match",
+    "committed_step equals history length",
+    "token_step equals committed canonical token lengths plus live prefix",
+    "terminal finish counters",
+    "no truncated EnvBatch snapshot",
+    "auto-reset batch retains no terminal game",
+    "live observation/candidate frame"
+  ],
+  "schema": "guandan-marvel-m04-cpp-runtime-repair-protocol-v1",
+  "shared_action_validation": [
+    "framing",
+    "phase",
+    "prefix_stage",
+    "kind",
+    "payload",
+    "is_commit",
+    "vocabulary",
+    "decoded_metadata_matches_row",
+    "batch_size",
+    "unique_live_candidate"
+  ],
+  "stage": "M04_cpp_runtime_repair",
+  "step_inputs": [
+    "numpy integer rows [B,8]",
+    "Sequence[V2Action] from actions_from_np"
+  ],
+  "wire_changed": false,
+  "wire_versions": {
+    "action": "GD-ACTION-0.2-MARVEL",
+    "encoding": "GD-ENCODING-0.2-MARVEL",
+    "environment": "GD-ENV-0.2-MARVEL",
+    "serialization": "guandan-marvel-cpp-runtime-v1"
+  }
+}

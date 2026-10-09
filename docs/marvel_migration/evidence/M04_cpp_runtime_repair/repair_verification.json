@@ -1,0 +1,307 @@
+{
+  "action_interface": {
+    "equivalence": [
+      {
+        "batch_size": 1,
+        "decoded_action_count": 1,
+        "serialized_equal": true,
+        "transition_sha256": "21a46b6c3b81ad837d87a9539e5ed060d3305f8c8541b33a7aca4e43e44218ed"
+      },
+      {
+        "batch_size": 3,
+        "decoded_action_count": 3,
+        "serialized_equal": true,
+        "transition_sha256": "1e8dd8fa2c6dda37dff9eba6e25543a336ca889f53e6a496ee06ca793f407fb1"
+      }
+    ],
+    "failure_atomic": true,
+    "forged_multi_slot_rejection": {
+      "message": "action row is stale, forged, or not uniquely executable",
+      "type": "ProtocolError"
+    }
+  },
+  "deserialization": {
+    "legal_rng_whitespace": true,
+    "rejected": {
+      "batch_length": {
+        "message": "serialized batch shape mismatch",
+        "type": "ProtocolError"
+      },
+      "empty_rng": {
+        "message": "serialized RNG state is invalid or truncated",
+        "type": "ProtocolError"
+      },
+      "game_horizon": {
+        "message": "serialized game horizon does not match batch max_horizon",
+        "type": "ProtocolError"
+      },
+      "invalid_rng": {
+        "message": "serialized RNG state is invalid or truncated",
+        "type": "ProtocolError"
+      },
+      "mismatched_trajectory": {
+        "message": "serialized trajectory counter does not match game token_step",
+        "type": "ProtocolError"
+      },
+      "negative_trajectory": {
+        "message": "serialized trajectory counter is outside the legal range",
+        "type": "ProtocolError"
+      },
+      "over_horizon_trajectory": {
+        "message": "serialized trajectory counter is outside the legal range",
+        "type": "ProtocolError"
+      },
+      "trailing_rng_garbage": {
+        "message": "serialized RNG state has non-whitespace trailing data",
+        "type": "ProtocolError"
+      },
+      "truncated_rng": {
+        "message": "serialized RNG state is invalid or truncated",
+        "type": "ProtocolError"
+      }
+    }
+  },
+  "elapsed_seconds": 12.653533199998492,
+  "environment": {
+    "extension_bytes": 3682037,
+    "extension_path": "D:\\project\\guandan\\nanopokerlib\\_guandan_cpp.cp312-win_amd64.pyd",
+    "extension_sha256": "dcd3ebebc9a360b7d0cb2209b801c615a344f21598736085a3b4249ece66a099",
+    "numpy": "2.3.5",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "pybind11": "2.13.6",
+    "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]",
+    "python_executable": "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "torch": "2.13.0+cpu"
+  },
+  "rng_auto_reset_continuation": {
+    "post_reset_hands_sha256": "9950561b7b3873f340cc47a6eeca5756f4536d7182b247e3381187e9663520c3",
+    "post_reset_token_step": 0,
+    "serialized_equal": true,
+    "terminal_token_steps_after_restore": 296
+  },
+  "sampler": {
+    "counters_after_first": {
+      "total_env_steps": 640,
+      "total_game_steps": 246
+    },
+    "counters_after_second": {
+      "total_env_steps": 1318,
+      "total_game_steps": 535
+    },
+    "first_collect": [
+      {
+        "behavior_probability_finite": true,
+        "on_policy_valid": true,
+        "policy_finite": true,
+        "steps": 289,
+        "terminal_count": 1,
+        "terminal_reward": [
+          -1.0,
+          1.0,
+          -1.0,
+          1.0
+        ]
+      },
+      {
+        "behavior_probability_finite": true,
+        "on_policy_valid": true,
+        "policy_finite": true,
+        "steps": 320,
+        "terminal_count": 1,
+        "terminal_reward": [
+          1.0,
+          -1.0,
+          1.0,
+          -1.0
+        ]
+      }
+    ],
+    "first_collect_staggered": true,
+    "live_player_ids_after_auto_reset": [
+      0,
+      1
+    ],
+    "memory_budget": {
+      "collect_batch_size_global": 2,
+      "excludes": [
+        "model",
+        "optimizer",
+        "kv_cache",
+        "learner_activations",
+        "replay",
+        "temporary_copies"
+      ],
+      "fields": [
+        {
+          "bytes": 8,
+          "dtype": "int64",
+          "elements": 1,
+          "name": "num_steps",
+          "shape_per_trajectory": []
+        },
+        {
+          "bytes": 786432,
+          "dtype": "int64",
+          "elements": 98304,
+          "name": "obs_tokens",
+          "shape_per_trajectory": [
+            512,
+            4,
+            48
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "dtype": "uint8",
+          "elements": 1048576,
+          "name": "obs_channels",
+          "shape_per_trajectory": [
+            512,
+            4,
+            512
+          ]
+        },
+        {
+          "bytes": 4096,
+          "dtype": "int64",
+          "elements": 512,
+          "name": "player_ids",
+          "shape_per_trajectory": [
+            512
+          ]
+        },
+        {
+          "bytes": 8388608,
+          "dtype": "int64",
+          "elements": 1048576,
+          "name": "avail_tokens",
+          "shape_per_trajectory": [
+            512,
+            256,
+            8
+          ]
+        },
+        {
+          "bytes": 524288,
+          "dtype": "float32",
+          "elements": 131072,
+          "name": "avail_weights",
+          "shape_per_trajectory": [
+            512,
+            256
+          ]
+        },
+        {
+          "bytes": 131072,
+          "dtype": "bool",
+          "elements": 131072,
+          "name": "avail_is_commit",
+          "shape_per_trajectory": [
+            512,
+            256
+          ]
+        },
+        {
+          "bytes": 524288,
+          "dtype": "float32",
+          "elements": 131072,
+          "name": "policy_probs",
+          "shape_per_trajectory": [
+            512,
+            256
+          ]
+        },
+        {
+          "bytes": 2048,
+          "dtype": "float32",
+          "elements": 512,
+          "name": "behavior_action_prob",
+          "shape_per_trajectory": [
+            512
+          ]
+        },
+        {
+          "bytes": 512,
+          "dtype": "bool",
+          "elements": 512,
+          "name": "on_policy_valid",
+          "shape_per_trajectory": [
+            512
+          ]
+        },
+        {
+          "bytes": 4096,
+          "dtype": "int64",
+          "elements": 512,
+          "name": "action_taken",
+          "shape_per_trajectory": [
+            512
+          ]
+        },
+        {
+          "bytes": 8192,
+          "dtype": "float32",
+          "elements": 2048,
+          "name": "rewards",
+          "shape_per_trajectory": [
+            512,
+            4
+          ]
+        },
+        {
+          "bytes": 512,
+          "dtype": "bool",
+          "elements": 512,
+          "name": "is_terminal",
+          "shape_per_trajectory": [
+            512
+          ]
+        }
+      ],
+      "game_identifier": "m04-repair-verifier-cpp-sampler",
+      "per_trajectory_bytes": 11422728,
+      "per_trajectory_mib": 10.893562316894531,
+      "rollout_batch_size_global": 2,
+      "sampler_bytes_global": 68536368,
+      "sampler_bytes_per_rank": 68536368,
+      "sampler_gib_global": 0.0638294667005539,
+      "sampler_gib_per_rank": 0.0638294667005539,
+      "sampler_trajectories_global": 6,
+      "sampler_trajectories_per_rank": 6,
+      "schema": "guandan-marvel-trajectory-memory-budget-v1",
+      "world_size": 1
+    },
+    "sampler_failed": false,
+    "second_collect": [
+      {
+        "behavior_probability_finite": true,
+        "on_policy_valid": true,
+        "policy_finite": true,
+        "steps": 351,
+        "terminal_count": 1,
+        "terminal_reward": [
+          -1.0,
+          1.0,
+          -1.0,
+          1.0
+        ]
+      },
+      {
+        "behavior_probability_finite": true,
+        "on_policy_valid": true,
+        "policy_finite": true,
+        "steps": 339,
+        "terminal_count": 1,
+        "terminal_reward": [
+          1.0,
+          -1.0,
+          1.0,
+          -1.0
+        ]
+      }
+    ]
+  },
+  "schema": "guandan-marvel-m04-cpp-runtime-repair-verification-v1",
+  "scope_note": "M04 repair verification only; M05 10k/100k differential and >=2x gate are not claimed.",
+  "stage": "M04_cpp_runtime_repair"
+}

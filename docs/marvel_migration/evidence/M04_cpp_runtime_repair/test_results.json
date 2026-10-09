@@ -1,0 +1,178 @@
+{
+  "date": "2026-10-09",
+  "new_repair_skips": 0,
+  "other_commands": [
+    {
+      "command": "python setup.py build_ext --inplace --force",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/build.log",
+      "log_sha256": "75d4f9fe33fd4f61ef083ce821da6d005fff20c0a016bca6d01884f34565a279",
+      "name": "forced_build"
+    },
+    {
+      "command": "python scripts/verify_marvel_cpp_runtime_repair.py --output docs/marvel_migration/evidence/M04_cpp_runtime_repair/repair_verification.json",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/repair_verification.log",
+      "log_sha256": "80408cc0d2721e8e6b74424339cd1b8bcd5c61bd8d731ebc93571f5b814d88ca",
+      "name": "repair_verification"
+    },
+    {
+      "command": "python scripts/verify_marvel_cpp_runtime.py --output docs/marvel_migration/evidence/M04_cpp_runtime_repair/original_scope_rerun.json --batch-size 8",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/original_scope_rerun.log",
+      "log_sha256": "38509a8ef9fadd20f6286b8f9350dd55b43c5eb455a40aa3ed2e2ef5cd98ec23",
+      "name": "original_scope_rerun"
+    },
+    {
+      "command": "python -m pip wheel . --no-deps --wheel-dir runs/M04_cpp_runtime_repair/20261009_repair_acceptance/wheel",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/wheel_build.log",
+      "log_sha256": "06b2ddb1db21849562726d25a05c24e0bb8a713902ec79dafca11deb1079e055",
+      "name": "wheel_build"
+    },
+    {
+      "command": "python -m pip install --no-deps --target <fresh-target> <repair-wheel>",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/wheel_install.log",
+      "log_sha256": "2347fd23beedb6864e02256aff417f4e84c6c1e50e513a059743271825bc6d94",
+      "name": "wheel_install"
+    },
+    {
+      "command": "from repository-external cwd load isolated wheel, step(actions_from_np(rows)), serialize/deserialize",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/clean_wheel_import.log",
+      "log_sha256": "cf2a134e817f470ca94d4dd08d5c53c4f86a8c1b5d853f363be1d5482b7f0d21",
+      "name": "clean_wheel_import"
+    },
+    {
+      "command": "import source wrapper without extension and require ModuleNotFoundError; no fallback",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/missing_extension.log",
+      "log_sha256": "b4df81ca57526bbc48b15c36ecc0c3f76c537f19f0c8838b2129b6b273f79e8c",
+      "name": "missing_extension"
+    }
+  ],
+  "pytest_commands": [
+    {
+      "command": "python -m pytest tests/marvel_cpp -q --junitxml=runs/M04_cpp_runtime_repair/20261009_repair_acceptance/cpp_scoped.junit.xml",
+      "duration_seconds": 25.151,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/cpp_scoped.junit.xml",
+      "junit_sha256": "7e8613ab2e7fa5548e11e29e6e261f99c09a0d8638f85140d89d2884d63b1190",
+      "log": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/cpp_scoped.log",
+      "log_sha256": "564dcfdf4c5db9941f1be256342ea11af3e6aa789d8c37d6fbf2bfff73db61ad",
+      "name": "cpp_scoped",
+      "passed": 64,
+      "skipped": 0,
+      "tests": 64
+    },
+    {
+      "command": "python -m pytest tests/marvel_core tests/marvel_adapter tests/marvel_training -q --junitxml=runs/M04_cpp_runtime_repair/20261009_repair_acceptance/m01_m03_regression.junit.xml",
+      "duration_seconds": 100.63,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/m01_m03_regression.junit.xml",
+      "junit_sha256": "997096eb1bb08defc11e829af8e7f7d6c904d1f7c58f47feffba67c63a98030c",
+      "log": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/m01_m03_regression.log",
+      "log_sha256": "a03d3f55f970d4bf0345b001c06cd6d286a93384b217deeddb5237ac4ed98a98",
+      "name": "m01_m03_regression",
+      "passed": 81,
+      "skipped": 0,
+      "tests": 81
+    },
+    {
+      "command": "python -m pytest tests/acceptance/test_a01_cards.py tests/acceptance/test_a02_rules.py tests/acceptance/test_a02_a03_defect_fix.py tests/acceptance/test_a03_actions.py tests/acceptance/test_a04_environment.py -q --junitxml=runs/M04_cpp_runtime_repair/20261009_repair_acceptance/a01_a04_regression.junit.xml",
+      "duration_seconds": 10.303,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/a01_a04_regression.junit.xml",
+      "junit_sha256": "9ae1b73c00dc9cbde5ae722b7189c569f17915e38cad88642f2a030eb2f2c1c8",
+      "log": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/a01_a04_regression.log",
+      "log_sha256": "366f49a056fc62ff48b552bbf0d349ad6c1b67bdd831916303c74db1e47f4924",
+      "name": "a01_a04_regression",
+      "passed": 152,
+      "skipped": 0,
+      "tests": 152
+    },
+    {
+      "command": "python -m pytest tests/unit tests/integration tests/property -q --junitxml=runs/M04_cpp_runtime_repair/20261009_repair_acceptance/legacy_unit_integration_property.junit.xml",
+      "duration_seconds": 225.002,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/legacy_unit_integration_property.junit.xml",
+      "junit_sha256": "8a006708cf831372d96cdcb27637d554d55ef73a7cf53e30437b356d5327685c",
+      "log": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/legacy_unit_integration_property.log",
+      "log_sha256": "f0af7dd3a1c29deaed92b19e8bb8c98d48ff7f482d351e8fd27254f76cb68d3a",
+      "name": "legacy_unit_integration_property",
+      "passed": 897,
+      "skipped": 10,
+      "tests": 907
+    }
+  ],
+  "schema": "guandan-marvel-m04-repair-test-results-v1",
+  "skip_details": [
+    {
+      "reason": "symlink creation is unavailable",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_deployment_source::test_manifest_rejects_linked_source"
+    },
+    {
+      "reason": "CUDA unavailable",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_estimators::test_device_dtype_detachment_and_input_immutability[cuda-gae]"
+    },
+    {
+      "reason": "CUDA unavailable",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_estimators::test_device_dtype_detachment_and_input_immutability[cuda-boost]"
+    },
+    {
+      "reason": "directory symlinks are unavailable on this Windows host",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_performance_discovery::test_auto_scan_does_not_follow_symlink_outside_input_root"
+    },
+    {
+      "reason": "CUDA unavailable; CPU cannot certify GPU equivalence",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_rollout_performance::test_bounded_matches_immediate_onpolicy_reference[cuda-limits0-ippo]"
+    },
+    {
+      "reason": "CUDA unavailable; CPU cannot certify GPU equivalence",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_rollout_performance::test_bounded_matches_immediate_onpolicy_reference[cuda-limits0-vrpo]"
+    },
+    {
+      "reason": "CUDA unavailable; CPU cannot certify GPU equivalence",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_rollout_performance::test_bounded_matches_immediate_onpolicy_reference[cuda-limits1-ippo]"
+    },
+    {
+      "reason": "CUDA unavailable; CPU cannot certify GPU equivalence",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_rollout_performance::test_bounded_matches_immediate_onpolicy_reference[cuda-limits1-vrpo]"
+    },
+    {
+      "reason": "CUDA unavailable",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_training_objectives::test_central_critic_fixed_team_shape_candidate_dependence_and_gradients[cuda]"
+    },
+    {
+      "reason": "CUDA is not available",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_training_support::test_cuda_rng_and_combined_optimizer_can_resume_on_cuda"
+    }
+  ],
+  "stage": "M04_cpp_runtime_repair",
+  "totals": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 1194,
+    "skipped": 10,
+    "tests": 1204
+  }
+}

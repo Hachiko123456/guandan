@@ -1,0 +1,80 @@
+{
+  "acceptance_pending_identity_registration": true,
+  "acceptance_registration_commit": null,
+  "accepted": false,
+  "branch": "codex/marvel-guandan-migration",
+  "build": {
+    "external_cwd_import": true,
+    "forced_rebuild": true,
+    "isolated_wheel": true,
+    "missing_extension_fallback": false,
+    "step_decoded_actions": true
+  },
+  "date": "2026-10-09",
+  "default_backend_changed": false,
+  "evidence": [
+    "docs/marvel_migration/evidence/M04_cpp_runtime_repair/review_findings.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime_repair/protocol_schema.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime_repair/repair_verification.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime_repair/original_scope_rerun.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime_repair/repair_summary.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime_repair/test_results.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime_repair/source_manifest.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime_repair/build_artifacts.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime_repair/artifact_manifest.json"
+  ],
+  "issues": {
+    "action_interface": {
+      "fixed": true,
+      "reproduced": true,
+      "strategy": "EnvBatch.step accepts raw NumPy rows and validated Sequence[V2Action] through one ActionRow path"
+    },
+    "deserialize_validation": {
+      "counter_consistency": true,
+      "fixed": true,
+      "reproduced": true,
+      "rng_complete_parse": true,
+      "schema_changed": false
+    }
+  },
+  "m05_started": false,
+  "original_implementation_commit": "75735031721a44304ffe4d7be7fc1532fadd0ba6",
+  "protected_files_unchanged": true,
+  "python_oracle_modified": false,
+  "repair_implementation_commit": null,
+  "sampler": {
+    "auto_reset_continued": true,
+    "existing_sampler_modified": false,
+    "failed": false,
+    "first_collect_steps": [
+      289,
+      320
+    ],
+    "on_policy_first_step": true,
+    "real_transformer": true,
+    "second_collect_steps": [
+      351,
+      339
+    ],
+    "staggered_terminal": true
+  },
+  "sampler_source_modified": false,
+  "schema": "guandan-marvel-stage-repair-report-v1",
+  "serialization": {
+    "byte_stable": true,
+    "continued_to_real_terminal": true,
+    "corruptions_rejected": 9,
+    "mid_prefix_roundtrip": true,
+    "rng_continuation_crossed_auto_reset": true
+  },
+  "stage": "M04_cpp_runtime_repair",
+  "status": "locally_verified_pending_identity_registration",
+  "tests": {
+    "errors": 0,
+    "failed": 0,
+    "new_repair_skips": 0,
+    "passed": 1194,
+    "skipped": 10,
+    "tests": 1204
+  }
+}

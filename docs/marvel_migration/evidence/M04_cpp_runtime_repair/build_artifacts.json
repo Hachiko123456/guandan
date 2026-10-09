@@ -1,0 +1,63 @@
+{
+  "build_command_log": {
+    "exit_code": 0,
+    "path": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/build.log",
+    "sha256": "75d4f9fe33fd4f61ef083ce821da6d005fff20c0a016bca6d01884f34565a279"
+  },
+  "combined_source_sha256": "d1a95f93d1182247d295036464a9dace15eda7b9bc8b884a7d9b1c430cf6dac1",
+  "date": "2026-10-09",
+  "dependencies_log": {
+    "mingw_runtime_dynamic_dependencies": false,
+    "path": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/extension_dependencies.log",
+    "sha256": "d765a2c6820b561ee2472bb8166d8f2207b67cea57f116859a8968a27bf3ae2d"
+  },
+  "extension": {
+    "bytes": 3682037,
+    "committed": false,
+    "path": "nanopokerlib/_guandan_cpp.cp312-win_amd64.pyd",
+    "sha256": "dcd3ebebc9a360b7d0cb2209b801c615a344f21598736085a3b4249ece66a099"
+  },
+  "isolated_extension": {
+    "bytes": 3682037,
+    "path": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/wheel_install/nanopokerlib/_guandan_cpp.cp312-win_amd64.pyd",
+    "sha256": "a78eb097580448c8b5a848ce673795383bb918496a13de0304068f48c76d97d7"
+  },
+  "isolated_import": {
+    "passed": true,
+    "path": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/clean_wheel_import.log",
+    "serialize_roundtrip": true,
+    "sha256": "cf2a134e817f470ca94d4dd08d5c53c4f86a8c1b5d853f363be1d5482b7f0d21",
+    "step_decoded_actions": true
+  },
+  "missing_extension": {
+    "path": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/missing_extension.log",
+    "sha256": "b4df81ca57526bbc48b15c36ecc0c3f76c537f19f0c8838b2129b6b273f79e8c",
+    "silent_fallback": false
+  },
+  "platform": "Windows-11-10.0.26200-SP0",
+  "pybind11": "2.13.6",
+  "python": {
+    "executable": "C:\\Users\\yhx\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "version": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]"
+  },
+  "schema": "guandan-marvel-m04-repair-build-artifacts-v1",
+  "source_sha256": {
+    "nanopokerlib/cpp/bindings.cpp": "db22768c95abbdedd2336b0c67257f97e8c88ff2d32e45c8c5736dc080eed63a",
+    "nanopokerlib/cpp/guandan/guandan.cpp": "f76dc6ef216c560b889aa662c5bcebb0cbe7a3e3b7e49a3ec24dd1989147a14c",
+    "nanopokerlib/cpp/guandan/guandan.hpp": "7501b4af2ef02053324b64868cbf368383be3f3548d944b35efa6aa2371f1ccd",
+    "setup.py": "80fef64971b3472904c011387726e7223b58a91946b2390eadd93506b151a2a9"
+  },
+  "stage": "M04_cpp_runtime_repair",
+  "tools": {
+    "compiler": "C:\\mingw11.2.0\\bin\\g++.exe",
+    "compiler_version": "11.2.0",
+    "dlltool": "C:\\mingw11.2.0\\bin\\dlltool.exe",
+    "gendef": "C:\\mingw11.2.0\\bin\\gendef.exe"
+  },
+  "wheel": {
+    "bytes": 1177227,
+    "committed": false,
+    "path": "runs/M04_cpp_runtime_repair/20261009_repair_acceptance/wheel/guandan_train-0.1.0-cp312-cp312-win_amd64.whl",
+    "sha256": "6185d9483483aecb8e9c9e80c30bccb85c9fa39272689a7451f2c52a7e8f642b"
+  }
+}

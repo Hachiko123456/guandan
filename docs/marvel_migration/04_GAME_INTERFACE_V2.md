@@ -139,3 +139,7 @@ critic 不得修改 actor observation tensor，也不得通过共享缓存泄露
 ## 10. M04 C++ backend（2026-10-09）
 
 显式模块 `nanopokerlib.guandan` / `guandan_marvel.cpp_game` 实现同一 action/environment/encoding version，并新增 `guandan-marvel-cpp-runtime-v1` 序列化。它支持 `reset_from_deals`、`critic_state`、`debug_state` 和 byte-stable batch roundtrip。完整布局和 build 边界见 `M04_CPP_RUNTIME_PROTOCOL.md`。该实现尚未获得 M05 大规模差分/性能验收，正式默认后端不变。
+
+## 11. M04 补修后的动作/恢复契约（2026-10-09）
+
+C++ `EnvBatch.step()` 同时接受 NumPy structured rows 和 `actions_from_np(rows)` 返回的 `V2Action` 序列；两条路径执行相同的完整 row metadata 和 live-candidate 唯一匹配校验。C++ batch restore 严格拒绝无法完整解析的 RNG、非空尾随 RNG 内容、越界/负数/与 game token step 不一致的 trajectory counter，以及 horizon、history、prefix、terminal/truncated 不一致。正常 wire 未改变，serialization schema 保持 `guandan-marvel-cpp-runtime-v1`。完整补修边界见 `M04_CPP_RUNTIME_REPAIR_PROTOCOL.md`。

@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M05_differential_performance
+current_stage: M04_cpp_runtime
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -92,9 +92,10 @@ stages:
     blockers: []
 
   M04_cpp_runtime:
-    status: accepted
-    accepted: true
-    commit: self
+    status: in_progress
+    accepted: false
+    commit: 75735031721a44304ffe4d7be7fc1532fadd0ba6
+    original_implementation_commit: 75735031721a44304ffe4d7be7fc1532fadd0ba6
     reports:
       - docs/marvel_migration/reports/M04_cpp_runtime.md
       - docs/marvel_migration/reports/M04_cpp_runtime.json
@@ -105,14 +106,29 @@ stages:
       - docs/marvel_migration/evidence/M04_cpp_runtime/source_manifest.json
       - docs/marvel_migration/evidence/M04_cpp_runtime/build_artifacts.json
       - docs/marvel_migration/evidence/M04_cpp_runtime/artifact_manifest.json
-    blockers: []
+    repair_reports:
+      - docs/marvel_migration/reports/M04_cpp_runtime_repair.md
+      - docs/marvel_migration/reports/M04_cpp_runtime_repair.json
+    repair_evidence:
+      - docs/marvel_migration/evidence/M04_cpp_runtime_repair/review_findings.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime_repair/protocol_schema.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime_repair/repair_verification.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime_repair/original_scope_rerun.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime_repair/repair_summary.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime_repair/test_results.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime_repair/source_manifest.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime_repair/build_artifacts.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime_repair/artifact_manifest.json
+    blockers:
+      - repair implementation commit identity and reacceptance registration are pending
 
   M05_differential_performance:
-    status: not_started
+    status: blocked
     accepted: false
     commit: null
     reports: []
-    blockers: []
+    blockers:
+      - M04_cpp_runtime repair is not accepted
 
   M06_evaluation_champion:
     status: blocked

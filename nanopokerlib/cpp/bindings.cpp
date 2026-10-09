@@ -258,12 +258,32 @@ Game game_from_dict(const py::dict& data) {
     game.token_step = data["token_step"].cast<int>();
     game.truncated = data["truncated"].cast<bool>();
     std::istringstream rng_state(data["rng_state"].cast<std::string>());
-    rng_state >> game.rng;
+    if (!(rng_state >> game.rng)) throw ProtocolError("serialized RNG state is invalid or truncated");
+    rng_state >> std::ws;
+    if (!rng_state.eof()) throw ProtocolError("serialized RNG state has non-whitespace trailing data");
     game.reset_count = data["reset_count"].cast<std::uint64_t>();
     game.candidate_cache.clear();
     game.candidate_cache_valid = false;
     game.check_invariants();
     return game;
+}
+
+void validate_action_row(const core::ActionRow& action) {
+    if (action.tokens[0] != ACTION_ROW_BEGIN || action.tokens[4] != ACTION_PAYLOAD || action.tokens[7] != ACTION_ROW_END) throw ProtocolError("action row framing is invalid");
+    if (action.tokens[1] != LEAD_PLAY_TOKEN && action.tokens[1] != FOLLOW_PLAY_TOKEN && action.tokens[1] != TRIBUTE_TOKEN && action.tokens[1] != RETURN_TOKEN) throw ProtocolError("action row phase is invalid");
+    const int prefix_stage = action.tokens[2] - ACTION_STAGE_BASE;
+    const int kind_code = action.tokens[3] - ACTION_KIND_BASE;
+    if (prefix_stage < 0 || prefix_stage > MAX_PREFIX_TOKENS || kind_code < 0 || kind_code >= static_cast<int>(TOKEN_KIND_NAMES.size())) throw ProtocolError("action row stage or kind is invalid");
+    const int token_id = action.tokens[5];
+    const std::string kind = TOKEN_KIND_NAMES[kind_code];
+    if (token_kind(token_id) != kind) throw ProtocolError("action row kind does not match V1 token");
+    if (action.tokens[6] != ACTION_NON_COMMIT && action.tokens[6] != ACTION_COMMIT) throw ProtocolError("action row commit flag is invalid");
+    const bool is_commit = token_id == PASS_TOKEN || token_id == COMMIT_TOKEN;
+    if ((action.tokens[6] == ACTION_COMMIT) != is_commit) throw ProtocolError("action row commit flag does not match V1 token");
+    for (int token : action.tokens) if (token < 0 || token >= NUM_TOKENS) throw ProtocolError("action row token outside V2 vocabulary");
+    if (action.token_id != token_id || action.phase_token != action.tokens[1] || action.prefix_stage != prefix_stage || action.kind != kind || action.is_commit != is_commit) {
+        throw ProtocolError("decoded action metadata does not match its structured row");
+    }
 }
 
 core::ActionRow parse_action_row(const py::handle& row) {
@@ -276,19 +296,36 @@ core::ActionRow parse_action_row(const py::handle& row) {
     const auto view = values.unchecked<1>();
     core::ActionRow result;
     for (int index = 0; index < MAX_ACTION_TOKENS; ++index) result.tokens[index] = static_cast<int>(view(index));
-    if (result.tokens[0] != ACTION_ROW_BEGIN || result.tokens[4] != ACTION_PAYLOAD || result.tokens[7] != ACTION_ROW_END) throw ProtocolError("action row framing is invalid");
-    if (result.tokens[1] != LEAD_PLAY_TOKEN && result.tokens[1] != FOLLOW_PLAY_TOKEN && result.tokens[1] != TRIBUTE_TOKEN && result.tokens[1] != RETURN_TOKEN) throw ProtocolError("action row phase is invalid");
+    result.token_id = result.tokens[5];
+    result.phase_token = result.tokens[1];
     result.prefix_stage = result.tokens[2] - ACTION_STAGE_BASE;
     const int kind_code = result.tokens[3] - ACTION_KIND_BASE;
-    if (result.prefix_stage < 0 || result.prefix_stage > MAX_PREFIX_TOKENS || kind_code < 0 || kind_code >= 8) throw ProtocolError("action row stage or kind is invalid");
-    result.token_id = result.tokens[5];
-    result.kind = TOKEN_KIND_NAMES[kind_code];
-    if (token_kind(result.token_id) != result.kind) throw ProtocolError("action row kind does not match V1 token");
-    if (result.tokens[6] != ACTION_NON_COMMIT && result.tokens[6] != ACTION_COMMIT) throw ProtocolError("action row commit flag is invalid");
+    if (kind_code >= 0 && kind_code < static_cast<int>(TOKEN_KIND_NAMES.size())) result.kind = TOKEN_KIND_NAMES[kind_code];
     result.is_commit = result.token_id == PASS_TOKEN || result.token_id == COMMIT_TOKEN;
-    if ((result.tokens[6] == ACTION_COMMIT) != result.is_commit) throw ProtocolError("action row commit flag does not match V1 token");
-    result.phase_token = result.tokens[1];
-    for (int token : result.tokens) if (token < 0 || token >= NUM_TOKENS) throw ProtocolError("action row token outside V2 vocabulary");
+    validate_action_row(result);
+    return result;
+}
+
+std::vector<core::ActionRow> actions_from_array(const py::array& input);
+
+std::vector<core::ActionRow> actions_from_object(const py::object& input) {
+    if (py::isinstance<py::array>(input)) return actions_from_array(input.cast<py::array>());
+    if (py::isinstance<py::str>(input) || py::isinstance<py::bytes>(input) || !py::isinstance<py::sequence>(input)) {
+        throw std::invalid_argument("actions must be a NumPy row array or a sequence of V2Action objects");
+    }
+    const py::sequence sequence = input.cast<py::sequence>();
+    std::vector<core::ActionRow> result;
+    result.reserve(static_cast<std::size_t>(py::len(sequence)));
+    for (const py::handle item : sequence) {
+        core::ActionRow action;
+        try {
+            action = item.cast<core::ActionRow>();
+        } catch (const py::cast_error&) {
+            throw std::invalid_argument("decoded action sequence must contain only V2Action objects");
+        }
+        validate_action_row(action);
+        result.push_back(std::move(action));
+    }
     return result;
 }
 
@@ -413,9 +450,9 @@ public:
         return build_output(games_, events_, {}, {}, {});
     }
 
-    PyEnvStep step(const py::array& rows) {
+    PyEnvStep step(const py::object& action_input) {
         require_reset();
-        const auto actions = actions_from_array(rows);
+        const auto actions = actions_from_object(action_input);
         if (static_cast<int>(actions.size()) != batch_size_) throw std::invalid_argument("step requires one action row per slot");
         auto trials = games_;
         auto trial_events = events_;
@@ -546,6 +583,15 @@ public:
         for (const py::handle item : data["events"].cast<py::list>()) result->events_.push_back(events_from_object(item));
         result->trajectory_steps_ = data["trajectory_steps"].cast<std::vector<int>>();
         if (result->events_.size() != result->games_.size() || result->trajectory_steps_.size() != result->games_.size()) throw ProtocolError("serialized batch shape mismatch");
+        for (int index = 0; index < result->batch_size_; ++index) {
+            const Game& game = result->games_[index];
+            const int trajectory_step = result->trajectory_steps_[index];
+            if (game.config.max_token_steps != result->max_horizon_) throw ProtocolError("serialized game horizon does not match batch max_horizon");
+            if (trajectory_step < 0 || trajectory_step > result->max_horizon_) throw ProtocolError("serialized trajectory counter is outside the legal range");
+            if (trajectory_step != game.token_step) throw ProtocolError("serialized trajectory counter does not match game token_step");
+            if (game.truncated) throw ProtocolError("serialized EnvBatch cannot contain a truncated game");
+            if (result->auto_reset_ && game.state.done) throw ProtocolError("auto-reset batch cannot retain a terminal game state");
+        }
         result->is_reset_.assign(result->batch_size_, true);
         result->observe();
         return result;

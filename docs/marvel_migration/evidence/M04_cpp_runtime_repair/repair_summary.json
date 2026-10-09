@@ -1,0 +1,40 @@
+{
+  "acceptance_pending_identity_registration": true,
+  "accepted": false,
+  "action_interface_fixed": true,
+  "action_interface_issue_reproduced": true,
+  "date": "2026-10-09",
+  "default_backend_changed": false,
+  "deserialize_issue_reproduced": true,
+  "invalid_rng_and_counters_rejected": true,
+  "m05_started": false,
+  "original_implementation_commit": "75735031721a44304ffe4d7be7fc1532fadd0ba6",
+  "real_transformer_sampler": {
+    "failed": false,
+    "first_collect_steps": [
+      289,
+      320
+    ],
+    "second_collect_steps": [
+      351,
+      339
+    ]
+  },
+  "repair_implementation_commit": null,
+  "rng_auto_reset_continuation": {
+    "post_reset_hands_sha256": "9950561b7b3873f340cc47a6eeca5756f4536d7182b247e3381187e9663520c3",
+    "post_reset_token_step": 0,
+    "serialized_equal": true,
+    "terminal_token_steps_after_restore": 296
+  },
+  "schema": "guandan-marvel-m04-repair-summary-v1",
+  "serialization_schema_changed": false,
+  "stage": "M04_cpp_runtime_repair",
+  "tests": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 1194,
+    "skipped": 10,
+    "tests": 1204
+  }
+}

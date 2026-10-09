@@ -1,0 +1,134 @@
+{
+  "date": "2026-10-09",
+  "files": [
+    {
+      "bytes": 50872,
+      "changed_from_original": true,
+      "path": "nanopokerlib/cpp/bindings.cpp",
+      "sha256": "db22768c95abbdedd2336b0c67257f97e8c88ff2d32e45c8c5736dc080eed63a"
+    },
+    {
+      "bytes": 84623,
+      "changed_from_original": true,
+      "path": "nanopokerlib/cpp/guandan/guandan.cpp",
+      "sha256": "f76dc6ef216c560b889aa662c5bcebb0cbe7a3e3b7e49a3ec24dd1989147a14c"
+    },
+    {
+      "bytes": 10600,
+      "changed_from_original": false,
+      "path": "nanopokerlib/cpp/guandan/guandan.hpp",
+      "sha256": "7501b4af2ef02053324b64868cbf368383be3f3548d944b35efa6aa2371f1ccd"
+    },
+    {
+      "bytes": 941,
+      "changed_from_original": false,
+      "path": "nanopokerlib/guandan.py",
+      "sha256": "2378bf606cf133541b5fe64b063b5b3db52edc7c2c6f6b16ad7981f538d05463"
+    },
+    {
+      "bytes": 296,
+      "changed_from_original": false,
+      "path": "guandan_marvel/cpp_game.py",
+      "sha256": "3501f5dc42e37407055a316a5851ff4fe4a6fceeecfdd290220ea7b3d8cfdf4b"
+    },
+    {
+      "bytes": 25452,
+      "changed_from_original": false,
+      "path": "guandan_marvel/runtime/sampler.py",
+      "sha256": "abf910febf3c3a5a7bdc7fbf975ca9fb5d52965082bb35f4931003b4fcad983b"
+    },
+    {
+      "bytes": 4466,
+      "changed_from_original": true,
+      "path": "setup.py",
+      "sha256": "80fef64971b3472904c011387726e7223b58a91946b2390eadd93506b151a2a9"
+    },
+    {
+      "bytes": 3672,
+      "changed_from_original": true,
+      "path": "tests/marvel_cpp/test_repair_action_interface.py",
+      "sha256": "95a0a999520cba052cbda52c18c728360568cb8cacd7010c37c68e39994e83ba"
+    },
+    {
+      "bytes": 6260,
+      "changed_from_original": true,
+      "path": "tests/marvel_cpp/test_repair_deserialize.py",
+      "sha256": "ac45be7cc1ca5733d70590aa56025ee110b3eb82e04041d61dda39ec0e5ddf60"
+    },
+    {
+      "bytes": 4857,
+      "changed_from_original": true,
+      "path": "tests/marvel_cpp/test_repair_sampler.py",
+      "sha256": "9f023c1d73c4e321f6a47aa6082dbd1bc0c7d65232bb34dbfc29d2f97f362962"
+    },
+    {
+      "bytes": 12515,
+      "changed_from_original": true,
+      "path": "scripts/verify_marvel_cpp_runtime_repair.py",
+      "sha256": "6633feb73cb4486bd631242c8f8286b2aaddcc8569f2fab4567df1a8e54c5e09"
+    },
+    {
+      "bytes": 3697,
+      "changed_from_original": true,
+      "path": "docs/marvel_migration/M04_CPP_RUNTIME_REPAIR_PROTOCOL.md",
+      "sha256": "4c8d338d9a8d408bf76acc9444bc027f7480c21b5fb4e221639644bdca1167b7"
+    },
+    {
+      "bytes": 5307,
+      "changed_from_original": true,
+      "path": "docs/marvel_migration/04_GAME_INTERFACE_V2.md",
+      "sha256": "32d61b7dd84aa521fbba4338db16fc657bdd43bc13ec4a839194729633e43027"
+    },
+    {
+      "bytes": 3863,
+      "changed_from_original": true,
+      "path": "docs/marvel_migration/00_README.md",
+      "sha256": "3d45d2fddaa92937cecf9ea29e4e278c7eddf3f832e5a2ef034758f3dec57752"
+    }
+  ],
+  "ippo_vrpo_math_modified": false,
+  "original_implementation_commit": "75735031721a44304ffe4d7be7fc1532fadd0ba6",
+  "protected_files": [
+    {
+      "original_m04_blob": "85734aa3039aa2e8b5850762ddb4903942fab09b",
+      "path": "guandan/cards.py",
+      "sha256": "1454a3f14fe21a52d6e9ff1afd9552ae8e14013950b9d579ecf221670dd89787",
+      "worktree_blob": "85734aa3039aa2e8b5850762ddb4903942fab09b"
+    },
+    {
+      "original_m04_blob": "dc3aff35fa06aac6158d6381ade3370829692b26",
+      "path": "guandan/combos.py",
+      "sha256": "b81bff006536b7938c395eb21dd3a0e0ecaa522e64fbbd9df7e2f5148ae3f308",
+      "worktree_blob": "dc3aff35fa06aac6158d6381ade3370829692b26"
+    },
+    {
+      "original_m04_blob": "2ba208d1fd79a8fef3debc4a1bc64493ca89f09b",
+      "path": "guandan/round.py",
+      "sha256": "4e357502b9ee63d15d0fedac91127f72e2c976279f18c76a762483df010fc21a",
+      "worktree_blob": "2ba208d1fd79a8fef3debc4a1bc64493ca89f09b"
+    },
+    {
+      "original_m04_blob": "dca8b770bf5ebad206802ff7b0415f4384b1f16a",
+      "path": "guandan/state.py",
+      "sha256": "c0ffd8c50ac868a6e93b3cb19953b662e65ecf59a0d2d4dc334441ffee47159b",
+      "worktree_blob": "dca8b770bf5ebad206802ff7b0415f4384b1f16a"
+    },
+    {
+      "original_m04_blob": "ac9074987065d6a228730b99973cf679d7711863",
+      "path": "docs/rules.md",
+      "sha256": "77679ef8bd454a5d84ec0c7c357165b13ef9078ecee9f7d381ebd63892e15a52",
+      "worktree_blob": "ac9074987065d6a228730b99973cf679d7711863"
+    }
+  ],
+  "protected_files_unchanged": true,
+  "python_oracle_modified": false,
+  "reference": {
+    "head": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+    "path": "D:\\project\\doudizhu",
+    "status_short": ""
+  },
+  "repair_implementation_commit": null,
+  "sampler_source_modified": false,
+  "schema": "guandan-marvel-m04-repair-source-manifest-v1",
+  "stage": "M04_cpp_runtime_repair"
+}

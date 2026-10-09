@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-09",
+  "findings": [
+    {
+      "id": "M04-R01",
+      "python_reference_control_passed": true,
+      "reproduced": true,
+      "sampler_failure_stage": "environment_step",
+      "sampler_poisoned": true,
+      "title": "C++ EnvBatch.step rejects actions_from_np output"
+    },
+    {
+      "id": "M04-R02",
+      "reproduced": true,
+      "title": "deserialize accepts invalid RNG and inconsistent trajectory counters"
+    }
+  ],
+  "original_implementation_commit": "75735031721a44304ffe4d7be7fc1532fadd0ba6",
+  "raw_log": "runs/M04_cpp_runtime_repair/20261009_pre_repair/reproduce.log",
+  "reproduction": {
+    "cpp_step_decoded": {
+      "message": "step(): incompatible function arguments. The following argument types are supported:\n    1. (self: nanopokerlib._guandan_cpp.EnvBatch, arg0: numpy.ndarray) -> nanopokerlib._guandan_cpp.EnvStep\n\nInvoked with: <nanopokerlib._guandan_cpp.EnvBatch object at 0x0000015D6860E830>, (<nanopokerlib._guandan_cpp.V2Action object at 0x0000015D6858C530>,)",
+      "ok": false,
+      "type": "TypeError"
+    },
+    "invalid_rng": {
+      "accepted": true,
+      "reserialized_rng": "0 14665266241186068208 15952699494253098425 2568396680702982069 4213069145873470"
+    },
+    "mismatched_trajectory": {
+      "accepted": true,
+      "reserialized_rng": "13491012291955101543 5524987922411499395 6049366369766763121 1361264220261918332"
+    },
+    "negative_trajectory": {
+      "accepted": true,
+      "reserialized_rng": "13491012291955101543 5524987922411499395 6049366369766763121 1361264220261918332"
+    },
+    "python_step_decoded": {
+      "ok": true,
+      "player_ids": [
+        0
+      ]
+    },
+    "sampler": {
+      "failed": true,
+      "failure_info": {
+        "attempted_env_steps": 1,
+        "completed_env_steps": 0,
+        "completed_game_steps": 0,
+        "error": "step(): incompatible function arguments. The following argument types are supported:\n    1. (self: nanopokerlib._guandan_cpp.EnvBatch, arg0: numpy.ndarray) -> nanopokerlib._guandan_cpp.EnvStep\n\nInvoked with: <nanopokerlib._guandan_cpp.EnvBatch object at 0x0000015D682CBA70>, (<nanopokerlib._guandan_cpp.V2Action object at 0x0000015D657151B0>,)",
+        "error_type": "TypeError",
+        "exact_resume_allowed": false,
+        "failed_env_steps": 1,
+        "schema": "guandan-marvel-sampler-contract-v2",
+        "stage": "environment_step",
+        "strategy": "poison_on_failure"
+      },
+      "message": "step(): incompatible function arguments. The following argument types are supported:\n    1. (self: nanopokerlib._guandan_cpp.EnvBatch, arg0: numpy.ndarray) -> nanopokerlib._guandan_cpp.EnvStep\n\nInvoked with: <nanopokerlib._guandan_cpp.EnvBatch object at 0x0000015D682CBA70>, (<nanopokerlib._guandan_cpp.V2Action object at 0x0000015D657151B0>,)",
+      "ok": false,
+      "type": "TypeError"
+    }
+  },
+  "schema": "guandan-marvel-m04-repair-review-findings-v1",
+  "stage": "M04_cpp_runtime_repair"
+}
