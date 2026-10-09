@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M03_marvel_training_smoke_repair
+current_stage: M04_cpp_runtime
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -62,9 +62,9 @@ stages:
     blockers: []
 
   M03_marvel_training_smoke:
-    status: in_progress
-    accepted: false
-    commit: 4968840679ea031ec7b69132cebd862efa302c17
+    status: accepted
+    accepted: true
+    commit: a3e318f2683539709da32701cc9d78081a5bc11d
     reports:
       - docs/marvel_migration/reports/M03_marvel_training_smoke.md
       - docs/marvel_migration/reports/M03_marvel_training_smoke.json
@@ -88,16 +88,15 @@ stages:
       - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/source_fingerprint.json
       - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/test_results.json
       - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/source_manifest.json
-    blockers:
-      - repair implementation commit identity is pending acceptance registration
+      - docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/artifact_manifest.json
+    blockers: []
 
   M04_cpp_runtime:
-    status: blocked
+    status: not_started
     accepted: false
     commit: null
     reports: []
-    blockers:
-      - M03_marvel_training_smoke repair is not accepted
+    blockers: []
 
   M05_differential_performance:
     status: blocked

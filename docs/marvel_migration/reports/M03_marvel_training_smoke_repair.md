@@ -4,8 +4,8 @@
 - 分支：`codex/marvel-guandan-migration`
 - 原始实现：`4968840679ea031ec7b69132cebd862efa302c17`
 - 原始验收标签：`refs/tags/m03-marvel-training-smoke-accepted`（保持不动）
-- 补修实现 commit：待第一笔补修提交，由第二笔验收登记固定
-- 状态：`locally_verified_pending_registration`
+- 补修实现 commit：`a3e318f2683539709da32701cc9d78081a5bc11d`
+- 状态：`accepted`
 
 ## 范围
 
@@ -255,6 +255,7 @@ Semantic configuration 覆盖当前实现实际消费的：
 - `source_fingerprint.json`
 - `test_results.json`
 - `source_manifest.json`
+- `artifact_manifest.json`
 
 ## 受保护范围
 
@@ -262,4 +263,4 @@ Semantic configuration 覆盖当前实现实际消费的：
 
 ## 当前结论
 
-补修代码和本地证据已通过，但第一笔补修 commit SHA 尚未登记。因此 `STATUS.yaml` 保持 M03 `accepted=false`、M04 blocked。第二笔提交只固定补修实现 SHA、证据 hash 和重新验收状态，不执行 M04。
+补修实现提交已固定为 `a3e318f2683539709da32701cc9d78081a5bc11d`，所有硬门槛和证据 hash 已重新核验。`STATUS.yaml` 重新接受 M03 并解除 M04 blocker；本轮没有执行 M04。验收登记提交自身 SHA 不写入自身内容，准确值由 Git 和最终答复给出。

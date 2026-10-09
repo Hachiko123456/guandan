@@ -1,0 +1,82 @@
+{
+  "acceptance_registration_commit_embedded": false,
+  "artifacts": [
+    {
+      "bytes": 4355,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/checkpoint_verification.json",
+      "sha256": "2433106f2c1d517783123fccf10b4b43ad71518a4ff67bf3a40092017d234916"
+    },
+    {
+      "bytes": 3287,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/protocol_schema.json",
+      "sha256": "f975493c859542914465037630864903c9efb72c50acbd668b25347d9a52c94b"
+    },
+    {
+      "bytes": 1355,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/repair_summary.json",
+      "sha256": "de26d22fd97d173244dfdda1e5c5582a5e4e30efd3cb057f8ccb8f31a9dda513"
+    },
+    {
+      "bytes": 17809,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/repair_verification.json",
+      "sha256": "35c8fa7d92386955722d5ecfa1546c18aadd92fde90c3c6fd69d2d63f762708c"
+    },
+    {
+      "bytes": 1525,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/review_findings.json",
+      "sha256": "f4618ae6f993decb0dd8b911b84853814140758e7f19df7feb4108bc63ea6198"
+    },
+    {
+      "bytes": 5534,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/source_fingerprint.json",
+      "sha256": "a7662a43182f17c20e914c5aa4a41144d0e88b1a7abc7d83ccf1a811aacf78d6"
+    },
+    {
+      "bytes": 2934,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/source_manifest.json",
+      "sha256": "f8bdae4a85b19dc52e8d82e68f4575092cb4528764e61106d733179486eb41e0"
+    },
+    {
+      "bytes": 7231,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/test_results.json",
+      "sha256": "545ab34a9d2ec6e06594c90cfbc7ec58d12051e0641b6835d5a703b2cbce75b0"
+    },
+    {
+      "bytes": 9014,
+      "path": "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/training_smoke.json",
+      "sha256": "16dcf315b3ddef5aa27bbe59fd6578bd7804d528e035779cacfbad5f97c62b89"
+    },
+    {
+      "bytes": 9501,
+      "path": "docs/marvel_migration/reports/M03_marvel_training_smoke_repair.md",
+      "sha256": "04612874c2d98629ce65cbc16ecde66be896becac1a93deaaa757a3d6775332c"
+    },
+    {
+      "bytes": 11473,
+      "path": "docs/marvel_migration/reports/M03_marvel_training_smoke_repair.json",
+      "sha256": "f3c761a0daf95154139c568e2c370bd2b024965bda37c270ae358b7d0b16f4a7"
+    },
+    {
+      "bytes": 7201,
+      "path": "docs/marvel_migration/M03_TRAINING_PROTOCOL.md",
+      "sha256": "a9e784b4024a1fa3ddbfe69e378b0946374ef0b9599a3a147432c3b27ba544a1"
+    },
+    {
+      "bytes": 2768,
+      "path": "docs/marvel_migration/M03_SOURCE_AUDIT.md",
+      "sha256": "290405425fb6a3e65c61657ad9fe4c6955760922ab4c43550e27d962adb690ce"
+    },
+    {
+      "bytes": 6127,
+      "path": "docs/marvel_migration/STATUS.yaml",
+      "sha256": "3dac015703ad27f51df91d63b8783bdad3a837617b6b7cf240601379d221c0c3"
+    }
+  ],
+  "date": "2026-10-09",
+  "original_acceptance_tag": "refs/tags/m03-marvel-training-smoke-accepted",
+  "original_implementation_commit": "4968840679ea031ec7b69132cebd862efa302c17",
+  "original_tag_target": "4968840679ea031ec7b69132cebd862efa302c17",
+  "repair_implementation_commit": "a3e318f2683539709da32701cc9d78081a5bc11d",
+  "schema": "guandan-marvel-m03-repair-artifact-manifest-v1",
+  "stage": "M03_marvel_training_smoke_repair"
+}

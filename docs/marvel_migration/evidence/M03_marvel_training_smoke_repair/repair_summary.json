@@ -9,13 +9,14 @@
     "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/checkpoint_verification.json",
     "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/source_fingerprint.json",
     "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/test_results.json",
-    "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/source_manifest.json"
+    "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/source_manifest.json",
+    "docs/marvel_migration/evidence/M03_marvel_training_smoke_repair/artifact_manifest.json"
   ],
-  "identity_registration_pending": true,
+  "identity_registration_pending": false,
   "original_implementation_commit": "4968840679ea031ec7b69132cebd862efa302c17",
-  "repair_implementation_commit": null,
+  "repair_implementation_commit": "a3e318f2683539709da32701cc9d78081a5bc11d",
   "report": "docs/marvel_migration/reports/M03_marvel_training_smoke_repair.json",
   "schema": "guandan-marvel-m03-repair-summary-v1",
   "stage": "M03_marvel_training_smoke_repair",
-  "status": "locally_verified_pending_registration"
+  "status": "accepted"
 }
