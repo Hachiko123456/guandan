@@ -4,7 +4,7 @@
   "date": "2026-10-10",
   "status": "accepted_under_revised_criteria",
   "criteria_revision": "guandan-marvel-m05-acceptance-revision-v1",
-  "revision_commit": null,
+  "revision_commit": "c26ed0caafe28c493d5f506a1fe7bc19a345ecf5",
   "implementation_commit": "9b4cb016c690650a18d3bc39137f703491c207d4",
   "historical_reports_preserved": [
     "docs/marvel_migration/reports/M05_differential_performance.md",

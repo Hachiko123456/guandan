@@ -4,7 +4,7 @@
 - 分支：`codex/marvel-guandan-migration`
 - 核验基线：`ad964b4d146553780a19099ffc37d7fe72709230`
 - M05 实现 commit：`9b4cb016c690650a18d3bc39137f703491c207d4`
-- 修订 commit：由本报告所在的规范提交确定，准确 SHA 由后续登记提交写入 `STATUS.yaml`
+- 修订 commit：`c26ed0caafe28c493d5f506a1fe7bc19a345ecf5`
 - 状态：`accepted_under_revised_criteria`
 
 ## 范围
