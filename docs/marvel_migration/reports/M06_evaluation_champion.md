@@ -3,7 +3,7 @@
 - 日期：2026-10-10
 - 分支：`codex/marvel-guandan-migration`
 - 开始 commit：`1ab5d03602866eda600277353ee1b9c65ab58ae4`
-- 实现 commit：由本报告所在的原子实现提交确定；准确 SHA 由后续登记提交写入 `STATUS.yaml`
+- 实现 commit：`10cb3452f69cd23a3bed848498e4353dcfbe3b9c`
 - 执行环境：Windows；Python 3.12；PyTorch 2.13.0+cpu；C++ pybind backend；CPU local
 - 阶段状态：`accepted`
 

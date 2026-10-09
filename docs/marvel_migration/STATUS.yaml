@@ -210,10 +210,10 @@ stages:
   M06_evaluation_champion:
     status: accepted
     accepted: true
-    commit: null
-    implementation_commit: null
+    commit: 10cb3452f69cd23a3bed848498e4353dcfbe3b9c
+    implementation_commit: 10cb3452f69cd23a3bed848498e4353dcfbe3b9c
     registration_commit: null
-    registration_note: exact implementation SHA will be recorded by the follow-up registration commit
+    registration_note: implementation SHA is recorded exactly; registration commit SHA is reported in the final response
     reports:
       - docs/marvel_migration/reports/M06_evaluation_champion.md
       - docs/marvel_migration/reports/M06_evaluation_champion.json
