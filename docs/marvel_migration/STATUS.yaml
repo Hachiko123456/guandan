@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M05_differential_performance
+current_stage: M06_evaluation_champion
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -137,19 +137,33 @@ stages:
     blockers: []
 
   M05_differential_performance:
+    status: accepted
+    accepted: true
+    commit: null
+    commit_embedded: false
+    commit_note: atomic commit SHA is reported in the final response and Git history because a commit cannot contain its own SHA
+    reports:
+      - docs/marvel_migration/reports/M05_differential_performance.md
+      - docs/marvel_migration/reports/M05_differential_performance.json
+    evidence:
+      - docs/marvel_migration/evidence/M05_differential_performance/differential_summary.json
+      - docs/marvel_migration/evidence/M05_differential_performance/benchmark_report.json
+      - docs/marvel_migration/evidence/M05_differential_performance/corpus_manifest.json
+      - docs/marvel_migration/evidence/M05_differential_performance/mismatch_manifest.json
+      - docs/marvel_migration/evidence/M05_differential_performance/protocol_schema.json
+      - docs/marvel_migration/evidence/M05_differential_performance/verification.json
+      - docs/marvel_migration/evidence/M05_differential_performance/test_results.json
+      - docs/marvel_migration/evidence/M05_differential_performance/source_manifest.json
+      - docs/marvel_migration/evidence/M05_differential_performance/environment.json
+      - docs/marvel_migration/evidence/M05_differential_performance/artifact_manifest.json
+    blockers: []
+
+  M06_evaluation_champion:
     status: not_started
     accepted: false
     commit: null
     reports: []
     blockers: []
-
-  M06_evaluation_champion:
-    status: blocked
-    accepted: false
-    commit: null
-    reports: []
-    blockers:
-      - M05_differential_performance is not accepted
 
   M07_kaggle_t4x2:
     status: blocked

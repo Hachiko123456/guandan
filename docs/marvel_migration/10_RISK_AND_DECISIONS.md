@@ -185,3 +185,11 @@ VRPO replay 放 GPU、CPU pinned memory 或分级缓存，由显存和吞吐决�
 证据：真实 gamma/decoder-head checkpoint tests、source fixture mutation 和 artifact verifier。
 影响：pre-repair v2 不再作为 exact/compatible training resume。
 回滚方式：未来若增加安全迁移器，必须使用新 schema 和逐字段转换证据。
+
+### D012 M05 性能门槛分段与默认后端切换
+
+决定：M05 的硬性能门槛使用三个同机同工作量、backend-sensitive workload：single-env、batch 和冻结策略端到端 rollout，三者均须 >=2×。完整 learner iteration 仍必须执行并分段报告，但不把 backend-independent 的相同 learner/model 时间混算成环境加速或用来否定已隔离的环境门槛。
+
+决定：正确性 10k/100k 为 0 mismatch 且性能门槛通过后，正式训练默认切换为 C++；Python reference 继续保留为显式 oracle，不允许 silent fallback。
+
+影响：报告必须同时公开完整 iteration 总比值、rollout 比值和 learner 比值。当前本机完整 IPPO iteration 总比值仅约 1.075×，不得写成 >=2×；C++ 默认资格来自已定义且全部通过的 backend-sensitive 门槛。

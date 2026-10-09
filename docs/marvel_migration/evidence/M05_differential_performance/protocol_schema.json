@@ -1,0 +1,32 @@
+{
+  "action_version": "GD-ACTION-0.2-MARVEL",
+  "benchmark_schema": "guandan-marvel-m05-benchmark-v1",
+  "corpus_schema": "guandan-marvel-m05-state-action-corpus-v1",
+  "correctness_gate": {
+    "complete_games": 10000,
+    "intermediate_states": 100000,
+    "levels": 13,
+    "mismatches": 0,
+    "privacy_observers": 4
+  },
+  "date": "2026-10-09",
+  "default_backend": "cpp",
+  "differential_summary_schema": "guandan-marvel-m05-differential-summary-v1",
+  "encoding_version": "GD-ENCODING-0.2-MARVEL",
+  "environment_version": "GD-ENV-0.2-MARVEL",
+  "mismatch_fixture_schema": "guandan-marvel-m05-mismatch-fixture-v1",
+  "oracle_backend": "python_reference",
+  "performance_gate": {
+    "full_iteration_gating": false,
+    "gated_lanes": [
+      "environment_single_complete_games",
+      "environment_batch_fixed_prefix",
+      "end_to_end_frozen_policy_rollout"
+    ],
+    "target": 5.0,
+    "threshold": 2.0
+  },
+  "schema": "guandan-marvel-m05-protocol-v1",
+  "silent_fallback": false,
+  "stage": "M05_differential_performance"
+}

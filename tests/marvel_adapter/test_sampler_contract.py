@@ -8,7 +8,7 @@ from torch import nn
 
 from guandan.action_state import COMMIT_TOKEN, ProtocolError, TokenCodec
 from guandan.combos import CombinationKind
-from guandan_marvel import game
+from guandan_marvel import python_game as game
 from guandan_marvel.config import GameSpec, ModelConfig, TrainConfig
 from guandan_marvel.model import Agent
 from guandan_marvel.model.types import AgentOutput

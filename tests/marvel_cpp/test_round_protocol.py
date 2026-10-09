@@ -8,7 +8,7 @@ from guandan.cards import Card, Rank, full_deck
 from guandan.environment import GuandanEnv
 from guandan.environment_types import GameConfig
 from guandan.state import PreviousHandResult, RoundState
-from guandan_marvel import game as python_game
+from guandan_marvel import python_game
 from guandan_marvel.testing.complex_actions import DIRECTED_ACTION_CASES, build_directed_action
 from nanopokerlib import guandan as cpp
 

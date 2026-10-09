@@ -115,7 +115,7 @@ def build_directed_action(case: DirectedActionCase) -> tuple[RoundState, Committ
 def execute_directed_case(case: DirectedActionCase, *, verify_serialization: bool = True) -> dict[str, object]:
     """Execute a complete V2 prefix/COMMIT path against an independent V1 clone."""
     import numpy as np
-    from guandan_marvel import game
+    from guandan_marvel import python_game as game
 
     state, action = build_directed_action(case)
     config = GameConfig(level_rank=state.level_rank, leader_seat=0, max_token_steps=game.max_game_horizon)

@@ -1,0 +1,99 @@
+{
+  "blocking_commands_passed": true,
+  "blocking_summary": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 346,
+    "skipped": 0
+  },
+  "commands": [
+    {
+      "blocking": false,
+      "command": "python -m pytest",
+      "exit_code": 2,
+      "log": "runs/M05_differential_performance/20261009_acceptance/tests/m05_scoped.log",
+      "log_sha256": "a4db7b862a98af82111fc2ec2cfdb0a555b2549fb58aebf3d152f34e8ed0b541",
+      "name": "discarded_wrapper_attempt",
+      "note": "PowerShell function parameter shadowed $args, so this orchestration attempt accidentally invoked the unscoped collector; retained transparently and rerun correctly."
+    },
+    {
+      "blocking": true,
+      "command": "python -m pytest tests/marvel_differential tests/marvel_cpp -q --junitxml=.../m05_scoped_rerun.junit.xml",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 113,
+        "time": 34.884
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_differential_performance/20261009_acceptance/tests/m05_scoped_rerun.junit.xml",
+      "junit_sha256": "d81468b18b1144a80b8734184824c595858bdb1b7afa624ec87564ede57cd5e8",
+      "log": "runs/M05_differential_performance/20261009_acceptance/tests/m05_scoped_rerun.log",
+      "log_sha256": "d6b43fef599ee446eb7238dfe260a23c00f059eb57b4e9d6e5b8de2deb24ad22",
+      "name": "m05_scoped"
+    },
+    {
+      "blocking": true,
+      "command": "python -m pytest tests/marvel_core tests/marvel_adapter tests/marvel_training -q --junitxml=.../m01_m04_regression.junit.xml",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 81,
+        "time": 99.721
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_differential_performance/20261009_acceptance/tests/m01_m04_regression.junit.xml",
+      "junit_sha256": "7d56a771e5550130cf37787a055b9e22455db9f7eadbba4ae604339b0169a32d",
+      "log": "runs/M05_differential_performance/20261009_acceptance/tests/m01_m04_regression.log",
+      "log_sha256": "a895be27cdff19204b35fd4d466ebe7e4f50cad4299896c5596c7273a20f81d5",
+      "name": "m01_m04_regression"
+    },
+    {
+      "blocking": true,
+      "command": "python -m pytest tests/acceptance/test_a01_cards.py tests/acceptance/test_a02_rules.py tests/acceptance/test_a02_a03_defect_fix.py tests/acceptance/test_a03_actions.py tests/acceptance/test_a04_environment.py -q --junitxml=.../a01_a04_regression.junit.xml",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 152,
+        "time": 10.352
+      },
+      "exit_code": 0,
+      "junit": "runs/M05_differential_performance/20261009_acceptance/tests/a01_a04_regression.junit.xml",
+      "junit_sha256": "5d8ba993180816d5b4e71f1b8783b2773a37d8323a906e75aa0fc8ca18655eff",
+      "log": "runs/M05_differential_performance/20261009_acceptance/tests/a01_a04_regression.log",
+      "log_sha256": "6e8c8e859ea9c1b9551dab421f00e480cad0426919cb21c73f686f67d17e050c",
+      "name": "a01_a04_regression"
+    },
+    {
+      "blocking": false,
+      "command": "python -m pytest --import-mode=importlib -q --junitxml=.../full_suite_importlib.junit.xml",
+      "counts": {
+        "errors": 0,
+        "failures": 1,
+        "skipped": 10,
+        "tests": 1394,
+        "time": 413.695
+      },
+      "exit_code": 1,
+      "junit": "runs/M05_differential_performance/20261009_acceptance/tests/full_suite_importlib.junit.xml",
+      "junit_sha256": "d70ae48c0ddffed9e75ad2378c8c90dcd752720b03ed42e540823ae8679cc523",
+      "log": "runs/M05_differential_performance/20261009_acceptance/tests/full_suite_importlib.log",
+      "log_sha256": "125364b48663652c188de8700a5ee4a93ee7963074ee6bd8b65364f6d0f9aa2a",
+      "name": "full_suite_diagnostic",
+      "note": "1 pre-existing A00 documentation-heading failure in untouched docs/marvel_migration/adr/ADR-005-006-marvel-core-namespace.md; 1383 passed and 10 skipped."
+    }
+  ],
+  "date": "2026-10-09",
+  "diagnostic_full_suite": {
+    "errors": 0,
+    "failed": 1,
+    "passed": 1383,
+    "pre_existing_failure": true,
+    "skipped": 10
+  },
+  "schema": "guandan-marvel-m05-test-results-v1",
+  "stage": "M05_differential_performance"
+}

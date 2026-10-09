@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-09",
+  "gpu_inventory": [
+    {
+      "driver": "576.80",
+      "memory_mib": "4096",
+      "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU"
+    }
+  ],
+  "logical_cpu_count": 12,
+  "memory_bytes": 14894297088,
+  "numpy": "2.3.5",
+  "physical_cpu_count": 6,
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]",
+  "schema": "guandan-marvel-m05-environment-v1",
+  "stage": "M05_differential_performance",
+  "torch": "2.13.0+cpu",
+  "torch_cuda_available": false
+}

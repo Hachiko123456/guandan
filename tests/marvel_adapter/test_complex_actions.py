@@ -7,7 +7,7 @@ from torch import nn
 from guandan.cards import Rank
 from guandan.environment_types import GameConfig
 from guandan.combos import CombinationKind
-from guandan_marvel import game
+from guandan_marvel import python_game as game
 from guandan_marvel.config import GameSpec, ModelConfig, TrainConfig
 from guandan_marvel.model import Agent
 from guandan_marvel.model.types import AgentOutput

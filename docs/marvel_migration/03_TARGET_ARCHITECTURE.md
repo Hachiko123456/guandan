@@ -85,4 +85,4 @@ backend=cpp
 - champion manifest 必须包含模型、协议、源码、配置和评估数据身份。
 ## 6. M04 实现状态（2026-10-09）
 
-`nanopokerlib.guandan` 已提供显式 `backend=cpp` 的 pybind `EnvBatch`，并保持与 M02 相同的 tensor shape/protocol version。当前默认仍是 `python_reference`；M05 的完整差分和 >=2x 固定工作负载门槛未通过前不得 cut over。
+`nanopokerlib.guandan` 提供显式 `backend=cpp` 的 pybind `EnvBatch`，并保持与 M02 相同的 tensor shape/protocol version。M05 已完成 10,000 完整局、100,000 中间状态和固定工作负载性能门槛；正式训练默认现为 `cpp`。Python oracle 保留为 `guandan_marvel.python_game` / `backend=python_reference`，且不允许 silent fallback。

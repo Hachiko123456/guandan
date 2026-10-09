@@ -1,0 +1,221 @@
+{
+  "date": "2026-10-09",
+  "large_artifacts_committed": false,
+  "mismatch_fixture_count": 0,
+  "run_artifacts": [
+    {
+      "bytes": 24025,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/summary.json",
+      "sha256": "9bbd10000c965107a3c2bd544d65a8a66a3c3177ce2a0c018da9efebbc418a07"
+    },
+    {
+      "bytes": 13182,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/benchmark.json",
+      "sha256": "ba6341e254cfae79c844c9596a230fe7c3148160ef75418ebad013a6b3020e38"
+    },
+    {
+      "bytes": 1402072,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-00.jsonl.gz",
+      "sha256": "25c6ab084d5abd3b2954c50daa5193b5dc6a346689aa6581e6b30d5bb254832b"
+    },
+    {
+      "bytes": 1411518,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-01.jsonl.gz",
+      "sha256": "126131dab31e9bc95729a5d7ac34557f6e4539d4058653f2c9dc2d1bcb5f3d7a"
+    },
+    {
+      "bytes": 1403686,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-02.jsonl.gz",
+      "sha256": "ba0a20d1a87e7a383545b201afcf7e5a2feb3d6768190a245dda3bd238afeba4"
+    },
+    {
+      "bytes": 1408450,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-03.jsonl.gz",
+      "sha256": "b63c5ed653bc371bfa835ddb57986ff8604bc6dc13aad48a1c1cc0be879c89b2"
+    },
+    {
+      "bytes": 1404477,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-04.jsonl.gz",
+      "sha256": "92956e1108a0cb6f7dae7b65ef708e008481496552c9703ac5c5e49ae8bcbedb"
+    },
+    {
+      "bytes": 1408295,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-05.jsonl.gz",
+      "sha256": "6bc81afe226af073c81d204735d2143b8222a2c01aecb397aed29396c9157375"
+    },
+    {
+      "bytes": 3,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/a01_a04_regression.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 21447,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/a01_a04_regression.junit.xml",
+      "sha256": "5d8ba993180816d5b4e71f1b8783b2773a37d8323a906e75aa0fc8ca18655eff"
+    },
+    {
+      "bytes": 265,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/a01_a04_regression.log",
+      "sha256": "6e8c8e859ea9c1b9551dab421f00e480cad0426919cb21c73f686f67d17e050c"
+    },
+    {
+      "bytes": 3,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/full_suite_importlib.exitcode",
+      "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04"
+    },
+    {
+      "bytes": 201342,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/full_suite_importlib.junit.xml",
+      "sha256": "d70ae48c0ddffed9e75ad2378c8c90dcd752720b03ed42e540823ae8679cc523"
+    },
+    {
+      "bytes": 3119,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/full_suite_importlib.log",
+      "sha256": "125364b48663652c188de8700a5ee4a93ee7963074ee6bd8b65364f6d0f9aa2a"
+    },
+    {
+      "bytes": 3,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/m01_m04_regression.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 12642,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/m01_m04_regression.junit.xml",
+      "sha256": "7d56a771e5550130cf37787a055b9e22455db9f7eadbba4ae604339b0169a32d"
+    },
+    {
+      "bytes": 193,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/m01_m04_regression.log",
+      "sha256": "a895be27cdff19204b35fd4d466ebe7e4f50cad4299896c5596c7273a20f81d5"
+    },
+    {
+      "bytes": 3,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/m05_scoped.exitcode",
+      "sha256": "df4e26a04a444901b95afef44e4a96cfae34690fff2ad2c66389c70079cdff2b"
+    },
+    {
+      "bytes": 1084,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/m05_scoped.log",
+      "sha256": "a4db7b862a98af82111fc2ec2cfdb0a555b2549fb58aebf3d152f34e8ed0b541"
+    },
+    {
+      "bytes": 3,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/m05_scoped_rerun.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 18530,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/m05_scoped_rerun.junit.xml",
+      "sha256": "d81468b18b1144a80b8734184824c595858bdb1b7afa624ec87564ede57cd5e8"
+    },
+    {
+      "bytes": 184,
+      "git_tracked": false,
+      "path": "runs/M05_differential_performance/20261009_acceptance/tests/m05_scoped_rerun.log",
+      "sha256": "d6b43fef599ee446eb7238dfe260a23c00f059eb57b4e9d6e5b8de2deb24ad22"
+    }
+  ],
+  "schema": "guandan-marvel-m05-artifact-manifest-v1",
+  "stage": "M05_differential_performance",
+  "tracked": [
+    {
+      "bytes": 13182,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/evidence/M05_differential_performance/benchmark_report.json",
+      "sha256": "ba6341e254cfae79c844c9596a230fe7c3148160ef75418ebad013a6b3020e38"
+    },
+    {
+      "bytes": 1981,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/evidence/M05_differential_performance/corpus_manifest.json",
+      "sha256": "498ca950a4ffd4b21cd4e0b69450b3501cc14c27653eab1e67d5137b07c040c6"
+    },
+    {
+      "bytes": 24025,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/evidence/M05_differential_performance/differential_summary.json",
+      "sha256": "9bbd10000c965107a3c2bd544d65a8a66a3c3177ce2a0c018da9efebbc418a07"
+    },
+    {
+      "bytes": 587,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/evidence/M05_differential_performance/environment.json",
+      "sha256": "8d6d4b03198757ba526733ead6e3b551b3254770a1b9e0adce6f68ce079b4461"
+    },
+    {
+      "bytes": 426,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/evidence/M05_differential_performance/mismatch_manifest.json",
+      "sha256": "83ad683215c38b63fd7795ad831917e0b942237b32105c396c1dbebb0c88033c"
+    },
+    {
+      "bytes": 1069,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/evidence/M05_differential_performance/protocol_schema.json",
+      "sha256": "23a8dd44e458a91874557e1796f3dcd30f87792869b50dc8aa6bd7f2e0268604"
+    },
+    {
+      "bytes": 6227,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/evidence/M05_differential_performance/source_manifest.json",
+      "sha256": "7c783a13b6f95aa307e3b348dee945b72b9d2539ee9cf3e3c573449c07c42a2a"
+    },
+    {
+      "bytes": 4303,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/evidence/M05_differential_performance/test_results.json",
+      "sha256": "b2902f635ba0b6cfd8008fa67cb99910e94da8663855c2bef39f52796e118fee"
+    },
+    {
+      "bytes": 2989,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/evidence/M05_differential_performance/verification.json",
+      "sha256": "4a15310daee144b37a4b9a56c97a12ab0a6020b9129a55e6c6acc02910fa459f"
+    },
+    {
+      "bytes": 9560,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/reports/M05_differential_performance.md",
+      "sha256": "d1cfcc240670f8e842d801c7fe74c424b0eb431ff60d49972ea9669462e82763"
+    },
+    {
+      "bytes": 4235,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/reports/M05_differential_performance.json",
+      "sha256": "ddc293a6e9c29791ecd2b01e253418f1fa09557a8b4b8122dafd35e1d056803b"
+    },
+    {
+      "bytes": 5040,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/M05_DIFFERENTIAL_PERFORMANCE_PROTOCOL.md",
+      "sha256": "4f84f9cf8c4703d19acea9164e329e3e620f3dbe3a794d52bc5e1f2c053f83b1"
+    },
+    {
+      "bytes": 10099,
+      "git_tracked": true,
+      "path": "docs/marvel_migration/STATUS.yaml",
+      "sha256": "f907a43fc7c57b3cc68432a5c4b751005946fe358b2de80008d29225b8894309"
+    }
+  ]
+}

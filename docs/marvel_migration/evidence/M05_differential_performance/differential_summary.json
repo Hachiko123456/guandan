@@ -1,0 +1,909 @@
+{
+  "configuration": {
+    "base_seed": 5050000,
+    "cpp_backend": "cpp",
+    "games": 10000,
+    "intermediate_states": 100000,
+    "policy_seed": 5051000,
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "python_backend": "python_reference",
+    "workers": 6
+  },
+  "corpus": {
+    "replay_contract": "Each step is [action_token_id, *exact_prefix_tokens]; the complete V2 row is uniquely regenerated from the live legal set.",
+    "schema": "guandan-marvel-m05-state-action-corpus-v1",
+    "shards": [
+      {
+        "bytes": 1402072,
+        "path": "D:\\project\\guandan\\runs\\M05_differential_performance\\20261009_acceptance\\corpus\\corpus-00.jsonl.gz",
+        "schema": "guandan-marvel-m05-state-action-corpus-v1",
+        "sha256": "25c6ab084d5abd3b2954c50daa5193b5dc6a346689aa6581e6b30d5bb254832b"
+      },
+      {
+        "bytes": 1411518,
+        "path": "D:\\project\\guandan\\runs\\M05_differential_performance\\20261009_acceptance\\corpus\\corpus-01.jsonl.gz",
+        "schema": "guandan-marvel-m05-state-action-corpus-v1",
+        "sha256": "126131dab31e9bc95729a5d7ac34557f6e4539d4058653f2c9dc2d1bcb5f3d7a"
+      },
+      {
+        "bytes": 1403686,
+        "path": "D:\\project\\guandan\\runs\\M05_differential_performance\\20261009_acceptance\\corpus\\corpus-02.jsonl.gz",
+        "schema": "guandan-marvel-m05-state-action-corpus-v1",
+        "sha256": "ba0a20d1a87e7a383545b201afcf7e5a2feb3d6768190a245dda3bd238afeba4"
+      },
+      {
+        "bytes": 1408450,
+        "path": "D:\\project\\guandan\\runs\\M05_differential_performance\\20261009_acceptance\\corpus\\corpus-03.jsonl.gz",
+        "schema": "guandan-marvel-m05-state-action-corpus-v1",
+        "sha256": "b63c5ed653bc371bfa835ddb57986ff8604bc6dc13aad48a1c1cc0be879c89b2"
+      },
+      {
+        "bytes": 1404477,
+        "path": "D:\\project\\guandan\\runs\\M05_differential_performance\\20261009_acceptance\\corpus\\corpus-04.jsonl.gz",
+        "schema": "guandan-marvel-m05-state-action-corpus-v1",
+        "sha256": "92956e1108a0cb6f7dae7b65ef708e008481496552c9703ac5c5e49ae8bcbedb"
+      },
+      {
+        "bytes": 1408295,
+        "path": "D:\\project\\guandan\\runs\\M05_differential_performance\\20261009_acceptance\\corpus\\corpus-05.jsonl.gz",
+        "schema": "guandan-marvel-m05-state-action-corpus-v1",
+        "sha256": "6bc81afe226af073c81d204735d2143b8222a2c01aecb397aed29396c9157375"
+      }
+    ]
+  },
+  "counts": {
+    "actions_executed": 3243977,
+    "completed_games": 10000,
+    "intermediate_states_sampled": 100000,
+    "mismatches": 0,
+    "requested_games": 10000,
+    "serialization_roundtrips": 10000,
+    "states_compared": 3253977
+  },
+  "coverage": {
+    "anti_tribute": 1249,
+    "contact": 7166,
+    "families": {
+      "four_kings": 314,
+      "full_house": 23001,
+      "pair": 94114,
+      "pair_sequence": 8760,
+      "pass": 825577,
+      "rank_bomb": 37297,
+      "return": 10321,
+      "single": 283389,
+      "straight": 15932,
+      "straight_flush": 12960,
+      "tribute": 10321,
+      "triple": 25006,
+      "triple_sequence": 3904
+    },
+    "natural_wild_assignments": 817,
+    "return_actions": 10321,
+    "substituted_wild_assignments": 19183,
+    "tribute_actions": 10321
+  },
+  "directed_coverage": {
+    "case_count": 13,
+    "cases": [
+      {
+        "family": "single",
+        "name": "single",
+        "natural_wild_ids": [],
+        "states": 4,
+        "tokens": [
+          8,
+          64,
+          7
+        ],
+        "wild_assignments": []
+      },
+      {
+        "family": "single",
+        "name": "single-natural-wild",
+        "natural_wild_ids": [
+          6
+        ],
+        "states": 5,
+        "tokens": [
+          8,
+          70,
+          178,
+          7
+        ],
+        "wild_assignments": [
+          [
+            6,
+            4,
+            2
+          ]
+        ]
+      },
+      {
+        "family": "pair",
+        "name": "pair",
+        "natural_wild_ids": [],
+        "states": 6,
+        "tokens": [
+          9,
+          18,
+          64,
+          118,
+          7
+        ],
+        "wild_assignments": []
+      },
+      {
+        "family": "triple",
+        "name": "triple",
+        "natural_wild_ids": [],
+        "states": 7,
+        "tokens": [
+          10,
+          18,
+          64,
+          65,
+          66,
+          7
+        ],
+        "wild_assignments": []
+      },
+      {
+        "family": "full_house",
+        "name": "full-house-two-wild-targets",
+        "natural_wild_ids": [],
+        "states": 12,
+        "tokens": [
+          11,
+          18,
+          20,
+          64,
+          65,
+          66,
+          70,
+          124,
+          180,
+          180,
+          7
+        ],
+        "wild_assignments": [
+          [
+            6,
+            5,
+            0
+          ],
+          [
+            60,
+            5,
+            0
+          ]
+        ]
+      },
+      {
+        "family": "full_house",
+        "name": "full-house-natural-and-substituted",
+        "natural_wild_ids": [
+          6
+        ],
+        "states": 12,
+        "tokens": [
+          11,
+          18,
+          19,
+          64,
+          65,
+          66,
+          70,
+          124,
+          178,
+          176,
+          7
+        ],
+        "wild_assignments": [
+          [
+            6,
+            4,
+            2
+          ],
+          [
+            60,
+            4,
+            0
+          ]
+        ]
+      },
+      {
+        "family": "straight",
+        "name": "straight",
+        "natural_wild_ids": [],
+        "states": 9,
+        "tokens": [
+          12,
+          18,
+          64,
+          68,
+          72,
+          76,
+          80,
+          7
+        ],
+        "wild_assignments": []
+      },
+      {
+        "family": "pair_sequence",
+        "name": "pair-sequence",
+        "natural_wild_ids": [],
+        "states": 11,
+        "tokens": [
+          13,
+          18,
+          41,
+          64,
+          118,
+          68,
+          122,
+          72,
+          126,
+          7
+        ],
+        "wild_assignments": []
+      },
+      {
+        "family": "triple_sequence",
+        "name": "triple-sequence",
+        "natural_wild_ids": [],
+        "states": 11,
+        "tokens": [
+          14,
+          18,
+          40,
+          64,
+          65,
+          66,
+          68,
+          69,
+          71,
+          7
+        ],
+        "wild_assignments": []
+      },
+      {
+        "family": "rank_bomb",
+        "name": "rank-bomb-ten-two-wilds",
+        "natural_wild_ids": [],
+        "states": 17,
+        "tokens": [
+          15,
+          18,
+          48,
+          64,
+          65,
+          66,
+          67,
+          70,
+          118,
+          119,
+          120,
+          121,
+          124,
+          172,
+          172,
+          7
+        ],
+        "wild_assignments": [
+          [
+            6,
+            3,
+            0
+          ],
+          [
+            60,
+            3,
+            0
+          ]
+        ]
+      },
+      {
+        "family": "straight_flush",
+        "name": "straight-flush-substituted-wild",
+        "natural_wild_ids": [],
+        "states": 11,
+        "tokens": [
+          16,
+          36,
+          18,
+          67,
+          70,
+          75,
+          79,
+          83,
+          179,
+          7
+        ],
+        "wild_assignments": [
+          [
+            6,
+            4,
+            3
+          ]
+        ]
+      },
+      {
+        "family": "straight_flush",
+        "name": "straight-flush-natural-wild",
+        "natural_wild_ids": [
+          6
+        ],
+        "states": 11,
+        "tokens": [
+          16,
+          35,
+          18,
+          66,
+          70,
+          74,
+          78,
+          82,
+          178,
+          7
+        ],
+        "wild_assignments": [
+          [
+            6,
+            4,
+            2
+          ]
+        ]
+      },
+      {
+        "family": "four_kings",
+        "name": "four-kings",
+        "natural_wild_ids": [],
+        "states": 7,
+        "tokens": [
+          17,
+          116,
+          117,
+          170,
+          171,
+          7
+        ],
+        "wild_assignments": []
+      }
+    ],
+    "families": {
+      "four_kings": 1,
+      "full_house": 2,
+      "pair": 1,
+      "pair_sequence": 1,
+      "rank_bomb": 1,
+      "single": 2,
+      "straight": 1,
+      "straight_flush": 2,
+      "triple": 1,
+      "triple_sequence": 1
+    },
+    "missing_families": [],
+    "natural_wild_declarations": 3,
+    "substituted_wild_declarations": 9,
+    "valid": true
+  },
+  "elapsed_seconds": 2465.841676799999,
+  "environment": {
+    "cpu_count": 12,
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]"
+  },
+  "level_counts": {
+    "10": 769,
+    "11": 769,
+    "12": 769,
+    "13": 769,
+    "14": 769,
+    "15": 769,
+    "3": 770,
+    "4": 770,
+    "5": 770,
+    "6": 769,
+    "7": 769,
+    "8": 769,
+    "9": 769
+  },
+  "mismatch_fixtures": [],
+  "missing_families": [],
+  "previous_result_counts": {
+    "DOUBLE_DOWN": 3750,
+    "HEAD_LAST": 2500,
+    "HEAD_THIRD": 2500,
+    "NONE": 1250
+  },
+  "privacy_reorders": {
+    "case_count": 4,
+    "cases": [
+      {
+        "cpp_equal": true,
+        "cross_backend_equal": true,
+        "observer": 0,
+        "python_equal": true,
+        "swapped_hidden_seats": [
+          1,
+          2
+        ]
+      },
+      {
+        "cpp_equal": true,
+        "cross_backend_equal": true,
+        "observer": 1,
+        "python_equal": true,
+        "swapped_hidden_seats": [
+          0,
+          2
+        ]
+      },
+      {
+        "cpp_equal": true,
+        "cross_backend_equal": true,
+        "observer": 2,
+        "python_equal": true,
+        "swapped_hidden_seats": [
+          0,
+          1
+        ]
+      },
+      {
+        "cpp_equal": true,
+        "cross_backend_equal": true,
+        "observer": 3,
+        "python_equal": true,
+        "swapped_hidden_seats": [
+          0,
+          1
+        ]
+      }
+    ],
+    "valid": true
+  },
+  "requirements": {
+    "all_13_levels": true,
+    "all_combination_families": true,
+    "bombs_and_four_kings": true,
+    "complete_games": true,
+    "contact": true,
+    "intermediate_states": true,
+    "privacy_reorders": true,
+    "serialization_roundtrips": true,
+    "terminal_outcomes": true,
+    "trajectory_digests": true,
+    "tribute_return_anti_tribute": true,
+    "wild_declarations": true,
+    "zero_mismatch": true
+  },
+  "schema": "guandan-marvel-m05-differential-summary-v1",
+  "stage": "M05_differential_performance",
+  "started_unix": 1791537469.3128963,
+  "terminal_outcome_counts": {
+    "DOUBLE_DOWN": 4443,
+    "HEAD_LAST": 3702,
+    "HEAD_THIRD": 1855
+  },
+  "valid": true,
+  "workers": [
+    {
+      "action_count": 540193,
+      "completed_games": 1667,
+      "corpus": {
+        "bytes": 1402072,
+        "path": "D:\\project\\guandan\\runs\\M05_differential_performance\\20261009_acceptance\\corpus\\corpus-00.jsonl.gz",
+        "schema": "guandan-marvel-m05-state-action-corpus-v1",
+        "sha256": "25c6ab084d5abd3b2954c50daa5193b5dc6a346689aa6581e6b30d5bb254832b"
+      },
+      "coverage": {
+        "anti_tribute": 160,
+        "contact": 1219,
+        "families": {
+          "four_kings": 39,
+          "full_house": 3857,
+          "pair": 15552,
+          "pair_sequence": 1438,
+          "pass": 138077,
+          "rank_bomb": 6272,
+          "return": 1403,
+          "single": 47681,
+          "straight": 2674,
+          "straight_flush": 2130,
+          "tribute": 1403,
+          "triple": 4104,
+          "triple_sequence": 622
+        },
+        "natural_wild_assignments": 128,
+        "return_actions": 1403,
+        "substituted_wild_assignments": 3206,
+        "tribute_actions": 1403
+      },
+      "elapsed_seconds": 2397.5897686000026,
+      "exceptions": [],
+      "intermediate_sample_count": 16670,
+      "intermediate_sample_digest": "387db40e1318431ec6d2267e7d2c5786e57b7667cdc2c28b4a309a322acae54a",
+      "level_counts": {
+        "10": 128,
+        "11": 128,
+        "12": 128,
+        "13": 128,
+        "14": 128,
+        "15": 129,
+        "3": 129,
+        "4": 128,
+        "5": 128,
+        "6": 128,
+        "7": 128,
+        "8": 128,
+        "9": 129
+      },
+      "mismatch_count": 0,
+      "mismatch_fixtures": [],
+      "outcome_counts": {
+        "DOUBLE_DOWN": 734,
+        "HEAD_LAST": 620,
+        "HEAD_THIRD": 313
+      },
+      "previous_result_counts": {
+        "DOUBLE_DOWN": 417,
+        "HEAD_LAST": 417,
+        "HEAD_THIRD": 416,
+        "NONE": 417
+      },
+      "requested_games": 1667,
+      "serialization_roundtrips": 1667,
+      "state_count": 541860,
+      "trajectory_digest": "c6369498f8ffeb63af4b4a6ea962c4d83e8947c36ed5939a041f6a7f65ce5cb2",
+      "worker_id": 0
+    },
+    {
+      "action_count": 541950,
+      "completed_games": 1667,
+      "corpus": {
+        "bytes": 1411518,
+        "path": "D:\\project\\guandan\\runs\\M05_differential_performance\\20261009_acceptance\\corpus\\corpus-01.jsonl.gz",
+        "schema": "guandan-marvel-m05-state-action-corpus-v1",
+        "sha256": "126131dab31e9bc95729a5d7ac34557f6e4539d4058653f2c9dc2d1bcb5f3d7a"
+      },
+      "coverage": {
+        "anti_tribute": 258,
+        "contact": 1184,
+        "families": {
+          "four_kings": 62,
+          "full_house": 3771,
+          "pair": 15876,
+          "pair_sequence": 1431,
+          "pass": 137714,
+          "rank_bomb": 6138,
+          "return": 2047,
+          "single": 46958,
+          "straight": 2666,
+          "straight_flush": 2162,
+          "tribute": 2047,
+          "triple": 4237,
+          "triple_sequence": 711
+        },
+        "natural_wild_assignments": 128,
+        "return_actions": 2047,
+        "substituted_wild_assignments": 3206,
+        "tribute_actions": 2047
+      },
+      "elapsed_seconds": 2426.3885924999995,
+      "exceptions": [],
+      "intermediate_sample_count": 16670,
+      "intermediate_sample_digest": "214cf9a8104a29754d1d12f93d312d5a118ebae0b859ec5b3498111c421d8b95",
+      "level_counts": {
+        "10": 129,
+        "11": 128,
+        "12": 128,
+        "13": 128,
+        "14": 128,
+        "15": 128,
+        "3": 129,
+        "4": 129,
+        "5": 128,
+        "6": 128,
+        "7": 128,
+        "8": 128,
+        "9": 128
+      },
+      "mismatch_count": 0,
+      "mismatch_fixtures": [],
+      "outcome_counts": {
+        "DOUBLE_DOWN": 738,
+        "HEAD_LAST": 590,
+        "HEAD_THIRD": 339
+      },
+      "previous_result_counts": {
+        "DOUBLE_DOWN": 834,
+        "HEAD_LAST": 416,
+        "HEAD_THIRD": 417
+      },
+      "requested_games": 1667,
+      "serialization_roundtrips": 1667,
+      "state_count": 543617,
+      "trajectory_digest": "a0206b13744e6ab055ebb57623888a3515f937210033033355171c24da9b8fdd",
+      "worker_id": 1
+    },
+    {
+      "action_count": 538990,
+      "completed_games": 1667,
+      "corpus": {
+        "bytes": 1403686,
+        "path": "D:\\project\\guandan\\runs\\M05_differential_performance\\20261009_acceptance\\corpus\\corpus-02.jsonl.gz",
+        "schema": "guandan-marvel-m05-state-action-corpus-v1",
+        "sha256": "ba0a20d1a87e7a383545b201afcf7e5a2feb3d6768190a245dda3bd238afeba4"
+      },
+      "coverage": {
+        "anti_tribute": 154,
+        "contact": 1215,
+        "families": {
+          "four_kings": 37,
+          "full_house": 3818,
+          "pair": 15731,
+          "pair_sequence": 1455,
+          "pass": 137106,
+          "rank_bomb": 6297,
+          "return": 1402,
+          "single": 47031,
+          "straight": 2657,
+          "straight_flush": 2117,
+          "tribute": 1402,
+          "triple": 4229,
+          "triple_sequence": 655
+        },
+        "natural_wild_assignments": 140,
+        "return_actions": 1402,
+        "substituted_wild_assignments": 3194,
+        "tribute_actions": 1402
+      },
+      "elapsed_seconds": 2411.579673199998,
+      "exceptions": [],
+      "intermediate_sample_count": 16670,
+      "intermediate_sample_digest": "d6572f7e45a709cbc851efd32a27fdc6744b94c6bf103ea2ccb575d37557e8b0",
+      "level_counts": {
+        "10": 128,
+        "11": 129,
+        "12": 128,
+        "13": 128,
+        "14": 128,
+        "15": 128,
+        "3": 128,
+        "4": 129,
+        "5": 129,
+        "6": 128,
+        "7": 128,
+        "8": 128,
+        "9": 128
+      },
+      "mismatch_count": 0,
+      "mismatch_fixtures": [],
+      "outcome_counts": {
+        "DOUBLE_DOWN": 733,
+        "HEAD_LAST": 639,
+        "HEAD_THIRD": 295
+      },
+      "previous_result_counts": {
+        "DOUBLE_DOWN": 416,
+        "HEAD_LAST": 417,
+        "HEAD_THIRD": 417,
+        "NONE": 417
+      },
+      "requested_games": 1667,
+      "serialization_roundtrips": 1667,
+      "state_count": 540657,
+      "trajectory_digest": "565e57e9d8042e9d212e3ff382e6c4e911d21bb5624b2d79d9f5df6ad0899117",
+      "worker_id": 2
+    },
+    {
+      "action_count": 541759,
+      "completed_games": 1667,
+      "corpus": {
+        "bytes": 1408450,
+        "path": "D:\\project\\guandan\\runs\\M05_differential_performance\\20261009_acceptance\\corpus\\corpus-03.jsonl.gz",
+        "schema": "guandan-marvel-m05-state-action-corpus-v1",
+        "sha256": "b63c5ed653bc371bfa835ddb57986ff8604bc6dc13aad48a1c1cc0be879c89b2"
+      },
+      "coverage": {
+        "anti_tribute": 270,
+        "contact": 1156,
+        "families": {
+          "four_kings": 79,
+          "full_house": 3896,
+          "pair": 15717,
+          "pair_sequence": 1468,
+          "pass": 137663,
+          "rank_bomb": 6167,
+          "return": 2008,
+          "single": 47249,
+          "straight": 2611,
+          "straight_flush": 2237,
+          "tribute": 2008,
+          "triple": 4037,
+          "triple_sequence": 628
+        },
+        "natural_wild_assignments": 136,
+        "return_actions": 2008,
+        "substituted_wild_assignments": 3198,
+        "tribute_actions": 2008
+      },
+      "elapsed_seconds": 2454.1137452999974,
+      "exceptions": [],
+      "intermediate_sample_count": 16670,
+      "intermediate_sample_digest": "00fbb63305e912a6ed65ae512e3c22b31c6922d035524af24ee909c70ddbe9ce",
+      "level_counts": {
+        "10": 128,
+        "11": 128,
+        "12": 129,
+        "13": 128,
+        "14": 128,
+        "15": 128,
+        "3": 128,
+        "4": 128,
+        "5": 129,
+        "6": 129,
+        "7": 128,
+        "8": 128,
+        "9": 128
+      },
+      "mismatch_count": 0,
+      "mismatch_fixtures": [],
+      "outcome_counts": {
+        "DOUBLE_DOWN": 758,
+        "HEAD_LAST": 621,
+        "HEAD_THIRD": 288
+      },
+      "previous_result_counts": {
+        "DOUBLE_DOWN": 834,
+        "HEAD_LAST": 417,
+        "HEAD_THIRD": 416
+      },
+      "requested_games": 1667,
+      "serialization_roundtrips": 1667,
+      "state_count": 543426,
+      "trajectory_digest": "17dbf81ba826c894d7a39c25ff4cdee923abed1b6452ac6e0c71ea2af3c7d9d6",
+      "worker_id": 3
+    },
+    {
+      "action_count": 539628,
+      "completed_games": 1666,
+      "corpus": {
+        "bytes": 1404477,
+        "path": "D:\\project\\guandan\\runs\\M05_differential_performance\\20261009_acceptance\\corpus\\corpus-04.jsonl.gz",
+        "schema": "guandan-marvel-m05-state-action-corpus-v1",
+        "sha256": "92956e1108a0cb6f7dae7b65ef708e008481496552c9703ac5c5e49ae8bcbedb"
+      },
+      "coverage": {
+        "anti_tribute": 166,
+        "contact": 1218,
+        "families": {
+          "four_kings": 42,
+          "full_house": 3777,
+          "pair": 15490,
+          "pair_sequence": 1519,
+          "pass": 137638,
+          "rank_bomb": 6164,
+          "return": 1402,
+          "single": 47383,
+          "straight": 2626,
+          "straight_flush": 2263,
+          "tribute": 1402,
+          "triple": 4221,
+          "triple_sequence": 667
+        },
+        "natural_wild_assignments": 141,
+        "return_actions": 1402,
+        "substituted_wild_assignments": 3191,
+        "tribute_actions": 1402
+      },
+      "elapsed_seconds": 2428.629773000004,
+      "exceptions": [],
+      "intermediate_sample_count": 16660,
+      "intermediate_sample_digest": "e0363bc3b064e86f364e1b8afd836593b5975c2b77ae8df08678e9410a1c0bc9",
+      "level_counts": {
+        "10": 128,
+        "11": 128,
+        "12": 128,
+        "13": 129,
+        "14": 128,
+        "15": 128,
+        "3": 128,
+        "4": 128,
+        "5": 128,
+        "6": 128,
+        "7": 129,
+        "8": 128,
+        "9": 128
+      },
+      "mismatch_count": 0,
+      "mismatch_fixtures": [],
+      "outcome_counts": {
+        "DOUBLE_DOWN": 722,
+        "HEAD_LAST": 626,
+        "HEAD_THIRD": 318
+      },
+      "previous_result_counts": {
+        "DOUBLE_DOWN": 417,
+        "HEAD_LAST": 416,
+        "HEAD_THIRD": 417,
+        "NONE": 416
+      },
+      "requested_games": 1666,
+      "serialization_roundtrips": 1666,
+      "state_count": 541294,
+      "trajectory_digest": "6bce29021455c9634f7737322735c5c61b6705810a88e77222ca2945b6ad0f97",
+      "worker_id": 4
+    },
+    {
+      "action_count": 541457,
+      "completed_games": 1666,
+      "corpus": {
+        "bytes": 1408295,
+        "path": "D:\\project\\guandan\\runs\\M05_differential_performance\\20261009_acceptance\\corpus\\corpus-05.jsonl.gz",
+        "schema": "guandan-marvel-m05-state-action-corpus-v1",
+        "sha256": "6bc81afe226af073c81d204735d2143b8222a2c01aecb397aed29396c9157375"
+      },
+      "coverage": {
+        "anti_tribute": 241,
+        "contact": 1174,
+        "families": {
+          "four_kings": 55,
+          "full_house": 3882,
+          "pair": 15748,
+          "pair_sequence": 1449,
+          "pass": 137379,
+          "rank_bomb": 6259,
+          "return": 2059,
+          "single": 47087,
+          "straight": 2698,
+          "straight_flush": 2051,
+          "tribute": 2059,
+          "triple": 4178,
+          "triple_sequence": 621
+        },
+        "natural_wild_assignments": 144,
+        "return_actions": 2059,
+        "substituted_wild_assignments": 3188,
+        "tribute_actions": 2059
+      },
+      "elapsed_seconds": 2455.357675500003,
+      "exceptions": [],
+      "intermediate_sample_count": 16660,
+      "intermediate_sample_digest": "a2de1a24b378aaa8ce124229e556faafdcab06b82d8251e18c12873b7ba43c6a",
+      "level_counts": {
+        "10": 128,
+        "11": 128,
+        "12": 128,
+        "13": 128,
+        "14": 129,
+        "15": 128,
+        "3": 128,
+        "4": 128,
+        "5": 128,
+        "6": 128,
+        "7": 128,
+        "8": 129,
+        "9": 128
+      },
+      "mismatch_count": 0,
+      "mismatch_fixtures": [],
+      "outcome_counts": {
+        "DOUBLE_DOWN": 758,
+        "HEAD_LAST": 606,
+        "HEAD_THIRD": 302
+      },
+      "previous_result_counts": {
+        "DOUBLE_DOWN": 832,
+        "HEAD_LAST": 417,
+        "HEAD_THIRD": 417
+      },
+      "requested_games": 1666,
+      "serialization_roundtrips": 1666,
+      "state_count": 543123,
+      "trajectory_digest": "cd85c231c4007b8000c80c6c943b150a9d0c9f4c80efbe50d1861de24bcdae30",
+      "worker_id": 5
+    }
+  ]
+}

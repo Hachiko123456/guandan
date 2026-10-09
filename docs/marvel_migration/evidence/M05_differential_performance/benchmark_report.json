@@ -1,0 +1,434 @@
+{
+  "errors": [],
+  "gate": {
+    "definition": "All matched environment-only and frozen-policy end-to-end rollout comparisons must reach >=2x. The unchanged full learner iteration is segmented and reported diagnostically because identical model/learner work is backend-independent.",
+    "gated_lanes": [
+      "environment_single_complete_games",
+      "environment_batch_fixed_prefix",
+      "end_to_end_frozen_policy_rollout"
+    ],
+    "minimum_speedup": 2.1730223310242,
+    "passes": true,
+    "target_5x_reached": false,
+    "threshold": 2.0
+  },
+  "hardware": {
+    "cpu": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "gpus": [
+      {
+        "driver": "576.80",
+        "memory_mib": "4096",
+        "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU"
+      }
+    ],
+    "logical_cpu_count": 12,
+    "memory_bytes": 14894297088,
+    "physical_cpu_count": 6,
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]",
+    "torch": "2.13.0+cpu",
+    "torch_cuda_available": false
+  },
+  "lanes": {
+    "end_to_end_rollout": {
+      "cpp": {
+        "peak_rss_bytes_max": 317837312,
+        "process_cpu_seconds_median": 4.1875,
+        "repetitions": 3,
+        "result": {
+          "backend": "cpp",
+          "completed_games": 16,
+          "segments_seconds": {
+            "environment": 3.5497657003288623,
+            "frozen_policy": 0.22857459984516026,
+            "observation_to_torch": 0.2755183999397559
+          },
+          "trajectory_digest": "0f65c046fbd97b4b04367d3fc612f474786fe76b422ef13dab00db87671d51ad",
+          "transitions": 4400
+        },
+        "rss_delta_peak_bytes_max": 9764864,
+        "segments_seconds": {
+          "environment": 3.5497657003288623,
+          "frozen_policy": 0.22857459984516026,
+          "observation_to_torch": 0.2755183999397559
+        },
+        "throughput_per_second": 1043.0810490092217,
+        "unit": "token_transitions",
+        "wall_seconds_median": 4.218272400001297,
+        "wall_seconds_samples": [
+          4.218272400001297,
+          4.210444899996219,
+          4.241612400001031
+        ],
+        "work": 4400
+      },
+      "name": "end_to_end_frozen_policy_rollout",
+      "passes_threshold": true,
+      "python_reference": {
+        "peak_rss_bytes_max": 309944320,
+        "process_cpu_seconds_median": 12.453125,
+        "repetitions": 3,
+        "result": {
+          "backend": "python_reference",
+          "completed_games": 16,
+          "segments_seconds": {
+            "environment": 11.752970899986394,
+            "frozen_policy": 0.28536670027824584,
+            "observation_to_torch": 0.28553440010000486
+          },
+          "trajectory_digest": "0f65c046fbd97b4b04367d3fc612f474786fe76b422ef13dab00db87671d51ad",
+          "transitions": 4400
+        },
+        "rss_delta_peak_bytes_max": 2203648,
+        "segments_seconds": {
+          "environment": 11.752970899986394,
+          "frozen_policy": 0.28536670027824584,
+          "observation_to_torch": 0.28553440010000486
+        },
+        "throughput_per_second": 350.54713915345553,
+        "unit": "token_transitions",
+        "wall_seconds_median": 12.551806899995427,
+        "wall_seconds_samples": [
+          12.551806899995427,
+          12.56890530000237,
+          12.527548999998544
+        ],
+        "work": 4400
+      },
+      "speedup": 2.9755799791382764,
+      "threshold": 2.0,
+      "unit": "token_transitions",
+      "work": 4400
+    },
+    "environment_batch": {
+      "cpp": {
+        "peak_rss_bytes_max": 331153408,
+        "process_cpu_seconds_median": 13.03125,
+        "repetitions": 3,
+        "result": {
+          "backend": "cpp",
+          "batch_size": 16,
+          "cycles": 4,
+          "prefix_steps": 64,
+          "segments_seconds": {
+            "environment": 12.46455220002099,
+            "setup": 0.5891557000068133
+          },
+          "trajectory_digest": "9b1208b8de78e060389263854230683265ff12d46ed4f5c4bb2711a7792e4fb2",
+          "transitions": 4096
+        },
+        "rss_delta_peak_bytes_max": 23863296,
+        "segments_seconds": {
+          "environment": 12.46455220002099,
+          "setup": 0.5891557000068133
+        },
+        "throughput_per_second": 313.58334970409254,
+        "unit": "token_transitions",
+        "wall_seconds_median": 13.061917999999423,
+        "wall_seconds_samples": [
+          13.477754200001073,
+          13.061917999999423,
+          13.033762200000638
+        ],
+        "work": 4096
+      },
+      "name": "environment_batch_fixed_prefix",
+      "passes_threshold": true,
+      "python_reference": {
+        "peak_rss_bytes_max": 312303616,
+        "process_cpu_seconds_median": 28.109375,
+        "repetitions": 3,
+        "result": {
+          "backend": "python_reference",
+          "batch_size": 16,
+          "cycles": 4,
+          "prefix_steps": 64,
+          "segments_seconds": {
+            "environment": 27.220504399971105,
+            "setup": 1.1568878000034601
+          },
+          "trajectory_digest": "9b1208b8de78e060389263854230683265ff12d46ed4f5c4bb2711a7792e4fb2",
+          "transitions": 4096
+        },
+        "rss_delta_peak_bytes_max": 11571200,
+        "segments_seconds": {
+          "environment": 27.220504399971105,
+          "setup": 1.1568878000034601
+        },
+        "throughput_per_second": 144.30746763485527,
+        "unit": "token_transitions",
+        "wall_seconds_median": 28.383839500005706,
+        "wall_seconds_samples": [
+          28.383839500005706,
+          28.32545580000442,
+          28.43958980000025
+        ],
+        "work": 4096
+      },
+      "speedup": 2.1730223310242,
+      "threshold": 2.0,
+      "unit": "token_transitions",
+      "work": 4096
+    },
+    "environment_single": {
+      "cpp": {
+        "peak_rss_bytes_max": 302796800,
+        "process_cpu_seconds_median": 3.828125,
+        "repetitions": 3,
+        "result": {
+          "backend": "cpp",
+          "completed_games": 16,
+          "segments_seconds": {
+            "environment": 3.6994840997140273,
+            "setup": 0.1483506999866222
+          },
+          "trajectory_digest": "cf08da49e466af49604a71ddc9fb1939e47c288b518037e6919ccac4895a4822",
+          "transitions": 5150
+        },
+        "rss_delta_peak_bytes_max": 6410240,
+        "segments_seconds": {
+          "environment": 3.6994840997140273,
+          "setup": 0.1483506999866222
+        },
+        "throughput_per_second": 1334.167339040622,
+        "unit": "token_transitions",
+        "wall_seconds_median": 3.860085499996785,
+        "wall_seconds_samples": [
+          3.8822767000019667,
+          3.855022399999143,
+          3.860085499996785
+        ],
+        "work": 5150
+      },
+      "name": "environment_single_complete_games",
+      "passes_threshold": true,
+      "python_reference": {
+        "peak_rss_bytes_max": 293355520,
+        "process_cpu_seconds_median": 12.1875,
+        "repetitions": 3,
+        "result": {
+          "backend": "python_reference",
+          "completed_games": 16,
+          "segments_seconds": {
+            "environment": 12.188561999966623,
+            "setup": 0.2087083000005805
+          },
+          "trajectory_digest": "cf08da49e466af49604a71ddc9fb1939e47c288b518037e6919ccac4895a4822",
+          "transitions": 5150
+        },
+        "rss_delta_peak_bytes_max": 892928,
+        "segments_seconds": {
+          "environment": 12.188561999966623,
+          "setup": 0.2087083000005805
+        },
+        "throughput_per_second": 414.9838835167836,
+        "unit": "token_transitions",
+        "wall_seconds_median": 12.410120499996992,
+        "wall_seconds_samples": [
+          12.410120499996992,
+          12.382176999999501,
+          12.42302720000589
+        ],
+        "work": 5150
+      },
+      "speedup": 3.2149859115833905,
+      "threshold": 2.0,
+      "unit": "token_transitions",
+      "work": 5150
+    },
+    "full_iteration": {
+      "gating": false,
+      "lanes": {
+        "cpp": {
+          "completed_games": 1,
+          "env_steps": 338,
+          "game_steps": 151,
+          "peak_rss_bytes": 2310172672,
+          "process_cpu_seconds": 19.75,
+          "rss_delta_peak_bytes": 1177235456,
+          "runtime_backend": "cpp",
+          "segments_seconds": {
+            "learner": 1.741537400004745,
+            "rollout": 2.119048799999291
+          },
+          "trajectory_length": 338.0,
+          "wall_seconds": 3.881673199997749
+        },
+        "python_reference": {
+          "completed_games": 1,
+          "env_steps": 338,
+          "game_steps": 151,
+          "peak_rss_bytes": 2134233088,
+          "process_cpu_seconds": 22.984375,
+          "rss_delta_peak_bytes": 1051140096,
+          "runtime_backend": "python_reference",
+          "segments_seconds": {
+            "learner": 1.7011859000049299,
+            "rollout": 2.444530399996438
+          },
+          "trajectory_length": 338.0,
+          "wall_seconds": 4.172284499996749
+        }
+      },
+      "learner_ratio": 0.9768299549583573,
+      "note": "Diagnostic complete iteration: the identical neural policy and learner dominate wall time, so the hard backend gate is evaluated on matched environment and frozen-policy rollout workloads.",
+      "rollout_speedup": 1.1535979728250032,
+      "speedup": 1.074867533928196,
+      "workload": {
+        "agent_epoch": 1,
+        "algorithm": "IPPO",
+        "learner_unchanged": true,
+        "same_deal": {
+          "deal": [
+            [
+              1,
+              2,
+              58,
+              6,
+              7,
+              62,
+              11,
+              65,
+              73,
+              75,
+              27,
+              82,
+              84,
+              85,
+              86,
+              33,
+              34,
+              90,
+              39,
+              41,
+              45,
+              99,
+              47,
+              48,
+              50,
+              104,
+              105
+            ],
+            [
+              54,
+              3,
+              57,
+              9,
+              10,
+              12,
+              14,
+              69,
+              17,
+              72,
+              19,
+              20,
+              22,
+              81,
+              29,
+              32,
+              36,
+              91,
+              93,
+              40,
+              94,
+              44,
+              100,
+              101,
+              102,
+              52,
+              107
+            ],
+            [
+              0,
+              55,
+              56,
+              5,
+              59,
+              61,
+              68,
+              70,
+              18,
+              21,
+              76,
+              23,
+              77,
+              78,
+              25,
+              26,
+              80,
+              83,
+              31,
+              88,
+              35,
+              37,
+              42,
+              43,
+              103,
+              51,
+              53
+            ],
+            [
+              4,
+              60,
+              8,
+              63,
+              64,
+              66,
+              13,
+              67,
+              15,
+              16,
+              71,
+              74,
+              24,
+              79,
+              28,
+              30,
+              87,
+              89,
+              38,
+              92,
+              95,
+              96,
+              97,
+              98,
+              46,
+              49,
+              106
+            ]
+          ],
+          "game_index": 40000,
+          "leader_seat": 0,
+          "level_rank": 15,
+          "previous_result": null,
+          "seed": 5090000
+        },
+        "same_model_state": true,
+        "same_seed": 99001
+      }
+    }
+  },
+  "notes": [
+    "Torch is CPU-only in this environment; the installed NVIDIA GPU is inventoried but not used.",
+    "No GPU busy loop or synthetic utilization workload is used.",
+    "Model/learner bottlenecks are not mixed into the primary environment gate; the complete iteration provides explicit rollout and learner segments."
+  ],
+  "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+  "schema": "guandan-marvel-m05-benchmark-v1",
+  "source_commit": "c1fecb05cf37f57ad8462d8c43d1a5b7bb0868c0",
+  "stage": "M05_differential_performance",
+  "timestamp_unix": 1791540217.9620638,
+  "valid": true,
+  "workload": {
+    "batch_cycles": 4,
+    "batch_prefix": 64,
+    "batch_size": 16,
+    "batch_transitions": 4096,
+    "repetitions": 3,
+    "same_action_rows_or_frozen_policy": true,
+    "same_deals": true,
+    "same_machine": true,
+    "single_games": 16,
+    "single_transitions": 5150
+  }
+}

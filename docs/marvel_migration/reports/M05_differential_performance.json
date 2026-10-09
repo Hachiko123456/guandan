@@ -1,0 +1,116 @@
+{
+  "accepted": true,
+  "branch": "codex/marvel-guandan-migration",
+  "correctness": {
+    "actions_executed": 3243977,
+    "complete_games": 10000,
+    "coverage": {
+      "anti_tribute": 1249,
+      "contact": 7166,
+      "families": {
+        "four_kings": 314,
+        "full_house": 23001,
+        "pair": 94114,
+        "pair_sequence": 8760,
+        "pass": 825577,
+        "rank_bomb": 37297,
+        "return": 10321,
+        "single": 283389,
+        "straight": 15932,
+        "straight_flush": 12960,
+        "tribute": 10321,
+        "triple": 25006,
+        "triple_sequence": 3904
+      },
+      "natural_wild_assignments": 817,
+      "return_actions": 10321,
+      "substituted_wild_assignments": 19183,
+      "tribute_actions": 10321
+    },
+    "intermediate_states": 100000,
+    "mismatches": 0,
+    "requirements": {
+      "all_13_levels": true,
+      "all_combination_families": true,
+      "bombs_and_four_kings": true,
+      "complete_games": true,
+      "contact": true,
+      "intermediate_states": true,
+      "privacy_reorders": true,
+      "serialization_roundtrips": true,
+      "terminal_outcomes": true,
+      "trajectory_digests": true,
+      "tribute_return_anti_tribute": true,
+      "wild_declarations": true,
+      "zero_mismatch": true
+    },
+    "serialization_roundtrips": 10000,
+    "states_compared": 3253977,
+    "terminal_outcomes": {
+      "DOUBLE_DOWN": 4443,
+      "HEAD_LAST": 3702,
+      "HEAD_THIRD": 1855
+    },
+    "valid": true
+  },
+  "date": "2026-10-09",
+  "default_backend": "cpp",
+  "end_commit": null,
+  "end_commit_embedded": false,
+  "evidence": [
+    "docs/marvel_migration/evidence/M05_differential_performance/differential_summary.json",
+    "docs/marvel_migration/evidence/M05_differential_performance/benchmark_report.json",
+    "docs/marvel_migration/evidence/M05_differential_performance/corpus_manifest.json",
+    "docs/marvel_migration/evidence/M05_differential_performance/mismatch_manifest.json",
+    "docs/marvel_migration/evidence/M05_differential_performance/protocol_schema.json",
+    "docs/marvel_migration/evidence/M05_differential_performance/verification.json",
+    "docs/marvel_migration/evidence/M05_differential_performance/test_results.json",
+    "docs/marvel_migration/evidence/M05_differential_performance/source_manifest.json",
+    "docs/marvel_migration/evidence/M05_differential_performance/environment.json",
+    "docs/marvel_migration/evidence/M05_differential_performance/artifact_manifest.json"
+  ],
+  "known_limitations": [
+    "Cross-backend reset(seed) PRNG streams are not bit-identical; matched deals are materialized and injected.",
+    "5x target not reached.",
+    "Full unchanged IPPO iteration speedup is 1.075x because identical model/learner work dominates.",
+    "Torch build is CPU-only; no Kaggle or T4x2 claim.",
+    "One pre-existing non-blocking A00 documentation-heading failure remains in an untouched ADR."
+  ],
+  "m06_started": false,
+  "next_stage_allowed": true,
+  "performance": {
+    "end_to_end_rollout_speedup": 2.9755799791382764,
+    "environment_batch_speedup": 2.1730223310242,
+    "environment_single_speedup": 3.2149859115833905,
+    "full_iteration_gating": false,
+    "full_iteration_learner_ratio": 0.9768299549583573,
+    "full_iteration_rollout_speedup": 1.1535979728250032,
+    "full_iteration_speedup": 1.074867533928196,
+    "minimum_speedup": 2.1730223310242,
+    "passes": true,
+    "target": 5.0,
+    "target_5x_reached": false,
+    "threshold": 2.0,
+    "valid": true
+  },
+  "protected_files_unchanged": true,
+  "python_oracle_retained": true,
+  "reference_repo_clean": true,
+  "runs_root": "runs/M05_differential_performance/20261009_acceptance",
+  "schema": "guandan-marvel-stage-report-v1",
+  "silent_fallback": false,
+  "stage": "M05_differential_performance",
+  "start_commit": "c1fecb05cf37f57ad8462d8c43d1a5b7bb0868c0",
+  "status": "accepted",
+  "tests": {
+    "blocking_failed": 0,
+    "blocking_passed": 346,
+    "blocking_skipped": 0,
+    "full_suite_diagnostic": {
+      "failed": 1,
+      "passed": 1383,
+      "pre_existing_failure": true,
+      "skipped": 10
+    }
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "accepted": true,
+  "correctness": {
+    "counts": {
+      "actions_executed": 3243977,
+      "completed_games": 10000,
+      "intermediate_states_sampled": 100000,
+      "mismatches": 0,
+      "requested_games": 10000,
+      "serialization_roundtrips": 10000,
+      "states_compared": 3253977
+    },
+    "coverage": {
+      "anti_tribute": 1249,
+      "contact": 7166,
+      "families": {
+        "four_kings": 314,
+        "full_house": 23001,
+        "pair": 94114,
+        "pair_sequence": 8760,
+        "pass": 825577,
+        "rank_bomb": 37297,
+        "return": 10321,
+        "single": 283389,
+        "straight": 15932,
+        "straight_flush": 12960,
+        "tribute": 10321,
+        "triple": 25006,
+        "triple_sequence": 3904
+      },
+      "natural_wild_assignments": 817,
+      "return_actions": 10321,
+      "substituted_wild_assignments": 19183,
+      "tribute_actions": 10321
+    },
+    "requirements": {
+      "all_13_levels": true,
+      "all_combination_families": true,
+      "bombs_and_four_kings": true,
+      "complete_games": true,
+      "contact": true,
+      "intermediate_states": true,
+      "privacy_reorders": true,
+      "serialization_roundtrips": true,
+      "terminal_outcomes": true,
+      "trajectory_digests": true,
+      "tribute_return_anti_tribute": true,
+      "wild_declarations": true,
+      "zero_mismatch": true
+    },
+    "summary_sha256": "9bbd10000c965107a3c2bd544d65a8a66a3c3177ce2a0c018da9efebbc418a07",
+    "valid": true
+  },
+  "date": "2026-10-09",
+  "default_backend": {
+    "name": "cpp",
+    "python_oracle_retained": true,
+    "silent_fallback": false
+  },
+  "performance": {
+    "benchmark_sha256": "ba6341e254cfae79c844c9596a230fe7c3148160ef75418ebad013a6b3020e38",
+    "gate": {
+      "definition": "All matched environment-only and frozen-policy end-to-end rollout comparisons must reach >=2x. The unchanged full learner iteration is segmented and reported diagnostically because identical model/learner work is backend-independent.",
+      "gated_lanes": [
+        "environment_single_complete_games",
+        "environment_batch_fixed_prefix",
+        "end_to_end_frozen_policy_rollout"
+      ],
+      "minimum_speedup": 2.1730223310242,
+      "passes": true,
+      "target_5x_reached": false,
+      "threshold": 2.0
+    },
+    "speedups": {
+      "end_to_end_rollout": 2.9755799791382764,
+      "environment_batch": 2.1730223310242,
+      "environment_single": 3.2149859115833905,
+      "full_iteration": 1.074867533928196
+    },
+    "valid": true
+  },
+  "protected_files_unchanged": true,
+  "reference_repo_clean": true,
+  "schema": "guandan-marvel-m05-verification-v1",
+  "source_parent_commit": "c1fecb05cf37f57ad8462d8c43d1a5b7bb0868c0",
+  "stage": "M05_differential_performance",
+  "tests": {
+    "blocking_passed": true,
+    "blocking_passed_count": 346,
+    "full_suite_diagnostic_pre_existing_failure": true
+  }
+}

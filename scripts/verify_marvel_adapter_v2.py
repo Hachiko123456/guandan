@@ -21,7 +21,7 @@ from guandan.cards import NORMAL_RANKS, Rank
 from guandan.combos import CombinationKind
 from guandan.environment_types import GameConfig
 from guandan.state import Phase, PreviousHandResult
-from guandan_marvel import game
+from guandan_marvel import python_game as game
 
 PREVIOUS = PreviousHandResult((1, 3, 2, 4), 0, "DOUBLE_DOWN")
 

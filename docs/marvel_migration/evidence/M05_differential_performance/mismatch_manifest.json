@@ -1,0 +1,11 @@
+{
+  "acceptance_blocked": false,
+  "count": 0,
+  "date": "2026-10-09",
+  "fixture_schema": "guandan-marvel-m05-mismatch-fixture-v1",
+  "fixtures": [],
+  "path": "runs/M05_differential_performance/20261009_acceptance/mismatches",
+  "policy": "Any mismatch is retained as a replayable fixture and blocks acceptance.",
+  "schema": "guandan-marvel-m05-mismatch-manifest-v1",
+  "stage": "M05_differential_performance"
+}

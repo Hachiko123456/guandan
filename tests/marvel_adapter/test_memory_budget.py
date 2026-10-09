@@ -5,7 +5,7 @@ from dataclasses import replace
 import pytest
 import torch
 
-from guandan_marvel import game
+from guandan_marvel import python_game as game
 from guandan_marvel.buffer import BufferConfig, TrajectoryBuffer, require_trajectory_memory_budget, trajectory_memory_budget
 
 

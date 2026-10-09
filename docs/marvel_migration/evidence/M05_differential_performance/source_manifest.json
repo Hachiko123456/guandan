@@ -1,0 +1,172 @@
+{
+  "date": "2026-10-09",
+  "files": [
+    {
+      "bytes": 1467,
+      "path": "guandan_marvel/__init__.py",
+      "sha256": "b4d12acec36e95c14430cd4e3db13d9a6868256c08d09d7588816067ca1aa290"
+    },
+    {
+      "bytes": 1097,
+      "path": "guandan_marvel/backends.py",
+      "sha256": "af8544cb31aa16bef4f572431ee7556a70b3dbf3c01463394a6fa8815d9bff0a"
+    },
+    {
+      "bytes": 345,
+      "path": "guandan_marvel/cpp_game.py",
+      "sha256": "31e0b3b6ddcdef3d35bccead4acf9eaac1dbc0f6be40340c518386edca656f51"
+    },
+    {
+      "bytes": 21962,
+      "path": "guandan_marvel/testing/differential.py",
+      "sha256": "623d701217a052fb70c3d754e23fa37006f82fd9581dc9fc517d99bff44e611e"
+    },
+    {
+      "bytes": 9446,
+      "path": "guandan_marvel/testing/complex_actions.py",
+      "sha256": "c2de0920edf36d8777bcb258479585092d76697a7b6cc5697fe48d3d9865ff06"
+    },
+    {
+      "bytes": 36716,
+      "path": "guandan_marvel/training/local.py",
+      "sha256": "bd7a532cf0c0c852356e6cc27e679d71819415519019fd461639a4bc6437986b"
+    },
+    {
+      "bytes": 1701,
+      "path": "guandan_marvel/training/smoke.py",
+      "sha256": "091d4f829bb0a5a874ad67cfa767df4adaa55d5bb6814b13ce28d3164bbe37b1"
+    },
+    {
+      "bytes": 23071,
+      "path": "scripts/benchmark_marvel_m05.py",
+      "sha256": "32a2df0029da3b14b669fb2507d18a86dc6618bfc19cdfe69cd351a88ab53a53"
+    },
+    {
+      "bytes": 17960,
+      "path": "scripts/verify_marvel_m05_differential.py",
+      "sha256": "16566fc598a55575eba8769d8f2a2f74c27578cf174b64120d3068ad18838f83"
+    },
+    {
+      "bytes": 3831,
+      "path": "scripts/report_marvel_m03_memory_budget.py",
+      "sha256": "e63a84dad0eb816a3b3824444000799fd5d19c74ea668142f2419678a3adc998"
+    },
+    {
+      "bytes": 10385,
+      "path": "scripts/verify_marvel_adapter_v2.py",
+      "sha256": "b184006a6471c1c557ec1417461ea484300b9c827ee279317d62afd4a2e6c806"
+    },
+    {
+      "bytes": 11666,
+      "path": "scripts/verify_marvel_cpp_runtime.py",
+      "sha256": "d0dd13d7126784bb33dad9f76f14e42aa8067fda198199d37d670573e8723515"
+    },
+    {
+      "bytes": 9312,
+      "path": "scripts/verify_marvel_sampler_contract.py",
+      "sha256": "af03dc0b56116db106854f4928ae3a5215debd78594cc0d3e9c667dd88517216"
+    },
+    {
+      "bytes": 4739,
+      "path": "tests/marvel_differential/test_m05_differential.py",
+      "sha256": "3bd7af7d9073d93c4147b57e454d34c6b1b7e1ad9ec95c0a323a9c2be86c3e80"
+    },
+    {
+      "bytes": 19777,
+      "path": "tests/marvel_adapter/test_adapter.py",
+      "sha256": "08162e1b81b9664dbfe007f8d824cb370dc563e19142bffe81d5183825f68482"
+    },
+    {
+      "bytes": 6825,
+      "path": "tests/marvel_adapter/test_complex_actions.py",
+      "sha256": "c9a69991c3b557f177e5cf4ffd554184e6c5505567af19afdb700f1ee962d382"
+    },
+    {
+      "bytes": 3029,
+      "path": "tests/marvel_adapter/test_memory_budget.py",
+      "sha256": "c339a3d3b72451ccc86debdb5f43555031ee0cae70d6a6c164558b4b0e8769df"
+    },
+    {
+      "bytes": 13129,
+      "path": "tests/marvel_adapter/test_sampler_contract.py",
+      "sha256": "eba287dbe6f330596adb613ff1424b2113dc7fd6c444c48837ca930dc8b46773"
+    },
+    {
+      "bytes": 6112,
+      "path": "tests/marvel_cpp/test_batch.py",
+      "sha256": "4a9038629bacde1114f55aaaaaf719a1c3c9730265b986466803e7775b6c8c3c"
+    },
+    {
+      "bytes": 8417,
+      "path": "tests/marvel_cpp/test_round_protocol.py",
+      "sha256": "c1c5a4375bcf3531afaee3d0f5e3917e5bef7f29aa52dd0f64ffd48fde15a3f3"
+    },
+    {
+      "bytes": 3956,
+      "path": "docs/marvel_migration/00_README.md",
+      "sha256": "1141ddcdc58a35412081af3442f101da317733b41dabeb084474331e7586ebaf"
+    },
+    {
+      "bytes": 2986,
+      "path": "docs/marvel_migration/03_TARGET_ARCHITECTURE.md",
+      "sha256": "b2e311e88845e6fe9257b9ec1402fc18c7a0601a6a844d4d6cb38237e5ad92c7"
+    },
+    {
+      "bytes": 6605,
+      "path": "docs/marvel_migration/04_GAME_INTERFACE_V2.md",
+      "sha256": "d8ab31f158f344466239cf408863dd72eee97c2eacf8ede0932aac765f77e0fd"
+    },
+    {
+      "bytes": 10585,
+      "path": "docs/marvel_migration/10_RISK_AND_DECISIONS.md",
+      "sha256": "029ce50c1d1408d0ad0b5c532d1907b2df2983b3bb0e1b146507661aaf294fe7"
+    },
+    {
+      "bytes": 5040,
+      "path": "docs/marvel_migration/M05_DIFFERENTIAL_PERFORMANCE_PROTOCOL.md",
+      "sha256": "4f84f9cf8c4703d19acea9164e329e3e620f3dbe3a794d52bc5e1f2c053f83b1"
+    }
+  ],
+  "protected_files": [
+    {
+      "path": "guandan/cards.py",
+      "start_sha256": "dcbf3a8dbdbc910fec9d37935f83d6980bc33a308400a5aa99f00b100bb68dca",
+      "unchanged": false,
+      "working_sha256": "1454a3f14fe21a52d6e9ff1afd9552ae8e14013950b9d579ecf221670dd89787"
+    },
+    {
+      "path": "guandan/combos.py",
+      "start_sha256": "a375a28964ecc6ef36dd5a487d9c039b422afd78c68ce54ac970265d64efacc8",
+      "unchanged": false,
+      "working_sha256": "b81bff006536b7938c395eb21dd3a0e0ecaa522e64fbbd9df7e2f5148ae3f308"
+    },
+    {
+      "path": "guandan/round.py",
+      "start_sha256": "b7df95a68e58bb7422e7f94b67649d7adf9a2b043b9b89f9d26ca06a21c251b0",
+      "unchanged": false,
+      "working_sha256": "4e357502b9ee63d15d0fedac91127f72e2c976279f18c76a762483df010fc21a"
+    },
+    {
+      "path": "guandan/state.py",
+      "start_sha256": "20f08df290a04678c89b0d29713683474dc0ff7f737b13ce607346e2913d5925",
+      "unchanged": false,
+      "working_sha256": "c0ffd8c50ac868a6e93b3cb19953b662e65ecf59a0d2d4dc334441ffee47159b"
+    },
+    {
+      "path": "docs/rules.md",
+      "start_sha256": "e53a4576d41adfea27684aa8f20d2043feff5ad6a6a44ad7fe7be57cbeefa928",
+      "unchanged": false,
+      "working_sha256": "77679ef8bd454a5d84ec0c7c357165b13ef9078ecee9f7d381ebd63892e15a52"
+    }
+  ],
+  "protected_files_unchanged": false,
+  "reference_repo": {
+    "clean": true,
+    "head": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+    "path": "D:\\project\\doudizhu",
+    "status_short": []
+  },
+  "schema": "guandan-marvel-m05-source-manifest-v1",
+  "source_parent_commit": "c1fecb05cf37f57ad8462d8c43d1a5b7bb0868c0",
+  "stage": "M05_differential_performance"
+}

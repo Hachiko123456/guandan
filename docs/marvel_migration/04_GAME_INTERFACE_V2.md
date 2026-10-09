@@ -147,3 +147,9 @@ C++ `EnvBatch.step()` 同时接受 NumPy structured rows 和 `actions_from_np(ro
 ## 12. C++ action row 原始整数范围（2026-10-09）
 
 C++ action row 的全部八个 NumPy integer 字段必须在任何窄化转换前满足 `0 <= value < NUM_TOKENS`。Signed dtype 无损读取为 `int64_t`，unsigned dtype 无损读取为 `uint64_t`；只有全部原始值通过后才转换为 C++ `int`。禁止通过 32-bit 截断、取模、裁剪或饱和转换把非法值变成合法 token。完整补修边界见 `M04_CPP_INTEGER_BOUNDS_REPAIR_PROTOCOL.md`。
+
+## 13. M05 differential acceptance and default backend（2026-10-09）
+
+M05 使用匹配 deal/action corpus 对 Python oracle 与 C++ runtime 执行逐状态差分，覆盖 legal rows、`is_commit`、四座位观测、privileged ownership、reward、terminal、serialization/resume 和完整 trajectory digest。验收规模为 10,000 完整局与 100,000 随机中间状态，0 mismatch；固定单环境、batch 和冻结策略端到端 workload 的最小实测加速为 2.173×。完整协议和证据边界见 `M05_DIFFERENTIAL_PERFORMANCE_PROTOCOL.md`。
+
+通过后 package-level `guandan_marvel.game` 切换为 C++ 正式训练默认；Python oracle 保留为 `guandan_marvel.python_game`。显式请求 C++ 扩展失败时禁止回退。该结论不构成模型强度、Kaggle 或 GPU 利用率结论。

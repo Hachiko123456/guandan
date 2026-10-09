@@ -14,7 +14,7 @@ from guandan.environment import GuandanEnv
 from guandan.environment_types import GameConfig
 from guandan.round import return_cards_for, tribute_card_for
 from guandan.state import Phase, PreviousHandResult, RoundState
-from guandan_marvel import game
+from guandan_marvel import python_game as game
 from guandan_marvel.buffer import BufferConfig, TrajectoryBuffer
 from guandan_marvel.model.types import AgentOutput
 from guandan_marvel.runtime.sampler import Sampler, SamplerConfig

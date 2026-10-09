@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from guandan_marvel import game as guandan_game
+from guandan_marvel import python_game as guandan_game
 from guandan_marvel.config import GameSpec
 
 

@@ -273,7 +273,7 @@ class LocalTrainerBase:
             "statistics/iterations": self.iteration + 1,
             "statistics/durable_updates": self.durable_updates + 1,
             "runtime/schema": M03_RUNTIME_SCHEMA,
-            "runtime/backend": "python_reference",
+            "runtime/backend": str(getattr(self.game, "BACKEND", "unknown")),
             "runtime/algorithm": self.algorithm,
             "runtime/smoke_profile": True,
             "runtime/reduced_horizon": int(self.cfg.game.max_game_horizon),

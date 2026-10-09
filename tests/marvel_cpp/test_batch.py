@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from guandan_marvel import game as python_game
+from guandan_marvel import DEFAULT_BACKEND, game as default_game, python_game
 from guandan_marvel.env_batch import EnvStepBatch
 from nanopokerlib import guandan as cpp
 
@@ -17,9 +17,11 @@ def _random_rows(step, rng):
     return np.asarray(rows, dtype=np.int64)
 
 
-def test_import_is_explicit_and_python_reference_remains_default():
+def test_import_is_explicit_and_cpp_is_default_after_m05_cutover():
     assert python_game.BACKEND == "python_reference"
     assert cpp.BACKEND == "cpp"
+    assert DEFAULT_BACKEND == "cpp"
+    assert default_game.BACKEND == "cpp"
     assert cpp.GAME_SPEC.identifier == cpp.GAME_IDENTIFIER
     assert cpp.GAME_SPEC.protocol_version == python_game.protocol_version
 

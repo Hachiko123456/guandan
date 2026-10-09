@@ -1,0 +1,49 @@
+{
+  "actions": 3243977,
+  "corpus_schema": "guandan-marvel-m05-state-action-corpus-v1",
+  "date": "2026-10-09",
+  "games": 10000,
+  "intermediate_states": 100000,
+  "replay_contract": "Each step is [action_token_id, *exact_prefix_tokens]; the complete V2 row is uniquely regenerated from the live legal set.",
+  "replay_probe": {
+    "game_index": 0,
+    "steps": 317,
+    "trajectory_digest": "ce70566d9bb77024304ece70e8703125ca2268f572a46840e8ed86925dcda18a",
+    "valid": true
+  },
+  "schema": "guandan-marvel-m05-corpus-manifest-v1",
+  "shards": [
+    {
+      "bytes": 1402072,
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-00.jsonl.gz",
+      "sha256": "25c6ab084d5abd3b2954c50daa5193b5dc6a346689aa6581e6b30d5bb254832b"
+    },
+    {
+      "bytes": 1411518,
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-01.jsonl.gz",
+      "sha256": "126131dab31e9bc95729a5d7ac34557f6e4539d4058653f2c9dc2d1bcb5f3d7a"
+    },
+    {
+      "bytes": 1403686,
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-02.jsonl.gz",
+      "sha256": "ba0a20d1a87e7a383545b201afcf7e5a2feb3d6768190a245dda3bd238afeba4"
+    },
+    {
+      "bytes": 1408450,
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-03.jsonl.gz",
+      "sha256": "b63c5ed653bc371bfa835ddb57986ff8604bc6dc13aad48a1c1cc0be879c89b2"
+    },
+    {
+      "bytes": 1404477,
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-04.jsonl.gz",
+      "sha256": "92956e1108a0cb6f7dae7b65ef708e008481496552c9703ac5c5e49ae8bcbedb"
+    },
+    {
+      "bytes": 1408295,
+      "path": "runs/M05_differential_performance/20261009_acceptance/corpus/corpus-05.jsonl.gz",
+      "sha256": "6bc81afe226af073c81d204735d2143b8222a2c01aecb397aed29396c9157375"
+    }
+  ],
+  "stage": "M05_differential_performance",
+  "states_compared": 3253977
+}
