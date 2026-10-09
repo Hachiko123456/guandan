@@ -83,3 +83,6 @@ backend=cpp
 - V1/V2 评估报告必须明确标注版本；
 - 不允许用同一个 `best.pt` 文件名覆盖不同架构；
 - champion manifest 必须包含模型、协议、源码、配置和评估数据身份。
+## 6. M04 实现状态（2026-10-09）
+
+`nanopokerlib.guandan` 已提供显式 `backend=cpp` 的 pybind `EnvBatch`，并保持与 M02 相同的 tensor shape/protocol version。当前默认仍是 `python_reference`；M05 的完整差分和 >=2x 固定工作负载门槛未通过前不得 cut over。

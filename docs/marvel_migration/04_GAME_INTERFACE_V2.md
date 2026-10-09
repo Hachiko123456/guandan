@@ -136,3 +136,6 @@ critic 不得修改 actor observation tensor，也不得通过共享缓存泄露
 - 资源预算停止不能伪造成终局；
 - horizon overflow 是错误或受控 incomplete，不得给出胜负奖励；
 - 完整对局 collector 的训练 batch 不接受未标明来源的截断轨迹。
+## 10. M04 C++ backend（2026-10-09）
+
+显式模块 `nanopokerlib.guandan` / `guandan_marvel.cpp_game` 实现同一 action/environment/encoding version，并新增 `guandan-marvel-cpp-runtime-v1` 序列化。它支持 `reset_from_deals`、`critic_state`、`debug_state` 和 byte-stable batch roundtrip。完整布局和 build 边界见 `M04_CPP_RUNTIME_PROTOCOL.md`。该实现尚未获得 M05 大规模差分/性能验收，正式默认后端不变。

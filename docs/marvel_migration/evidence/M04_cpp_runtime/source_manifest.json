@@ -1,0 +1,175 @@
+{
+  "date": "2026-10-09",
+  "doudizhu_game_sources_copied": false,
+  "files": [
+    {
+      "bytes": 3977,
+      "classification": "new_binding_or_build",
+      "path": "setup.py",
+      "sha256": "a3011a0e11157b79f0d4fab26b4857de6501c6e20c541536349c83693eddd893"
+    },
+    {
+      "bytes": 992,
+      "classification": "documentation_or_packaging",
+      "path": "pyproject.toml",
+      "sha256": "cec4356005985d234db1aef6b2c8766fa9436569bf53bc1b77c7e8cb5d1c8fe1"
+    },
+    {
+      "bytes": 139,
+      "classification": "new_binding_or_build",
+      "path": "MANIFEST.in",
+      "sha256": "ec1e724f01b9e48a1d1d599cd8bc85b4f09e0b414a4ce7f3f6e292876ff7afc2"
+    },
+    {
+      "bytes": 248,
+      "classification": "documentation_or_packaging",
+      "path": ".gitignore",
+      "sha256": "5ab8c5d4c5b7c6307516c6d24f4fb23f9d4a460f3768b06b75df6d49c3bf8b22"
+    },
+    {
+      "bytes": 118,
+      "classification": "new_binding_or_build",
+      "path": "nanopokerlib/__init__.py",
+      "sha256": "283364fac3e1eb4936f70444678593931d361e6d21e98a1c584f2ad45bef7571"
+    },
+    {
+      "bytes": 941,
+      "classification": "new_binding_or_build",
+      "path": "nanopokerlib/guandan.py",
+      "sha256": "2378bf606cf133541b5fe64b063b5b3db52edc7c2c6f6b16ad7981f538d05463"
+    },
+    {
+      "bytes": 1088,
+      "classification": "license_or_notice",
+      "path": "nanopokerlib/LICENSE",
+      "sha256": "c40411b9f09e2927c13b18331fee1d3f2caad5dcac4200c3280c198b8c05c95b"
+    },
+    {
+      "bytes": 607,
+      "classification": "license_or_notice",
+      "path": "nanopokerlib/NOTICE.md",
+      "sha256": "bce4c9d8944f4782cf385b4d93b3d997b2ee4ea637d7052fa34a602746de5a20"
+    },
+    {
+      "bytes": 598,
+      "classification": "documentation_or_packaging",
+      "path": "nanopokerlib/README.md",
+      "sha256": "c170ff948944ae1c16cb9dbd479e59faf74e8971f64b3fc69f1810ab462a2d8a"
+    },
+    {
+      "bytes": 1335,
+      "classification": "derived_generic_mit",
+      "path": "nanopokerlib/cpp/core/types.hpp",
+      "sha256": "22d1c11274f4da56175bc3859e2e89731ce0e03e7640071ebbca66da566d51da"
+    },
+    {
+      "bytes": 10600,
+      "classification": "new_guandan_implementation",
+      "path": "nanopokerlib/cpp/guandan/guandan.hpp",
+      "sha256": "7501b4af2ef02053324b64868cbf368383be3f3548d944b35efa6aa2371f1ccd"
+    },
+    {
+      "bytes": 83649,
+      "classification": "new_guandan_implementation",
+      "path": "nanopokerlib/cpp/guandan/guandan.cpp",
+      "sha256": "47ba555030596ddd6c2d97dc2fa00860617e6a996fad324df660271558da1096"
+    },
+    {
+      "bytes": 47899,
+      "classification": "new_binding_or_build",
+      "path": "nanopokerlib/cpp/bindings.cpp",
+      "sha256": "30187caa1c9a185ea98a3fe306fc673356b75f47f84a2f5c13d3735c797b8737"
+    },
+    {
+      "bytes": 296,
+      "classification": "new_binding_or_build",
+      "path": "guandan_marvel/cpp_game.py",
+      "sha256": "3501f5dc42e37407055a316a5851ff4fe4a6fceeecfdd290220ea7b3d8cfdf4b"
+    },
+    {
+      "bytes": 11674,
+      "classification": "test_or_verifier",
+      "path": "scripts/verify_marvel_cpp_runtime.py",
+      "sha256": "c06ad5e15a06a7048ab29f792c92fad8b9e0fd2532e71edc04e1f50a55de3552"
+    },
+    {
+      "bytes": 4382,
+      "classification": "test_or_verifier",
+      "path": "tests/marvel_cpp/test_cards_combos.py",
+      "sha256": "9a0389e906f372e48a5e25a8058ff6c845b9ca91d02df93012fe3675922a690e"
+    },
+    {
+      "bytes": 8425,
+      "classification": "test_or_verifier",
+      "path": "tests/marvel_cpp/test_round_protocol.py",
+      "sha256": "4ed6873761a0ff92b9720431c36b71190846a1749cba0133559f13d4d1778560"
+    },
+    {
+      "bytes": 6002,
+      "classification": "test_or_verifier",
+      "path": "tests/marvel_cpp/test_batch.py",
+      "sha256": "ffd8c4d36eba14250abbfc1001cd5d29ddd6113c884fe11b85bab26b10d7a1ed"
+    },
+    {
+      "bytes": 5079,
+      "classification": "documentation_or_packaging",
+      "path": "docs/marvel_migration/M04_CPP_RUNTIME_PROTOCOL.md",
+      "sha256": "c16fdadbe6b992d02b221cbac9cc11dc24a474dcac0a4e401b0bdf63c6ff4d5a"
+    }
+  ],
+  "guandan_game_scan": {
+    "only_match": "source comment stating no Doudizhu game code is copied",
+    "patterns": [
+      "doudizhu",
+      "landlord",
+      "peasant"
+    ]
+  },
+  "license_copy": {
+    "matches_reference": true,
+    "path": "nanopokerlib/LICENSE",
+    "sha256": "c40411b9f09e2927c13b18331fee1d3f2caad5dcac4200c3280c198b8c05c95b"
+  },
+  "protected_files": [
+    {
+      "path": "guandan/cards.py",
+      "sha256": "1454a3f14fe21a52d6e9ff1afd9552ae8e14013950b9d579ecf221670dd89787",
+      "start_commit_blob": "85734aa3039aa2e8b5850762ddb4903942fab09b",
+      "worktree_blob": "85734aa3039aa2e8b5850762ddb4903942fab09b"
+    },
+    {
+      "path": "guandan/combos.py",
+      "sha256": "b81bff006536b7938c395eb21dd3a0e0ecaa522e64fbbd9df7e2f5148ae3f308",
+      "start_commit_blob": "dc3aff35fa06aac6158d6381ade3370829692b26",
+      "worktree_blob": "dc3aff35fa06aac6158d6381ade3370829692b26"
+    },
+    {
+      "path": "guandan/round.py",
+      "sha256": "4e357502b9ee63d15d0fedac91127f72e2c976279f18c76a762483df010fc21a",
+      "start_commit_blob": "2ba208d1fd79a8fef3debc4a1bc64493ca89f09b",
+      "worktree_blob": "2ba208d1fd79a8fef3debc4a1bc64493ca89f09b"
+    },
+    {
+      "path": "guandan/state.py",
+      "sha256": "c0ffd8c50ac868a6e93b3cb19953b662e65ecf59a0d2d4dc334441ffee47159b",
+      "start_commit_blob": "dca8b770bf5ebad206802ff7b0415f4384b1f16a",
+      "worktree_blob": "dca8b770bf5ebad206802ff7b0415f4384b1f16a"
+    },
+    {
+      "path": "docs/rules.md",
+      "sha256": "77679ef8bd454a5d84ec0c7c357165b13ef9078ecee9f7d381ebd63892e15a52",
+      "start_commit_blob": "ac9074987065d6a228730b99973cf679d7711863",
+      "worktree_blob": "ac9074987065d6a228730b99973cf679d7711863"
+    }
+  ],
+  "protected_files_unchanged_from_start": true,
+  "reference": {
+    "commit": "acdcf199cf422e2b683cb22142b8e7cb33b14460",
+    "license_sha256": "c40411b9f09e2927c13b18331fee1d3f2caad5dcac4200c3280c198b8c05c95b",
+    "path": "D:\\project\\doudizhu",
+    "status_short": ""
+  },
+  "schema": "guandan-marvel-m04-source-manifest-v1",
+  "stage": "M04_cpp_runtime",
+  "start_commit": "a3177967ba2095d2201a6f97d54895de579905cb"
+}

@@ -1,0 +1,90 @@
+{
+  "branch": "codex/marvel-guandan-migration",
+  "date": "2026-10-09",
+  "end_commit_embedded": false,
+  "environment": {
+    "compiler": "MinGW g++ 11.2",
+    "cuda_available": false,
+    "numpy": "2.3.5",
+    "os": "Windows 11",
+    "python": "3.12.0",
+    "torch": "2.13.0+cpu"
+  },
+  "evidence": [
+    "docs/marvel_migration/evidence/M04_cpp_runtime/protocol_schema.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime/verification.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime/test_results.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime/source_manifest.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime/build_artifacts.json",
+    "docs/marvel_migration/evidence/M04_cpp_runtime/artifact_manifest.json"
+  ],
+  "implementation": {
+    "backend": "cpp",
+    "default_backend_changed": false,
+    "identifier": "GuandanMARVELV2Cpp",
+    "ippo_vrpo_math_changed": false,
+    "legacy_removed": false,
+    "python_oracle_retained": true,
+    "silent_fallback": false,
+    "transactional_batch": true
+  },
+  "known_limitations": [
+    "M05 10k/100k differential not run",
+    "M05 >=2x fixed-workload gate not run",
+    "formal training default remains python_reference",
+    "no Kaggle/T4x2/DDP/model-strength claim"
+  ],
+  "m05": {
+    "accepted": false,
+    "full_differential_complete": false,
+    "performance_gate_complete": false,
+    "status": "not_started"
+  },
+  "next_stage_allowed": true,
+  "protected_files_unchanged": true,
+  "protocols": {
+    "action": "GD-ACTION-0.2-MARVEL",
+    "encoding": "GD-ENCODING-0.2-MARVEL",
+    "environment": "GD-ENV-0.2-MARVEL",
+    "serialization": "guandan-marvel-cpp-runtime-v1"
+  },
+  "reference_repo_clean": true,
+  "schema": "guandan-marvel-stage-report-v1",
+  "stage": "M04_cpp_runtime",
+  "start_commit": "a3177967ba2095d2201a6f97d54895de579905cb",
+  "status": "accepted",
+  "tests": {
+    "a01_a04": {
+      "passed": 152,
+      "skipped": 0
+    },
+    "cpp_scoped": {
+      "passed": 41,
+      "skipped": 0
+    },
+    "errors": 0,
+    "failed": 0,
+    "legacy_unit_integration_property": {
+      "passed": 897,
+      "skipped": 10
+    },
+    "m02_m03": {
+      "passed": 69,
+      "skipped": 0
+    },
+    "passed": 1159,
+    "skipped": 10,
+    "total": 1169
+  },
+  "verification": {
+    "batch_size": 8,
+    "batch_terminal_slots": 8,
+    "card_conservation": true,
+    "combination_families": 10,
+    "directed_cases": 13,
+    "full_cpp_python_smoke_games": 3,
+    "performance_claim": "preliminary_local_observation_only",
+    "serialization_byte_stable": true,
+    "token_transitions_per_second": 1375.2
+  }
+}

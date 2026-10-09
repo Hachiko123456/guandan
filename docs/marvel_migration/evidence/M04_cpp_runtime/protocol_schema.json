@@ -1,0 +1,38 @@
+{
+  "action_row": [
+    "ROW_BEGIN",
+    "PHASE",
+    "PREFIX_STAGE",
+    "KIND",
+    "PAYLOAD_MARKER",
+    "V1_TOKEN_ID",
+    "IS_COMMIT",
+    "ROW_END"
+  ],
+  "actor_privacy": "four observer-specific information sets; unresolved other-seat exchange identities hidden",
+  "backend": "cpp",
+  "backend_switch": "explicit import only; python_reference remains default until M05 accepted",
+  "capacity_policy": "hard_fail_no_truncation",
+  "critic_api": "EnvBatch.critic_state only; ownership/escrow/played never attached to EnvStep",
+  "failure_policy": "transactional_batch_trial_copy_then_commit",
+  "game_spec": {
+    "max_action_tokens": 8,
+    "max_available_actions": 256,
+    "max_game_horizon": 4096,
+    "max_observation_tokens": 48,
+    "num_channels": 512,
+    "num_players": 4,
+    "num_tokens": 320,
+    "pad_token": 0
+  },
+  "identifier": "GuandanMARVELV2Cpp",
+  "m05_status": "not_started",
+  "protocols": {
+    "action": "GD-ACTION-0.2-MARVEL",
+    "encoding": "GD-ENCODING-0.2-MARVEL",
+    "environment": "GD-ENV-0.2-MARVEL",
+    "serialization": "guandan-marvel-cpp-runtime-v1"
+  },
+  "schema": "guandan-marvel-m04-cpp-protocol-v1",
+  "stage": "M04_cpp_runtime"
+}

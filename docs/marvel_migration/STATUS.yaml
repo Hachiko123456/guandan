@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M04_cpp_runtime
+current_stage: M05_differential_performance
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -92,19 +92,27 @@ stages:
     blockers: []
 
   M04_cpp_runtime:
+    status: accepted
+    accepted: true
+    commit: self
+    reports:
+      - docs/marvel_migration/reports/M04_cpp_runtime.md
+      - docs/marvel_migration/reports/M04_cpp_runtime.json
+    evidence:
+      - docs/marvel_migration/evidence/M04_cpp_runtime/protocol_schema.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime/verification.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime/test_results.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime/source_manifest.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime/build_artifacts.json
+      - docs/marvel_migration/evidence/M04_cpp_runtime/artifact_manifest.json
+    blockers: []
+
+  M05_differential_performance:
     status: not_started
     accepted: false
     commit: null
     reports: []
     blockers: []
-
-  M05_differential_performance:
-    status: blocked
-    accepted: false
-    commit: null
-    reports: []
-    blockers:
-      - M04_cpp_runtime is not accepted
 
   M06_evaluation_champion:
     status: blocked

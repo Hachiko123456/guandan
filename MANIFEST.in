@@ -1,0 +1,4 @@
+include nanopokerlib/LICENSE
+include nanopokerlib/NOTICE.md
+include nanopokerlib/README.md
+recursive-include nanopokerlib/cpp *.hpp *.cpp

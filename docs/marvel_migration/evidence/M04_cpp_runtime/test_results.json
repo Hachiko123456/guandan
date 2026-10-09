@@ -1,0 +1,161 @@
+{
+  "date": "2026-10-09",
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]"
+  },
+  "new_cpp_skips": 0,
+  "other_commands": [
+    {
+      "command": "python setup.py build_ext --inplace --force",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_runtime/20261009_acceptance/build.log",
+      "log_sha256": "961d69120ffdda00aa96161ecb21818556c7b089a2c34871384a449e7c040191",
+      "name": "build_inplace"
+    },
+    {
+      "command": "python scripts/verify_marvel_cpp_runtime.py --output docs/marvel_migration/evidence/M04_cpp_runtime/verification.json --batch-size 8",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_runtime/20261009_acceptance/verification.log",
+      "log_sha256": "f1b21861a644df05520d3076dac2f8023bd820abc5b64791af45ab3e1728aa38",
+      "name": "verification"
+    },
+    {
+      "command": "python -m pip wheel . --no-deps --wheel-dir runs/M04_cpp_runtime/20261009_acceptance/wheel",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_runtime/20261009_acceptance/wheel_build.log",
+      "log_sha256": "6120dddaea2d3cf4405a655616c099d73d8b6b9ed8938bfd23dd5c6cf03242f9",
+      "name": "wheel_build"
+    },
+    {
+      "command": "install wheel to isolated target; chdir outside repository; import nanopokerlib.guandan; reset EnvBatch(2)",
+      "exit_code": 0,
+      "log": "runs/M04_cpp_runtime/20261009_acceptance/clean_wheel_import.log",
+      "log_sha256": "c576e81881384b0537175c5b041861ad84786b5d68cba809acb79a4499f56a8c",
+      "name": "clean_wheel_import"
+    }
+  ],
+  "pytest_commands": [
+    {
+      "command": "python -m pytest tests/marvel_cpp -q --junitxml=runs/M04_cpp_runtime/20261009_acceptance/cpp_scoped.junit.xml",
+      "duration_seconds": 9.725,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_runtime/20261009_acceptance/cpp_scoped.junit.xml",
+      "junit_sha256": "61878e65bed56c0a6ab4f4bdf41dcfbaf15cab5bd49bf5b711f38f4cedca0c99",
+      "name": "cpp_scoped",
+      "passed": 41,
+      "skipped": 0,
+      "stdout_log": "runs/M04_cpp_runtime/20261009_acceptance/cpp_scoped.log",
+      "stdout_sha256": "d82d3cecc4c57c2e6a2c4e61dbeb70f0ca4433e10cc37827b1c2f37d5dba9fc6",
+      "tests": 41
+    },
+    {
+      "command": "python -m pytest tests/marvel_adapter tests/marvel_training -q --junitxml=runs/M04_cpp_runtime/20261009_acceptance/m02_m03_regression.junit.xml",
+      "duration_seconds": 94.946,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_runtime/20261009_acceptance/m02_m03_regression.junit.xml",
+      "junit_sha256": "4ec5eddfbc8505e3f7d3aaa766bd77deba1cb073e36085f602e645f2c925d662",
+      "name": "m02_m03_regression",
+      "passed": 69,
+      "skipped": 0,
+      "stdout_log": "runs/M04_cpp_runtime/20261009_acceptance/m02_m03_regression.log",
+      "stdout_sha256": "6c4b717bfff02360551a682d3a52bebec1255520924fbbe4846ba32bb29eb75e",
+      "tests": 69
+    },
+    {
+      "command": "python -m pytest tests/acceptance/test_a01_cards.py tests/acceptance/test_a02_rules.py tests/acceptance/test_a02_a03_defect_fix.py tests/acceptance/test_a03_actions.py tests/acceptance/test_a04_environment.py -q --junitxml=runs/M04_cpp_runtime/20261009_acceptance/a01_a04_regression.junit.xml",
+      "duration_seconds": 10.439,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_runtime/20261009_acceptance/a01_a04_regression.junit.xml",
+      "junit_sha256": "30946f4367e998ce13469bee3029379057f076c14b7dd9c9eedc3c73d4c921bc",
+      "name": "a01_a04_regression",
+      "passed": 152,
+      "skipped": 0,
+      "stdout_log": "runs/M04_cpp_runtime/20261009_acceptance/a01_a04_regression.log",
+      "stdout_sha256": "76f60a468d725189cb73857efbb56ab9240f1e1b3042e6014b3991e92b4b095c",
+      "tests": 152
+    },
+    {
+      "command": "python -m pytest tests/unit tests/integration tests/property -q --junitxml=runs/M04_cpp_runtime/20261009_acceptance/legacy_unit_integration_property.junit.xml",
+      "duration_seconds": 228.502,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": "runs/M04_cpp_runtime/20261009_acceptance/legacy_unit_integration_property.junit.xml",
+      "junit_sha256": "06ec923d7a34b3bf6e9916cd9169a28d809e79d1f94ef735b2f41a91cfd06bc9",
+      "name": "legacy_unit_integration_property",
+      "passed": 897,
+      "skipped": 10,
+      "stdout_log": "runs/M04_cpp_runtime/20261009_acceptance/legacy_unit_integration_property.log",
+      "stdout_sha256": "a685c9f67ecdeb285d9793e986932b82b76b1f34840bbb5e821fa65b86b084c2",
+      "tests": 907
+    }
+  ],
+  "schema": "guandan-marvel-m04-test-results-v1",
+  "skip_details": [
+    {
+      "reason": "symlink creation is unavailable",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_deployment_source::test_manifest_rejects_linked_source"
+    },
+    {
+      "reason": "CUDA unavailable",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_estimators::test_device_dtype_detachment_and_input_immutability[cuda-gae]"
+    },
+    {
+      "reason": "CUDA unavailable",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_estimators::test_device_dtype_detachment_and_input_immutability[cuda-boost]"
+    },
+    {
+      "reason": "directory symlinks are unavailable on this Windows host",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_performance_discovery::test_auto_scan_does_not_follow_symlink_outside_input_root"
+    },
+    {
+      "reason": "CUDA unavailable; CPU cannot certify GPU equivalence",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_rollout_performance::test_bounded_matches_immediate_onpolicy_reference[cuda-limits0-ippo]"
+    },
+    {
+      "reason": "CUDA unavailable; CPU cannot certify GPU equivalence",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_rollout_performance::test_bounded_matches_immediate_onpolicy_reference[cuda-limits0-vrpo]"
+    },
+    {
+      "reason": "CUDA unavailable; CPU cannot certify GPU equivalence",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_rollout_performance::test_bounded_matches_immediate_onpolicy_reference[cuda-limits1-ippo]"
+    },
+    {
+      "reason": "CUDA unavailable; CPU cannot certify GPU equivalence",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_rollout_performance::test_bounded_matches_immediate_onpolicy_reference[cuda-limits1-vrpo]"
+    },
+    {
+      "reason": "CUDA unavailable",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_training_objectives::test_central_critic_fixed_team_shape_candidate_dependence_and_gradients[cuda]"
+    },
+    {
+      "reason": "CUDA is not available",
+      "suite": "legacy_unit_integration_property",
+      "test": "tests.unit.test_training_support::test_cuda_rng_and_combined_optimizer_can_resume_on_cuda"
+    }
+  ],
+  "stage": "M04_cpp_runtime",
+  "totals": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 1159,
+    "skipped": 10,
+    "tests": 1169
+  }
+}

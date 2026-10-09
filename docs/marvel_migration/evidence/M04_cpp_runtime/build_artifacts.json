@@ -1,0 +1,35 @@
+{
+  "build_log": {
+    "path": "runs/M04_cpp_runtime/20261009_acceptance/build.log",
+    "sha256": "961d69120ffdda00aa96161ecb21818556c7b089a2c34871384a449e7c040191"
+  },
+  "clean_wheel_import": {
+    "passed": true,
+    "path": "runs/M04_cpp_runtime/20261009_acceptance/clean_wheel_import.log",
+    "sha256": "c576e81881384b0537175c5b041861ad84786b5d68cba809acb79a4499f56a8c"
+  },
+  "date": "2026-10-09",
+  "extension": {
+    "bytes": 3675153,
+    "committed": false,
+    "path": "nanopokerlib/_guandan_cpp.cp312-win_amd64.pyd",
+    "sha256": "33fe7f0f264ead1edbf24f7c3e7b5e1c1bc443a5f862d91254489787d9f18743"
+  },
+  "mingw_runtime_statically_linked": true,
+  "runtime_dependencies": [
+    "python312.dll",
+    "Windows API/UCRT"
+  ],
+  "schema": "guandan-marvel-m04-build-artifacts-v1",
+  "stage": "M04_cpp_runtime",
+  "wheel": {
+    "bytes": 1173581,
+    "committed": false,
+    "path": "runs/M04_cpp_runtime/20261009_acceptance/wheel/guandan_train-0.1.0-cp312-cp312-win_amd64.whl",
+    "sha256": "8fdff645afb02e8f265ab1d6bf6ee8c8e8650c41d748a50d0620df279258f944"
+  },
+  "wheel_build_log": {
+    "path": "runs/M04_cpp_runtime/20261009_acceptance/wheel_build.log",
+    "sha256": "6120dddaea2d3cf4405a655616c099d73d8b6b9ed8938bfd23dd5c6cf03242f9"
+  }
+}

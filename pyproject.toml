@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=64", "wheel"]
+requires = ["setuptools>=64", "wheel", "pybind11>=2.11,<3"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -22,7 +22,7 @@ notebook = ["ipykernel"]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["guandan*", "guandan_marvel*"]
+include = ["guandan*", "guandan_marvel*", "nanopokerlib*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -37,3 +37,4 @@ markers = [
 
 [tool.setuptools.package-data]
 guandan_marvel = ["LICENSE", "NOTICE.md"]
+nanopokerlib = ["LICENSE", "NOTICE.md", "README.md"]

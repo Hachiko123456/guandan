@@ -113,3 +113,10 @@ M01 的阶段报告必须包含：
 - IPPO/VRPO 更新结构参考 `marvel/training/ippo.py` 和 `vrpo.py`，本地实现合并到 fail-closed `training/local.py`。
 - checkpoint/resume、完整轨迹验证、指标和显式 smoke game 为 Guandan M03 重写模块。
 - 未迁移 evaluator/selection、DDP/Kaggle 和 C++；完整映射见 `M03_SOURCE_AUDIT.md`。
+## 9. M04 已解析映射（2026-10-09）
+
+- `nanopokerlib/cpp/core/types.hpp` 从参考 `nanopokerlib/cpp/core/types/*` 与 `env_batch.hpp` 的通用类型/批量形状概念派生，保留 MIT、SPDX、参考路径和 commit。
+- `nanopokerlib/cpp/guandan/guandan.hpp`、`guandan.cpp` 为 Guandan 专用新实现，规则来源是本仓库已验收 Python oracle；没有复制 `cpp/games/doudizhu/*`。
+- `nanopokerlib/cpp/bindings.cpp` 和 `setup.py` 提供显式 pybind/C++20 build、`EnvBatch`、NumPy wire、序列化和 debug/critic API。
+- `nanopokerlib/guandan.py` 暴露 `GAME_SPEC`；`guandan_marvel/cpp_game.py` 是显式 opt-in backend。`guandan_marvel.game` 仍为默认 Python reference。
+- 完整来源分类、hash 和未复制扫描见 `evidence/M04_cpp_runtime/source_manifest.json`。
