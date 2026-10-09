@@ -169,7 +169,7 @@ VRPO replay 放 GPU、CPU pinned memory 或分级缓存，由显存和吞吐决�
 影响：checkpoint 较大，但 local smoke 可证明 exact resume；缺 replay 自动分类 warm restart。
 回滚方式：未来若改为外部 replay artifact，必须升级 schema 并明确恢复分类。
 ### D020 M03 catchable interruption strategy
-日期：2026-10-09
+日期：2026-10-10
 状态：accepted
 候选方案：每 optimizer step 深拷贝回滚；异常后 poison。
 决定：采用 trainer+sampler poison。捕获 `BaseException` 后记录 partial work、拒绝 payload/save/retry，并重新抛出。恢复只能新建实例并加载最后完整 checkpoint。
@@ -178,7 +178,7 @@ VRPO replay 放 GPU、CPU pinned memory 或分级缓存，由显存和吞吐决�
 回滚方式：只有实现并验证模型/optimizer/env/buffer/RNG/cache 原子回滚后才可允许原实例继续。
 
 ### D021 M03 semantic/source compatibility policy
-日期：2026-10-09
+日期：2026-10-10
 状态：accepted
 候选方案：resolved config hash 不同即 compatible；完整语义/源码逐项比较。
 决定：checkpoint v3 嵌入 semantic config、组件级 source fingerprint 和 execution fingerprint。仅批准的日志/显示/运行控制字段可 compatible；模型、gamma、optimizer、schedule、sampling、replay、源码、设备和依赖变化保守 migration/reject。
@@ -209,3 +209,18 @@ VRPO replay 放 GPU、CPU pinned memory 或分级缓存，由显存和吞吐决�
 Round 1 保留 active-only post-decoder heads；四座位 history/KV 仍完整更新，仅消除最终被 mask 的三份 state/action/policy head 重复计算。Round 2 event snapshot 和 Round 3 outer-transaction mutation 因收益不足且扩大 C++ 差分风险而撤回。
 
 最终真实 Agent speedup 1.636×，未达到 2×。尽管 fixed-action single/batch 继续超过 2×，不得据此替代真实模型门槛。M05 继续 blocked；继续深度优化或调整门槛必须由用户明确决定。
+
+
+### D015 M05 性能验收分类修订
+
+日期：2026-10-10
+状态：accepted
+批准来源：用户明确批准调整 M05 验收标准。
+
+决定：正确性、隐私、合法动作、牌守恒、serialization/resume、checkpoint/backend identity 和 no-silent-fallback 继续为硬门槛。fixed-action single-env 与 batch 的同机 Python→C++ 加速继续要求分别 `>=2×`。本机 CPU 真实冻结 Transformer rollout、额外 Transformer 集合和完整 IPPO iteration 改为必须公开的非阻塞优化目标。
+
+证据：fixed single `3.203×`、fixed batch `2.051×`；真实 Transformer 主集合 `1.636×`、额外集合 `1.585×`、完整 iteration `1.084×`。旧 blocked 报告和旧门槛失败证据保持不变，由 `M05_ACCEPTANCE_CRITERIA_REVISION.md` 和新的修订验证文件叠加登记修订后接受结论。
+
+影响：M05 在没有新硬性 blocker 时可接受并解除 M06 blocker。该决定不证明 Kaggle T4×2 性能、双卡效率、模型强度或可实战性；这些仍分别由 M08/M09 验证。
+
+回滚方式：如后续发现任何正确性、安全、隐私、恢复或身份缺陷，立即重新阻塞 M05/M06；不得以本修订豁免。

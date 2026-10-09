@@ -2,7 +2,7 @@
 
 - 基线实现：`758b2e97fd3bf0103fa1046a72bf6ed4a8cf3600`
 - 阻塞登记：`3aee75fdeece3fc9f142f93c9fb971fe59954bd8`
-- 当前硬门槛：真实冻结 Transformer Agent rollout 的 Python/C++ 配对中位数加速 `>=2.0×`
+- 执行时历史硬门槛：真实冻结 Transformer Agent rollout 的 Python/C++ 配对中位数加速 `>=2.0×`（2026-10-09 后由 `M05_ACCEPTANCE_CRITERIA_REVISION.md` 调整为非阻塞优化目标）
 - 最大候选优化轮数：3
 
 ## 1. 冻结工作负载
@@ -58,4 +58,4 @@
 
 同时报告新 Python→新 C++（门槛）与旧 C++→新 C++（整体系统收益），不可混用。
 
-若三轮后主基准仍 `<2×`，M05 保持 blocked，并报告每轮收益、剩余固定开销、理论上限和继续优化成本；不得降低门槛。
+若三轮后主基准仍 `<2×`，按本协议执行时的原门槛，M05 保持 blocked，并报告每轮收益、剩余固定开销、理论上限和继续优化成本；不得由实现者自行降低门槛。历史执行确实产生了 blocked 结果。其后用户批准的验收分类调整由 `M05_ACCEPTANCE_CRITERIA_REVISION.md` 单独记录，旧结果继续保留。

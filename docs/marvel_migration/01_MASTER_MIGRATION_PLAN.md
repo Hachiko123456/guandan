@@ -96,7 +96,7 @@ M10 才实现 belief/search。直接策略没有稳定达到门槛前，不用�
 
 ### M05 差分与性能
 
-验证 Python/C++ 规则、动作、观测、终局一致性；固定工作负载至少达到 2×，目标 5×。
+验证 Python/C++ 规则、动作、观测、终局一致性；fixed-action single-env 和 batch 环境工作负载至少达到 2×。本机 CPU 真实 Transformer rollout 与完整 iteration 必须公开，但按 `M05_ACCEPTANCE_CRITERIA_REVISION.md` 属于非阻塞优化目标。
 
 ### M06 模型选择
 

@@ -1,0 +1,29 @@
+{
+  "schema": "guandan-marvel-m05-acceptance-revision-report-v1",
+  "stage": "M05_differential_performance",
+  "date": "2026-10-10",
+  "status": "accepted_under_revised_criteria",
+  "criteria_revision": "guandan-marvel-m05-acceptance-revision-v1",
+  "revision_commit": null,
+  "implementation_commit": "9b4cb016c690650a18d3bc39137f703491c207d4",
+  "historical_reports_preserved": [
+    "docs/marvel_migration/reports/M05_differential_performance.md",
+    "docs/marvel_migration/reports/M05_differential_performance_repair.md",
+    "docs/marvel_migration/reports/M05_performance_finish.md"
+  ],
+  "evidence": "docs/marvel_migration/evidence/M05_acceptance_revision/verification.json",
+  "accepted": true,
+  "m06_allowed": true,
+  "limitations": [
+    "Kaggle T4x2 throughput and dual-GPU efficiency remain unverified until M08",
+    "No model-strength claim"
+  ],
+  "registration_validation": {
+    "a00_specification_tests": {
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    }
+  }
+}

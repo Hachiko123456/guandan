@@ -1,0 +1,50 @@
+{
+  "schema": "guandan-marvel-m05-acceptance-revision-verification-v1",
+  "stage": "M05_differential_performance",
+  "date": "2026-10-10",
+  "criteria_revision": "guandan-marvel-m05-acceptance-revision-v1",
+  "implementation_commit": "9b4cb016c690650a18d3bc39137f703491c207d4",
+  "blocked_registration_commit": "ad964b4d146553780a19099ffc37d7fe72709230",
+  "revision_commit": null,
+  "historical_evidence_preserved": true,
+  "source_code_delta_since_implementation": [],
+  "hard_gates": {
+    "correctness_valid": true,
+    "tests_valid": true,
+    "privacy_and_information_boundary_valid": true,
+    "legal_actions_and_conservation_valid": true,
+    "serialization_resume_and_identity_valid": true,
+    "fixed_single_speedup": 3.202622103753068,
+    "fixed_single_threshold": 2.0,
+    "fixed_single_passes": true,
+    "fixed_batch_speedup": 2.050500469537274,
+    "fixed_batch_threshold": 2.0,
+    "fixed_batch_passes": true,
+    "no_silent_fallback": true
+  },
+  "nonblocking_diagnostics": {
+    "transformer_primary_speedup": 1.6359769458438593,
+    "transformer_generalization_speedup": 1.5852854548521904,
+    "full_ippo_iteration_speedup": 1.0840783354992432,
+    "transformer_rollout_2x_passes": false
+  },
+  "remote_claims": {
+    "kaggle_t4x2_verified": false,
+    "dual_gpu_efficiency_verified": false,
+    "model_strength_verified": false,
+    "required_stage": "M08_remote_pilot"
+  },
+  "new_hard_blockers": [],
+  "accepted": true,
+  "m06_allowed": true,
+  "registration_validation": {
+    "yaml_json_assertions": "passed",
+    "a00_specification_tests": {
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "git_code_delta_since_implementation": []
+  }
+}
