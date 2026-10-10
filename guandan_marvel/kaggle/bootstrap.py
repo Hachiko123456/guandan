@@ -19,7 +19,10 @@ RECOVERY_MANIFEST_SCHEMA = "guandan-marvel-recovery-manifest-v3"
 DATASET_MANIFEST_NAME = "guandan_marvel_dataset.json"
 BOOTSTRAP_NAME = "guandan_marvel_bootstrap.py"
 RECOVERY_BUNDLE_NAMES = frozenset({"guandan-marvel-recovery.zip", "guandan-marvel-partial.zip"})
-SUPPORTED_MODES = frozenset({"preflight", "pilot", "resume", "full", "eval_only"})
+SUPPORTED_MODES = frozenset({
+    "preflight", "pilot", "resume", "full", "eval_only",
+    "single_gpu_control", "dual_gpu_control",
+})
 
 
 @dataclass(frozen=True, slots=True)

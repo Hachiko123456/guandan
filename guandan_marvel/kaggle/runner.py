@@ -138,6 +138,11 @@ def _run_torchrun(
     local_cpu_test: bool,
     local_process_timeout_seconds: float,
 ) -> int:
+    launch_profile = _load_json(profile_path)
+    ddp_profile = launch_profile.get("ddp") or {}
+    world_size = int(ddp_profile.get("world_size", 0))
+    if world_size not in {1, 2}:
+        raise ValueError(f"unsupported torchrun world_size={world_size}")
     worker_args = [
         "-m", "guandan_marvel.kaggle.worker",
         "--profile", str(profile_path), "--run-root", str(run_root),
@@ -164,11 +169,11 @@ def _run_torchrun(
             probe.bind(("127.0.0.1", 0))
             port = probe.getsockname()[1]
         processes = []
-        for rank in range(2):
+        for rank in range(world_size):
             rank_env = env.copy()
             rank_env.update({
                 "MASTER_ADDR": "127.0.0.1", "MASTER_PORT": str(port),
-                "WORLD_SIZE": "2", "RANK": str(rank), "LOCAL_RANK": str(rank),
+                "WORLD_SIZE": str(world_size), "RANK": str(rank), "LOCAL_RANK": str(rank),
             })
             command = [sys.executable, "-u", *worker_args]
             console.write(f"LOCAL_DDP_COMMAND rank={rank}: " + json.dumps(command, ensure_ascii=False))
@@ -209,7 +214,7 @@ def _run_torchrun(
     torchrun = shutil.which("torchrun")
     if torchrun is None:
         raise RuntimeError("torchrun executable is unavailable")
-    command = [torchrun, "--standalone", "--nproc_per_node=2", *worker_args]
+    command = [torchrun, "--standalone", f"--nproc_per_node={world_size}", *worker_args]
     console.write("COMMAND: " + json.dumps(command, ensure_ascii=False))
     with subprocess.Popen(
         command,
@@ -280,7 +285,10 @@ def main(argv: list[str] | None = None) -> int:
     status = "failed"
     recovery_root = args.recovery_root.resolve() if args.recovery_root is not None else None
     try:
-        require_remote = kaggle and mode in {"preflight", "pilot", "resume", "full", "eval_only"}
+        require_remote = kaggle and mode in {
+            "preflight", "pilot", "resume", "full", "eval_only",
+            "single_gpu_control", "dual_gpu_control",
+        }
         preflight = _preflight(profile, require_remote=require_remote and not args.local_cpu_test, source_root=source_root)
         atomic_json(run_root / "preflight.json", preflight)
         if mode == "preflight":

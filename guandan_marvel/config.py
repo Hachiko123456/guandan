@@ -172,6 +172,7 @@ class TrainConfig:
     logging_dir: str = ""
     debug: bool = True
     seed: int = 0
+    environment_rank_seed_stride: int = 1_000_003
     training_data_domain: str = "training"
     training_data_manifest_hash: str | None = None
     training_data_generator_version: str = "guandan-marvel-env-batch-continuous-prng-v1"
@@ -214,6 +215,8 @@ class TrainConfig:
             self.game = GameSpec.from_game(self.game)
         if self.max_sampler_bytes_per_rank is not None and int(self.max_sampler_bytes_per_rank) <= 0:
             raise ValueError("max_sampler_bytes_per_rank must be positive when configured.")
+        if int(self.environment_rank_seed_stride) <= 0:
+            raise ValueError("environment_rank_seed_stride must be positive.")
         if not isinstance(self.amp_enabled, bool) or not isinstance(self.checkpoint_replay_buffer, bool):
             raise TypeError("amp_enabled and checkpoint_replay_buffer must be bool.")
         if self.training_data_domain != "training":
@@ -227,6 +230,7 @@ class TrainConfig:
                 "generator_version": self.training_data_generator_version,
                 "seed_semantics": "EnvBatch initial seed plus slot, then continuous per-slot PRNG reset stream",
                 "initial_seed": int(self.seed),
+                "environment_rank_seed_stride": int(self.environment_rank_seed_stride),
                 "rollout_batch_size": int(self.rollout_batch_size),
             }
             self.training_data_manifest_hash = hashlib.sha256(

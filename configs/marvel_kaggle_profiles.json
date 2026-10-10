@@ -122,6 +122,112 @@
         "seed_base": 870700
       },
       "telemetry_interval_seconds": 5
+    },
+    "single_gpu_control": {
+      "schema": "guandan-marvel-kaggle-profile-v1",
+      "mode": "single_gpu_control",
+      "algorithm": "ippo",
+      "required_gpu_count": 2,
+      "required_gpu_name_contains": "T4",
+      "ddp": {
+        "launcher": "torchrun",
+        "world_size": 1,
+        "backend": "nccl",
+        "require_cuda": true
+      },
+      "training": {
+        "target_iterations": 3,
+        "checkpoint_interval": 3,
+        "evaluation_interval": 0,
+        "rollout_batch_size": 4,
+        "collect_batch_size": 4,
+        "replay_buffer_scale": 8,
+        "mini_batches": 2,
+        "max_sampler_bytes_per_rank": 4294967296,
+        "seed": 580800,
+        "environment_rank_seed_stride": 2,
+        "training_data_generator_version": "guandan-marvel-m08-partitioned-prng-v1",
+        "agent_epoch": 4,
+        "critic_aux_epoch": 4,
+        "amp_enabled": false,
+        "compile_enabled": false,
+        "model": {
+          "architecture": "v1.3",
+          "history_dim": 128,
+          "feature_dim": 256,
+          "decoder_layers": 4,
+          "decoder_heads": 4,
+          "state_layers": 3,
+          "action_layers": 2,
+          "fuse_layers": 2
+        },
+        "max_wall_seconds": 1800
+      },
+      "benchmark": {
+        "schema": "guandan-marvel-m08-benchmark-contract-v1",
+        "comparison_id": "m08-t4x2-baseline-v1",
+        "control": "single_gpu",
+        "warmup_iterations": 1,
+        "measured_iterations": 2,
+        "workload_hash": "de4f2671fba5781db49ca7ab0f6ca9d02929295acf79c79221eed6e22a23acba",
+        "speedup_target": 1.5,
+        "same_t4x2_environment_required": true
+      },
+      "telemetry_interval_seconds": 1,
+      "heartbeat_interval_seconds": 2
+    },
+    "dual_gpu_control": {
+      "schema": "guandan-marvel-kaggle-profile-v1",
+      "mode": "dual_gpu_control",
+      "algorithm": "ippo",
+      "required_gpu_count": 2,
+      "required_gpu_name_contains": "T4",
+      "ddp": {
+        "launcher": "torchrun",
+        "world_size": 2,
+        "backend": "nccl",
+        "require_cuda": true
+      },
+      "training": {
+        "target_iterations": 3,
+        "checkpoint_interval": 3,
+        "evaluation_interval": 0,
+        "rollout_batch_size": 4,
+        "collect_batch_size": 4,
+        "replay_buffer_scale": 8,
+        "mini_batches": 2,
+        "max_sampler_bytes_per_rank": 4294967296,
+        "seed": 580800,
+        "environment_rank_seed_stride": 2,
+        "training_data_generator_version": "guandan-marvel-m08-partitioned-prng-v1",
+        "agent_epoch": 4,
+        "critic_aux_epoch": 4,
+        "amp_enabled": false,
+        "compile_enabled": false,
+        "model": {
+          "architecture": "v1.3",
+          "history_dim": 128,
+          "feature_dim": 256,
+          "decoder_layers": 4,
+          "decoder_heads": 4,
+          "state_layers": 3,
+          "action_layers": 2,
+          "fuse_layers": 2
+        },
+        "max_wall_seconds": 1800
+      },
+      "benchmark": {
+        "schema": "guandan-marvel-m08-benchmark-contract-v1",
+        "comparison_id": "m08-t4x2-baseline-v1",
+        "control": "dual_gpu_ddp",
+        "warmup_iterations": 1,
+        "measured_iterations": 2,
+        "workload_hash": "de4f2671fba5781db49ca7ab0f6ca9d02929295acf79c79221eed6e22a23acba",
+        "speedup_target": 1.5,
+        "same_t4x2_environment_required": true
+      },
+      "telemetry_interval_seconds": 1,
+      "heartbeat_interval_seconds": 2
     }
   }
 }

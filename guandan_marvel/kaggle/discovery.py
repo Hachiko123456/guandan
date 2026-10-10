@@ -8,7 +8,7 @@ from pathlib import Path
 from .bootstrap import (
     BOOTSTRAP_NAME, DATASET_MANIFEST_NAME, DATASET_MANIFEST_SCHEMA, DatasetInput,
     RECOVERY_MANIFEST_SCHEMA, RecoveryInput, SOURCE_MANIFEST_SCHEMA, SUPPORTED_MODES,
-    SourceInput, discover_dataset, discover_recovery, materialize_recovery_input, resolve_dataset_input,
+    SourceInput, canonical_hash, discover_dataset, discover_recovery, materialize_recovery_input, resolve_dataset_input,
     validate_dataset_structure, validate_recovery_directory,
 )
 
@@ -24,19 +24,44 @@ def validate_dataset_manifest(payload: Mapping[str, object], *, manifest_path: P
         raise ValueError(f"profiles.{mode} is missing a versioned profile")
     if profile.get("mode") != mode:
         raise ValueError(f"profiles.{mode}.mode mismatch")
-    if mode in {"pilot", "resume", "full"}:
+    training_modes = {"pilot", "resume", "full", "single_gpu_control", "dual_gpu_control"}
+    fresh_training_modes = {"pilot", "full", "single_gpu_control", "dual_gpu_control"}
+    if mode in training_modes:
         ddp = profile.get("ddp")
         if not isinstance(ddp, Mapping):
             raise ValueError("training profiles require a DDP object")
-        if int(ddp.get("world_size", 0)) != 2 or ddp.get("launcher") != "torchrun":
-            raise ValueError("training profiles must require torchrun world_size=2")
-    if mode in {"pilot", "full"}:
+        world_size = int(ddp.get("world_size", 0))
+        if world_size not in {1, 2} or ddp.get("launcher") != "torchrun":
+            raise ValueError("training profiles require torchrun world_size 1 or 2")
+        if mode in {"pilot", "resume", "full", "dual_gpu_control"} and world_size != 2:
+            raise ValueError(f"{mode} requires torchrun world_size=2")
+        if mode == "single_gpu_control" and world_size != 1:
+            raise ValueError("single_gpu_control requires torchrun world_size=1")
+    if mode in fresh_training_modes:
         training = profile.get("training")
         if not isinstance(training, Mapping):
-            raise ValueError("pilot/full profile requires a training object")
+            raise ValueError(f"{mode} profile requires a training object")
+        world_size = int(profile["ddp"]["world_size"])
         for key in ("rollout_batch_size", "collect_batch_size"):
-            if int(training.get(key, 0)) <= 0 or int(training[key]) % 2:
-                raise ValueError(f"training.{key} must be positive and divisible by 2")
+            if int(training.get(key, 0)) <= 0 or int(training[key]) % world_size:
+                raise ValueError(f"training.{key} must be positive and divisible by world_size={world_size}")
+    if mode in {"single_gpu_control", "dual_gpu_control"}:
+        benchmark = profile.get("benchmark")
+        if not isinstance(benchmark, Mapping) or benchmark.get("schema") != "guandan-marvel-m08-benchmark-contract-v1":
+            raise ValueError(f"{mode} requires a versioned benchmark contract")
+        expected_control = "single_gpu" if mode == "single_gpu_control" else "dual_gpu_ddp"
+        if benchmark.get("control") != expected_control:
+            raise ValueError(f"{mode} benchmark control mismatch")
+        workload = {"algorithm": profile.get("algorithm"), "training": dict(profile["training"])}
+        if benchmark.get("workload_hash") != canonical_hash(workload):
+            raise ValueError(f"{mode} workload hash mismatch")
+        warmup = int(benchmark.get("warmup_iterations", -1))
+        measured = int(benchmark.get("measured_iterations", -1))
+        target = int(profile["training"].get("target_iterations", 0))
+        if warmup < 0 or measured <= 0 or warmup + measured != target:
+            raise ValueError(f"{mode} benchmark iteration partition is invalid")
+        if int(profile["training"].get("evaluation_interval", -1)) != 0:
+            raise ValueError(f"{mode} must disable periodic evaluation")
     if mode == "resume":
         controls = profile.get("resume")
         if not isinstance(controls, Mapping) or int(controls.get("additional_iterations", 0)) <= 0:

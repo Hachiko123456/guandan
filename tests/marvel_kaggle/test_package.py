@@ -26,7 +26,10 @@ def test_delivery_builds_all_modes_and_validates(delivery):
     result = validate_delivery(delivery)
     assert result["valid"] is True
     assert result["remote_verified"] is False
-    assert {row["mode"] for row in result["datasets"]} == {"preflight", "pilot", "resume", "full", "eval_only"}
+    assert {row["mode"] for row in result["datasets"]} == {
+        "preflight", "pilot", "resume", "full", "eval_only",
+        "single_gpu_control", "dual_gpu_control",
+    }
     assert (delivery / "README_中文.md").is_file()
     assert (delivery / NOTEBOOK_NAME).is_file()
 
@@ -36,7 +39,7 @@ def test_notebook_has_no_edit_placeholders_and_parses(delivery):
     assert result["syntax_valid"] is True
     assert result["placeholders_absent"] is True
     text = (delivery / NOTEBOOK_NAME).read_text(encoding="utf-8")
-    assert "torchrun --standalone --nproc_per_node=2" in text
+    assert "torchrun --standalone --nproc_per_node=1|2" in text
     assert "/kaggle/input" in text
     assert "/kaggle/working" in text
 

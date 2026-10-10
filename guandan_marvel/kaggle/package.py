@@ -436,7 +436,7 @@ def render_notebook() -> dict[str, object]:
                 "cell_type": "markdown", "metadata": {},
                 "source": [
                     "# Guandan MARVEL T4×2 DDP\n",
-                    "上传且只添加一个本交付的模式 Dataset，Notebook 会从 manifest 选择模式并 fail-closed 自动发现 source/recovery。训练使用 `torchrun --standalone --nproc_per_node=2`；M07 本地交付不等于真实 T4×2 已验证。\n",
+                    "上传且只添加一个本交付的模式 Dataset，Notebook 会从 manifest 选择模式并 fail-closed 自动发现 source/recovery。训练按 manifest 使用 `torchrun --standalone --nproc_per_node=1|2`；M08 单卡/双卡对照必须使用同一 T4×2 环境。\n",
                 ],
             },
             {"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [], "source": NOTEBOOK_BOOTSTRAP.splitlines(keepends=True)},
@@ -478,11 +478,11 @@ def validate_source_archive(path: str | Path) -> dict[str, object]:
         if extras:
             raise ValueError(f"undeclared source ZIP members: {sorted(extras)}")
         runner_source = archive.read("guandan-marvel-source/guandan_marvel/kaggle/runner.py").decode("utf-8")
-        if '"--standalone", "--nproc_per_node=2"' not in runner_source:
-            raise ValueError("packaged runner does not use torchrun --standalone --nproc_per_node=2")
+        if 'f"--nproc_per_node={world_size}"' not in runner_source:
+            raise ValueError("packaged runner does not bind torchrun process count to the profile world_size")
         worker_source = archive.read("guandan-marvel-source/guandan_marvel/kaggle/worker.py").decode("utf-8")
-        if "world_size != 2" not in worker_source:
-            raise ValueError("packaged worker does not fail closed outside world_size=2")
+        if "torchrun/profile world size mismatch" not in worker_source:
+            raise ValueError("packaged worker does not fail closed on runtime/profile world-size mismatch")
         progress_source = archive.read("guandan-marvel-source/guandan_marvel/kaggle/progress.py").decode("utf-8")
         if "[M07 heartbeat]" not in progress_source or "heartbeat_age_seconds" not in progress_source:
             raise ValueError("packaged runtime lacks Notebook-visible heartbeat diagnostics")
@@ -511,7 +511,7 @@ def validate_notebook(path: str | Path) -> dict[str, object]:
     if found:
         raise ValueError(f"notebook contains forbidden placeholders: {found}")
     required = (
-        "guandan_marvel_dataset.json", "nproc_per_node=2", "build_ext", "--dataset-manifest",
+        "guandan_marvel_dataset.json", "nproc_per_node=1|2", "build_ext", "--dataset-manifest",
         "guandan-marvel-recovery.zip", "Run All" if False else "guandan-marvel-output.zip",
         "GUANDAN_BUILD_TIMEOUT_SECONDS", "bootstrap_progress.json", "process still running",
         "guandan-marvel-bootstrap-diagnostics.zip",
@@ -527,7 +527,7 @@ def validate_notebook(path: str | Path) -> dict[str, object]:
 
 
 def _readme() -> str:
-    return """# 掼蛋 MARVEL Kaggle T4×2 使用说明\n\n本目录是 **M07 remote-ready 本地交付**。它没有自动上传 Kaggle，也没有把本地检查伪装成真实 T4×2 验证；真实远端吞吐、显存、双卡效率和 pilot 结论属于 M08。\n\n## 1. 选择模式 Dataset\n\n在 `datasets` 下只选择一个目录创建 Kaggle Dataset：\n\n- `preflight`：推荐先运行，只检查源码、C++ 扩展、两张 T4、NCCL 和输入；\n- `pilot`：短 DDP 训练、durable checkpoint 和短评估；\n- `resume`：从另一个 Kaggle Dataset 中的 `guandan-marvel-recovery.zip` 精确恢复；\n- `full`：长训练。只有你明确选择 `datasets/full` 时才会启动，不是默认；\n- `eval_only`：从 recovery 中的冻结/训练 checkpoint 做只读短评估。\n\n不要把多个模式目录合并成同一个 Kaggle Dataset；Notebook 发现多个 `guandan_marvel_dataset.json` 会 fail closed。\n\n## 2. 创建 Kaggle Dataset\n\n1. 在 Kaggle 新建私有 Dataset。\n2. 上传所选 `datasets/<mode>` 目录内的全部四个文件（Dataset manifest、bootstrap、source manifest、source ZIP）。\n3. `resume`/`eval_only` 还要把上一次下载的 `guandan-marvel-recovery.zip` 建成第二个 Dataset。\n4. 不要改文件名、路径、manifest 或 hash。\n\n## 3. 添加 Notebook 并运行\n\n1. 导入 `guandan_marvel_t4x2.ipynb`。\n2. Add Input：只添加一个模式 Dataset；恢复模式再添加一个 recovery Dataset。\n3. Accelerator 选择 **GPU T4 x2**。\n4. Internet 可关闭；源码从 Dataset 解压，本地编译 pybind 扩展。\n5. 点击 **Run All**，不需要修改任何代码、绝对路径、checkpoint 名称或设备参数。\n\n首次 source 构建会从 bootstrap 开始立即打印阶段日志，并每 5 秒打印 heartbeat。native build 内层硬超时为 600 秒，Notebook 外层硬超时为 660 秒；超时或异常会在 `/kaggle/working/guandan-marvel-bootstrap/` 写进度、日志和失败 JSON，并生成 `/kaggle/working/guandan-marvel-bootstrap-diagnostics.zip`。不要继续运行长期无日志的旧 Notebook。\n\n训练模式固定使用 `torchrun --standalone --nproc_per_node=2`。rank 0 写主日志、manifest、checkpoint 和 bundle；每个 rank 另有诊断日志。\n\n## 4. 下载 output\n\n运行完成后下载：\n\n- `/kaggle/working/guandan-marvel-output/guandan-marvel-output.zip`；\n- `/kaggle/working/guandan-marvel-output/guandan-marvel-recovery.zip`。\n\n后者用于下一次 `resume` 或 `eval_only`。正常结束、预算停止和可捕获异常会尽力保留最近 durable checkpoint；Kaggle 平台硬杀无法保证 finally 执行，因此 checkpoint 会周期生成。\n\n## 5. 语义边界\n\n- `preflight`/`pilot` 只证明管线和恢复流程，不证明模型强度；\n- M07 `accepted` 只表示 package 构建和本地验证完成，即 `remote_ready`；\n- 真实双 T4 是否达到 1.5×、显存峰值和 full 参数必须由 M08 的下载证据确认；\n- `evaluation_summary.json` 是有限管线评估，不是 formal selection 或 final holdout；\n- Notebook 遇到多个 source/recovery、hash 不匹配、GPU 数量不符或恢复 world size 不符时会拒绝运行。\n"""
+    return """# 掼蛋 MARVEL Kaggle T4×2 使用说明\n\n本目录是 **M07 remote-ready 本地交付**。它没有自动上传 Kaggle，也没有把本地检查伪装成真实 T4×2 验证；真实远端吞吐、显存、双卡效率和 pilot 结论属于 M08。\n\n## 1. 选择模式 Dataset\n\n在 `datasets` 下只选择一个目录创建 Kaggle Dataset：\n\n- `preflight`：推荐先运行，只检查源码、C++ 扩展、两张 T4、NCCL 和输入；\n- `pilot`：短 DDP 训练、durable checkpoint 和短评估；\n- `resume`：从另一个 Kaggle Dataset 中的 `guandan-marvel-recovery.zip` 精确恢复；\n- `full`：长训练。只有你明确选择 `datasets/full` 时才会启动，不是默认；\n- `eval_only`：从 recovery 中的冻结/训练 checkpoint 做只读短评估。\n- `single_gpu_control`：在 T4×2 环境中只使用 `cuda:0`/world size 1 的基准。\n- `dual_gpu_control`：同一 workload 使用两张 T4/NCCL DDP 的基准。\n\n不要把多个模式目录合并成同一个 Kaggle Dataset；Notebook 发现多个 `guandan_marvel_dataset.json` 会 fail closed。\n\n## 2. 创建 Kaggle Dataset\n\n1. 在 Kaggle 新建私有 Dataset。\n2. 上传所选 `datasets/<mode>` 目录内的全部四个文件（Dataset manifest、bootstrap、source manifest、source ZIP）。\n3. `resume`/`eval_only` 还要把上一次下载的 `guandan-marvel-recovery.zip` 建成第二个 Dataset。\n4. 不要改文件名、路径、manifest 或 hash。\n\n## 3. 添加 Notebook 并运行\n\n1. 导入 `guandan_marvel_t4x2.ipynb`。\n2. Add Input：只添加一个模式 Dataset；恢复模式再添加一个 recovery Dataset。\n3. Accelerator 选择 **GPU T4 x2**。\n4. Internet 可关闭；源码从 Dataset 解压，本地编译 pybind 扩展。\n5. 点击 **Run All**，不需要修改任何代码、绝对路径、checkpoint 名称或设备参数。\n\n首次 source 构建会从 bootstrap 开始立即打印阶段日志，并每 5 秒打印 heartbeat。native build 内层硬超时为 600 秒，Notebook 外层硬超时为 660 秒；超时或异常会在 `/kaggle/working/guandan-marvel-bootstrap/` 写进度、日志和失败 JSON，并生成 `/kaggle/working/guandan-marvel-bootstrap-diagnostics.zip`。不要继续运行长期无日志的旧 Notebook。\n\n训练模式根据 manifest 使用 `torchrun --standalone --nproc_per_node=1|2`。rank 0 写主日志、manifest、checkpoint 和 bundle；每个 rank 另有诊断日志。\n\n## 4. 下载 output\n\n运行完成后下载：\n\n- `/kaggle/working/guandan-marvel-output/guandan-marvel-output.zip`；\n- `/kaggle/working/guandan-marvel-output/guandan-marvel-recovery.zip`。\n\n后者用于下一次 `resume` 或 `eval_only`。正常结束、预算停止和可捕获异常会尽力保留最近 durable checkpoint；Kaggle 平台硬杀无法保证 finally 执行，因此 checkpoint 会周期生成。\n\n## 5. 语义边界\n\n- `preflight`/`pilot` 只证明管线和恢复流程，不证明模型强度；\n- M07 `accepted` 只表示 package 构建和本地验证完成，即 `remote_ready`；\n- 真实双 T4 是否达到 1.5×、显存峰值和 full 参数必须由 M08 的下载证据确认；\n- `evaluation_summary.json` 是有限管线评估，不是 formal selection 或 final holdout；\n- Notebook 遇到多个 source/recovery、hash 不匹配、GPU 数量不符或恢复 world size 不符时会拒绝运行。\n"""
 
 
 def build_delivery(

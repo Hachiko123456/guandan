@@ -1,0 +1,208 @@
+{
+  "passes": true,
+  "rows": [
+    {
+      "benchmark": {
+        "benchmark_contract": {
+          "comparison_id": "m08-t4x2-baseline-v1",
+          "control": "single_gpu",
+          "measured_iterations": 1,
+          "same_t4x2_environment_required": true,
+          "schema": "guandan-marvel-m08-benchmark-contract-v1",
+          "speedup_target": 1.5,
+          "warmup_iterations": 0,
+          "workload_hash": "ac6869a4279f49a109d3bbaaf2541107e3b778f92c3d254258b7914dc129a678"
+        },
+        "comparison_id": "m08-t4x2-baseline-v1",
+        "control": "single_gpu",
+        "core_completed_games_per_second": 0.6138847532667335,
+        "core_env_steps_per_second": 203.80973808455553,
+        "core_game_steps_per_second": 80.72584505457546,
+        "generated_at": "2026-10-10T13:22:25.632503+00:00",
+        "health_totals": {
+          "health/action_capacity_overflows": 0.0,
+          "health/horizon_overflows": 0.0,
+          "health/illegal_actions": 0.0,
+          "health/nonfinite_gradients": 0.0,
+          "health/nonfinite_losses": 0.0,
+          "health/truncated_games": 0.0
+        },
+        "learner_seconds": [
+          0.2522213999982341
+        ],
+        "measured_completed_games": 2,
+        "measured_env_steps": 664,
+        "measured_game_steps": 263,
+        "measured_iterations": [
+          1
+        ],
+        "remote_verified": false,
+        "rollout_seconds": [
+          3.0057191000014427
+        ],
+        "schema": "guandan-marvel-m08-benchmark-summary-v1",
+        "session_elapsed_seconds": 5.926503299997421,
+        "session_start_iteration": 0,
+        "target_iterations": 1,
+        "training_core_seconds": 3.257940499999677,
+        "warmup_iterations": 0,
+        "workload_hash": "ac6869a4279f49a109d3bbaaf2541107e3b778f92c3d254258b7914dc129a678",
+        "world_size": 1
+      },
+      "mode": "single_gpu_control",
+      "progress": {
+        "complete": true,
+        "completed_games": 2,
+        "env_steps": 664,
+        "env_steps_per_second": 212.92741560570076,
+        "error": null,
+        "eta_seconds": null,
+        "game_steps": 263,
+        "game_steps_per_second": 86.83446167669983,
+        "gpus": [
+          {
+            "index": 0,
+            "memory_total_mib": 4096.0,
+            "memory_used_mib": 1214.0,
+            "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+            "power_watts": 7.11,
+            "status": "ok",
+            "utilization_percent": 35.0
+          }
+        ],
+        "heartbeat_at": "2026-10-10T13:22:25.851073+00:00",
+        "iteration": 1,
+        "latest_checkpoint": "checkpoints/iter000001",
+        "latest_evaluation": null,
+        "latest_evaluation_status": "not_run",
+        "mode": "single_gpu_control",
+        "phase": "complete",
+        "ranks": [
+          {
+            "heartbeat_age_seconds": 0.06365180000284454,
+            "heartbeat_at": "2026-10-10T13:22:25.780686+00:00",
+            "iteration": 1,
+            "phase": "complete",
+            "pid": 23044,
+            "rank": 0,
+            "status": "alive"
+          }
+        ],
+        "remote_verified": false,
+        "schema": "guandan-marvel-progress-v2",
+        "session_completed_iterations": 1,
+        "session_elapsed_seconds": 6.145362099996419,
+        "session_start_iteration": 0,
+        "target_iterations": 1
+      },
+      "run_root": "D:\\project\\guandan\\runs\\M08_performance_package\\local_control_smoke_20261010a\\working-single_gpu_control\\guandan-marvel-output\\runs\\20261010T132213Z-single_gpu_control-2972f3e8"
+    },
+    {
+      "benchmark": {
+        "benchmark_contract": {
+          "comparison_id": "m08-t4x2-baseline-v1",
+          "control": "dual_gpu_ddp",
+          "measured_iterations": 1,
+          "same_t4x2_environment_required": true,
+          "schema": "guandan-marvel-m08-benchmark-contract-v1",
+          "speedup_target": 1.5,
+          "warmup_iterations": 0,
+          "workload_hash": "ac6869a4279f49a109d3bbaaf2541107e3b778f92c3d254258b7914dc129a678"
+        },
+        "comparison_id": "m08-t4x2-baseline-v1",
+        "control": "dual_gpu_ddp",
+        "core_completed_games_per_second": 0.671977529070079,
+        "core_env_steps_per_second": 217.72071941870558,
+        "core_game_steps_per_second": 89.70900013085554,
+        "generated_at": "2026-10-10T13:22:45.397861+00:00",
+        "health_totals": {
+          "health/action_capacity_overflows": 0.0,
+          "health/horizon_overflows": 0.0,
+          "health/illegal_actions": 0.0,
+          "health/nonfinite_gradients": 0.0,
+          "health/nonfinite_losses": 0.0,
+          "health/truncated_games": 0.0
+        },
+        "learner_seconds": [
+          0.20627800000511343
+        ],
+        "measured_completed_games": 2,
+        "measured_env_steps": 648,
+        "measured_game_steps": 267,
+        "measured_iterations": [
+          1
+        ],
+        "remote_verified": false,
+        "rollout_seconds": [
+          2.770012000000861
+        ],
+        "schema": "guandan-marvel-m08-benchmark-summary-v1",
+        "session_elapsed_seconds": 5.74605480000173,
+        "session_start_iteration": 0,
+        "target_iterations": 1,
+        "training_core_seconds": 2.9762900000059744,
+        "warmup_iterations": 0,
+        "workload_hash": "ac6869a4279f49a109d3bbaaf2541107e3b778f92c3d254258b7914dc129a678",
+        "world_size": 2
+      },
+      "mode": "dual_gpu_control",
+      "progress": {
+        "complete": true,
+        "completed_games": 2,
+        "env_steps": 648,
+        "env_steps_per_second": 256.2254462112084,
+        "error": null,
+        "eta_seconds": null,
+        "game_steps": 267,
+        "game_steps_per_second": 105.81787842425194,
+        "gpus": [
+          {
+            "index": 0,
+            "memory_total_mib": 4096.0,
+            "memory_used_mib": 1213.0,
+            "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+            "power_watts": 7.05,
+            "status": "ok",
+            "utilization_percent": 22.0
+          }
+        ],
+        "heartbeat_at": "2026-10-10T13:22:45.664535+00:00",
+        "iteration": 1,
+        "latest_checkpoint": "checkpoints/iter000001",
+        "latest_evaluation": null,
+        "latest_evaluation_status": "not_run",
+        "mode": "dual_gpu_control",
+        "phase": "complete",
+        "ranks": [
+          {
+            "heartbeat_age_seconds": 0.11171170000307029,
+            "heartbeat_at": "2026-10-10T13:22:45.537982+00:00",
+            "iteration": 1,
+            "phase": "complete",
+            "pid": 25708,
+            "rank": 0,
+            "status": "alive"
+          },
+          {
+            "heartbeat_age_seconds": 0.11145419999957085,
+            "heartbeat_at": "2026-10-10T13:22:45.537982+00:00",
+            "iteration": 1,
+            "phase": "complete",
+            "pid": 27340,
+            "rank": 1,
+            "status": "alive"
+          }
+        ],
+        "remote_verified": false,
+        "schema": "guandan-marvel-progress-v2",
+        "session_completed_iterations": 1,
+        "session_elapsed_seconds": 6.004737800001749,
+        "session_start_iteration": 0,
+        "target_iterations": 1
+      },
+      "run_root": "D:\\project\\guandan\\runs\\M08_performance_package\\local_control_smoke_20261010a\\working-dual_gpu_control\\guandan-marvel-output\\runs\\20261010T132233Z-dual_gpu_control-4cf51b3a"
+    }
+  ],
+  "schema": "guandan-marvel-m08-local-control-smoke-v1",
+  "scope": "local CPU reduced-profile launcher/checkpoint smoke; not GPU performance evidence"
+}

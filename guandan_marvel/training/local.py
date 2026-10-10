@@ -252,7 +252,7 @@ class LocalTrainerBase:
             collect_batch_size=self.local_collect_batch_size,
             sampling_temperature=1.0,
             purpose="on_policy",
-            env_seed=cfg.seed + self.rank * 1_000_003,
+            env_seed=cfg.seed + self.rank * int(cfg.environment_rank_seed_stride),
             data_domain=cfg.training_data_domain,
             data_manifest_hash=cfg.training_data_manifest_hash,
             data_generator_version=cfg.training_data_generator_version,

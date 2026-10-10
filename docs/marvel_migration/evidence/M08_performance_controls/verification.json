@@ -1,0 +1,26 @@
+{
+  "comparison_id": "m08-t4x2-baseline-v1",
+  "date": "2026-10-10",
+  "dual_mode": "dual_gpu_control",
+  "implementation_complete": true,
+  "local_control_smoke_passed": true,
+  "m08_accepted": false,
+  "measured_iterations": 2,
+  "remote_runs_required": [
+    "single_gpu_control",
+    "dual_gpu_control"
+  ],
+  "remote_verified": false,
+  "schema": "guandan-marvel-m08-performance-controls-verification-v1",
+  "single_mode": "single_gpu_control",
+  "speedup_target": 1.5,
+  "tests": {
+    "combined_target_passed": 129,
+    "errors": 0,
+    "failed": 0,
+    "marvel_kaggle_passed": 37,
+    "skipped": 0
+  },
+  "warmup_iterations": 1,
+  "workload_hash": "de4f2671fba5781db49ca7ab0f6ca9d02929295acf79c79221eed6e22a23acba"
+}

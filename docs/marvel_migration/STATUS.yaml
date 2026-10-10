@@ -338,9 +338,12 @@ stages:
     commit: null
     reports:
       - docs/marvel_migration/reports/M08_remote_bootstrap_observability_repair.md
+      - docs/marvel_migration/reports/M08_performance_controls.md
     evidence:
       - docs/marvel_migration/evidence/M08_remote_bootstrap_observability_repair/verification.json
       - docs/marvel_migration/evidence/M08_remote_bootstrap_observability_repair/test_results.json
+      - docs/marvel_migration/evidence/M08_performance_controls/verification.json
+      - docs/marvel_migration/evidence/M08_performance_controls/local_control_smoke.json
     note: first real T4x2 attempt exposed a pre-run blank hang; delivery repaired locally and must be rerun, no remote acceptance claimed
     blockers: []
 

@@ -49,6 +49,10 @@ def build_train_config(
         run_name=f"m07-{profile['mode']}-{algorithm}",
         logging_dir=str(Path(run_root) / "rank-runtime"),
         seed=int(training["seed"]),
+        environment_rank_seed_stride=int(training.get("environment_rank_seed_stride", 1_000_003)),
+        training_data_generator_version=str(training.get(
+            "training_data_generator_version", "guandan-marvel-env-batch-continuous-prng-v1",
+        )),
         rollout_batch_size=int(training["rollout_batch_size"]),
         collect_batch_size=int(training["collect_batch_size"]),
         replay_buffer_scale=int(training["replay_buffer_scale"]),
@@ -61,7 +65,7 @@ def build_train_config(
         checkpoint_replay_buffer=True,
         model=ModelConfig(**dict(model_payload)),
         ddp=DDPConfig(
-            enabled=True,
+            enabled=int(ddp.get("world_size", 0)) > 1,
             backend=backend,
             require_cuda=require_cuda,
             find_unused_parameters=bool(ddp.get("find_unused_parameters", False)),

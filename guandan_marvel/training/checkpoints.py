@@ -158,6 +158,7 @@ def build_semantic_configuration(config: object, *, algorithm: str) -> dict[str,
         },
         "sampling_and_replay": {
             "seed": resolved["seed"],
+            "environment_rank_seed_stride": resolved["environment_rank_seed_stride"],
             "training_data_domain": resolved["training_data_domain"],
             "training_data_manifest_hash": resolved["training_data_manifest_hash"],
             "training_data_generator_version": resolved["training_data_generator_version"],

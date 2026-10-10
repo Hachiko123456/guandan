@@ -83,6 +83,81 @@ def _aggregate_metrics(context, local: Mapping[str, object]) -> dict[str, object
     return aggregated
 
 
+def _write_benchmark_summary(
+    run_root: Path,
+    *,
+    profile: Mapping[str, object],
+    world_size: int,
+    session_start_iteration: int,
+    target_iterations: int,
+    session_elapsed_seconds: float,
+) -> Path | None:
+    benchmark = profile.get("benchmark")
+    if not isinstance(benchmark, Mapping):
+        return None
+    metrics_path = run_root / "metrics.jsonl"
+    rows = [
+        json.loads(line)
+        for line in metrics_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    warmup = int(benchmark["warmup_iterations"])
+    expected_measured = int(benchmark["measured_iterations"])
+    warmup_boundary = int(session_start_iteration) + warmup
+    measured = [row for row in rows if int(row.get("statistics/iterations", -1)) > warmup_boundary]
+    if len(measured) != expected_measured:
+        raise RuntimeError(
+            "benchmark measured-iteration coverage mismatch: "
+            f"expected={expected_measured}, actual={len(measured)}"
+        )
+    baseline_rows = [row for row in rows if int(row.get("statistics/iterations", -1)) <= warmup_boundary]
+    baseline = baseline_rows[-1] if baseline_rows else {}
+    final = measured[-1]
+
+    def delta(key: str) -> int:
+        return int(final.get(key, 0)) - int(baseline.get(key, 0))
+
+    rollout_seconds = [float(row["perf/rollout_seconds"]) for row in measured]
+    learner_seconds = [float(row["perf/learner_seconds"]) for row in measured]
+    core_seconds = sum(r + l for r, l in zip(rollout_seconds, learner_seconds, strict=True))
+    measured_env_steps = delta("statistics/env_steps_total")
+    measured_game_steps = delta("statistics/game_steps_total")
+    measured_games = delta("statistics/completed_games_total")
+    health_keys = (
+        "health/illegal_actions", "health/truncated_games", "health/nonfinite_losses",
+        "health/nonfinite_gradients", "health/action_capacity_overflows", "health/horizon_overflows",
+    )
+    payload = {
+        "schema": "guandan-marvel-m08-benchmark-summary-v1",
+        "comparison_id": benchmark["comparison_id"],
+        "control": benchmark["control"],
+        "workload_hash": benchmark["workload_hash"],
+        "world_size": int(world_size),
+        "session_start_iteration": int(session_start_iteration),
+        "target_iterations": int(target_iterations),
+        "warmup_iterations": warmup,
+        "measured_iterations": [int(row["statistics/iterations"]) for row in measured],
+        "session_elapsed_seconds": float(session_elapsed_seconds),
+        "training_core_seconds": core_seconds,
+        "rollout_seconds": rollout_seconds,
+        "learner_seconds": learner_seconds,
+        "measured_completed_games": measured_games,
+        "measured_env_steps": measured_env_steps,
+        "measured_game_steps": measured_game_steps,
+        "core_completed_games_per_second": measured_games / max(core_seconds, 1e-9),
+        "core_env_steps_per_second": measured_env_steps / max(core_seconds, 1e-9),
+        "core_game_steps_per_second": measured_game_steps / max(core_seconds, 1e-9),
+        "health_totals": {
+            key: sum(float(row.get(key, 0.0)) for row in measured)
+            for key in health_keys
+        },
+        "benchmark_contract": dict(benchmark),
+        "generated_at": _timestamp(),
+        "remote_verified": False,
+    }
+    return atomic_json(run_root / "benchmark_summary.json", payload)
+
+
 def _native_extension(game: object) -> Path | None:
     builder = getattr(game, "get_backend_build_identity", None)
     if not callable(builder):
@@ -159,7 +234,7 @@ def main(argv: list[str] | None = None) -> int:
 
     profile = _load_json(args.profile.resolve())
     mode = str(profile.get("mode", ""))
-    if mode not in {"pilot", "resume", "full"}:
+    if mode not in {"pilot", "resume", "full", "single_gpu_control", "dual_gpu_control"}:
         raise ValueError(f"worker cannot run mode {mode!r}")
     if args.local_cpu_test:
         backend = str(profile.get("local_test_backend", "cpp"))
@@ -178,8 +253,17 @@ def main(argv: list[str] | None = None) -> int:
     rank = int(os.environ.get("RANK", "-1"))
     local_rank = int(os.environ.get("LOCAL_RANK", "-1"))
     world_size = int(os.environ.get("WORLD_SIZE", "0"))
-    if world_size != 2 or rank not in {0, 1} or local_rank not in {0, 1}:
-        raise RuntimeError("M07 worker requires torchrun with exactly two ranks")
+    expected_world_size = int((profile.get("ddp") or {}).get("world_size", 0))
+    if expected_world_size not in {1, 2}:
+        raise RuntimeError(f"profile declares unsupported world_size={expected_world_size}")
+    if world_size != expected_world_size:
+        raise RuntimeError(
+            f"torchrun/profile world size mismatch: runtime={world_size}, profile={expected_world_size}"
+        )
+    if rank not in set(range(world_size)) or local_rank not in set(range(world_size)):
+        raise RuntimeError(
+            f"rank/local_rank are outside world_size={world_size}: rank={rank}, local_rank={local_rank}"
+        )
 
     run_root = args.run_root.resolve()
     rank_root = run_root / "ranks" / f"rank{rank:03d}"
@@ -431,6 +515,17 @@ def main(argv: list[str] | None = None) -> int:
                 budget_stopped = True
                 break
         final_phase = "budget_stopped" if budget_stopped else "complete"
+        session_elapsed_seconds = time.perf_counter() - heartbeat.started
+        if context.is_primary and final_phase == "complete":
+            _write_benchmark_summary(
+                run_root,
+                profile=profile,
+                world_size=world_size,
+                session_start_iteration=session_start_iteration,
+                target_iterations=target_iterations,
+                session_elapsed_seconds=session_elapsed_seconds,
+            )
+        context.barrier()
         heartbeat.update(iteration=trainer.iteration, metrics=latest_metrics, phase=final_phase, complete=not budget_stopped)
         append_jsonl(diagnostic_path, {
             "schema": "guandan-marvel-rank-diagnostic-v1", "event": final_phase,
