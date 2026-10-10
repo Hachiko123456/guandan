@@ -1,0 +1,163 @@
+{
+  "schema": "guandan-marvel-m06-repair-artifact-manifest-v1",
+  "stage": "M06_evaluation_champion_repair",
+  "implementation_commit": null,
+  "large_artifacts_committed": false,
+  "run_root": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2",
+  "test_root": "runs/M06_evaluation_champion_repair/20261010_repair_tests",
+  "reproduction_root": "runs/M06_evaluation_champion_repair/20261010_reproduction",
+  "run_artifacts": [
+    {
+      "path": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/repair_exercise.log",
+      "bytes": 12689,
+      "sha256": "34ef6a630c7ba9022c1a7633d9bc7630f31d6bb2903f2a0e643a3dd6573bf2ab"
+    },
+    {
+      "path": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/repair_exercise.exitcode",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "path": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/repair_exercise_summary.json",
+      "bytes": 12451,
+      "sha256": "929a7d8a5da1f0c9bd8f726a2a9ba8422062014398cc211cff8e499519c1925a"
+    },
+    {
+      "path": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/deals_manifest.json",
+      "bytes": 1710,
+      "sha256": "b2c1f8dc1d7f193c05cae0933680e7e73137a77f138b88ce53f4f26e33942294"
+    },
+    {
+      "path": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/champion_manifest.json",
+      "bytes": 1768,
+      "sha256": "80846c291cab99dc69802d370a3b3927ff3fe92866f54c34ad263b9f2c5afb7c"
+    },
+    {
+      "path": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/opponent_pool_manifest.json",
+      "bytes": 3513,
+      "sha256": "aaa020adf1249d087294b739d5e4611acbb712399881e16d76a6a01c192807ef"
+    },
+    {
+      "path": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/final_holdout_audit.json",
+      "bytes": 544,
+      "sha256": "4962d2e28ee45a19bfc6cde1f3bd71f3bb76dcf75900e3dfc310cf1e9bbea6f2"
+    },
+    {
+      "path": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/async_hook/evaluation_hook_events.jsonl",
+      "bytes": 2000,
+      "sha256": "15113c819b27553eac758426010ad63da718137360c758bb43cdb31c3aca2b49"
+    },
+    {
+      "path": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/training/evaluation_results.jsonl",
+      "bytes": 965,
+      "sha256": "ac88cd8ae0bcecac8ab123b863412b334d7b5c8e2d28346b188e1403a0c9f57f"
+    },
+    {
+      "path": "D:/project/guandan/runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/async_selection/iteration-000002/games.jsonl",
+      "bytes": 25484,
+      "sha256": "cbcc36e6ee2d3eacf3e390e53d36e1c27de9dc523de4f898788c9ec4857c4212"
+    },
+    {
+      "path": "D:/project/guandan/runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/async_selection/iteration-000002/cluster_summary.json",
+      "bytes": 6081,
+      "sha256": "fbdf2360df8127590c6d77ddcb0807e5dc43b342ccb030e8cd02715898611c5c"
+    },
+    {
+      "path": "D:/project/guandan/runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/async_selection/iteration-000002/promotion_decision.json",
+      "bytes": 3779,
+      "sha256": "abd56fd08e079a4a30880fb777f432614de6179363ea759e4aa828d73a877cb5"
+    },
+    {
+      "path": "D:/project/guandan/runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/async_selection/iteration-000002/result.json",
+      "bytes": 8390,
+      "sha256": "6e77ff451cfb3c674090f6d947ec0a0ae360a869bcd17ff4a1b9afa70ef26ffc"
+    },
+    {
+      "path": "runs/M06_evaluation_champion_repair/20261010_repair_tests/repair_run_verification.json",
+      "bytes": 693,
+      "sha256": "1e5a2a0fe73ea037cec8fcfa9ac8852987492b64fc4e122bf0ee9a64fd03086b"
+    },
+    {
+      "path": "runs/M06_evaluation_champion_repair/20261010_reproduction/reproduction.json",
+      "bytes": 1164,
+      "sha256": "14c0802b8d7f41cd4be8e2b52203dc438a6cc2d0e01548801ef43d93ca596a30"
+    },
+    {
+      "path": "runs/M06_evaluation_champion_repair/20261010_reproduction/reproduction.log",
+      "bytes": 1164,
+      "sha256": "14c0802b8d7f41cd4be8e2b52203dc438a6cc2d0e01548801ef43d93ca596a30"
+    }
+  ],
+  "tracked_evidence": [
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/async_hook_verification.json",
+      "bytes": 3242,
+      "sha256": "1373326232e830e81d2e9da7e74e33df3b41f795fb588f6cd3f69409ac236cae"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/committed_steps.json",
+      "bytes": 632,
+      "sha256": "195cb515dc93450f14b85f89865a8f6e9ec79cbded7875be8c892acd5d676b4e"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/data_provenance.json",
+      "bytes": 3051,
+      "sha256": "1ef51ad04bd068ae162b1cc01550163641ef55f45677e78d20e5210e65c50ae0"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/environment.json",
+      "bytes": 360,
+      "sha256": "c27c509222b4ec7174bdd937e2ed223873db945c73b13ddb0ac3b893d29c26b0"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/final_state_machine.json",
+      "bytes": 459,
+      "sha256": "905cb75d89cc10623757467b70c22df3cd3c023fca07bfcfc200ba88bb7eb5ca"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/issue_resolution.json",
+      "bytes": 1951,
+      "sha256": "9b4ebbc336115726e0cf360bd06e2e38de6d802391b8e14d1312cf31f5005026"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/promotion_binding.json",
+      "bytes": 540,
+      "sha256": "813ae63c88dbcb7db048700315a0e209cc90a471f071c2565421f5d030d92009"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/protocol_schema.json",
+      "bytes": 1174,
+      "sha256": "f112cf9d9a3982acacb3a50b9bec7c9ea2e9d9a325ae2f03ca1ffbe2b06c1024"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/real_exercise.json",
+      "bytes": 2194,
+      "sha256": "9a53ab86bbb1471eedce160280cdee0b7363199bbf1937e56933e2c7929e2045"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/reproduction.json",
+      "bytes": 1415,
+      "sha256": "2b398a4d96a21c21b33708324c4d028b9d1b479b5b44821c28ccadd17ea36900"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/source_manifest.json",
+      "bytes": 7267,
+      "sha256": "48a98af00b4eea316a8b9f2c13fa605990bc1b53ee147e0e518deb569f47629b"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/statistics_policy.json",
+      "bytes": 667,
+      "sha256": "4492f173b81146a2c5b157966918ae4f69abb3cdda9d035814e5ea1a8aded358"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/test_results.json",
+      "bytes": 5814,
+      "sha256": "285e9fb6f62d3f7cf1376953be6ff3bcce934f6545c7d5de25fd698015de6013"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/verification.json",
+      "bytes": 1622,
+      "sha256": "34b733ffad050caae18da87b9c4763102cd23619e4fd2f1c1ebc9517f1d858da"
+    }
+  ]
+}

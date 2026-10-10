@@ -42,3 +42,7 @@
 ## 4. 许可证和只读保证
 
 实现沿用仓库已有 `guandan_marvel/LICENSE` 和 `NOTICE.md`。参考仓库未写入缓存、格式化结果、构建产物或测试文件；阶段结束再次检查其 Git 状态。
+
+## 5. Repair additions（2026-10-10）
+
+`evaluation/workers.py`、`evaluation/provenance.py`、final state machine、promotion transaction 和 bounded statistics 为 Guandan 项目新写实现。ProcessPool 仅采用 Python 标准库执行隔离；没有复制斗地主 host/controller/agent。

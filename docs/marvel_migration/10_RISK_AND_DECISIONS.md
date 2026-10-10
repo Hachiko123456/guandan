@@ -238,3 +238,21 @@ Round 1 保留 active-only post-decoder heads；四座位 history/KV 仍完整�
 决定：legacy V1 只经 Python mirror adapter 作为 opponent；V2 candidate/champion 必须匹配 C++ checkpoint/build/protocol identity。
 
 影响：M06 本地演练可以验证管线和恢复，但不构成强度、final holdout 或远端吞吐结论。
+
+
+### D017 M06 集中补修安全边界
+
+日期：2026-10-10
+状态：accepted
+
+决定：异步评估从线程改为 spawn process，所有 terminal results durable 后再 delivery；trainer 自动收集，close 收集尾部结果。
+
+决定：final 使用 stable dataset identity 和 unused/reserved/running/consumed|failed|interrupted 状态机，reserve-before-touch，不支持失败后重新开新 evaluation。
+
+决定：promotion decision v2 精确绑定 candidate/checkpoint content、champion manifest generation、selection plan/summary/evaluation/deals；champion/pool 采用显式 pending transaction recovery boundary。
+
+决定：training checkpoint v5 保存 actual deal provenance；v4 只允许 smoke-only selection。
+
+决定：formal promotion 至少 32 independent deal clusters，使用 bounded empirical-Bernstein 95% CI；overall 跨 opponent 不给 clustered CI。
+
+影响：原 M06 accepted 结论在 repair 完成前撤回；旧报告和产物保持历史只读。

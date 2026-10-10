@@ -116,3 +116,7 @@ M09 至少目标为 E3。E4/E5 需要额外基线和完整比赛管理器。
 ## 9. M06 已实现协议
 
 M06 canonical schemas、四座位 role mapping、deal-cluster t interval、promotion 状态机、manifest 原子性、legacy opponent-only adapter、pool recovery、training hook 和 final one-shot audit 见 `M06_EVALUATION_PROTOCOL.md`。本地小规模运行只证明 E0 管线，不构成模型强度或 Kaggle 性能结论。
+
+## 10. M06 集中补修要求
+
+M06 repair 将评估安全边界升级为：异步工作进程隔离、后台结果 durable delivery、final reserve-before-touch 状态机、identity-bound promotion、actual training deal provenance、commit counter engine cross-check、formal minimum 32 deal clusters 和 exact plan coverage。完整协议见 `M06_EVALUATION_REPAIR_PROTOCOL.md`。

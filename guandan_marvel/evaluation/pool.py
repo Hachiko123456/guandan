@@ -1,16 +1,19 @@
 # SPDX-License-Identifier: MIT
-"""Versioned weighted opponent-pool manifest and deterministic recovery."""
+"""Versioned weighted opponent-pool manifest with validated publication."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import os
 from pathlib import Path
-from typing import Iterable, Mapping
+from typing import Callable, Iterable, Mapping
 
 import numpy as np
 
+from .checkpoints import load_legacy_v1_opponent, verify_policy_identity
 from .common import atomic_write_json, file_sha256, load_json, payload_hash
 
-OPPONENT_POOL_SCHEMA = "guandan-marvel-opponent-pool-v1"
+OPPONENT_POOL_SCHEMA = "guandan-marvel-opponent-pool-v2"
+PRE_IDENTITY_POOL_SCHEMA = "guandan-marvel-opponent-pool-v1"
 SAMPLING_SCHEMA = "guandan-marvel-opponent-pool-weighted-sampling-v1"
 ENTRY_KINDS = {"champion", "historical_champion", "rule", "legacy_v1"}
 
@@ -39,7 +42,7 @@ class OpponentPoolStore:
 
     def load(self, *, validate_files: bool = True) -> dict[str, object]:
         payload = load_json(self.path)
-        if payload.get("schema") != OPPONENT_POOL_SCHEMA or payload.get("hash") != payload_hash(payload):
+        if payload.get("schema") not in {OPPONENT_POOL_SCHEMA, PRE_IDENTITY_POOL_SCHEMA} or payload.get("hash") != payload_hash(payload):
             raise ValueError("opponent pool schema/hash mismatch")
         sampling = payload.get("sampling")
         if not isinstance(sampling, Mapping) or sampling.get("schema") != SAMPLING_SCHEMA:
@@ -56,8 +59,8 @@ class OpponentPoolStore:
                 raise ValueError("opponent pool entry IDs must be unique")
             ids.add(entry_id)
             weight = entry.get("weight")
-            if isinstance(weight, bool) or not isinstance(weight, (int, float)) or float(weight) < 0:
-                raise ValueError("opponent pool weights must be nonnegative")
+            if isinstance(weight, bool) or not isinstance(weight, (int, float)) or not np.isfinite(weight) or float(weight) < 0:
+                raise ValueError("opponent pool weights must be finite and nonnegative")
             checkpoint = entry.get("checkpoint")
             if validate_files and checkpoint is not None:
                 path = Path(str(checkpoint)).resolve()
@@ -65,35 +68,61 @@ class OpponentPoolStore:
                     raise ValueError(f"opponent pool checkpoint missing or changed: {path}")
         return payload
 
-    def add_entry(self, entry: Mapping[str, object]) -> dict[str, object]:
-        payload = self.initialize()
+    @staticmethod
+    def _validate_entry(entry: Mapping[str, object]) -> dict[str, object]:
         normalized = dict(entry)
-        if normalized.get("kind") not in ENTRY_KINDS:
+        kind = normalized.get("kind")
+        if kind not in ENTRY_KINDS:
             raise ValueError("unsupported opponent pool entry kind")
         normalized.setdefault("active", True)
         normalized.setdefault("added_at", _timestamp())
         normalized["weight"] = float(normalized.get("weight", 1.0))
+        if not np.isfinite(normalized["weight"]) or normalized["weight"] < 0:
+            raise ValueError("opponent pool entry weight must be finite and nonnegative")
         checkpoint = normalized.get("checkpoint")
-        if checkpoint is not None:
-            path = Path(str(checkpoint)).resolve()
-            if not path.is_file():
-                raise FileNotFoundError(path)
-            digest = file_sha256(path)
-            if normalized.get("checkpoint_sha256") not in (None, digest):
-                raise ValueError("opponent pool entry checkpoint hash mismatch")
-            normalized["checkpoint"] = str(path)
-            normalized["checkpoint_sha256"] = digest
+        if kind in {"champion", "historical_champion"}:
+            if checkpoint is None:
+                raise ValueError("champion pool entry requires checkpoint")
+            artifact = verify_policy_identity(normalized.get("policy_identity", {}))
+            if Path(str(checkpoint)).resolve() != artifact.path:
+                raise ValueError("pool checkpoint path differs from policy identity")
+            normalized["checkpoint"] = str(artifact.path)
+            normalized["checkpoint_sha256"] = artifact.sha256
+            normalized["policy_identity"] = artifact.identity
+        elif kind == "legacy_v1":
+            if checkpoint is None:
+                raise ValueError("legacy pool entry requires checkpoint")
+            artifact = load_legacy_v1_opponent(checkpoint)
+            expected = normalized.get("legacy_identity")
+            if expected is not None and dict(expected) != artifact.identity:
+                raise ValueError("legacy pool identity mismatch")
+            normalized["checkpoint"] = str(artifact.path)
+            normalized["checkpoint_sha256"] = artifact.sha256
+            normalized["legacy_identity"] = artifact.identity
+        elif checkpoint is not None:
+            raise ValueError("rule pool entry must not carry a checkpoint")
+        return normalized
+
+    def add_entry(
+        self,
+        entry: Mapping[str, object],
+        *,
+        replace_fn: Callable = os.replace,
+    ) -> dict[str, object]:
+        payload = self.initialize()
+        if payload.get("schema") != OPPONENT_POOL_SCHEMA:
+            raise ValueError("legacy opponent pool is read-only; create a v2 repair pool")
+        normalized = self._validate_entry(entry)
         entries = [dict(item) for item in payload["entries"] if item.get("id") != normalized.get("id")]
         entries.append(normalized)
         payload["entries"] = entries
         payload["revision"] = int(payload["revision"]) + 1
         payload["updated_at"] = _timestamp()
         payload["hash"] = payload_hash(payload)
-        atomic_write_json(self.path, payload)
+        atomic_write_json(self.path, payload, replace_fn=replace_fn)
         return self.load(validate_files=True)
 
     def recover(self) -> dict[str, object]:
-        """Reload and validate the complete pool needed to reproduce sampling."""
         return self.load(validate_files=True)
 
     def sample(
@@ -121,4 +150,7 @@ class OpponentPoolStore:
         return selected
 
 
-__all__ = ["ENTRY_KINDS", "OPPONENT_POOL_SCHEMA", "OpponentPoolStore", "SAMPLING_SCHEMA"]
+__all__ = [
+    "ENTRY_KINDS", "OPPONENT_POOL_SCHEMA", "PRE_IDENTITY_POOL_SCHEMA",
+    "OpponentPoolStore", "SAMPLING_SCHEMA",
+]

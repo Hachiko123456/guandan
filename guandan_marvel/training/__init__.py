@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 from .checkpoints import (
     CheckpointCompatibilityError, PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA,
+    PRE_TRAINING_PROVENANCE_CHECKPOINT_SCHEMA,
     ResumeDecision, TRAINING_CHECKPOINT_SCHEMA, TRAINING_SEMANTIC_CONTRACT_SCHEMA,
     TrainingCheckpointStore, build_execution_fingerprint,
     build_semantic_configuration, build_semantic_contract, classify_resume,
@@ -18,7 +19,8 @@ from .vrpo import VRPOTrainer, VRPO_Q_TARGET_CONTRACT
 __all__ = [
     "CheckpointCompatibilityError", "ClippedPGLossOutput", "GAEFromQValueOutput",
     "GAEFromValueOutput", "IPPOTrainer", "PythonReferenceSmokeGame",
-    "PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA", "QValueLossOutput", "ResumeDecision", "ScheduleState",
+    "PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA", "PRE_TRAINING_PROVENANCE_CHECKPOINT_SCHEMA",
+    "QValueLossOutput", "ResumeDecision", "ScheduleState",
     "TRAINING_CHECKPOINT_SCHEMA", "TRAINING_SEMANTIC_CONTRACT_SCHEMA",
     "TrainingCheckpointStore", "TrajectoryValidation", "VRPOTrainer",
     "build_execution_fingerprint", "build_semantic_configuration",

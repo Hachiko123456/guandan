@@ -1,0 +1,49 @@
+{
+  "schema": "guandan-marvel-m06-repair-real-exercise-v1",
+  "run_root": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2",
+  "exit_code": 0,
+  "training_state_unchanged": true,
+  "trainer_result_log_persisted": true,
+  "selection_status": "complete",
+  "promotion_status": "inconclusive",
+  "formal_selection_eligible": true,
+  "games": {
+    "all_committed_less_than_tokens": true,
+    "all_engine_counts_match": true,
+    "committed_steps": 1722,
+    "count": 20,
+    "illegal_count": 0,
+    "token_steps": 3708,
+    "truncated_count": 0
+  },
+  "final_holdout_state": "unused",
+  "pool_recovery_hash": "30db177af130fada01e51e11fb12be0827cc8760370a4d7b449f9f2a5a6ee3c1",
+  "candidate": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "backend": "cpp",
+    "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+    "checkpoint_path": "D:\\project\\guandan\\runs\\M06_evaluation_champion_repair\\20261010_repair_acceptance_final2\\async_hook\\guandan-marvel-v2-ippo-eval-iter000002-35f87f7bddb2.pt",
+    "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+    "checkpoint_sha256": "35f87f7bddb26eb45820b6ad68488cbbf7bc49dec8ddcd434f606ea5c4288bff",
+    "iteration": 2,
+    "merged_policy": {
+      "beta": 0.0,
+      "frozen_for_evaluation": true,
+      "identity": "current_policy_copy"
+    },
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "resolved_config_hash": "aae63386f8bef4d837cdc43df79e9c025439eedc4088f5f0a67866d4605691a1",
+    "schema": "guandan-marvel-policy-identity-v1",
+    "source_commit": "a46204c756802541c36d49f90ab922cc1f4b6fb8",
+    "source_hash": "270f434a3dccf644fabc6afc5b9b24d7953b0eff2b43ee929aa1f1857af1f0c3",
+    "training_counters": {
+      "iteration": 2
+    },
+    "training_data_provenance_hash": "75fbcc333919f3ab8b2bf848a982b8f415ffc0638c4a2633d0fc3d741f5d2ba9",
+    "training_data_provenance_status": "complete"
+  },
+  "champion_unchanged": true,
+  "evaluation_hash": "eec2b551d6c71a68072d264aebcf25003a738c4c53075cb2872c6ed4c423df0d",
+  "disclaimer": "Functional repair exercise only; not model strength or Kaggle evidence."
+}

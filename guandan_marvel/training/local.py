@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+import json
 import math
+import os
 from pathlib import Path
 import subprocess
 import time
@@ -166,6 +168,7 @@ class LocalTrainerBase:
         self.checkpoint_dir = self.run_dir / "checkpoints"
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
         self.metrics_path = self.run_dir / f"{self.algorithm}_metrics.jsonl"
+        self.evaluation_results_path = self.run_dir / "evaluation_results.jsonl"
         self.metrics = MetricSinks(jsonl_path=self.metrics_path)
         self.memory_budget = require_trajectory_memory_budget(
             game,
@@ -192,6 +195,7 @@ class LocalTrainerBase:
         self.last_policy_epochs = 0
         self.last_critic_batch_sources: tuple[str, ...] = ()
         self.evaluation_hook = None
+        self.evaluation_result_history: list[dict[str, object]] = []
         self.repo_root = Path(__file__).resolve().parents[2]
         self.backend_identity = build_backend_identity(game)
         self.backend_name = str(self.backend_identity["backend"])
@@ -224,6 +228,9 @@ class LocalTrainerBase:
             sampling_temperature=1.0,
             purpose="on_policy",
             env_seed=cfg.seed,
+            data_domain=cfg.training_data_domain,
+            data_manifest_hash=cfg.training_data_manifest_hash,
+            data_generator_version=cfg.training_data_generator_version,
         ))
 
     @property
@@ -231,10 +238,35 @@ class LocalTrainerBase:
         return "current_policy_copy" if self.cfg.agent_merging_beta == 0.0 else "exponential_moving_average"
 
     def set_evaluation_hook(self, hook: object | None) -> None:
-        """Attach an optional non-blocking M06 evaluator hook at iteration boundaries."""
-        if hook is not None and not callable(getattr(hook, "on_iteration_completed", None)):
-            raise TypeError("evaluation hook must define on_iteration_completed(trainer, iteration=...)")
+        """Attach a process-isolated M06 evaluator hook at durable boundaries."""
+        if hook is not None:
+            for method in ("on_iteration_completed", "collect_ready", "close"):
+                if not callable(getattr(hook, method, None)):
+                    raise TypeError(f"evaluation hook must define {method}()")
         self.evaluation_hook = hook
+
+    def _record_evaluation_results(self, results) -> tuple[dict[str, object], ...]:
+        values = tuple(dict(item) for item in results)
+        if not values:
+            return values
+        self.evaluation_results_path.parent.mkdir(parents=True, exist_ok=True)
+        with self.evaluation_results_path.open("a", encoding="utf-8", newline="\n") as stream:
+            for item in values:
+                stream.write(json.dumps(item, sort_keys=True, ensure_ascii=False, allow_nan=False) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        self.evaluation_result_history.extend(values)
+        return values
+
+    def _collect_evaluation_results(self) -> tuple[dict[str, object], ...]:
+        if self.evaluation_hook is None:
+            return tuple()
+        return self._record_evaluation_results(self.evaluation_hook.collect_ready())
+
+    def close_evaluation_hook(self, *, wait: bool = True) -> tuple[dict[str, object], ...]:
+        if self.evaluation_hook is None:
+            return tuple()
+        return self._record_evaluation_results(self.evaluation_hook.close(wait=wait))
 
     def _compile(self, module: nn.Module) -> nn.Module:
         if not self.cfg.compile.enabled:
@@ -349,13 +381,25 @@ class LocalTrainerBase:
         metrics["statistics/completed_games_total"] = target_completed
         if self.evaluation_hook is not None:
             try:
+                completed = self._collect_evaluation_results()
+                metrics["evaluation/results_collected"] = len(completed)
+                metrics["evaluation/results_failed"] = sum(
+                    item.get("status") in {"failed", "cancelled", "interrupted"}
+                    for item in completed
+                )
+                if completed:
+                    latest = completed[-1]
+                    metrics["evaluation/last_result_status"] = str(latest.get("status", "unknown"))
+                    metrics["evaluation/last_result_iteration"] = int(latest.get("iteration", -1))
+                    if latest.get("error") is not None:
+                        metrics["evaluation/last_result_error"] = str(latest["error"])
                 hook_result = self.evaluation_hook.on_iteration_completed(
                     self, iteration=target_iteration,
                 )
                 metrics["evaluation/hook_status"] = str(hook_result.get("status", "unknown"))
                 if hook_result.get("snapshot") is not None:
                     metrics["evaluation/snapshot"] = str(hook_result["snapshot"])
-            except Exception as error:  # Evaluation scheduling must not poison training.
+            except Exception as error:  # Evaluation scheduling/collection must not poison training.
                 metrics["evaluation/hook_status"] = "schedule_failed"
                 metrics["evaluation/hook_error"] = f"{type(error).__name__}: {error}"
         _finite_metrics(metrics)
@@ -405,6 +449,7 @@ class LocalTrainerBase:
             },
             "selection_identity": None,
             "champion_identity": None,
+            "training_data_provenance": self.sampler.training_data_provenance(),
             "resume_classification": "exact_resume",
         }
 

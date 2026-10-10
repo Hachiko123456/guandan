@@ -63,3 +63,13 @@
 - durable checkpoint；
 - evaluation summary；
 - 下载后完整性校验。
+
+## M06 集中补修门槛
+
+- async evaluator 使用进程隔离，RNG/训练状态等价验证通过；
+- final holdout 在任何 deal materialization/score/output mutation 前原子预约；
+- promotion 绑定 candidate 文件内容和 selection plan/summary/champion generation；
+- 正式 candidate/champion/pool checkpoint 具有 actual training provenance；
+- commit counts 与 engine finish counters 一致；
+- formal auto-promotion 至少 32 个独立 deal clusters，使用 bounded empirical-Bernstein 95% CI；
+- plan exact coverage 和 malformed/non-finite rejection 通过。

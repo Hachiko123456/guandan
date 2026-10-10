@@ -1,0 +1,36 @@
+{
+  "schema": "guandan-marvel-m06-repair-reproduction-v1",
+  "original_implementation": "10cb3452f69cd23a3bed848498e4353dcfbe3b9c",
+  "results": {
+    "A1_shared_torch_rng_changed": true,
+    "A2_delivered_iterations_after_failure_then_success": [
+      2
+    ],
+    "A2_iteration1_failure_lost": true,
+    "B_repeat_final_error": "ValueError: final holdout has already been consumed; generate a new version",
+    "B_game_callbacks_before_repeat_rejection": 20,
+    "B_cluster_summary_written_before_rejection": true,
+    "C_decision_candidate_sha": "5a2507d39fc973cb5331d47b4a3111ac993f5000bb72e8285e36fedee8ed7f02",
+    "C_written_champion_sha": "a8f90fce544206575606eac9a044d71ae3480610d0b1fc70622e7f52083f0208",
+    "C_wrong_candidate_accepted": true,
+    "D_overlap_run_status": "complete",
+    "D_actual_checkpoint_training_seed": 93001,
+    "D_selection_seed": 93001,
+    "E_noncommit_row_flag_token": 305,
+    "E_bool_row_flag": true,
+    "E_available_is_commit": false,
+    "E_old_records_all_committed_equal_tokens": true,
+    "F_two_all_win_ci": {
+      "method": "deal-cluster-t95",
+      "clusters": 2,
+      "mean": 1.0,
+      "standard_error": 0.0,
+      "low": 1.0,
+      "high": 1.0,
+      "conclusive": true
+    },
+    "F_two_cluster_decision": "promote",
+    "F_missing_entire_planned_deal_reported_complete": true
+  },
+  "run_root": "runs/M06_evaluation_champion_repair/20261010_reproduction"
+}

@@ -284,3 +284,7 @@ Resume compatibility now compares the actual semantic configuration and componen
 ## 12. M06 training evaluator hook
 
 训练器可在 durable iteration 边界附加 `TrainingEvaluatorHook`。每 N iteration 冻结 merged policy 为 `guandan-marvel-evaluation-checkpoint-v1`，后台执行 selection evaluation。Snapshot 不含 optimizer、sampler、replay 或 RNG resume state，不能训练恢复。已有评估 pending 时允许记录并跳过，不阻塞下一训练 iteration；调度错误不 poison trainer。Final holdout 不得由 training hook 调用。
+
+## 13. M06 repair training provenance
+
+Canonical training checkpoint 为 v5，sampler state 为 v2。On-policy sampler 记录初始 stream seed、连续 PRNG 语义和每个实际训练 deal hash；checkpoint 保存 hash-protected `training_data_provenance`。v4 缺 provenance，训练 resume 分类为 migration，仅允许 smoke-only evaluation。Training evaluator 使用 spawn process；trainer 在 durable iteration 自动收集结果，worker 永远不接收 live training state。

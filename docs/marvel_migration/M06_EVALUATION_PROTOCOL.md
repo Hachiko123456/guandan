@@ -3,10 +3,10 @@
 - Stage：`M06_evaluation_champion`
 - 日期：2026-10-10
 - C++ backend：`GuandanMARVELV2Cpp`
-- V2 training checkpoint：`guandan-marvel-training-checkpoint-v4`
+- 原始 M06 使用的 V2 training checkpoint：`guandan-marvel-training-checkpoint-v4`（repair 后仅 smoke-only）
 - evaluation-only snapshot：`guandan-marvel-evaluation-checkpoint-v1`
 
-## 1. 版本化协议
+## 1. 原始 M06 v1 版本化协议（历史）
 
 | 产物 | Schema |
 |---|---|
@@ -112,3 +112,7 @@ Trainer 只在 durable iteration 边界调用 hook。调度失败被记录为 ho
 ## 9. M06 本地演练边界
 
 M06 小规模演练只证明 E0 管线可运行、身份/原子性/恢复/统计路径有效，不证明模型强度。Kaggle T4×2 吞吐和双卡效率仍由 M08 验证；本阶段不开始 Kaggle 正式训练。
+
+## 10. 集中补修后的 canonical 行为（2026-10-10）
+
+原 M06 v1 schemas 和本地演练保留为历史证据。当前 canonical 行为由 `M06_EVALUATION_REPAIR_PROTOCOL.md` 定义：process-isolated hook、final audit v2、promotion/pool v2、training checkpoint v5、actual deal provenance、真实 commit count、bounded empirical-Bernstein CI 和 plan-bound completeness。旧 v4 checkpoint 只能 smoke-only selection，不得正式晋升或使用 final。

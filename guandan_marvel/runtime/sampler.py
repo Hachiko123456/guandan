@@ -2,6 +2,8 @@
 # Adapted from AtaraxosAI/doudizhu@acdcf199cf422e2b683cb22142b8e7cb33b14460:marvel/runtime/sampler.py.
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 import time
 from dataclasses import dataclass
@@ -16,7 +18,9 @@ from guandan_marvel.model import KVCache
 from guandan_marvel.utils import unwrap_distributed_module
 
 SAMPLER_CONTRACT_SCHEMA = "guandan-marvel-sampler-contract-v2"
-SAMPLER_STATE_SCHEMA = "guandan-marvel-sampler-state-v1"
+SAMPLER_STATE_SCHEMA = "guandan-marvel-sampler-state-v2"
+PRE_PROVENANCE_SAMPLER_STATE_SCHEMA = "guandan-marvel-sampler-state-v1"
+TRAINING_DATA_PROVENANCE_SCHEMA = "guandan-marvel-training-data-provenance-v1"
 _SAMPLER_PURPOSES = frozenset({"on_policy", "evaluation", "test"})
 
 
@@ -39,6 +43,9 @@ class SamplerConfig:
     env_seed: int | None = 0
     state_logger: Optional[Callable[[Any, int], None]] = None
     timing_callback: Optional[Callable[[str, float], None]] = None
+    data_domain: str | None = None
+    data_manifest_hash: str | None = None
+    data_generator_version: str = "guandan-marvel-env-batch-continuous-prng-v1"
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "device", torch.device(self.device))
@@ -52,6 +59,15 @@ class SamplerConfig:
             raise ValueError("on_policy sampling requires sampling_temperature=1.0 exactly.")
         object.__setattr__(self, "sampling_temperature", temperature)
         object.__setattr__(self, "purpose", purpose)
+        if self.data_domain is not None and str(self.data_domain) != "training":
+            raise ValueError("sampler data_domain must be 'training' or None")
+        if self.data_manifest_hash is not None:
+            value = str(self.data_manifest_hash)
+            if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value.lower()):
+                raise ValueError("data_manifest_hash must be a 64-character hexadecimal digest")
+            object.__setattr__(self, "data_manifest_hash", value.lower())
+        if not str(self.data_generator_version).strip():
+            raise ValueError("data_generator_version must be non-empty")
         if self.field_specs is None:
             specs = trajectory_field_specs(self.game)
             object.__setattr__(self, "field_specs", specs)
@@ -75,6 +91,11 @@ class Sampler:
         self._sampling_temperature = float(config.sampling_temperature)
         self.purpose = config.purpose
         self._env_seed = config.env_seed
+        self._data_domain = config.data_domain
+        self._data_manifest_hash = config.data_manifest_hash
+        self._data_generator_version = str(config.data_generator_version)
+        self._training_deal_records: list[dict[str, object]] = []
+        self._training_deal_hashes: set[str] = set()
 
         def game_attr(name: str) -> int:
             if hasattr(self.game, name):
@@ -106,6 +127,8 @@ class Sampler:
             reset_result = self.envs.reset(seed)
             parsed_envs_step = EnvStepBatch.from_env_step(reset_result, config)
         self.parsed_envs_step = parsed_envs_step
+        if self.purpose == "on_policy" and self._data_domain == "training":
+            self._record_training_deals(range(self.rollout_batch_size))
 
         self.rollout_buffer = rollout_buffer or TrajectoryBuffer(
             self.rollout_batch_size,
@@ -204,6 +227,78 @@ class Sampler:
         self.consume(self.collect_batch_size)
         return collect_batch
 
+    @staticmethod
+    def _canonical_hash(value: object) -> str:
+        encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+        return hashlib.sha256(encoded).hexdigest()
+
+    def _debug_game_state(self, index: int) -> Mapping[str, object]:
+        debug = getattr(self.envs, "debug_state", None)
+        if callable(debug):
+            payload = debug(int(index))
+            return payload
+        env_values = getattr(self.envs, "envs", None)
+        if env_values is not None:
+            env = env_values[int(index)]
+            full = env.full_state()
+            return {
+                "config": {
+                    "seed": getattr(env.config, "seed", None),
+                    "level_rank": getattr(env.config, "level_rank", None),
+                    "leader_seat": getattr(env.config, "leader_seat", None),
+                    "previous_result": None,
+                },
+                "state": full["round_state"],
+                "reset_count": int(getattr(env, "_reset_count", 0)),
+            }
+        raise TypeError("training provenance requires an environment debug/full-state API")
+
+    def _record_training_deals(self, indices) -> None:
+        for index in indices:
+            payload = self._debug_game_state(int(index))
+            state = payload["state"]
+            config = payload.get("config", {})
+            hands = [sorted(int(card) for card in hand) for hand in state["hands"]]
+            identity = {
+                "hands": hands,
+                "level_rank": int(state["level_rank"]),
+                "leader_seat": int(state["leader_seat"]),
+                "previous_result": state.get("previous_result"),
+            }
+            digest = self._canonical_hash(identity)
+            record = {
+                "slot": int(index),
+                "reset_count": int(payload.get("reset_count", len(self._training_deal_records) + 1)),
+                "deal_sha256": digest,
+                "source_seed": config.get("seed", self._env_seed),
+                "level_rank": int(state["level_rank"]),
+                "leader_seat": int(state["leader_seat"]),
+                "previous_result": state.get("previous_result"),
+            }
+            self._training_deal_records.append(record)
+            self._training_deal_hashes.add(digest)
+
+    def training_data_provenance(self) -> dict[str, object]:
+        base = {
+            "schema": TRAINING_DATA_PROVENANCE_SCHEMA,
+            "domain": self._data_domain,
+            "manifest_hash": self._data_manifest_hash,
+            "generator_version": self._data_generator_version,
+            "seed_semantics": "EnvBatch initial seed plus slot, followed by each slot's serialized continuous PRNG reset stream; subsequent deals are not represented as seed+counter",
+            "initial_env_seed": self._env_seed,
+            "rollout_batch_size": self.rollout_batch_size,
+            "deal_count": len(self._training_deal_records),
+            "deal_hashes": sorted(self._training_deal_hashes),
+            "records_hash": self._canonical_hash(self._training_deal_records),
+            "complete": bool(
+                self.purpose == "on_policy"
+                and self._data_domain == "training"
+                and self._data_manifest_hash
+                and self._training_deal_records
+            ),
+        }
+        return {**base, "hash": self._canonical_hash(base)}
+
     def consume(self, batch_size: int) -> None:
         """Drop the oldest `batch_size` trajectories from the commit buffer."""
         if self.commit_buffer is None:
@@ -244,11 +339,16 @@ class Sampler:
             "failed_env_steps": self.failed_env_steps,
             "rejected_rollout_steps": self.rejected_rollout_steps,
             "terminal_info_queue": [dict(item) for item in self._terminal_info_queue],
+            "training_deal_records": [dict(item) for item in self._training_deal_records],
+            "training_data_provenance": self.training_data_provenance(),
         }
 
     def load_state_dict(self, state: Mapping[str, object]) -> None:
         if state.get("schema") != SAMPLER_STATE_SCHEMA:
-            raise ValueError(f"unsupported sampler state schema; expected {SAMPLER_STATE_SCHEMA}")
+            raise ValueError(
+                f"unsupported sampler state schema {state.get('schema')!r}; "
+                f"expected {SAMPLER_STATE_SCHEMA}; {PRE_PROVENANCE_SAMPLER_STATE_SCHEMA} lacks training provenance"
+            )
         expected = {
             "purpose": self.purpose,
             "sampling_temperature": self._sampling_temperature,
@@ -283,6 +383,14 @@ class Sampler:
         self.failed_env_steps = int(state.get("failed_env_steps", 0))
         self.rejected_rollout_steps = int(state.get("rejected_rollout_steps", 0))
         self._terminal_info_queue = [dict(item) for item in state.get("terminal_info_queue", [])]
+        records = state.get("training_deal_records", [])
+        if not isinstance(records, list):
+            raise ValueError("sampler training_deal_records must be a list")
+        self._training_deal_records = [dict(item) for item in records]
+        self._training_deal_hashes = {str(item["deal_sha256"]) for item in self._training_deal_records}
+        declared_provenance = state.get("training_data_provenance")
+        if declared_provenance != self.training_data_provenance():
+            raise ValueError("sampler training data provenance mismatch")
         if not 0 <= self.commit_buffer_size <= (0 if self.commit_buffer is None else self.commit_buffer.batch_size):
             raise ValueError("invalid restored commit_buffer_size")
         self._failed = False
@@ -541,8 +649,11 @@ class Sampler:
             if bool(step_done_mask.any().item()):
                 stage = "completed_trajectory_commit"
                 self._commit_done(step_done_mask)
-                for index in step_done_mask.nonzero().flatten().tolist():
+                completed_indices = step_done_mask.nonzero().flatten().tolist()
+                for index in completed_indices:
                     self._terminal_info_queue.append(dict(envs_step.infos[index]))
+                if self.purpose == "on_policy" and self._data_domain == "training":
+                    self._record_training_deals(completed_indices)
 
             if self.config.timing_callback is not None:
                 self.config.timing_callback(
@@ -568,6 +679,8 @@ class Sampler:
 __all__ = [
     "SAMPLER_CONTRACT_SCHEMA",
     "SAMPLER_STATE_SCHEMA",
+    "PRE_PROVENANCE_SAMPLER_STATE_SCHEMA",
+    "TRAINING_DATA_PROVENANCE_SCHEMA",
     "Sampler",
     "SamplerConfig",
     "SamplerFailedStateError",

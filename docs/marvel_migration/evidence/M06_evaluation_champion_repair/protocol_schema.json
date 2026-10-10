@@ -1,0 +1,31 @@
+{
+  "schema": "guandan-marvel-m06-repair-protocol-schema-v1",
+  "stage": "M06_evaluation_champion_repair",
+  "schemas": {
+    "hook": "guandan-marvel-training-evaluator-hook-v2",
+    "hook_event": "guandan-marvel-training-evaluator-event-v1",
+    "deals": "guandan-marvel-deals-manifest-v2",
+    "final_audit": "guandan-marvel-final-holdout-audit-v2",
+    "training_checkpoint": "guandan-marvel-training-checkpoint-v5",
+    "sampler_state": "guandan-marvel-sampler-state-v2",
+    "training_provenance": "guandan-marvel-training-data-provenance-v1",
+    "promotion_policy": "guandan-marvel-promotion-policy-v2",
+    "promotion_decision": "guandan-marvel-promotion-decision-v2",
+    "champion": "guandan-marvel-champion-manifest-v2",
+    "pool": "guandan-marvel-opponent-pool-v2",
+    "transaction": "guandan-marvel-promotion-transaction-v1",
+    "summary": "guandan-marvel-clustered-summary-v2",
+    "cluster_ci": "guandan-marvel-bounded-cluster-ci-v1"
+  },
+  "formal_min_clusters": 32,
+  "confidence": 0.95,
+  "worker_isolation": "multiprocessing spawn",
+  "final_states": [
+    "unused",
+    "reserved",
+    "running",
+    "consumed",
+    "failed",
+    "interrupted"
+  ]
+}

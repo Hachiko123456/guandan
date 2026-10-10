@@ -1,0 +1,15 @@
+{
+  "schema": "guandan-marvel-m06-repair-promotion-verification-v1",
+  "tests": [
+    "approved A passed B rejected",
+    "decision tamper rejected",
+    "stale champion rejected",
+    "checkpoint replacement rejected",
+    "valid selection promoted",
+    "replace failure rollback",
+    "final-mode decision rejected",
+    "pool partial failure explicit"
+  ],
+  "transaction_boundary": "champion pool_sync=pending plus transaction partial_failure until pool publish and mark_pool_synced",
+  "cache_identity": "path plus current SHA-256"
+}

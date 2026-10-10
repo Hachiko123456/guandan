@@ -1,0 +1,18 @@
+{
+  "schema": "guandan-marvel-m06-repair-committed-steps-v1",
+  "games": {
+    "all_committed_less_than_tokens": true,
+    "all_engine_counts_match": true,
+    "committed_steps": 1722,
+    "count": 20,
+    "illegal_count": 0,
+    "token_steps": 3708,
+    "truncated_count": 0
+  },
+  "old_history": {
+    "preserved": true,
+    "old_all_committed_equal_tokens": true
+  },
+  "repair_records": "D:\\project\\guandan\\runs\\M06_evaluation_champion_repair\\20261010_repair_acceptance_final2\\async_selection\\iteration-000002\\games.jsonl",
+  "repair_records_sha256": "cbcc36e6ee2d3eacf3e390e53d36e1c27de9dc523de4f898788c9ec4857c4212"
+}

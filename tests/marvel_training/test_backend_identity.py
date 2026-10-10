@@ -66,6 +66,20 @@ def _classification_fixture(tmp_path: Path):
     execution = build_execution_fingerprint("cpu")
     backend = build_backend_identity(game)
     resolved = serialize_config(cfg)
+    provenance_base = {
+        "schema": "guandan-marvel-training-data-provenance-v1",
+        "domain": "training",
+        "manifest_hash": resolved["training_data_manifest_hash"],
+        "generator_version": resolved["training_data_generator_version"],
+        "seed_semantics": "fixture",
+        "initial_env_seed": resolved["seed"],
+        "rollout_batch_size": resolved["rollout_batch_size"],
+        "deal_count": 1,
+        "deal_hashes": [],
+        "records_hash": canonical_json_hash([]),
+        "complete": True,
+    }
+    provenance = {**provenance_base, "hash": canonical_json_hash(provenance_base)}
     payload = {
         "schema": TRAINING_CHECKPOINT_SCHEMA,
         "backend": backend["backend"], "backend_identity": backend,

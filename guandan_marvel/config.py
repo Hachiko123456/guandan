@@ -2,6 +2,8 @@
 # Adapted from AtaraxosAI/doudizhu@acdcf199cf422e2b683cb22142b8e7cb33b14460:marvel/config.py.
 from __future__ import annotations
 
+import hashlib
+import json
 import time
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field, fields
@@ -170,6 +172,9 @@ class TrainConfig:
     logging_dir: str = ""
     debug: bool = True
     seed: int = 0
+    training_data_domain: str = "training"
+    training_data_manifest_hash: str | None = None
+    training_data_generator_version: str = "guandan-marvel-env-batch-continuous-prng-v1"
     deterministic: bool = False
     deterministic_disable_tf32: bool = False
     amp_enabled: bool = False
@@ -211,6 +216,27 @@ class TrainConfig:
             raise ValueError("max_sampler_bytes_per_rank must be positive when configured.")
         if not isinstance(self.amp_enabled, bool) or not isinstance(self.checkpoint_replay_buffer, bool):
             raise TypeError("amp_enabled and checkpoint_replay_buffer must be bool.")
+        if self.training_data_domain != "training":
+            raise ValueError("training_data_domain must be 'training'")
+        if not str(self.training_data_generator_version).strip():
+            raise ValueError("training_data_generator_version must be non-empty")
+        if self.training_data_manifest_hash is None:
+            source = {
+                "schema": "guandan-marvel-training-source-manifest-v1",
+                "domain": self.training_data_domain,
+                "generator_version": self.training_data_generator_version,
+                "seed_semantics": "EnvBatch initial seed plus slot, then continuous per-slot PRNG reset stream",
+                "initial_seed": int(self.seed),
+                "rollout_batch_size": int(self.rollout_batch_size),
+            }
+            self.training_data_manifest_hash = hashlib.sha256(
+                json.dumps(source, sort_keys=True, separators=(",", ":")).encode("utf-8")
+            ).hexdigest()
+        else:
+            value = str(self.training_data_manifest_hash).lower()
+            if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+                raise ValueError("training_data_manifest_hash must be a 64-character hexadecimal digest")
+            self.training_data_manifest_hash = value
         if not self.run_name:
             timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
             self.run_name = f"{self.game_identifier}_{timestamp}"

@@ -14,10 +14,11 @@ from typing import Any, Mapping, Sequence
 import numpy as np
 import torch
 
-TRAINING_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v4"
+TRAINING_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v5"
+PRE_TRAINING_PROVENANCE_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v4"
 PRE_BACKEND_IDENTITY_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v3"
 PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v2"
-TRAINING_SEMANTIC_CONTRACT_SCHEMA = "guandan-marvel-training-contract-v3"
+TRAINING_SEMANTIC_CONTRACT_SCHEMA = "guandan-marvel-training-contract-v4"
 SEMANTIC_CONFIG_SCHEMA = "guandan-marvel-semantic-config-v1"
 SOURCE_FINGERPRINT_SCHEMA = "guandan-marvel-source-fingerprint-v1"
 EXECUTION_FINGERPRINT_SCHEMA = "guandan-marvel-execution-fingerprint-v1"
@@ -157,6 +158,9 @@ def build_semantic_configuration(config: object, *, algorithm: str) -> dict[str,
         },
         "sampling_and_replay": {
             "seed": resolved["seed"],
+            "training_data_domain": resolved["training_data_domain"],
+            "training_data_manifest_hash": resolved["training_data_manifest_hash"],
+            "training_data_generator_version": resolved["training_data_generator_version"],
             "rollout_batch_size": resolved["rollout_batch_size"],
             "collect_batch_size": resolved["collect_batch_size"],
             "replay_buffer_scale": resolved["replay_buffer_scale"],
@@ -361,6 +365,13 @@ def classify_resume(
             "migration",
             ("checkpoint lacks explicit runtime backend and native build identity",),
         )
+    if schema == PRE_TRAINING_PROVENANCE_CHECKPOINT_SCHEMA:
+        if for_evaluation:
+            return ResumeDecision("evaluation_only", ("pre-training-provenance checkpoint; smoke-only selection",))
+        return ResumeDecision(
+            "migration",
+            ("checkpoint lacks actual training data provenance and sampler state v2",),
+        )
     if schema != TRAINING_CHECKPOINT_SCHEMA:
         raise CheckpointCompatibilityError(f"unsupported checkpoint schema {schema!r}")
     if for_evaluation:
@@ -435,7 +446,7 @@ def classify_resume(
         "iteration", "durable_updates", "counters", "rng_state", "sampler_state",
         "schedule_state", "merged_policy", "resolved_config", "resolved_config_hash",
         "source_fingerprint", "source_hash", "execution_fingerprint",
-        "backend", "backend_identity",
+        "backend", "backend_identity", "training_data_provenance",
     }
     if checkpoint_semantic.get("algorithm") == "vrpo":
         required.update({"critic_state_dict", "critic_optimizer_state_dict"})
@@ -444,6 +455,16 @@ def classify_resume(
         missing.append("replay_buffer_state")
     if missing:
         return ResumeDecision("warm_restart", tuple(f"missing {name}" for name in missing))
+    training_provenance = checkpoint.get("training_data_provenance")
+    if not isinstance(training_provenance, Mapping):
+        return ResumeDecision("migration", ("training_data_provenance is missing",))
+    validate_declared_hash(training_provenance, name="training_data_provenance")
+    if training_provenance.get("domain") != "training":
+        return ResumeDecision("migration", ("training_data_provenance.domain is not training",))
+    if training_provenance.get("manifest_hash") != resolved_config.get("training_data_manifest_hash"):
+        return ResumeDecision("migration", ("training data manifest identity differs from resolved config",))
+    if training_provenance.get("generator_version") != resolved_config.get("training_data_generator_version"):
+        return ResumeDecision("migration", ("training data generator version differs from resolved config",))
 
     allowed_config, forbidden_config = config_differences(resolved_config, expected_config)
     if forbidden_config:
@@ -480,7 +501,8 @@ class TrainingCheckpointStore:
 __all__ = [
     "BACKEND_IDENTITY_SCHEMA", "CheckpointCompatibilityError",
     "EXECUTION_FINGERPRINT_SCHEMA", "NON_SEMANTIC_CONFIG_PATHS",
-    "PRE_BACKEND_IDENTITY_CHECKPOINT_SCHEMA", "PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA",
+    "PRE_BACKEND_IDENTITY_CHECKPOINT_SCHEMA", "PRE_TRAINING_PROVENANCE_CHECKPOINT_SCHEMA",
+    "PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA",
     "RESUME_KINDS", "ResumeDecision", "SEMANTIC_CONFIG_SCHEMA",
     "SOURCE_FINGERPRINT_SCHEMA", "TRAINING_CHECKPOINT_SCHEMA",
     "TRAINING_SEMANTIC_CONTRACT_SCHEMA", "TrainingCheckpointStore",

@@ -1,0 +1,61 @@
+{
+  "schema": "guandan-marvel-m06-repair-async-verification-v1",
+  "training_state_unchanged": true,
+  "before": {
+    "merged": "1ec20f0163b0828ea5807a7b40709217d8c70c026bb2b9cb6b2dbc40b289e5c6",
+    "model": "1ec20f0163b0828ea5807a7b40709217d8c70c026bb2b9cb6b2dbc40b289e5c6",
+    "optimizer": "bbca4579a487c1dd0df64f64cbbd16dd2450b71f6d5b132d61f0560fcd1db63e",
+    "rng": "9cf3bed6c1315a171c0277203bc72a0ddbe93f8e1e215d3cf3211fa18ffb8d98",
+    "sampler_counters": [
+      722,
+      340,
+      2
+    ],
+    "sampler_envs": "7fe35ce001c8ba2555a96e808aa981c59a0e627d525435e8db529ff0e13ba656",
+    "training_provenance_hash": "75fbcc333919f3ab8b2bf848a982b8f415ffc0638c4a2633d0fc3d741f5d2ba9"
+  },
+  "after": {
+    "merged": "1ec20f0163b0828ea5807a7b40709217d8c70c026bb2b9cb6b2dbc40b289e5c6",
+    "model": "1ec20f0163b0828ea5807a7b40709217d8c70c026bb2b9cb6b2dbc40b289e5c6",
+    "optimizer": "bbca4579a487c1dd0df64f64cbbd16dd2450b71f6d5b132d61f0560fcd1db63e",
+    "rng": "9cf3bed6c1315a171c0277203bc72a0ddbe93f8e1e215d3cf3211fa18ffb8d98",
+    "sampler_counters": [
+      722,
+      340,
+      2
+    ],
+    "sampler_envs": "7fe35ce001c8ba2555a96e808aa981c59a0e627d525435e8db529ff0e13ba656",
+    "training_provenance_hash": "75fbcc333919f3ab8b2bf848a982b8f415ffc0638c4a2633d0fc3d741f5d2ba9"
+  },
+  "event": {
+    "finished_at": "2026-10-10T01:41:58.702966+00:00",
+    "hash": "fbf78ca5f5ea68a082a6b73522dee4c0a1a4f97f12dbda2e406bf31537583915",
+    "iteration": 2,
+    "recorded_at": "2026-10-10T01:41:59.356543+00:00",
+    "result": {
+      "evaluation_hash": "eec2b551d6c71a68072d264aebcf25003a738c4c53075cb2872c6ed4c423df0d",
+      "iteration": 2,
+      "promotion_status": "inconclusive",
+      "result_path": "D:\\project\\guandan\\runs\\M06_evaluation_champion_repair\\20261010_repair_acceptance_final2\\async_selection\\iteration-000002\\result.json",
+      "schema": "guandan-marvel-evaluation-worker-result-v1",
+      "status": "complete"
+    },
+    "schema": "guandan-marvel-training-evaluator-event-v1",
+    "snapshot": "D:\\project\\guandan\\runs\\M06_evaluation_champion_repair\\20261010_repair_acceptance_final2\\async_hook\\guandan-marvel-v2-ippo-eval-iter000002-35f87f7bddb2.pt",
+    "snapshot_sha256": "35f87f7bddb26eb45820b6ad68488cbbf7bc49dec8ddcd434f606ea5c4288bff",
+    "status": "completed",
+    "task_id": "iter000002-35f87f7bddb2"
+  },
+  "journal": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/async_hook/evaluation_hook_events.jsonl",
+  "journal_sha256": "15113c819b27553eac758426010ad63da718137360c758bb43cdb31c3aca2b49",
+  "trainer_result_log": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2/training/evaluation_results.jsonl",
+  "trainer_result_log_sha256": "ac88cd8ae0bcecac8ab123b863412b334d7b5c8e2d28346b188e1403a0c9f57f",
+  "real_process_selection_result": {
+    "evaluation_hash": "eec2b551d6c71a68072d264aebcf25003a738c4c53075cb2872c6ed4c423df0d",
+    "iteration": 2,
+    "promotion_status": "inconclusive",
+    "result_path": "D:\\project\\guandan\\runs\\M06_evaluation_champion_repair\\20261010_repair_acceptance_final2\\async_selection\\iteration-000002\\result.json",
+    "schema": "guandan-marvel-evaluation-worker-result-v1",
+    "status": "complete"
+  }
+}

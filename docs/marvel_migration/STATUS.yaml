@@ -210,10 +210,12 @@ stages:
   M06_evaluation_champion:
     status: accepted
     accepted: true
-    commit: 10cb3452f69cd23a3bed848498e4353dcfbe3b9c
-    implementation_commit: 10cb3452f69cd23a3bed848498e4353dcfbe3b9c
-    registration_commit: null
-    registration_note: implementation SHA is recorded exactly; registration commit SHA is reported in the final response
+    commit: null
+    original_implementation_commit: 10cb3452f69cd23a3bed848498e4353dcfbe3b9c
+    original_registration_commit: a46204c756802541c36d49f90ab922cc1f4b6fb8
+    repair_implementation_commit: null
+    repair_registration_commit: null
+    repair_note: concentrated repair passed; exact repair implementation SHA will be recorded by the registration commit
     reports:
       - docs/marvel_migration/reports/M06_evaluation_champion.md
       - docs/marvel_migration/reports/M06_evaluation_champion.json
@@ -228,6 +230,25 @@ stages:
       - docs/marvel_migration/evidence/M06_evaluation_champion/environment.json
       - docs/marvel_migration/evidence/M06_evaluation_champion/verification.json
       - docs/marvel_migration/evidence/M06_evaluation_champion/artifact_manifest.json
+    repair_reports:
+      - docs/marvel_migration/reports/M06_evaluation_champion_repair.md
+      - docs/marvel_migration/reports/M06_evaluation_champion_repair.json
+    repair_evidence:
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/reproduction.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/issue_resolution.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/protocol_schema.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/async_hook_verification.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/final_state_machine.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/promotion_binding.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/data_provenance.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/committed_steps.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/statistics_policy.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/real_exercise.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/test_results.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/environment.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/source_manifest.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/verification.json
+      - docs/marvel_migration/evidence/M06_evaluation_champion_repair/artifact_manifest.json
     blockers: []
 
   M07_kaggle_t4x2:

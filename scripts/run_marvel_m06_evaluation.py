@@ -16,7 +16,7 @@ from guandan_marvel.evaluation.common import atomic_write_json
 from guandan_marvel.evaluation.evaluator import EvaluationRunner
 from guandan_marvel.evaluation.manifests import FinalHoldoutAudit, build_deals_manifest
 from guandan_marvel.evaluation.pool import OpponentPoolStore
-from guandan_marvel.evaluation.promotion import ChampionStore
+from guandan_marvel.evaluation.promotion import ChampionStore, PromotionPolicy
 
 DEFAULT_CANDIDATE = ROOT / "runs/M05_performance_finish/20261009_finish/cpp_checkpoint/cpp-backend-iter000001-v4.pt"
 DEFAULT_LEGACY = ROOT / "runs/a07probe/local_fast/ippo/ippo_update_000001_90453d2696194fc2b755820939dcbed2_periodic.pt"
@@ -45,7 +45,7 @@ def main() -> int:
         previous_results=(PreviousHandResult((1, 4, 3, 2), 0, "HEAD_THIRD"),),
     )
     atomic_write_json(output / "deals_manifest.json", deals)
-    final_audit = FinalHoldoutAudit(output / "final_holdout_audit.json", deals_manifest_hash=deals["hash"])
+    final_audit = FinalHoldoutAudit(output / "final_holdout_audit.json", deals_manifest=deals)
     final_audit.initialize()
 
     champion_store = ChampionStore(output / "champion_manifest.json")
@@ -56,13 +56,13 @@ def main() -> int:
         "id": "champion-generation-1", "kind": "champion",
         "checkpoint": str(candidate.path), "checkpoint_sha256": candidate.sha256,
         "algorithm": candidate.algorithm, "architecture": candidate.architecture,
-        "weight": 1.0, "source_champion_manifest_hash": champion["hash"],
+        "policy_identity": candidate.identity, "weight": 1.0, "source_champion_manifest_hash": champion["hash"],
     })
     pool.add_entry({"id": "rule-anchor-v1", "kind": "rule", "weight": 0.25, "version": "v2-public-row-heuristic-v1"})
     pool.add_entry({
         "id": "legacy-v1-anchor", "kind": "legacy_v1",
         "checkpoint": str(legacy.path), "checkpoint_sha256": legacy.sha256,
-        "algorithm": legacy.algorithm, "weight": 0.25,
+        "algorithm": legacy.algorithm, "legacy_identity": legacy.identity, "weight": 0.25,
     })
 
     runner = EvaluationRunner(
@@ -72,6 +72,8 @@ def main() -> int:
         legacy_checkpoint=legacy.path,
         device=args.device,
         temperature=0.0,
+        promotion_policy=PromotionPolicy(mode="smoke", min_clusters=1),
+        provenance_policy="smoke_only",
     )
     result = runner.run_selection(deals_manifest=deals, candidate_checkpoint=candidate.path)
     recovered_champion = ChampionStore(champion_store.path).load()
@@ -83,7 +85,7 @@ def main() -> int:
         "opponent_pool_hash": recovered_pool["hash"],
         "opponent_pool_revision": recovered_pool["revision"],
         "pool_sample": OpponentPoolStore(pool.path).sample(sample_seed=candidate.iteration),
-        "final_holdout_uses": FinalHoldoutAudit(final_audit.path, deals_manifest_hash=deals["hash"]).load()["uses"],
+        "final_holdout_state": FinalHoldoutAudit(final_audit.path, deals_manifest=deals).load()["state"],
         "selection_status": result["status"],
         "promotion_status": result["promotion_decision"]["status"],
         "champion_unchanged": result["champion_unchanged"],

@@ -22,4 +22,7 @@ def test_real_cpp_host_completes_with_dedicated_legacy_adapter(v2_checkpoint, le
     assert record["status"] == "complete"
     assert record["illegal_count"] == 0 and record["truncated_count"] == 0
     assert record["backend"] == "cpp"
+    assert record["committed_steps"] == record["engine_finish_committed_step"]
+    assert record["token_steps"] == record["engine_finish_token_step"]
+    assert record["committed_steps"] < record["token_steps"]
     assert sorted(record["ranking"]) == [1, 2, 3, 4]

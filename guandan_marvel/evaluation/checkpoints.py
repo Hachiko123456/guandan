@@ -16,7 +16,7 @@ from guandan_marvel.config import deserialize_train_config
 from guandan_marvel.model import Agent
 from guandan_marvel.training.checkpoints import (
     BACKEND_IDENTITY_SCHEMA,
-    TRAINING_CHECKPOINT_SCHEMA,
+    PRE_TRAINING_PROVENANCE_CHECKPOINT_SCHEMA, TRAINING_CHECKPOINT_SCHEMA,
     build_backend_identity,
     canonical_json_hash,
     validate_declared_hash,
@@ -44,6 +44,7 @@ class V2PolicyArtifact:
     resolved_config_hash: str
     iteration: int
     model: Agent
+    training_data_provenance: dict[str, object] | None
     metadata: dict[str, object]
 
     @property
@@ -63,6 +64,8 @@ class V2PolicyArtifact:
             "source_hash": self.metadata.get("source_hash"),
             "merged_policy": deepcopy(self.metadata.get("merged_policy")),
             "training_counters": {"iteration": self.iteration},
+            "training_data_provenance_status": "complete" if self.training_data_provenance and self.training_data_provenance.get("complete") else "incomplete",
+            "training_data_provenance_hash": None if self.training_data_provenance is None else self.training_data_provenance.get("hash"),
             "iteration": self.iteration,
         }
 
@@ -98,7 +101,7 @@ def _load_payload(path: Path) -> Mapping[str, object]:
 
 def _validate_v2_payload(payload: Mapping[str, object], *, expected_algorithm: str | None) -> None:
     schema = payload.get("schema")
-    if schema not in {TRAINING_CHECKPOINT_SCHEMA, EVALUATION_CHECKPOINT_SCHEMA}:
+    if schema not in {TRAINING_CHECKPOINT_SCHEMA, PRE_TRAINING_PROVENANCE_CHECKPOINT_SCHEMA, EVALUATION_CHECKPOINT_SCHEMA}:
         legacy = "|".join(str(payload.get(name, "")) for name in (
             "protocol_version", "action_version", "environment_version", "encoding_version",
         ))
@@ -125,6 +128,14 @@ def _validate_v2_payload(payload: Mapping[str, object], *, expected_algorithm: s
     validate_declared_hash(current_identity, name="current.backend_identity")
     if backend_identity.get("hash") != current_identity.get("hash"):
         raise ValueError("checkpoint C++ backend/build identity mismatch")
+
+    provenance = payload.get("training_data_provenance")
+    if provenance is not None:
+        if not isinstance(provenance, Mapping):
+            raise ValueError("checkpoint training_data_provenance is malformed")
+        validate_declared_hash(provenance, name="checkpoint.training_data_provenance")
+    if schema == TRAINING_CHECKPOINT_SCHEMA and provenance is None:
+        raise ValueError("training checkpoint v5 requires training_data_provenance")
 
     resolved = payload.get("resolved_config")
     if not isinstance(resolved, Mapping):
@@ -175,15 +186,41 @@ def load_v2_policy(
         resolved_config_hash=str(payload["resolved_config_hash"]),
         iteration=int(payload.get("iteration", 0)),
         model=model,
+        training_data_provenance=None if payload.get("training_data_provenance") is None else deepcopy(payload["training_data_provenance"]),
         metadata={
             "merged_policy": deepcopy(payload.get("merged_policy")),
             "source_hash": payload.get("source_hash"),
             "source_parent_commit": payload.get("source_parent_commit"),
             "selection_identity": deepcopy(payload.get("selection_identity")),
             "champion_identity": deepcopy(payload.get("champion_identity")),
+            "training_seed": payload["resolved_config"].get("seed"),
         },
     )
 
+
+
+def verify_policy_identity(identity: Mapping[str, object], *, device: str | torch.device = "cpu") -> V2PolicyArtifact:
+    required = {
+        "schema", "checkpoint_path", "checkpoint_sha256", "checkpoint_schema",
+        "algorithm", "architecture", "protocol_version", "backend",
+        "backend_identity_hash", "resolved_config_hash", "iteration",
+    }
+    missing = sorted(required - set(identity))
+    if missing:
+        raise ValueError(f"policy identity is missing fields: {missing}")
+    path = Path(str(identity["checkpoint_path"])).resolve()
+    if not path.is_file() or file_sha256(path) != identity["checkpoint_sha256"]:
+        raise ValueError("policy identity checkpoint file is missing or content hash changed")
+    artifact = load_v2_policy(path, device=device, expected_algorithm=str(identity["algorithm"]))
+    actual = artifact.identity
+    for key in required:
+        if actual.get(key) != identity.get(key):
+            raise ValueError(f"policy identity field mismatch for {key}")
+    for key in ("source_commit", "source_hash", "merged_policy", "training_counters",
+                "training_data_provenance_status", "training_data_provenance_hash"):
+        if key in identity and actual.get(key) != identity.get(key):
+            raise ValueError(f"policy identity field mismatch for {key}")
+    return artifact
 
 def load_legacy_v1_opponent(path: str | Path) -> LegacyV1OpponentArtifact:
     resolved_path = Path(path).resolve()
@@ -251,6 +288,7 @@ def freeze_merged_policy(trainer: object, path: str | Path, *, iteration: int | 
         "source_fingerprint": deepcopy(trainer.source_fingerprint),
         "source_hash": str(trainer.source_hash),
         "source_parent_commit": str(trainer.source_parent_commit),
+        "training_data_provenance": deepcopy(trainer.sampler.training_data_provenance()),
         "resume_classification": "evaluation_only",
         "training_resume_allowed": False,
     }
@@ -260,4 +298,5 @@ def freeze_merged_policy(trainer: object, path: str | Path, *, iteration: int | 
 __all__ = [
     "EVALUATION_CHECKPOINT_SCHEMA", "LegacyV1OpponentArtifact", "V2PolicyArtifact",
     "freeze_merged_policy", "load_legacy_v1_opponent", "load_v2_policy",
+    "verify_policy_identity",
 ]

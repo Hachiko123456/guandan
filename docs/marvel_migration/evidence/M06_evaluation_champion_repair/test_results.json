@@ -1,0 +1,146 @@
+{
+  "schema": "guandan-marvel-m06-repair-test-results-v1",
+  "stage": "M06_evaluation_champion_repair",
+  "commands": [
+    {
+      "name": "m06_repair_scoped_training",
+      "command": "python -m pytest tests/marvel_evaluation tests/marvel_training -q --junitxml=...",
+      "exit_code": 0,
+      "counts": {
+        "passed": 70,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 70,
+        "seconds": 90.329
+      },
+      "junit": "runs/M06_evaluation_champion_repair/20261010_repair_tests/m06_repair_scoped_training.junit.xml",
+      "junit_sha256": "aff71a72de5b70a639eb24cf6c027e7636a5f1caf3e0ef3807ae3d139c8ec693",
+      "log": "runs/M06_evaluation_champion_repair/20261010_repair_tests/m06_repair_scoped_training.log",
+      "log_sha256": "af0f501537b5551825fa09d3bb7e4ed47af3ae867ba1dfc9adf2cfa1d391439f",
+      "blocking": true
+    },
+    {
+      "name": "m01_m05_backend_regression",
+      "command": "python -m pytest tests/marvel_core tests/marvel_adapter tests/marvel_cpp tests/marvel_differential -q --junitxml=...",
+      "exit_code": 0,
+      "counts": {
+        "passed": 180,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 180,
+        "seconds": 105.374
+      },
+      "junit": "runs/M06_evaluation_champion_repair/20261010_repair_tests/m01_m05_backend_regression.junit.xml",
+      "junit_sha256": "8ecc62d2259e9b74a6de64d34a9ead6b29c843ce46916c9de77721c3a475ff66",
+      "log": "runs/M06_evaluation_champion_repair/20261010_repair_tests/m01_m05_backend_regression.log",
+      "log_sha256": "37aedda034bbed671ba2a22578ef212ef8bfc8e02d5c4b5ad5dfe05b7d07ac49",
+      "blocking": true
+    },
+    {
+      "name": "a00_a04_protected",
+      "command": "python -m pytest tests/acceptance/test_a00_specification.py ... test_a04_environment.py -q --junitxml=...",
+      "exit_code": 0,
+      "counts": {
+        "passed": 157,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 157,
+        "seconds": 12.776
+      },
+      "junit": "runs/M06_evaluation_champion_repair/20261010_repair_tests/a00_a04_protected.junit.xml",
+      "junit_sha256": "05aae7ef6f497233fc8f18c84bb9a1821b04978055701a54f07b6cfb75368ce5",
+      "log": "runs/M06_evaluation_champion_repair/20261010_repair_tests/a00_a04_protected.log",
+      "log_sha256": "bf47ead4964e8f520ba69508dc1a755dda9376d32e625e48a58808ac4020f591",
+      "blocking": true
+    },
+    {
+      "name": "legacy_evaluation_regression",
+      "command": "python -m pytest tests/acceptance/test_a06_evaluation.py tests/unit/test_evaluation*.py -q --junitxml=...",
+      "exit_code": 0,
+      "counts": {
+        "passed": 155,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 155,
+        "seconds": 64.285
+      },
+      "junit": "runs/M06_evaluation_champion_repair/20261010_repair_tests/legacy_evaluation_regression.junit.xml",
+      "junit_sha256": "ac349b10fc7a82649eb4c7468e89eb859f925b57f69e0aaaa4deace64265fef3",
+      "log": "runs/M06_evaluation_champion_repair/20261010_repair_tests/legacy_evaluation_regression.log",
+      "log_sha256": "f43600611ac05178fb69f992c8a227dec2c8e9ce184de3f2d6e78d0320ce0201",
+      "blocking": true
+    },
+    {
+      "name": "backend_import_identity",
+      "command": "python -m pytest tests/marvel_differential/test_backend_imports.py tests/marvel_training/test_backend_identity.py -q --junitxml=...",
+      "exit_code": 0,
+      "counts": {
+        "passed": 10,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 10,
+        "seconds": 22.629
+      },
+      "junit": "runs/M06_evaluation_champion_repair/20261010_repair_tests/backend_import_identity.junit.xml",
+      "junit_sha256": "83500568369fb1315d7e6cf44caa96b30599b9de6a80f17af7f1224ceefd1d06",
+      "log": "runs/M06_evaluation_champion_repair/20261010_repair_tests/backend_import_identity.log",
+      "log_sha256": "a5101561887ba085fd3492f17440387d5be14073ece6eb0337f3f89828112c84",
+      "blocking": false
+    }
+  ],
+  "blocking_nonoverlapping_totals": {
+    "passed": 562,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "tests": 562
+  },
+  "repair_run_verifier": {
+    "command": "python scripts/verify_marvel_m06_repair.py ...",
+    "exit_code": 0,
+    "result": {
+      "schema": "guandan-marvel-m06-repair-run-verification-v1",
+      "passes": true,
+      "run_root": "D:\\project\\guandan\\runs\\M06_evaluation_champion_repair\\20261010_repair_acceptance_final2",
+      "selection_status": "complete",
+      "promotion_status": "inconclusive",
+      "training_state_unchanged": true,
+      "formal_data_isolation": true,
+      "games": 20,
+      "token_steps": 3708,
+      "committed_steps": 1722,
+      "engine_counts_match": true,
+      "illegal_count": 0,
+      "truncated_count": 0,
+      "final_holdout_state": "unused",
+      "old_m06_artifacts_unchanged": true,
+      "protected_files_unchanged": true,
+      "reference_repo_clean": true,
+      "m06_status": "accepted",
+      "m07_status": "ready"
+    },
+    "log_sha256": "1e5a2a0fe73ea037cec8fcfa9ac8852987492b64fc4e122bf0ee9a64fd03086b"
+  },
+  "final_a00_recheck": {
+    "command": "python -m pytest tests/acceptance/test_a00_specification.py -q --junitxml=...",
+    "exit_code": 0,
+    "counts": {
+      "passed": 5,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "tests": 5,
+      "seconds": 0.051
+    },
+    "junit": "runs/M06_evaluation_champion_repair/20261010_repair_tests/a00_final_recheck.junit.xml",
+    "junit_sha256": "8f61c078b1590bb20229ce3c46fc8004a8f5d402394b22162a4fabb9002745cf",
+    "log": "runs/M06_evaluation_champion_repair/20261010_repair_tests/a00_final_recheck.log",
+    "log_sha256": "57cd57fb43df83aae7085518419c5a9edf270f06e97d1a0aee421386dea67a10",
+    "blocking": false
+  }
+}

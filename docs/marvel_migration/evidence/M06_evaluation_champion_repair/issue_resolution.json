@@ -1,0 +1,69 @@
+{
+  "schema": "guandan-marvel-m06-repair-issue-resolution-v1",
+  "stage": "M06_evaluation_champion_repair",
+  "date": "2026-10-10",
+  "issues": {
+    "A_async_rng_and_delivery": {
+      "reproduced": true,
+      "fixed": true,
+      "evidence": [
+        "spawn process worker real loader RNG equality",
+        "durable work/worker/result JSON and journal",
+        "failure then success both delivered",
+        "trainer auto-collect and close collection"
+      ]
+    },
+    "B_final_reservation_timing": {
+      "reproduced": true,
+      "fixed": true,
+      "evidence": [
+        "consumed/candidate mismatch reject at 0 callbacks",
+        "exclusive concurrent reservation",
+        "failed/interrupted terminal states",
+        "no overwrite"
+      ]
+    },
+    "C_candidate_binding": {
+      "reproduced": true,
+      "fixed": true,
+      "evidence": [
+        "decision hash/status/mode",
+        "candidate exact identity and file hash",
+        "champion generation/hash",
+        "plan/summary binding",
+        "pool pending transaction"
+      ]
+    },
+    "D_actual_training_source": {
+      "reproduced": true,
+      "fixed": true,
+      "evidence": [
+        "checkpoint v5 actual deal provenance",
+        "seed and deal hash preflight",
+        "v4 smoke-only/final reject",
+        "real formal selection eligible"
+      ]
+    },
+    "E_committed_steps": {
+      "reproduced": true,
+      "fixed": true,
+      "evidence": [
+        "ACTION_COMMIT marker and available_actions flag cross-check",
+        "engine finish counters",
+        "repair run token=3708 committed=1722"
+      ]
+    },
+    "F_small_sample_and_completeness": {
+      "reproduced": true,
+      "fixed": true,
+      "evidence": [
+        "bounded empirical-Bernstein CI",
+        "formal min 32 clusters",
+        "smoke never promotes",
+        "exact plan key coverage",
+        "nonfinite/malformed rejection",
+        "overall CI omitted"
+      ]
+    }
+  }
+}

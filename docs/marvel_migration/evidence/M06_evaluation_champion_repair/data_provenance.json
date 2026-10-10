@@ -1,0 +1,65 @@
+{
+  "schema": "guandan-marvel-m06-repair-data-provenance-v1",
+  "real_training_provenance": {
+    "complete": true,
+    "deal_count": 3,
+    "deal_hashes": [
+      "81c55d0b901f870914cc1124e951585736cee6ea29fe0d499174cc97b9d9d1c5",
+      "a9810e0b8a1aee54d62c193cb34ca6bcc701baabcc20403c402a040e0e571a49",
+      "cd00c7754a41c310fa28535cf462f1673b1c04b3f88d417217ab5e5128ffb9d6"
+    ],
+    "domain": "training",
+    "generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+    "hash": "75fbcc333919f3ab8b2bf848a982b8f415ffc0638c4a2633d0fc3d741f5d2ba9",
+    "initial_env_seed": 95001,
+    "manifest_hash": "f21b59731b1af608828bd2f105f4f0d4d74afb5ef58fafafca5bdf9d80b0341d",
+    "records_hash": "7acab1aa321f002c242a8ea27f401e6289e7f3a46807e231758164444e2ef392",
+    "rollout_batch_size": 1,
+    "schema": "guandan-marvel-training-data-provenance-v1",
+    "seed_semantics": "EnvBatch initial seed plus slot, followed by each slot's serialized continuous PRNG reset stream; subsequent deals are not represented as seed+counter"
+  },
+  "real_selection_isolation": {
+    "checks": [
+      {
+        "checkpoint_sha256": "35f87f7bddb26eb45820b6ad68488cbbf7bc49dec8ddcd434f606ea5c4288bff",
+        "deal_hash_overlap": [],
+        "provenance_status": "complete",
+        "seed_overlap": [],
+        "seed_semantics": "EnvBatch initial seed plus slot, followed by each slot's serialized continuous PRNG reset stream; subsequent deals are not represented as seed+counter",
+        "training_generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+        "training_manifest_hash": "f21b59731b1af608828bd2f105f4f0d4d74afb5ef58fafafca5bdf9d80b0341d"
+      },
+      {
+        "checkpoint_sha256": "7e50ad9f6b0ecf58f5fcbf9d5cacb45c173b49c258c488bd64f62171b9fe4f49",
+        "deal_hash_overlap": [],
+        "provenance_status": "complete",
+        "seed_overlap": [],
+        "seed_semantics": "EnvBatch initial seed plus slot, followed by each slot's serialized continuous PRNG reset stream; subsequent deals are not represented as seed+counter",
+        "training_generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+        "training_manifest_hash": "f21b59731b1af608828bd2f105f4f0d4d74afb5ef58fafafca5bdf9d80b0341d"
+      }
+    ],
+    "dataset_hash": "d5b0e8a7e3b704a671c32ac36a5f885769ed882628487ffd965b5502b2816e83",
+    "domain": "selection",
+    "formal_selection_eligible": true,
+    "materialized_deals": [
+      {
+        "deal_id": "selection-000000",
+        "deal_sha256": "41029625e4b300bc901f75c03dfffde34eedc85102a6a66d30d54aa484d9ca44",
+        "seed": 1000000000
+      }
+    ],
+    "policy": "formal",
+    "reasons": [],
+    "schema": "guandan-marvel-data-isolation-verification-v1"
+  },
+  "formal_selection_eligible": true,
+  "old_v4_policy": "smoke-only selection; formal selection/final rejected",
+  "overlap_tests": [
+    "internal manifest overlap",
+    "known training seed vs selection",
+    "actual deal hash vs selection",
+    "actual deal hash vs final",
+    "rejection before game callback"
+  ]
+}

@@ -45,6 +45,17 @@ def _base_deal_hash(env) -> str:
     return hashlib.sha256(canonical_json_bytes(hands)).hexdigest()
 
 
+def validated_commit_flag(step, action_index: int) -> bool:
+    row_flag = int(step.available_actions.tokens[0, int(action_index), 6])
+    if row_flag not in {int(cpp_game.ACTION_NON_COMMIT), int(cpp_game.ACTION_COMMIT)}:
+        raise RuntimeError(f"V2 action row has invalid commit marker token {row_flag}")
+    row_is_commit = row_flag == int(cpp_game.ACTION_COMMIT)
+    available_is_commit = bool(step.available_actions.is_commit[0, int(action_index)])
+    if row_is_commit != available_is_commit:
+        raise RuntimeError("V2 action row commit marker disagrees with available_actions.is_commit")
+    return available_is_commit
+
+
 def _training_overlap(artifact: LegacyV1OpponentArtifact, *, seed: int, deal_hash: str) -> None:
     for row in artifact.training_deals:
         if row.get("seed") == seed or row.get("deal_sha256") == deal_hash:
@@ -132,7 +143,7 @@ def play_game(
             raise
         row = np.asarray(step.available_actions.tokens[0, action_index], dtype=np.int64)
         token_id = int(row[5])
-        is_commit = bool(row[6])
+        is_commit = validated_commit_flag(step, action_index)
         decisions[player] += 1
         committed_steps += int(is_commit)
         action_digest.update(canonical_json_bytes([player, token_id, row.tolist()]))
@@ -161,6 +172,17 @@ def play_game(
             "token_steps": max_steps,
         }
     info = dict(step.infos[0])
+    terminal_debug = env.debug_state(0)["state"]
+    finish_committed_step = int(terminal_debug["finish_committed_step"])
+    finish_token_step = int(terminal_debug["finish_token_step"])
+    if committed_steps != finish_committed_step:
+        raise RuntimeError(
+            f"evaluation committed-step count {committed_steps} disagrees with engine finish_committed_step {finish_committed_step}"
+        )
+    if terminal_step != finish_token_step:
+        raise RuntimeError(
+            f"evaluation token-step count {terminal_step} disagrees with engine finish_token_step {finish_token_step}"
+        )
     ranking = [int(value) for value in info["ranking"]]
     winner_team = ranking.index(1) % 2
     rewards = [float(value) for value in np.asarray(step.rewards[0]).tolist()]
@@ -192,6 +214,8 @@ def play_game(
         "candidate_team_reward": float(rewards[candidate_team]),
         "token_steps": terminal_step,
         "committed_steps": committed_steps,
+        "engine_finish_token_step": finish_token_step,
+        "engine_finish_committed_step": finish_committed_step,
         "decisions_by_seat": decisions,
         "illegal_count": illegal_count,
         "truncated_count": 0,
@@ -206,4 +230,4 @@ def play_game(
     }
 
 
-__all__ = ["GAME_RECORD_SCHEMA", "play_game", "seat_assignment"]
+__all__ = ["GAME_RECORD_SCHEMA", "play_game", "seat_assignment", "validated_commit_flag"]

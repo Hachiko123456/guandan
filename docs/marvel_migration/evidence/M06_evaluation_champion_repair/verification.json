@@ -1,0 +1,54 @@
+{
+  "schema": "guandan-marvel-m06-repair-verification-v1",
+  "stage": "M06_evaluation_champion_repair",
+  "implementation_commit": null,
+  "passes": true,
+  "accepted": true,
+  "m07_allowed": true,
+  "issues_reproduced": 6,
+  "issues_fixed": 6,
+  "hard_gates": {
+    "process_rng_isolation": true,
+    "durable_background_results": true,
+    "trainer_auto_collection": true,
+    "final_reserve_before_touch": true,
+    "final_concurrency": true,
+    "promotion_candidate_binding": true,
+    "checkpoint_cache_content_identity": true,
+    "pool_partial_failure_recoverable": true,
+    "actual_training_provenance": true,
+    "selection_final_overlap_preflight": true,
+    "engine_committed_count_match": true,
+    "formal_min_32_clusters": true,
+    "plan_exact_coverage": true,
+    "nonfinite_rejected": true,
+    "final_holdout_unused": true,
+    "old_artifacts_unchanged": true,
+    "protected_files_unchanged": true,
+    "reference_repo_clean": true
+  },
+  "tests": {
+    "passed": 562,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "tests": 562
+  },
+  "diagnostic_backend_tests": {
+    "passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "tests": 10,
+    "seconds": 22.629
+  },
+  "real_exercise_hash": "eec2b551d6c71a68072d264aebcf25003a738c4c53075cb2872c6ed4c423df0d",
+  "promotion_status": "inconclusive",
+  "blockers": [],
+  "limitations": [
+    "one real selection deal: intentionally inconclusive",
+    "repair checkpoint is small local functional training, not strength",
+    "no Kaggle/DDP/long training",
+    "final state machine tested only with synthetic temporary holdout"
+  ]
+}

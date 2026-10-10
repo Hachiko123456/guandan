@@ -1,0 +1,15 @@
+{
+  "schema": "guandan-marvel-m06-repair-final-state-verification-v1",
+  "real_final_state": "unused",
+  "real_final_uses": 0,
+  "synthetic_tests": [
+    "consumed repeat 0 callbacks",
+    "candidate mismatch 0 callbacks",
+    "concurrent at most one",
+    "first-game failure -> failed",
+    "KeyboardInterrupt -> interrupted",
+    "plan write failure -> failed",
+    "old summary not overwritten"
+  ],
+  "dataset_identity_independent_of_created_at": true
+}

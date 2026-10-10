@@ -11,7 +11,7 @@ from guandan_marvel.buffer import BufferConfig, TrajectoryBuffer
 from guandan_marvel.config import ModelConfig, TrainConfig
 from guandan_marvel.training.checkpoints import (
     CheckpointCompatibilityError, PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA,
-    TRAINING_CHECKPOINT_SCHEMA, build_backend_identity, build_execution_fingerprint,
+    PRE_TRAINING_PROVENANCE_CHECKPOINT_SCHEMA, TRAINING_CHECKPOINT_SCHEMA, build_backend_identity, build_execution_fingerprint,
     build_semantic_configuration, build_semantic_contract, classify_resume,
     canonical_json_hash, compute_source_fingerprint, serialize_config,
 )
@@ -110,6 +110,10 @@ def test_ippo_exact_checkpoint_resume_matches_uninterrupted_continuation(tmp_pat
     assert payload["schema"] == TRAINING_CHECKPOINT_SCHEMA
     assert payload["merged_policy"]["identity"] == "current_policy_copy"
     assert payload["merged_policy"]["not_smoothed_when_beta_zero"] is True
+    assert payload["training_data_provenance"]["complete"] is True
+    assert payload["training_data_provenance"]["domain"] == "training"
+    assert payload["training_data_provenance"]["deal_count"] >= 1
+    assert payload["training_data_provenance"]["deal_hashes"]
     control_metrics = control.train_iteration()
     control_state = {key: value.detach().clone() for key, value in control.agent_resume.state_dict().items()}
 
@@ -170,6 +174,20 @@ def test_resume_classification_all_categories_and_legacy_rejection(tmp_path: Pat
     execution = build_execution_fingerprint("cpu")
     backend_identity = build_backend_identity(game)
     resolved = serialize_config(cfg)
+    provenance_base = {
+        "schema": "guandan-marvel-training-data-provenance-v1",
+        "domain": "training",
+        "manifest_hash": resolved["training_data_manifest_hash"],
+        "generator_version": resolved["training_data_generator_version"],
+        "seed_semantics": "fixture",
+        "initial_env_seed": resolved["seed"],
+        "rollout_batch_size": resolved["rollout_batch_size"],
+        "deal_count": 1,
+        "deal_hashes": [],
+        "records_hash": canonical_json_hash([]),
+        "complete": True,
+    }
+    provenance = {**provenance_base, "hash": canonical_json_hash(provenance_base)}
     base = {
         "schema": TRAINING_CHECKPOINT_SCHEMA,
         "semantic_contract": contract,
@@ -185,7 +203,7 @@ def test_resume_classification_all_categories_and_legacy_rejection(tmp_path: Pat
         "critic_optimizer_state_dict": {}, "replay_buffer_state": {},
         "iteration": 1, "durable_updates": 1, "counters": {},
         "rng_state": {}, "sampler_state": {}, "schedule_state": {},
-        "merged_policy": {},
+        "merged_policy": {}, "training_data_provenance": provenance,
     }
     exact = classify_resume(
         base, expected_contract=contract, expected_source_fingerprint=source,
@@ -232,6 +250,17 @@ def test_resume_classification_all_categories_and_legacy_rejection(tmp_path: Pat
         base, expected_contract=contract, expected_source_fingerprint=source,
         expected_execution_fingerprint=execution, expected_backend_identity=backend_identity, expected_config=resolved,
         require_replay=True, for_evaluation=True,
+    ).kind == "evaluation_only"
+    old_v4 = {"schema": PRE_TRAINING_PROVENANCE_CHECKPOINT_SCHEMA}
+    assert classify_resume(
+        old_v4, expected_contract=contract, expected_source_fingerprint=source,
+        expected_execution_fingerprint=execution, expected_backend_identity=backend_identity, expected_config=resolved,
+        require_replay=False,
+    ).kind == "migration"
+    assert classify_resume(
+        old_v4, expected_contract=contract, expected_source_fingerprint=source,
+        expected_execution_fingerprint=execution, expected_backend_identity=backend_identity, expected_config=resolved,
+        require_replay=False, for_evaluation=True,
     ).kind == "evaluation_only"
     old_m03 = {"schema": PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA}
     assert classify_resume(

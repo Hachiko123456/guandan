@@ -1,0 +1,192 @@
+{
+  "schema": "guandan-marvel-m06-repair-source-manifest-v1",
+  "stage": "M06_evaluation_champion_repair",
+  "files": [
+    {
+      "path": "guandan_marvel/config.py",
+      "role": "training source identity config",
+      "bytes": 13016,
+      "sha256": "db7bce30c509c1e143e2eadde82231af13a217ad53d3c81503c8493515d9ab8b"
+    },
+    {
+      "path": "guandan_marvel/evaluation/__init__.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 1398,
+      "sha256": "7c7a0dd5a2aafd3a611628b8da40c2f893c7396dfaa04ac88ae3353e50295171"
+    },
+    {
+      "path": "guandan_marvel/evaluation/checkpoints.py",
+      "role": "v4 smoke/v5 provenance and identity verification",
+      "bytes": 14061,
+      "sha256": "f725744c2efd6f1e298c4156c7b699a966480e4946840cf5aac2c35434b6133d"
+    },
+    {
+      "path": "guandan_marvel/evaluation/evaluator.py",
+      "role": "reservation/order/transaction orchestration",
+      "bytes": 20745,
+      "sha256": "d3d609c1449c4bf2f08019e9eb57156968c53aa26265746355b25206439a8af2"
+    },
+    {
+      "path": "guandan_marvel/evaluation/hooks.py",
+      "role": "spawn workers and durable result delivery",
+      "bytes": 13687,
+      "sha256": "84752c8c2975f70a740131604dc10d3a62b169b9ded97d91bbfaec9c23baf8dc"
+    },
+    {
+      "path": "guandan_marvel/evaluation/host.py",
+      "role": "commit marker and engine counter checks",
+      "bytes": 10753,
+      "sha256": "36ccdbd4de3c3dc31b6f355a2b11bf989b6a5546ec760853e53ed1a0fd429cbe"
+    },
+    {
+      "path": "guandan_marvel/evaluation/manifests.py",
+      "role": "deals v2 and final state machine",
+      "bytes": 16520,
+      "sha256": "2a54ef89e47bc6a0cae99df8cf2487e4f99215769d0a148e3ad404e1fd587797"
+    },
+    {
+      "path": "guandan_marvel/evaluation/pool.py",
+      "role": "validated pool v2 publication",
+      "bytes": 7239,
+      "sha256": "921632066af3f308c1e5e7ab8883ecd66fe627ecb4d804cef5249051353b1bfa"
+    },
+    {
+      "path": "guandan_marvel/evaluation/promotion.py",
+      "role": "decision/candidate/champion binding",
+      "bytes": 14719,
+      "sha256": "3913bc24284606252df5176e3f13f4e6d73eab94d1923681a9c7e9f151054bcf"
+    },
+    {
+      "path": "guandan_marvel/evaluation/provenance.py",
+      "role": "pre-inference source overlap checks",
+      "bytes": 4844,
+      "sha256": "a03a8ecc96b9d3c1342c1895800c05b2317a35879484c2c81279f66b25800b12"
+    },
+    {
+      "path": "guandan_marvel/evaluation/stats.py",
+      "role": "bounded CI and exact plan coverage",
+      "bytes": 13279,
+      "sha256": "15ac8804f154e08d0d5ca96a09db4eaa2b6d5516ec7293700611bf10c95f6583"
+    },
+    {
+      "path": "guandan_marvel/evaluation/workers.py",
+      "role": "immutable process work units",
+      "bytes": 3589,
+      "sha256": "737f2e7521c3257dd5f43d93a58bdfc936e66aaff9e8e99971bfa279cf8618a5"
+    },
+    {
+      "path": "guandan_marvel/runtime/__init__.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 1029,
+      "sha256": "bffba85c2b84b1b72d4212f861ee54653156aab3f6aa1ea71541ce7b15c9ebcc"
+    },
+    {
+      "path": "guandan_marvel/runtime/sampler.py",
+      "role": "actual training deal ledger",
+      "bytes": 32343,
+      "sha256": "bb865ff52262aaf525511ab62f26199f47d74047d9f93c95482e97b2547870d1"
+    },
+    {
+      "path": "guandan_marvel/training/__init__.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 1905,
+      "sha256": "675bf921f6d05ddf9be82ab9f494c469d106cc53171cbb6be94f0eba0c2d9800"
+    },
+    {
+      "path": "guandan_marvel/training/checkpoints.py",
+      "role": "checkpoint v5 compatibility",
+      "bytes": 23261,
+      "sha256": "9b1bcfb8ad89d87252931c8da906260f06f19de0a22aa3fab45b09264d22c555"
+    },
+    {
+      "path": "guandan_marvel/training/local.py",
+      "role": "provenance payload and hook result collection",
+      "bytes": 41854,
+      "sha256": "18580b4381420f310da959a075f3c8c7842f842559f6487323f2d68c3ad96100"
+    },
+    {
+      "path": "scripts/run_marvel_m06_evaluation.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 4685,
+      "sha256": "9bfdace2b3ac43e147d490c21e1b7e8673d3dee3d7a3ed100ffc534a81b3a23a"
+    },
+    {
+      "path": "scripts/run_marvel_m06_repair.py",
+      "role": "real repair exercise",
+      "bytes": 6732,
+      "sha256": "71b0e70941063c9b702ba01b28eede3d7b675b288353729cbd5985abdb96b2b4"
+    },
+    {
+      "path": "scripts/verify_marvel_m06_repair.py",
+      "role": "repair artifact verifier",
+      "bytes": 3992,
+      "sha256": "a2b518b2fb9a2a4e0444f141d021f655a096e4d75190efd5fb890b96c2e85eb3"
+    },
+    {
+      "path": "tests/marvel_evaluation/conftest.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 5224,
+      "sha256": "26068adc184c1cb320ad8054503296257e329d59a4969a590f25a22b8d54476b"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_committed_steps.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 2571,
+      "sha256": "636c27b2ac2a0aa3294f4fa321ba7553cff99c8064c7fcea3dfa464f7e042ede"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_evaluator_integrity.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 5724,
+      "sha256": "1d00ed34b29d32c56e46c334b2b16a625d3c8f3eb31080f944e6a2ce89e30778"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_final_audit_state.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 8463,
+      "sha256": "13791df756131b21e6dc7fe37bedcdc19e3ac5463ccb9a2b106e2386b336e788"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_hook_process.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 8915,
+      "sha256": "698968a0e357b02e550b263440b19e864b3ee9a417f6483a5485cc0e0657358e"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_host_integration.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 1322,
+      "sha256": "4af9303b2838bb21c8ff581aaed51cbec91f165be29215051711023399073a25"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_manifests_checkpoints.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 7373,
+      "sha256": "a23498783d85c8d359ca399c74d8ced68e0b54e2e18282695e7abbfca697030e"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_promotion_pool_hook.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 7832,
+      "sha256": "c6f00099b2a6ebb77691468e92799283858540e34054c274e5fdc54888d9eb0e"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_stats.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 4898,
+      "sha256": "e2348639413570a6f52329a9bb7eff0e4775cb0ac1769bef4d867b85a84bf2aa"
+    },
+    {
+      "path": "tests/marvel_training/test_backend_identity.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 8569,
+      "sha256": "14c486af76a279946105770d22f41df3b7ea8d0f7ad27ff63b6009298dbd993f"
+    },
+    {
+      "path": "tests/marvel_training/test_training_smoke.py",
+      "role": "repair compatibility or regression coverage",
+      "bytes": 14758,
+      "sha256": "f10b104b66726160376816e481fbb47c0ee7945a4723ba0b9fcc954fd09e06a7"
+    }
+  ]
+}

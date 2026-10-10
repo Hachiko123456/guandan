@@ -1,0 +1,23 @@
+{
+  "schema": "guandan-marvel-m06-repair-statistics-v1",
+  "method": "bounded empirical-Bernstein 95% over deal-cluster means",
+  "formal_min_clusters": 32,
+  "smoke_auto_promotion": false,
+  "overall_ci": "not reported across correlated opponents",
+  "tests": [
+    "single cluster",
+    "two all-win/all-loss",
+    "mixed clusters",
+    "64 stable clusters",
+    "missing rotation",
+    "missing whole deal",
+    "duplicate",
+    "extra",
+    "checkpoint mismatch",
+    "nonfinite/malformed"
+  ],
+  "real_promotion_status": "inconclusive",
+  "real_reason": [
+    "candidate-vs-champion requires at least 32 independent deal clusters with a finite bounded CI"
+  ]
+}
