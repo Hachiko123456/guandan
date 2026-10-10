@@ -1,0 +1,138 @@
+{
+  "schema": "guandan-marvel-m06-final-binding-test-results-v1",
+  "commands": [
+    {
+      "name": "m06_evaluation_scoped",
+      "command": "python -m pytest tests/marvel_evaluation -q --junitxml=...",
+      "blocking": true,
+      "exit_code": 0,
+      "counts": {
+        "passed": 49,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 49,
+        "seconds": 51.285
+      },
+      "junit": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/m06_evaluation_scoped.junit.xml",
+      "junit_sha256": "799bb079e920b0624959ca615f4196624a90606186d5c4b9c865735732f2ba1b",
+      "log": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/m06_evaluation_scoped.log",
+      "log_sha256": "92abbf94da0bd3dd981a6ea3580b8ed8ce785ca7a651e6474a99028acba3a18b"
+    },
+    {
+      "name": "final_state_machine",
+      "command": "python -m pytest tests/marvel_evaluation/test_final_audit_state.py -q --junitxml=...",
+      "blocking": false,
+      "exit_code": 0,
+      "counts": {
+        "passed": 10,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 10,
+        "seconds": 3.362
+      },
+      "junit": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/final_state_machine.junit.xml",
+      "junit_sha256": "148a4023f982ee5d2189517a4c1edaaf98713c2ff93ffad1aa163c61f8c433ca",
+      "log": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/final_state_machine.log",
+      "log_sha256": "490647a586cd8427a859a2e8e6cdc7fb401fc0dfa454ebcb0a05e394e5d9f295"
+    },
+    {
+      "name": "evaluator_checkpoint_hook_regression",
+      "command": "python -m pytest tests/marvel_evaluation/test_evaluator_integrity.py tests/marvel_evaluation/test_manifests_checkpoints.py tests/marvel_evaluation/test_hook_process.py tests/marvel_evaluation/test_host_integration.py -q --junitxml=...",
+      "blocking": false,
+      "exit_code": 0,
+      "counts": {
+        "passed": 21,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 21,
+        "seconds": 46.312
+      },
+      "junit": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/evaluator_checkpoint_hook_regression.junit.xml",
+      "junit_sha256": "c858f329d5af7cd16271c13955fd9236a6a9c10ac4df60c3c765386b82c422d6",
+      "log": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/evaluator_checkpoint_hook_regression.log",
+      "log_sha256": "58b01a9c72466689a9d3285c27dfde038d36d8aacbab400a7eabaa330adc0576"
+    },
+    {
+      "name": "a00_specification",
+      "command": "python -m pytest tests/acceptance/test_a00_specification.py -q --junitxml=...",
+      "blocking": true,
+      "exit_code": 0,
+      "counts": {
+        "passed": 5,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "tests": 5,
+        "seconds": 0.078
+      },
+      "junit": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/a00_specification.junit.xml",
+      "junit_sha256": "c2be5052671a880e1941962cdcc66661810665a3f8569d3f71d0bb86f183494e",
+      "log": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/a00_specification.log",
+      "log_sha256": "ff30ec3c229af3c7d46ece3509a011fd2239a8fb6968956ec90efa644649a2cc"
+    }
+  ],
+  "blocking_nonoverlapping_totals": {
+    "passed": 54,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "tests": 54
+  },
+  "binding_verifier": {
+    "command": "python scripts/verify_m06_final_dataset_binding.py ...",
+    "exit_code": 0,
+    "result": {
+      "schema": "guandan-marvel-m06-final-binding-verification-v1",
+      "dataset_a_identity": "470c1d6fc7a7024e2f3741123e2fe124051450789128fa428c1923ccd6437a67",
+      "dataset_b_identity": "3d31537428fd54f7ba2f8019d14594f59da34833faece5650888686ca72d3cfa",
+      "mismatch": {
+        "error": "ValueError: final dataset identity mismatch between evaluation manifest and audit object",
+        "counts": {
+          "materialize": 0,
+          "forward": 0,
+          "game": 0
+        },
+        "audit_before_sha256": "64a45fd8a97f8801697091a9209af20d665844874305f8616049caff06b658c5",
+        "audit_after_sha256": "64a45fd8a97f8801697091a9209af20d665844874305f8616049caff06b658c5",
+        "audit_unchanged": true,
+        "output_files": [
+          "existing.json"
+        ],
+        "sentinel_unchanged": true
+      },
+      "correct": {
+        "status": "complete",
+        "games": 20,
+        "audit_state": "consumed",
+        "dataset_identity": "470c1d6fc7a7024e2f3741123e2fe124051450789128fa428c1923ccd6437a67"
+      },
+      "timestamp_only": {
+        "same_dataset_identity": true,
+        "error": "ValueError: final holdout is not unused: state=consumed",
+        "game_callbacks": 0
+      },
+      "borrow_audit": {
+        "error": "ValueError: final dataset identity mismatch between evaluation manifest and audit object",
+        "game_callbacks": 0,
+        "audit_a_unchanged": true,
+        "audit_b_unchanged": true,
+        "audit_a_state": "unused",
+        "audit_b_state": "consumed"
+      },
+      "object_file_conflict": {
+        "error": "ValueError: final dataset identity mismatch between audit object and persisted audit",
+        "bytes_unchanged": true
+      },
+      "concurrent": {
+        "successes": 1,
+        "rejections": 1
+      },
+      "passes": true
+    },
+    "log": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/binding_verification.log",
+    "log_sha256": "feb95bc95190bb27ec6d3bf80d1e97603f5e30252f4df97891e1c193e9a1ec37"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schema": "guandan-marvel-m06-final-binding-verification-v1",
+  "dataset_a_identity": "470c1d6fc7a7024e2f3741123e2fe124051450789128fa428c1923ccd6437a67",
+  "dataset_b_identity": "3d31537428fd54f7ba2f8019d14594f59da34833faece5650888686ca72d3cfa",
+  "mismatch": {
+    "error": "ValueError: final dataset identity mismatch between evaluation manifest and audit object",
+    "counts": {
+      "materialize": 0,
+      "forward": 0,
+      "game": 0
+    },
+    "audit_before_sha256": "64a45fd8a97f8801697091a9209af20d665844874305f8616049caff06b658c5",
+    "audit_after_sha256": "64a45fd8a97f8801697091a9209af20d665844874305f8616049caff06b658c5",
+    "audit_unchanged": true,
+    "output_files": [
+      "existing.json"
+    ],
+    "sentinel_unchanged": true
+  },
+  "correct": {
+    "status": "complete",
+    "games": 20,
+    "audit_state": "consumed",
+    "dataset_identity": "470c1d6fc7a7024e2f3741123e2fe124051450789128fa428c1923ccd6437a67"
+  },
+  "timestamp_only": {
+    "same_dataset_identity": true,
+    "error": "ValueError: final holdout is not unused: state=consumed",
+    "game_callbacks": 0
+  },
+  "borrow_audit": {
+    "error": "ValueError: final dataset identity mismatch between evaluation manifest and audit object",
+    "game_callbacks": 0,
+    "audit_a_unchanged": true,
+    "audit_b_unchanged": true,
+    "audit_a_state": "unused",
+    "audit_b_state": "consumed"
+  },
+  "object_file_conflict": {
+    "error": "ValueError: final dataset identity mismatch between audit object and persisted audit",
+    "bytes_unchanged": true
+  },
+  "concurrent": {
+    "successes": 1,
+    "rejections": 1
+  },
+  "passes": true
+}

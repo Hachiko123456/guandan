@@ -120,3 +120,7 @@ M06 canonical schemas、四座位 role mapping、deal-cluster t interval、promo
 ## 10. M06 集中补修要求
 
 M06 repair 将评估安全边界升级为：异步工作进程隔离、后台结果 durable delivery、final reserve-before-touch 状态机、identity-bound promotion、actual training deal provenance、commit counter engine cross-check、formal minimum 32 deal clusters 和 exact plan coverage。完整协议见 `M06_EVALUATION_REPAIR_PROTOCOL.md`。
+
+## 11. Final audit 外部数据集绑定
+
+FinalHoldoutAudit 自身保存 dataset identity 不足以证明 runner 实际使用同一数据集。Runner 必须从本次实际传入并冻结的 manifest 计算 identity，在任何 materialization/forward/output/reservation mutation 前比较，并在 reserve 锁内再次比较 persisted audit identity。

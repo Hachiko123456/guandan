@@ -9,9 +9,10 @@ import pytest
 import guandan_marvel.evaluation.evaluator as evaluator_module
 from guandan_marvel.evaluation.checkpoints import load_legacy_v1_opponent, load_v2_policy
 from guandan_marvel.evaluation.evaluator import EvaluationRunner
-from guandan_marvel.evaluation.manifests import FinalHoldoutAudit, build_deals_manifest
+from guandan_marvel.evaluation.manifests import FinalHoldoutAudit, build_deals_manifest, dataset_identity
 from guandan_marvel.evaluation.pool import OpponentPoolStore
 from guandan_marvel.evaluation.promotion import ChampionStore, PromotionPolicy
+from guandan_marvel.evaluation.common import payload_hash
 
 
 def _manifest():
@@ -37,9 +38,18 @@ def _audit(tmp_path,manifest,candidate_sha):
     audit=FinalHoldoutAudit(tmp_path/'audit.json',deals_manifest=manifest);audit.initialize();audit.lock_candidate(candidate_sha);return audit
 
 
+def _reserve(audit,manifest,*,evaluation_id,candidate_sha,plan='p',config='c'):
+    return audit.reserve(
+        evaluation_id=evaluation_id,candidate_sha256=candidate_sha,plan_identity_hash=plan,config_hash=config,
+        actual_dataset_identity=dataset_identity(manifest,'final'),
+        actual_generator_version=manifest['generator_version'],
+        actual_deal_count=len(manifest['datasets']['final']),
+    )
+
+
 def test_consumed_and_candidate_mismatch_reject_before_zero_game_callbacks(tmp_path,v2_checkpoint,second_v2_checkpoint,legacy_checkpoint,monkeypatch):
     manifest=_manifest();candidate,champion,legacy,runner=_setup(tmp_path,v2_checkpoint,second_v2_checkpoint,legacy_checkpoint)
-    audit=_audit(tmp_path,manifest,candidate.sha256);audit.reserve(evaluation_id='used',candidate_sha256=candidate.sha256,plan_identity_hash='p',config_hash='c');audit.mark_running(evaluation_id='used');audit.finish(evaluation_id='used',status='consumed',evaluation_hash='e')
+    audit=_audit(tmp_path,manifest,candidate.sha256);_reserve(audit,manifest,evaluation_id='used',candidate_sha=candidate.sha256);audit.mark_running(evaluation_id='used');audit.finish(evaluation_id='used',status='consumed',evaluation_hash='e')
     calls={'n':0}
     def count(**kw):calls['n']+=1;return _fake_record(**kw)
     monkeypatch.setattr(evaluator_module,'play_game',count)
@@ -59,7 +69,7 @@ def test_concurrent_final_reservation_allows_exactly_one(tmp_path,v2_checkpoint)
     barrier=Barrier(3);out=[]
     def reserve(name):
         barrier.wait()
-        try:audit.reserve(evaluation_id=name,candidate_sha256=candidate.sha256,plan_identity_hash='p'+name,config_hash='c');out.append(('ok',name))
+        try:_reserve(audit,manifest,evaluation_id=name,candidate_sha=candidate.sha256,plan='p'+name);out.append(('ok',name))
         except Exception as e:out.append(('error',type(e).__name__))
     threads=[Thread(target=reserve,args=(name,)) for name in ('a','b')]
     [t.start() for t in threads];barrier.wait();[t.join() for t in threads]
@@ -96,8 +106,74 @@ def test_keyboard_interrupt_and_plan_write_failure_leave_terminal_audit_state(tm
 
 def test_rejected_repeat_never_overwrites_old_summary(tmp_path,v2_checkpoint,second_v2_checkpoint,legacy_checkpoint,monkeypatch):
     manifest=_manifest();candidate,_,_,runner=_setup(tmp_path,v2_checkpoint,second_v2_checkpoint,legacy_checkpoint);audit=_audit(tmp_path,manifest,candidate.sha256)
-    audit.reserve(evaluation_id='used',candidate_sha256=candidate.sha256,plan_identity_hash='p',config_hash='c');audit.mark_running(evaluation_id='used');audit.finish(evaluation_id='used',status='consumed',evaluation_hash='e')
+    _reserve(audit,manifest,evaluation_id='used',candidate_sha=candidate.sha256);audit.mark_running(evaluation_id='used');audit.finish(evaluation_id='used',status='consumed',evaluation_hash='e')
     runner.output_dir.mkdir(parents=True);summary=runner.output_dir/'cluster_summary.json';summary.write_bytes(b'old-summary')
     monkeypatch.setattr(evaluator_module,'play_game',lambda **kw: pytest.fail('must not play'))
     with pytest.raises(ValueError,match='not unused'):runner.run_final_audit(deals_manifest=manifest,candidate_checkpoint=v2_checkpoint,final_audit=audit,evaluation_id='again')
     assert summary.read_bytes()==b'old-summary'
+
+
+def test_final_manifest_must_match_audit_before_materialize_forward_or_game(tmp_path,v2_checkpoint,second_v2_checkpoint,legacy_checkpoint,monkeypatch):
+    manifest_a=build_deals_manifest(counts={'training':1,'selection':1,'final':1},bases={'training':100,'selection':200,'final':760030},level_ranks=(5,),leader_seats=(0,))
+    manifest_b=build_deals_manifest(counts={'training':1,'selection':1,'final':1},bases={'training':100,'selection':200,'final':760040},level_ranks=(5,),leader_seats=(0,))
+    assert dataset_identity(manifest_a,'final')!=dataset_identity(manifest_b,'final')
+    candidate,_,_,runner=_setup(tmp_path,v2_checkpoint,second_v2_checkpoint,legacy_checkpoint);audit_a=_audit(tmp_path,manifest_a,candidate.sha256)
+    audit_before=audit_a.path.read_bytes();existing=runner.output_dir/'existing-result.json';runner.output_dir.mkdir(parents=True);existing.write_bytes(b'unchanged')
+    calls={'materialize':0,'forward':0,'game':0}
+    import guandan_marvel.evaluation.provenance as provenance_module
+    from guandan_marvel.evaluation.agents import V2PolicySession
+    real_materialize=provenance_module.materialize_deal_identity;real_forward=V2PolicySession.observe_and_score
+    def materialize(row):calls['materialize']+=1;return real_materialize(row)
+    def forward(self,step):calls['forward']+=1;return real_forward(self,step)
+    def game(**kw):calls['game']+=1;raise RuntimeError(f"unexpected final seed {kw['deal']['seed']}")
+    monkeypatch.setattr(provenance_module,'materialize_deal_identity',materialize);monkeypatch.setattr(V2PolicySession,'observe_and_score',forward);monkeypatch.setattr(evaluator_module,'play_game',game)
+    with pytest.raises(ValueError,match='dataset identity mismatch'):
+        runner.run_final_audit(deals_manifest=manifest_b,candidate_checkpoint=v2_checkpoint,final_audit=audit_a,evaluation_id='wrong-dataset')
+    assert calls=={'materialize':0,'forward':0,'game':0}
+    assert audit_a.path.read_bytes()==audit_before and audit_a.load()['state']=='unused'
+    assert existing.read_bytes()==b'unchanged'
+    assert {p.name for p in runner.output_dir.iterdir()}=={'existing-result.json'}
+
+
+def test_correct_audit_and_manifest_complete_and_consume(tmp_path,v2_checkpoint,second_v2_checkpoint,legacy_checkpoint,monkeypatch):
+    manifest=_manifest();candidate,_,_,runner=_setup(tmp_path,v2_checkpoint,second_v2_checkpoint,legacy_checkpoint);audit=_audit(tmp_path,manifest,candidate.sha256)
+    monkeypatch.setattr(evaluator_module,'play_game',_fake_record)
+    result=runner.run_final_audit(deals_manifest=manifest,candidate_checkpoint=v2_checkpoint,final_audit=audit,evaluation_id='correct')
+    state=audit.load()
+    assert result['status']=='complete' and result['games_recorded']==20
+    assert state['state']=='consumed' and state['active_evaluation']['dataset_identity']==dataset_identity(manifest,'final')
+
+
+def test_timestamp_only_change_preserves_dataset_identity_and_cannot_reuse_consumed_holdout(tmp_path,v2_checkpoint,second_v2_checkpoint,legacy_checkpoint,monkeypatch):
+    manifest=_manifest();candidate,_,_,runner=_setup(tmp_path,v2_checkpoint,second_v2_checkpoint,legacy_checkpoint);audit=_audit(tmp_path,manifest,candidate.sha256)
+    _reserve(audit,manifest,evaluation_id='used',candidate_sha=candidate.sha256);audit.mark_running(evaluation_id='used');audit.finish(evaluation_id='used',status='consumed',evaluation_hash='e')
+    changed=__import__('copy').deepcopy(manifest);changed['created_at']='2099-01-01T00:00:00+00:00';changed['hash']=payload_hash(changed)
+    assert dataset_identity(changed,'final')==dataset_identity(manifest,'final')
+    calls={'n':0};monkeypatch.setattr(evaluator_module,'play_game',lambda **kw:calls.__setitem__('n',calls['n']+1))
+    with pytest.raises(ValueError,match='not unused'):
+        runner.run_final_audit(deals_manifest=changed,candidate_checkpoint=v2_checkpoint,final_audit=audit,evaluation_id='timestamp')
+    assert calls['n']==0 and audit.load()['state']=='consumed'
+
+
+def test_unused_audit_a_cannot_bypass_consumed_dataset_b(tmp_path,v2_checkpoint,second_v2_checkpoint,legacy_checkpoint,monkeypatch):
+    manifest_a=build_deals_manifest(counts={'training':1,'selection':1,'final':1},bases={'training':100,'selection':200,'final':760030},level_ranks=(5,),leader_seats=(0,))
+    manifest_b=build_deals_manifest(counts={'training':1,'selection':1,'final':1},bases={'training':100,'selection':200,'final':760040},level_ranks=(5,),leader_seats=(0,))
+    candidate,_,_,runner=_setup(tmp_path,v2_checkpoint,second_v2_checkpoint,legacy_checkpoint)
+    audit_a=FinalHoldoutAudit(tmp_path/'audit-a.json',deals_manifest=manifest_a);audit_a.initialize();audit_a.lock_candidate(candidate.sha256)
+    audit_b=FinalHoldoutAudit(tmp_path/'audit-b.json',deals_manifest=manifest_b);audit_b.initialize();audit_b.lock_candidate(candidate.sha256);_reserve(audit_b,manifest_b,evaluation_id='used-b',candidate_sha=candidate.sha256);audit_b.mark_running(evaluation_id='used-b');audit_b.finish(evaluation_id='used-b',status='consumed',evaluation_hash='e')
+    before_a=audit_a.path.read_bytes();before_b=audit_b.path.read_bytes();calls={'n':0}
+    monkeypatch.setattr(evaluator_module,'play_game',lambda **kw:calls.__setitem__('n',calls['n']+1))
+    with pytest.raises(ValueError,match='dataset identity mismatch'):
+        runner.run_final_audit(deals_manifest=manifest_b,candidate_checkpoint=v2_checkpoint,final_audit=audit_a,evaluation_id='borrow-a')
+    assert calls['n']==0 and audit_a.path.read_bytes()==before_a and audit_b.path.read_bytes()==before_b
+
+
+def test_audit_object_and_persisted_identity_conflict_rejected_inside_lock(tmp_path,v2_checkpoint):
+    manifest_a=build_deals_manifest(counts={'training':1,'selection':1,'final':1},bases={'training':100,'selection':200,'final':760030},level_ranks=(5,),leader_seats=(0,))
+    manifest_b=build_deals_manifest(counts={'training':1,'selection':1,'final':1},bases={'training':100,'selection':200,'final':760040},level_ranks=(5,),leader_seats=(0,))
+    candidate=load_v2_policy(v2_checkpoint);audit_a=_audit(tmp_path,manifest_a,candidate.sha256)
+    other=FinalHoldoutAudit(tmp_path/'other.json',deals_manifest=manifest_b);other.initialize();other.lock_candidate(candidate.sha256)
+    audit_a.path.write_bytes(other.path.read_bytes());before=audit_a.path.read_bytes()
+    with pytest.raises(ValueError,match='audit object and persisted audit'):
+        _reserve(audit_a,manifest_a,evaluation_id='conflict',candidate_sha=candidate.sha256)
+    assert audit_a.path.read_bytes()==before

@@ -142,7 +142,7 @@
     {
       "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/source_manifest.json",
       "bytes": 7267,
-      "sha256": "48a98af00b4eea316a8b9f2c13fa605990bc1b53ee147e0e518deb569f47629b"
+      "sha256": "ca0f7cd65b149f0a1befcdec1933c9881929c3cacbbaa4f82d966a97cebe0180"
     },
     {
       "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/statistics_policy.json",

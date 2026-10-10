@@ -1,0 +1,25 @@
+{
+  "schema": "guandan-marvel-m06-source-evidence-erratum-v1",
+  "applies_to_implementation_commit": "afcd8d9817a2e993b1fae5652bb339fce3294809",
+  "path": "tests/marvel_evaluation/test_hook_process.py",
+  "incorrect_historical_record": {
+    "bytes": 8915,
+    "sha256": "698968a0e357b02e550b263440b19e864b3ee9a417f6483a5485cc0e0657358e"
+  },
+  "verified_baseline_file": {
+    "bytes": 8914,
+    "sha256": "d5a00eca8bf415f3c7ba0380be3cd3be778a8186157582437209ab136885d2d6"
+  },
+  "current_file": {
+    "bytes": 8914,
+    "sha256": "d5a00eca8bf415f3c7ba0380be3cd3be778a8186157582437209ab136885d2d6"
+  },
+  "root_cause": "historical hash was computed from the verified file plus one additional trailing newline",
+  "extra_newline_reproduction": {
+    "bytes": 8915,
+    "sha256": "698968a0e357b02e550b263440b19e864b3ee9a417f6483a5485cc0e0657358e"
+  },
+  "historical_source_manifest_corrected": true,
+  "historical_artifact_reference_updated": true,
+  "other_historical_source_hashes_rewritten": false
+}

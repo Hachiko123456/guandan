@@ -108,3 +108,7 @@ Overall 跨 opponent 共用 base deal，故只报告描述性 point metrics，�
 ## 7. 验收边界
 
 修复验收要求真实 v5 C++ checkpoint、真实 spawn worker、完整五 lane/四换座、小规模 selection、真实 commit counters、pool recovery 和未使用 final audit。小样本必须得到 no-promotion/inconclusive，不构成模型强度或 Kaggle 性能证据。
+
+## 8. Final dataset binding 小修（2026-10-10）
+
+Final runner 必须将本次实际 manifest 的 final dataset identity、generator version 和 deal count 显式传入 audit，并在 reservation 独占锁内同时与 audit object 和 persisted holdout identity 比较。Manifest 在入口验证后冻结为深拷贝，后续执行不能切换到另一份可变输入。详细见 `M06_FINAL_DATASET_BINDING_REPAIR_PROTOCOL.md`。

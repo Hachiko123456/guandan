@@ -2,6 +2,7 @@
 """Plan-bound selection evaluator and atomically reserved final audit runner."""
 from __future__ import annotations
 
+from copy import deepcopy
 from datetime import datetime, timezone
 import json
 import os
@@ -136,7 +137,21 @@ class EvaluationRunner:
         final_audit: FinalHoldoutAudit | None = None,
         evaluation_id: str | None = None,
     ) -> dict[str, object]:
+        # Freeze the exact caller-provided manifest after validation so the
+        # identity checked here is the same data used for all later reads.
+        deals_manifest = deepcopy(dict(deals_manifest))
         validate_deals_manifest(deals_manifest)
+        actual_dataset_hash = dataset_identity(deals_manifest, deal_domain)
+        actual_generator_version = str(deals_manifest["generator_version"])
+        actual_deal_count = len(deals_for(deals_manifest, deal_domain))
+        if mode == "final_audit":
+            if final_audit is None:
+                raise ValueError("final audit requires an explicit FinalHoldoutAudit")
+            final_audit.validate_dataset_binding(
+                actual_dataset_identity=actual_dataset_hash,
+                actual_generator_version=actual_generator_version,
+                actual_deal_count=actual_deal_count,
+            )
         candidate = self._load_v2(candidate_checkpoint)
         champion_manifest = self.champion_store.load()
         champion = self._load_v2(champion_manifest["champion"]["checkpoint_path"])
@@ -162,8 +177,6 @@ class EvaluationRunner:
         })
         final_reserved = False
         if mode == "final_audit":
-            if final_audit is None:
-                raise ValueError("final audit requires an explicit FinalHoldoutAudit")
             final_audit.reserve(
                 evaluation_id=run_id,
                 candidate_sha256=candidate.sha256,
@@ -174,6 +187,9 @@ class EvaluationRunner:
                     "promotion_policy": self.promotion_policy.to_dict(),
                     "provenance_policy": "formal",
                 }),
+                actual_dataset_identity=actual_dataset_hash,
+                actual_generator_version=actual_generator_version,
+                actual_deal_count=actual_deal_count,
             )
             final_reserved = True
 

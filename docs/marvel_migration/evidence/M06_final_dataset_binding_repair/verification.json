@@ -1,0 +1,38 @@
+{
+  "schema": "guandan-marvel-m06-final-binding-verification-v1",
+  "implementation_commit": null,
+  "passes": true,
+  "accepted": true,
+  "m07_allowed": true,
+  "problem_reproduced": true,
+  "hard_gates": {
+    "actual_dataset_identity_passed_to_reserve": true,
+    "preflight_before_policy_load_materialize_game_output": true,
+    "lock_time_three_way_identity_check": true,
+    "mismatch_callbacks_zero": true,
+    "mismatch_audit_unchanged": true,
+    "mismatch_output_unchanged": true,
+    "correct_request_consumed": true,
+    "timestamp_not_new_dataset": true,
+    "borrow_audit_rejected": true,
+    "object_file_conflict_rejected": true,
+    "concurrent_single_winner": true,
+    "hash_erratum_consistent": true,
+    "historical_20_game_evidence_preserved": true,
+    "protected_files_unchanged": true,
+    "reference_repo_clean": true
+  },
+  "tests": {
+    "passed": 54,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "tests": 54
+  },
+  "blockers": [],
+  "limitations": [
+    "no real final holdout consumed",
+    "prior 20-game exercise inherited, not rerun",
+    "no C++ rebuild or M05 large differential rerun"
+  ]
+}

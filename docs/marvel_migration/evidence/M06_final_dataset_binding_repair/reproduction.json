@@ -1,0 +1,16 @@
+{
+  "schema": "guandan-marvel-m06-final-binding-reproduction-v1",
+  "baseline_implementation": "afcd8d9817a2e993b1fae5652bb339fce3294809",
+  "test": "test_final_manifest_must_match_audit_before_materialize_forward_or_game",
+  "exit_code": 1,
+  "observed": {
+    "dataset_a_identity": "470c1d6fc7a7024e2f3741123e2fe124051450789128fa428c1923ccd6437a67",
+    "dataset_b_identity": "3d31537428fd54f7ba2f8019d14594f59da34833faece5650888686ca72d3cfa",
+    "runner_did_not_raise_expected_dataset_mismatch": true,
+    "audit_a_became_failed": true,
+    "game_callback_seed": 760040,
+    "output_written": true
+  },
+  "log": "runs/M06_final_dataset_binding_repair/20261010_reproduction/reproduction.log",
+  "log_sha256": "bf7454889e1cce5c9c16861f3db9637af5a192c8ed997d88a625787e83f1d93a"
+}

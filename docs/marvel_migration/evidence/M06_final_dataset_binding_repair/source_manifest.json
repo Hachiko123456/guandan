@@ -1,0 +1,36 @@
+{
+  "schema": "guandan-marvel-m06-final-binding-source-manifest-v1",
+  "baseline_commit": "597392519c776d65874cc646bc1787261f66a837",
+  "files": [
+    {
+      "path": "guandan_marvel/evaluation/evaluator.py",
+      "role": "freeze actual manifest and preflight audit binding before policy load",
+      "bytes": 21662,
+      "sha256": "152e3d2a3d50a44a4904d2eab85820599c68be040b81f44c19d407126bc342d3"
+    },
+    {
+      "path": "guandan_marvel/evaluation/manifests.py",
+      "role": "lock-time external dataset identity verification",
+      "bytes": 18968,
+      "sha256": "1ca0bca2cdccc53cec757a4fed8edd5d9327537774ed96540e4b19b0d25c304b"
+    },
+    {
+      "path": "tests/marvel_evaluation/test_final_audit_state.py",
+      "role": "A-F binding/state regression tests",
+      "bytes": 15402,
+      "sha256": "efe8b5a336b8cd4fa0b9483586f7d314c2f19776772ee00e32b768df5d165493"
+    },
+    {
+      "path": "scripts/verify_m06_final_dataset_binding.py",
+      "role": "machine binding verifier",
+      "bytes": 9667,
+      "sha256": "c8f3393e9d5240d128f5f31f7577dd740fb53628b1b4b0370ebd7956892c2023"
+    },
+    {
+      "path": "docs/marvel_migration/M06_FINAL_DATASET_BINDING_REPAIR_PROTOCOL.md",
+      "role": "narrow repair protocol",
+      "bytes": 2071,
+      "sha256": "ecf034dcc25a752b1151def13c228fab8b9c83252c11f5362d069fa4b9d64d25"
+    }
+  ]
+}

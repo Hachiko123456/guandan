@@ -256,3 +256,13 @@ Round 1 保留 active-only post-decoder heads；四座位 history/KV 仍完整�
 决定：formal promotion 至少 32 independent deal clusters，使用 bounded empirical-Bernstein 95% CI；overall 跨 opponent 不给 clustered CI。
 
 影响：原 M06 accepted 结论在 repair 完成前撤回；旧报告和产物保持历史只读。
+
+
+### D018 Final audit actual-dataset binding
+
+日期：2026-10-10
+状态：accepted
+
+决定：final audit reservation 不再隐式使用 `self.dataset_hash` 代替外部核验。Runner 计算并显式传入实际 dataset identity、generator version 和 deal count；audit 在独占锁内对调用值、对象预期值和持久化值做三方比较。
+
+兼容性：schema v2 和持久化状态不变；reserve API 新增必填 identity 参数。旧终态记录不重置。

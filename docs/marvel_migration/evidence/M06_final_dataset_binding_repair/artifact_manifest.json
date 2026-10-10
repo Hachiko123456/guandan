@@ -1,0 +1,134 @@
+{
+  "schema": "guandan-marvel-m06-final-binding-artifact-manifest-v1",
+  "implementation_commit": null,
+  "large_artifacts_committed": false,
+  "run_root": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests",
+  "run_artifacts": [
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/binding_verification.json",
+      "bytes": 1674,
+      "sha256": "feb95bc95190bb27ec6d3bf80d1e97603f5e30252f4df97891e1c193e9a1ec37"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/binding_verification.log",
+      "bytes": 1674,
+      "sha256": "feb95bc95190bb27ec6d3bf80d1e97603f5e30252f4df97891e1c193e9a1ec37"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_reproduction/reproduction.log",
+      "bytes": 2995,
+      "sha256": "bf7454889e1cce5c9c16861f3db9637af5a192c8ed997d88a625787e83f1d93a"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/m06_evaluation_scoped.log",
+      "bytes": 102,
+      "sha256": "92abbf94da0bd3dd981a6ea3580b8ed8ce785ca7a651e6474a99028acba3a18b"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/m06_evaluation_scoped.junit.xml",
+      "bytes": 7708,
+      "sha256": "799bb079e920b0624959ca615f4196624a90606186d5c4b9c865735732f2ba1b"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/m06_evaluation_scoped.exitcode",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/final_state_machine.log",
+      "bytes": 101,
+      "sha256": "490647a586cd8427a859a2e8e6cdc7fb401fc0dfa454ebcb0a05e394e5d9f295"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/final_state_machine.junit.xml",
+      "bytes": 1809,
+      "sha256": "148a4023f982ee5d2189517a4c1edaaf98713c2ff93ffad1aa163c61f8c433ca"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/final_state_machine.exitcode",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/evaluator_checkpoint_hook_regression.log",
+      "bytes": 102,
+      "sha256": "58b01a9c72466689a9d3285c27dfde038d36d8aacbab400a7eabaa330adc0576"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/evaluator_checkpoint_hook_regression.junit.xml",
+      "bytes": 3497,
+      "sha256": "c858f329d5af7cd16271c13955fd9236a6a9c10ac4df60c3c765386b82c422d6"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/evaluator_checkpoint_hook_regression.exitcode",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/a00_specification.log",
+      "bytes": 100,
+      "sha256": "ff30ec3c229af3c7d46ece3509a011fd2239a8fb6968956ec90efa644649a2cc"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/a00_specification.junit.xml",
+      "bytes": 951,
+      "sha256": "c2be5052671a880e1941962cdcc66661810665a3f8569d3f71d0bb86f183494e"
+    },
+    {
+      "path": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests/a00_specification.exitcode",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    }
+  ],
+  "tracked_evidence": [
+    {
+      "path": "docs/marvel_migration/evidence/M06_final_dataset_binding_repair/binding_verification.json",
+      "bytes": 1626,
+      "sha256": "64a4fb59617e05ffe7f0fd0f4002bcf94bda7f853f90a04ff47536c3ef4d0dda"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_final_dataset_binding_repair/environment.json",
+      "bytes": 367,
+      "sha256": "186f710370775ff604ab2ab61a9255e09ca2d0c74f2ceb79e87db08229a435a2"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_final_dataset_binding_repair/hash_erratum.json",
+      "bytes": 1001,
+      "sha256": "9b70d73c90df9dae78cdea929afc847c4fb68a3d82e8c24dd11a43ce5199dea6"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_final_dataset_binding_repair/inherited_evidence.json",
+      "bytes": 474,
+      "sha256": "60450ead0262cfbfc3c061e05800fe2fd733e347d1eac6d0160627e6df08778c"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_final_dataset_binding_repair/protocol_schema.json",
+      "bytes": 553,
+      "sha256": "f696e2b9124c87c245e8b9da9220f11ed2d1f2be8b851165509334399ad0f48a"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_final_dataset_binding_repair/reproduction.json",
+      "bytes": 781,
+      "sha256": "45aff73ae1162e66453bca59c8afdeff380063e553c45ce9885cc75681c4de38"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_final_dataset_binding_repair/source_manifest.json",
+      "bytes": 1351,
+      "sha256": "946f225b040658ed9db852c51b37b54d30aa22ad8b257c6023400d34bc02bc69"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_final_dataset_binding_repair/test_results.json",
+      "bytes": 5537,
+      "sha256": "3ce520bb828621693f0f65ca721fe3931904a8447a05c4d4428df48bb1ff25fe"
+    },
+    {
+      "path": "docs/marvel_migration/evidence/M06_final_dataset_binding_repair/verification.json",
+      "bytes": 1138,
+      "sha256": "f4f0f10e506894d01a2e4de3e4a92a27eeea486509fa359a3a899eb000a65f44"
+    }
+  ],
+  "historical_manifest_correction": {
+    "source_manifest": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/source_manifest.json",
+    "artifact_manifest": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/artifact_manifest.json"
+  }
+}

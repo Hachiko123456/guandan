@@ -237,8 +237,10 @@ class FinalHoldoutAudit:
         identity = payload.get("holdout_identity")
         if not isinstance(identity, Mapping):
             raise ValueError("final holdout identity is missing")
-        if identity.get("dataset_hash") != self.dataset_hash or identity.get("generator_version") != self.generator_version:
-            raise ValueError("final holdout audit references different holdout data")
+        if identity.get("dataset_hash") != self.dataset_hash:
+            raise ValueError("final dataset identity mismatch between audit object and persisted audit")
+        if identity.get("generator_version") != self.generator_version or int(identity.get("deal_count", -1)) != self.deal_count:
+            raise ValueError("final dataset generator/deal-count mismatch between audit object and persisted audit")
         if payload.get("hash") != payload_hash(payload):
             raise ValueError("final holdout audit hash mismatch")
         if payload.get("state") not in _FINAL_STATES:
@@ -291,6 +293,42 @@ class FinalHoldoutAudit:
             payload["locked_candidate_sha256"] = candidate_sha256
         return self._mutate(apply)
 
+    def _assert_actual_dataset(
+        self,
+        payload: Mapping[str, object],
+        *,
+        actual_dataset_identity: str,
+        actual_generator_version: str,
+        actual_deal_count: int,
+    ) -> None:
+        persisted = payload.get("holdout_identity") or {}
+        if str(actual_dataset_identity) != self.dataset_hash:
+            raise ValueError("final dataset identity mismatch between evaluation manifest and audit object")
+        if persisted.get("dataset_hash") != actual_dataset_identity:
+            raise ValueError("final dataset identity mismatch between evaluation manifest and persisted audit")
+        if str(actual_generator_version) != self.generator_version or persisted.get("generator_version") != actual_generator_version:
+            raise ValueError("final dataset generator version mismatch")
+        if int(actual_deal_count) != self.deal_count or int(persisted.get("deal_count", -1)) != int(actual_deal_count):
+            raise ValueError("final dataset deal count mismatch")
+
+    def validate_dataset_binding(
+        self,
+        *,
+        actual_dataset_identity: str,
+        actual_generator_version: str,
+        actual_deal_count: int,
+    ) -> dict[str, object]:
+        """Read-only preflight before model loading, materialization, or reservation."""
+        with self._exclusive():
+            payload = self._validate(load_json(self.path))
+            self._assert_actual_dataset(
+                payload,
+                actual_dataset_identity=actual_dataset_identity,
+                actual_generator_version=actual_generator_version,
+                actual_deal_count=actual_deal_count,
+            )
+            return payload
+
     def reserve(
         self,
         *,
@@ -298,10 +336,19 @@ class FinalHoldoutAudit:
         candidate_sha256: str,
         plan_identity_hash: str,
         config_hash: str,
+        actual_dataset_identity: str,
+        actual_generator_version: str,
+        actual_deal_count: int,
     ) -> dict[str, object]:
         if not all(str(value) for value in (evaluation_id, candidate_sha256, plan_identity_hash, config_hash)):
             raise ValueError("final reservation identity fields must be non-empty")
         def apply(payload):
+            self._assert_actual_dataset(
+                payload,
+                actual_dataset_identity=actual_dataset_identity,
+                actual_generator_version=actual_generator_version,
+                actual_deal_count=actual_deal_count,
+            )
             if payload.get("locked_candidate_sha256") != candidate_sha256:
                 raise ValueError("final holdout candidate identity mismatch")
             if payload["state"] != "unused":
@@ -313,6 +360,9 @@ class FinalHoldoutAudit:
                 "candidate_sha256": candidate_sha256,
                 "plan_identity_hash": plan_identity_hash,
                 "config_hash": config_hash,
+                "dataset_identity": actual_dataset_identity,
+                "generator_version": actual_generator_version,
+                "deal_count": int(actual_deal_count),
                 "reserved_at": _timestamp(),
             }
             payload["state"] = "reserved"

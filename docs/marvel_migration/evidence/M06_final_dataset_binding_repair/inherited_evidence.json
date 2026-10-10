@@ -1,0 +1,9 @@
+{
+  "schema": "guandan-marvel-m06-final-binding-inherited-evidence-v1",
+  "inherited_not_rerun": [
+    "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2 20-game real exercise"
+  ],
+  "reason": "C++ engine, async worker, training provenance, champion, pool and statistics unchanged in this narrow repair",
+  "not_claimed_as_current_rerun": true,
+  "prior_verification": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/verification.json"
+}

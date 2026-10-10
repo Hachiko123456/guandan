@@ -1,0 +1,18 @@
+{
+  "schema": "guandan-marvel-m06-final-binding-protocol-v1",
+  "audit_schema_unchanged": "guandan-marvel-final-holdout-audit-v2",
+  "reserve_api_required_fields": [
+    "actual_dataset_identity",
+    "actual_generator_version",
+    "actual_deal_count"
+  ],
+  "preflight_order": [
+    "freeze and validate caller manifest",
+    "compute actual final dataset identity",
+    "read-only audit lock validation",
+    "load policies",
+    "reserve with actual identity under lock",
+    "materialize/score/game/output"
+  ],
+  "persistent_state_reset": false
+}
