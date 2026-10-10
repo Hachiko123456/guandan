@@ -82,7 +82,8 @@ COMMON_RUNTIME_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
         "guandan_marvel/training/vrpo.py",
     ),
     "distributed_orchestration": (
-        "guandan_marvel/kaggle/checkpoints.py", "guandan_marvel/kaggle/common.py",
+        "guandan_marvel/kaggle/bootstrap.py", "guandan_marvel/kaggle/checkpoints.py",
+        "guandan_marvel/kaggle/common.py", "guandan_marvel/kaggle/discovery.py",
         "guandan_marvel/kaggle/evaluation.py", "guandan_marvel/kaggle/profiles.py",
         "guandan_marvel/kaggle/progress.py", "guandan_marvel/kaggle/runner.py",
         "guandan_marvel/kaggle/worker.py",

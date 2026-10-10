@@ -36,3 +36,12 @@
 | `guandan_marvel/kaggle/checkpoints.py` | M03/M05 checkpoint identity + M06 provenance | 加固 | pre-trainer shard 验证、continuation hash、evaluation-independent recovery publication |
 
 补修没有复制斗地主评估指标、规则或 checkpoint；只复用已审计的进程隔离、身份绑定和 fail-closed 原则。
+## 自动解包输入补修扩展
+
+| 目标 | 来源 | 分类 | 说明 |
+|---|---|---|---|
+| `guandan_marvel/kaggle/bootstrap.py` | 无直接参考复制 | 新写 | stdlib-only ZIP/目录 resolver，同时作为 Notebook 外部 bootstrap 和 runtime 真值 |
+| `guandan_marvel/kaggle/discovery.py` | 既有 M07 discovery | 重构 | profile 校验保留，输入定位委托统一 bootstrap |
+| `guandan_marvel/kaggle/package.py` | 既有 M07 generator | 重构 | 生成 Dataset v2、外部 bootstrap 和最小 Notebook 初始化 cell |
+
+没有修改训练、模型、规则或 M06 evaluation/champion 代码。

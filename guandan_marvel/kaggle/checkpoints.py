@@ -26,7 +26,7 @@ from .common import atomic_json, canonical_hash, sha256_file
 
 DDP_CHECKPOINT_SCHEMA = "guandan-marvel-ddp-checkpoint-v2"
 DDP_PROVENANCE_SCHEMA = "guandan-marvel-ddp-training-data-provenance-v1"
-RECOVERY_MANIFEST_SCHEMA = "guandan-marvel-recovery-manifest-v2"
+RECOVERY_MANIFEST_SCHEMA = "guandan-marvel-recovery-manifest-v3"
 CHECKPOINT_MANIFEST_SCHEMA = "guandan-marvel-checkpoint-manifest-v2"
 
 
@@ -389,6 +389,7 @@ def build_recovery_bundle(
     destination: str | Path,
     source_commit: str,
     source_archive_sha256: str,
+    source_content_manifest_hash: str,
     package_id: str,
     status: str,
     native_extension: str | Path | None,
@@ -433,6 +434,7 @@ def build_recovery_bundle(
         "status": status,
         "source_commit": source_commit,
         "source_archive_sha256": source_archive_sha256,
+        "source_content_manifest_hash": source_content_manifest_hash,
         "checkpoint": "checkpoint/manifest.json",
         "checkpoint_manifest_hash": load_ddp_manifest(checkpoint_root, verify_shards=True)["manifest_hash"],
         "iteration": int(latest["iteration"]),

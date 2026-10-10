@@ -20,7 +20,10 @@ import torch
 
 from .checkpoints import build_recovery_bundle, load_ddp_manifest
 from .common import append_jsonl, atomic_json, canonical_hash, sha256_file
-from .discovery import discover_recovery, validate_dataset_manifest
+from .discovery import (
+    discover_recovery, materialize_recovery_input, validate_dataset_manifest,
+    validate_recovery_directory,
+)
 from .evaluation import run_smoke_evaluation, write_empty_champion, write_empty_evaluation
 from .telemetry import TelemetryRecorder, runtime_environment
 
@@ -99,40 +102,8 @@ def _preflight(profile: dict[str, object], *, require_remote: bool, source_root:
     }
 
 
-def _safe_extract_recovery(bundle: Path, destination: Path) -> Path:
-    if destination.exists():
-        shutil.rmtree(destination)
-    destination.mkdir(parents=True)
-    with zipfile.ZipFile(bundle) as archive:
-        for info in archive.infolist():
-            relative = Path(info.filename)
-            if relative.is_absolute() or ".." in relative.parts:
-                raise ValueError(f"unsafe recovery archive member: {info.filename}")
-            target = (destination / relative).resolve()
-            if not target.is_relative_to(destination.resolve()):
-                raise ValueError(f"recovery archive member escapes destination: {info.filename}")
-        archive.extractall(destination)
-    return destination
-
-
 def _validate_recovery_root(recovery_root: Path) -> dict[str, object]:
-    recovery = _load_json(recovery_root / "recovery_manifest.json")
-    if recovery.get("schema") != "guandan-marvel-recovery-manifest-v2":
-        raise ValueError("unsupported recovery manifest schema")
-    declared = recovery.get("manifest_hash")
-    actual = canonical_hash({key: value for key, value in recovery.items() if key != "manifest_hash"})
-    if declared != actual:
-        raise ValueError("recovery manifest hash mismatch")
-    for row in recovery.get("files", []):
-        relative = Path(str(row.get("path", "")))
-        if relative.is_absolute() or ".." in relative.parts:
-            raise ValueError(f"unsafe recovery file path: {relative}")
-        path = (recovery_root / relative).resolve()
-        if not path.is_relative_to(recovery_root.resolve()) or not path.is_file():
-            raise FileNotFoundError(f"recovery file is missing: {relative}")
-        if path.stat().st_size != int(row.get("bytes", -1)) or sha256_file(path) != row.get("sha256"):
-            raise ValueError(f"recovery file hash mismatch: {relative}")
-    return recovery
+    return validate_recovery_directory(recovery_root)
 
 
 def _rank0_checkpoint_from_recovery(recovery_root: Path) -> Path:
@@ -173,6 +144,7 @@ def _run_torchrun(
         "--package-id", str(manifest["package_id"]),
         "--source-commit", str(source["git_commit"]),
         "--source-archive-sha256", str(source["archive_sha256"]),
+        "--source-content-manifest-hash", str(source["content_manifest_hash"]),
     ]
     if recovery_root is not None:
         worker_args.extend(["--recovery-root", str(recovery_root)])
@@ -291,6 +263,7 @@ def main(argv: list[str] | None = None) -> int:
     os.environ["GUANDAN_MARVEL_SOURCE_ROOT"] = str(source_root)
     os.environ["GUANDAN_MARVEL_SOURCE_COMMIT"] = str(source["git_commit"])
     os.environ["GUANDAN_MARVEL_SOURCE_ARCHIVE_SHA256"] = str(source["archive_sha256"])
+    os.environ["GUANDAN_MARVEL_SOURCE_CONTENT_MANIFEST_HASH"] = str(source["content_manifest_hash"])
     shutil.copy2(dataset_path.parent / str(source["manifest"]), run_root / "source_manifest.json")
     atomic_json(run_root / "runtime_environment.json", runtime_environment())
     profile_path = run_root / "selected_profile.json"
@@ -338,13 +311,20 @@ def main(argv: list[str] | None = None) -> int:
                     input_root,
                     source_commit=str(source["git_commit"]),
                     source_archive_sha256=str(source["archive_sha256"]),
+                    source_content_manifest_hash=str(source["content_manifest_hash"]),
                     required=recovery_required,
                 )
                 if discovered is not None:
-                    recovery_root = _safe_extract_recovery(discovered.bundle_path, working_root / "guandan-marvel-recovery")
+                    recovery_root = materialize_recovery_input(
+                        discovered, working_root / "guandan-marvel-recovery",
+                    )
             if recovery_root is not None:
                 recovery_identity = _validate_recovery_root(recovery_root)
-                if recovery_identity.get("source_commit") != source["git_commit"] or recovery_identity.get("source_archive_sha256") != source["archive_sha256"]:
+                if (
+                    recovery_identity.get("source_commit") != source["git_commit"]
+                    or recovery_identity.get("source_archive_sha256") != source["archive_sha256"]
+                    or recovery_identity.get("source_content_manifest_hash") != source["content_manifest_hash"]
+                ):
                     raise ValueError(
                         "recovery belongs to an incompatible delivery; add the exact Dataset/source ZIP that created it"
                     )
@@ -424,6 +404,7 @@ def main(argv: list[str] | None = None) -> int:
                 destination=run_root / "guandan-marvel-recovery.zip",
                 source_commit=str(source["git_commit"]),
                 source_archive_sha256=str(source["archive_sha256"]),
+                source_content_manifest_hash=str(source["content_manifest_hash"]),
                 package_id=str(manifest["package_id"]),
                 status=status,
                 native_extension=native_extension,

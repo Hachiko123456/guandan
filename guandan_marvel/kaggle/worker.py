@@ -10,6 +10,7 @@ from pathlib import Path
 import time
 from typing import Mapping
 
+from guandan_marvel.kaggle.bootstrap import validate_recovery_directory
 from guandan_marvel.kaggle.checkpoints import (
     build_recovery_bundle,
     freeze_distributed_policy,
@@ -92,23 +93,7 @@ def _native_extension(game: object) -> Path | None:
 
 
 def _resolve_recovery_checkpoint(recovery_root: Path) -> tuple[Path, dict[str, object]]:
-    manifest_path = recovery_root / "recovery_manifest.json"
-    payload = _load_json(manifest_path)
-    if payload.get("schema") != "guandan-marvel-recovery-manifest-v2":
-        raise ValueError("unsupported recovery manifest schema")
-    declared = payload.get("manifest_hash")
-    actual = canonical_hash({key: value for key, value in payload.items() if key != "manifest_hash"})
-    if declared != actual:
-        raise ValueError("recovery manifest hash mismatch")
-    for row in payload.get("files", []):
-        relative_file = Path(str(row.get("path", "")))
-        if relative_file.is_absolute() or ".." in relative_file.parts:
-            raise ValueError(f"unsafe recovery file path: {relative_file}")
-        file_path = (recovery_root / relative_file).resolve()
-        if not file_path.is_relative_to(recovery_root.resolve()) or not file_path.is_file():
-            raise FileNotFoundError(f"recovery file is missing: {relative_file}")
-        if file_path.stat().st_size != int(row.get("bytes", -1)) or sha256_file(file_path) != row.get("sha256"):
-            raise ValueError(f"recovery file hash mismatch: {relative_file}")
+    payload = validate_recovery_directory(recovery_root)
     relative = Path(str(payload["checkpoint"]))
     if relative.is_absolute() or ".." in relative.parts:
         raise ValueError("recovery checkpoint path is unsafe")
@@ -167,6 +152,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--package-id", required=True)
     parser.add_argument("--source-commit", required=True)
     parser.add_argument("--source-archive-sha256", required=True)
+    parser.add_argument("--source-content-manifest-hash", required=True)
     parser.add_argument("--recovery-root", type=Path)
     parser.add_argument("--local-cpu-test", action="store_true")
     args = parser.parse_args(argv)
@@ -213,7 +199,11 @@ def main(argv: list[str] | None = None) -> int:
         if args.recovery_root is None:
             raise ValueError("resume mode requires --recovery-root")
         checkpoint_root, recovery_payload = _resolve_recovery_checkpoint(args.recovery_root.resolve())
-        if recovery_payload.get("source_commit") != args.source_commit or recovery_payload.get("source_archive_sha256") != args.source_archive_sha256:
+        if (
+            recovery_payload.get("source_commit") != args.source_commit
+            or recovery_payload.get("source_archive_sha256") != args.source_archive_sha256
+            or recovery_payload.get("source_content_manifest_hash") != args.source_content_manifest_hash
+        ):
             raise ValueError(
                 "recovery belongs to a different source package; use the exact Dataset/source ZIP that created it"
             )
@@ -279,6 +269,7 @@ def main(argv: list[str] | None = None) -> int:
             "recovery_manifest_hash": None if recovery_payload is None else recovery_payload.get("manifest_hash"),
             "source_commit": args.source_commit,
             "source_archive_sha256": args.source_archive_sha256,
+            "source_content_manifest_hash": args.source_content_manifest_hash,
             "world_size": world_size,
             "remote_verified": False,
         })
@@ -342,6 +333,7 @@ def main(argv: list[str] | None = None) -> int:
                             destination=run_root / "guandan-marvel-recovery.zip",
                             source_commit=args.source_commit,
                             source_archive_sha256=args.source_archive_sha256,
+                            source_content_manifest_hash=args.source_content_manifest_hash,
                             package_id=args.package_id,
                             status="durable_pending_evaluation" if evaluation_due else (
                                 "partial" if trainer.iteration < target_iterations else "complete"
@@ -391,6 +383,7 @@ def main(argv: list[str] | None = None) -> int:
                                 destination=run_root / "guandan-marvel-recovery.zip",
                                 source_commit=args.source_commit,
                                 source_archive_sha256=args.source_archive_sha256,
+                                source_content_manifest_hash=args.source_content_manifest_hash,
                                 package_id=args.package_id,
                                 status="partial" if trainer.iteration < target_iterations else "complete",
                                 native_extension=_native_extension(game),
@@ -417,6 +410,7 @@ def main(argv: list[str] | None = None) -> int:
                                     destination=run_root / "guandan-marvel-recovery.zip",
                                     source_commit=args.source_commit,
                                     source_archive_sha256=args.source_archive_sha256,
+                                    source_content_manifest_hash=args.source_content_manifest_hash,
                                     package_id=args.package_id,
                                     status="evaluation_failed",
                                     native_extension=_native_extension(game),

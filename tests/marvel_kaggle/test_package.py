@@ -62,14 +62,15 @@ def test_source_zip_rejects_unsafe_extra_member(delivery, tmp_path):
         validate_source_archive(tampered)
 
 
-def _recovery(path: Path, *, commit: str, archive_sha: str, iteration: int) -> None:
+def _recovery(path: Path, *, commit: str, archive_sha: str, content_hash: str, iteration: int) -> None:
     body = {
-        "schema": "guandan-marvel-recovery-manifest-v2",
+        "schema": "guandan-marvel-recovery-manifest-v3",
         "package_id": "guandan-marvel-t4x2-20261010",
         "created_at": "2026-10-10T00:00:00+00:00",
         "status": "partial",
         "source_commit": commit,
         "source_archive_sha256": archive_sha,
+        "source_content_manifest_hash": content_hash,
         "checkpoint": "checkpoint/manifest.json",
         "checkpoint_manifest_hash": "a" * 64,
         "iteration": iteration,
@@ -88,14 +89,14 @@ def test_recovery_discovery_matches_source_and_rejects_ambiguity(delivery, tmp_p
     root = tmp_path / "input"
     (root / "a").mkdir(parents=True)
     first = root / "a" / "guandan-marvel-recovery.zip"
-    _recovery(first, commit=source["git_commit"], archive_sha=source["archive_sha256"], iteration=1)
-    found = discover_recovery(root, source_commit=source["git_commit"], source_archive_sha256=source["archive_sha256"], required=True)
+    _recovery(first, commit=source["git_commit"], archive_sha=source["archive_sha256"], content_hash=source["content_manifest_hash"], iteration=1)
+    found = discover_recovery(root, source_commit=source["git_commit"], source_archive_sha256=source["archive_sha256"], source_content_manifest_hash=source["content_manifest_hash"], required=True)
     assert found is not None and found.manifest["iteration"] == 1
     (root / "b").mkdir()
     second = root / "b" / "guandan-marvel-partial.zip"
-    _recovery(second, commit=source["git_commit"], archive_sha=source["archive_sha256"], iteration=2)
-    with pytest.raises(RuntimeError, match="multiple matching"):
-        discover_recovery(root, source_commit=source["git_commit"], source_archive_sha256=source["archive_sha256"], required=True)
+    _recovery(second, commit=source["git_commit"], archive_sha=source["archive_sha256"], content_hash=source["content_manifest_hash"], iteration=2)
+    with pytest.raises(RuntimeError, match="multiple different matching"):
+        discover_recovery(root, source_commit=source["git_commit"], source_archive_sha256=source["archive_sha256"], source_content_manifest_hash=source["content_manifest_hash"], required=True)
 
 
 def test_full_is_not_the_recommended_default(delivery):

@@ -17,11 +17,11 @@ import zipfile
 
 from .common import atomic_json, canonical_hash, relative_file_manifest, sha256_file
 from .discovery import (
-    DATASET_MANIFEST_NAME, DATASET_MANIFEST_SCHEMA, SOURCE_MANIFEST_SCHEMA,
+    BOOTSTRAP_NAME, DATASET_MANIFEST_NAME, DATASET_MANIFEST_SCHEMA, SOURCE_MANIFEST_SCHEMA,
     SUPPORTED_MODES, validate_dataset_manifest,
 )
 
-PACKAGE_SCHEMA = "guandan-marvel-kaggle-delivery-v1"
+PACKAGE_SCHEMA = "guandan-marvel-kaggle-delivery-v2"
 PACKAGE_ID = "guandan-marvel-t4x2-20261010"
 SOURCE_ARCHIVE_NAME = "guandan-marvel-source.zip"
 SOURCE_MANIFEST_NAME = "source_manifest.json"
@@ -178,12 +178,10 @@ def build_source_archive(
 
 
 NOTEBOOK_BOOTSTRAP = r'''from pathlib import Path
-import hashlib, json, os, shutil, subprocess, sys, zipfile
+import hashlib, importlib.util, json, os, subprocess, sys
 
 INPUT_ROOT = Path('/kaggle/input')
 WORKING_ROOT = Path('/kaggle/working')
-SOURCE_ROOT = WORKING_ROOT / 'guandan-marvel-source'
-RECOVERY_ROOT = WORKING_ROOT / 'guandan-marvel-recovery'
 
 def sha256_file(path):
     digest = hashlib.sha256()
@@ -192,116 +190,53 @@ def sha256_file(path):
             digest.update(chunk)
     return digest.hexdigest()
 
-def canonical_hash(value):
-    raw = json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False)
-    return hashlib.sha256(raw.encode('utf-8')).hexdigest()
-
-def safe_extract(archive_path, destination):
-    destination = Path(destination).resolve()
-    with zipfile.ZipFile(archive_path) as archive:
-        for info in archive.infolist():
-            relative = Path(info.filename)
-            if relative.is_absolute() or '..' in relative.parts:
-                raise RuntimeError(f'不安全的 ZIP 成员: {info.filename}')
-            target = (destination / relative).resolve()
-            if not target.is_relative_to(destination):
-                raise RuntimeError(f'ZIP 成员越界: {info.filename}')
-        archive.extractall(destination)
-
 manifests = sorted(INPUT_ROOT.rglob('guandan_marvel_dataset.json'))
 if len(manifests) != 1:
     raise RuntimeError(f'必须且只能发现一个 guandan_marvel_dataset.json，实际: {manifests}')
 DATASET_MANIFEST_PATH = manifests[0].resolve()
 DATASET = json.loads(DATASET_MANIFEST_PATH.read_text(encoding='utf-8'))
-if DATASET.get('schema') != 'guandan-marvel-kaggle-dataset-v1':
+if DATASET.get('schema') != 'guandan-marvel-kaggle-dataset-v2':
     raise RuntimeError('Dataset manifest schema 不受支持')
-MODE = DATASET['mode']
-SOURCE = DATASET['source']
-SOURCE_ARCHIVE = (DATASET_MANIFEST_PATH.parent / SOURCE['archive']).resolve()
-SOURCE_MANIFEST_EXTERNAL = (DATASET_MANIFEST_PATH.parent / SOURCE['manifest']).resolve()
-if not SOURCE_ARCHIVE.is_relative_to(DATASET_MANIFEST_PATH.parent.resolve()):
-    raise RuntimeError('source archive 路径越界')
-if sha256_file(SOURCE_ARCHIVE) != SOURCE['archive_sha256']:
-    raise RuntimeError('source ZIP SHA-256 不匹配')
-if sha256_file(SOURCE_MANIFEST_EXTERNAL) != SOURCE['manifest_sha256']:
-    raise RuntimeError('source manifest SHA-256 不匹配')
-if SOURCE_ROOT.exists():
-    shutil.rmtree(SOURCE_ROOT)
-safe_extract(SOURCE_ARCHIVE, WORKING_ROOT)
-INTERNAL = json.loads((SOURCE_ROOT / 'source_manifest.json').read_text(encoding='utf-8'))
-if INTERNAL.get('git_commit') != SOURCE['git_commit'] or INTERNAL.get('package_id') != DATASET['package_id']:
-    raise RuntimeError('source identity 不匹配')
-for row in INTERNAL['files']:
-    path = (SOURCE_ROOT / row['path']).resolve()
-    if not path.is_relative_to(SOURCE_ROOT.resolve()) or not path.is_file():
-        raise RuntimeError(f"source 文件缺失: {row['path']}")
-    if sha256_file(path) != row['sha256']:
-        raise RuntimeError(f"source 文件 hash 不匹配: {row['path']}")
-
-matching_recovery = []
-for bundle in sorted(INPUT_ROOT.rglob('*.zip')):
-    if bundle.name not in {'guandan-marvel-recovery.zip', 'guandan-marvel-partial.zip'}:
-        continue
-    try:
-        with zipfile.ZipFile(bundle) as archive:
-            payload = json.loads(archive.read('recovery_manifest.json').decode('utf-8'))
-            if payload.get('schema') != 'guandan-marvel-recovery-manifest-v2':
-                continue
-            declared = payload.get('manifest_hash')
-            actual = canonical_hash({key: value for key, value in payload.items() if key != 'manifest_hash'})
-            if declared != actual:
-                raise RuntimeError(f'recovery manifest hash 不匹配: {bundle}')
-            for row in payload.get('files', []):
-                name = row['path']
-                relative = Path(name)
-                if relative.is_absolute() or '..' in relative.parts:
-                    raise RuntimeError(f'recovery 成员路径不安全: {name}')
-                info = archive.getinfo(name)
-                digest = hashlib.sha256()
-                with archive.open(info) as stream:
-                    for chunk in iter(lambda: stream.read(1024 * 1024), b''):
-                        digest.update(chunk)
-                if info.file_size != row['bytes'] or digest.hexdigest() != row['sha256']:
-                    raise RuntimeError(f'recovery 成员 hash 不匹配: {name}')
-    except KeyError:
-        continue
-    if payload.get('source_commit') == SOURCE['git_commit'] and payload.get('source_archive_sha256') == SOURCE['archive_sha256']:
-        matching_recovery.append((bundle.resolve(), payload))
-if len(matching_recovery) > 1:
-    raise RuntimeError(f'发现多个匹配 recovery，拒绝猜测: {[str(x[0]) for x in matching_recovery]}')
-recovery_required = bool(DATASET.get('recovery', {}).get('required', False))
-if recovery_required and len(matching_recovery) != 1:
-    raise RuntimeError('当前模式要求唯一匹配的 recovery bundle')
-RECOVERY_PATH = None
-restored_binary = False
-if matching_recovery:
-    bundle, recovery_manifest = matching_recovery[0]
-    if RECOVERY_ROOT.exists():
-        shutil.rmtree(RECOVERY_ROOT)
-    RECOVERY_ROOT.mkdir(parents=True)
-    safe_extract(bundle, RECOVERY_ROOT)
-    RECOVERY_PATH = RECOVERY_ROOT
-    runtime_binary = recovery_manifest.get('runtime_binary')
-    if runtime_binary:
-        source_binary = (RECOVERY_ROOT / runtime_binary['archive_path']).resolve()
-        target_binary = (SOURCE_ROOT / runtime_binary['restore_relative_path']).resolve()
-        if not source_binary.is_relative_to(RECOVERY_ROOT.resolve()) or not target_binary.is_relative_to(SOURCE_ROOT.resolve()):
-            raise RuntimeError('recovery runtime binary 路径越界')
-        if sha256_file(source_binary) != runtime_binary['sha256']:
-            raise RuntimeError('recovery runtime binary hash 不匹配')
-        target_binary.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source_binary, target_binary)
-        restored_binary = True
-if not restored_binary:
+bootstrap_spec = DATASET.get('bootstrap') or {}
+bootstrap_relative = Path(str(bootstrap_spec.get('path', '')))
+if bootstrap_relative.is_absolute() or '..' in bootstrap_relative.parts:
+    raise RuntimeError('bootstrap 路径不安全')
+BOOTSTRAP_PATH = (DATASET_MANIFEST_PATH.parent / bootstrap_relative).resolve()
+if not BOOTSTRAP_PATH.is_relative_to(DATASET_MANIFEST_PATH.parent.resolve()) or not BOOTSTRAP_PATH.is_file():
+    raise RuntimeError('Dataset bootstrap 文件缺失')
+if sha256_file(BOOTSTRAP_PATH) != bootstrap_spec.get('sha256'):
+    raise RuntimeError('Dataset bootstrap SHA-256 不匹配')
+module_spec = importlib.util.spec_from_file_location('guandan_marvel_dataset_bootstrap', BOOTSTRAP_PATH)
+if module_spec is None or module_spec.loader is None:
+    raise RuntimeError('无法加载 Dataset bootstrap')
+BOOTSTRAP = importlib.util.module_from_spec(module_spec)
+sys.modules[module_spec.name] = BOOTSTRAP
+module_spec.loader.exec_module(BOOTSTRAP)
+PREPARED = BOOTSTRAP.prepare_inputs(
+    DATASET_MANIFEST_PATH, input_root=INPUT_ROOT, working_root=WORKING_ROOT,
+)
+MODE = PREPARED['mode']
+SOURCE_ROOT = Path(PREPARED['source_root'])
+RECOVERY_PATH = None if PREPARED['recovery_root'] is None else Path(PREPARED['recovery_root'])
+if not PREPARED['runtime_binary_restored']:
     subprocess.run([sys.executable, 'setup.py', 'build_ext', '--inplace'], cwd=SOURCE_ROOT, check=True)
 
 ENV = os.environ.copy()
 ENV['PYTHONPATH'] = str(SOURCE_ROOT) + (os.pathsep + ENV['PYTHONPATH'] if ENV.get('PYTHONPATH') else '')
 ENV['GUANDAN_MARVEL_SOURCE_ROOT'] = str(SOURCE_ROOT)
-ENV['GUANDAN_MARVEL_SOURCE_COMMIT'] = SOURCE['git_commit']
-ENV['GUANDAN_MARVEL_SOURCE_ARCHIVE_SHA256'] = SOURCE['archive_sha256']
+ENV['GUANDAN_MARVEL_SOURCE_COMMIT'] = DATASET['source']['git_commit']
+ENV['GUANDAN_MARVEL_SOURCE_ARCHIVE_SHA256'] = DATASET['source']['archive_sha256']
+ENV['GUANDAN_MARVEL_SOURCE_CONTENT_MANIFEST_HASH'] = DATASET['source']['content_manifest_hash']
 subprocess.run([sys.executable, '-c', "import guandan_marvel.cpp_game as g; print(g.get_backend_build_identity())"], cwd=SOURCE_ROOT, env=ENV, check=True)
-print(json.dumps({'mode': MODE, 'dataset_manifest': str(DATASET_MANIFEST_PATH), 'source_commit': SOURCE['git_commit'], 'recovery': None if RECOVERY_PATH is None else str(RECOVERY_PATH)}, ensure_ascii=False, indent=2))
+print(json.dumps({
+    'mode': MODE,
+    'dataset_manifest': str(DATASET_MANIFEST_PATH),
+    'source_commit': DATASET['source']['git_commit'],
+    'source_input_kind': PREPARED['source_input_kind'],
+    'source_archive_sha256_verified': PREPARED['source_archive_sha256_verified'],
+    'recovery_input_kind': PREPARED['recovery_input_kind'],
+    'recovery': None if RECOVERY_PATH is None else str(RECOVERY_PATH),
+}, ensure_ascii=False, indent=2))
 '''
 
 NOTEBOOK_RUN = r'''command = [
@@ -435,7 +370,7 @@ def validate_notebook(path: str | Path) -> dict[str, object]:
 
 
 def _readme() -> str:
-    return """# 掼蛋 MARVEL Kaggle T4×2 使用说明\n\n本目录是 **M07 remote-ready 本地交付**。它没有自动上传 Kaggle，也没有把本地检查伪装成真实 T4×2 验证；真实远端吞吐、显存、双卡效率和 pilot 结论属于 M08。\n\n## 1. 选择模式 Dataset\n\n在 `datasets` 下只选择一个目录创建 Kaggle Dataset：\n\n- `preflight`：推荐先运行，只检查源码、C++ 扩展、两张 T4、NCCL 和输入；\n- `pilot`：短 DDP 训练、durable checkpoint 和短评估；\n- `resume`：从另一个 Kaggle Dataset 中的 `guandan-marvel-recovery.zip` 精确恢复；\n- `full`：长训练。只有你明确选择 `datasets/full` 时才会启动，不是默认；\n- `eval_only`：从 recovery 中的冻结/训练 checkpoint 做只读短评估。\n\n不要把多个模式目录合并成同一个 Kaggle Dataset；Notebook 发现多个 `guandan_marvel_dataset.json` 会 fail closed。\n\n## 2. 创建 Kaggle Dataset\n\n1. 在 Kaggle 新建私有 Dataset。\n2. 上传所选 `datasets/<mode>` 目录内的全部三个文件。\n3. `resume`/`eval_only` 还要把上一次下载的 `guandan-marvel-recovery.zip` 建成第二个 Dataset。\n4. 不要改文件名、路径、manifest 或 hash。\n\n## 3. 添加 Notebook 并运行\n\n1. 导入 `guandan_marvel_t4x2.ipynb`。\n2. Add Input：只添加一个模式 Dataset；恢复模式再添加一个 recovery Dataset。\n3. Accelerator 选择 **GPU T4 x2**。\n4. Internet 可关闭；源码从 Dataset 解压，本地编译 pybind 扩展。\n5. 点击 **Run All**，不需要修改任何代码、绝对路径、checkpoint 名称或设备参数。\n\n训练模式固定使用 `torchrun --standalone --nproc_per_node=2`。rank 0 写主日志、manifest、checkpoint 和 bundle；每个 rank 另有诊断日志。\n\n## 4. 下载 output\n\n运行完成后下载：\n\n- `/kaggle/working/guandan-marvel-output/guandan-marvel-output.zip`；\n- `/kaggle/working/guandan-marvel-output/guandan-marvel-recovery.zip`。\n\n后者用于下一次 `resume` 或 `eval_only`。正常结束、预算停止和可捕获异常会尽力保留最近 durable checkpoint；Kaggle 平台硬杀无法保证 finally 执行，因此 checkpoint 会周期生成。\n\n## 5. 语义边界\n\n- `preflight`/`pilot` 只证明管线和恢复流程，不证明模型强度；\n- M07 `accepted` 只表示 package 构建和本地验证完成，即 `remote_ready`；\n- 真实双 T4 是否达到 1.5×、显存峰值和 full 参数必须由 M08 的下载证据确认；\n- `evaluation_summary.json` 是有限管线评估，不是 formal selection 或 final holdout；\n- Notebook 遇到多个 source/recovery、hash 不匹配、GPU 数量不符或恢复 world size 不符时会拒绝运行。\n"""
+    return """# 掼蛋 MARVEL Kaggle T4×2 使用说明\n\n本目录是 **M07 remote-ready 本地交付**。它没有自动上传 Kaggle，也没有把本地检查伪装成真实 T4×2 验证；真实远端吞吐、显存、双卡效率和 pilot 结论属于 M08。\n\n## 1. 选择模式 Dataset\n\n在 `datasets` 下只选择一个目录创建 Kaggle Dataset：\n\n- `preflight`：推荐先运行，只检查源码、C++ 扩展、两张 T4、NCCL 和输入；\n- `pilot`：短 DDP 训练、durable checkpoint 和短评估；\n- `resume`：从另一个 Kaggle Dataset 中的 `guandan-marvel-recovery.zip` 精确恢复；\n- `full`：长训练。只有你明确选择 `datasets/full` 时才会启动，不是默认；\n- `eval_only`：从 recovery 中的冻结/训练 checkpoint 做只读短评估。\n\n不要把多个模式目录合并成同一个 Kaggle Dataset；Notebook 发现多个 `guandan_marvel_dataset.json` 会 fail closed。\n\n## 2. 创建 Kaggle Dataset\n\n1. 在 Kaggle 新建私有 Dataset。\n2. 上传所选 `datasets/<mode>` 目录内的全部四个文件（Dataset manifest、bootstrap、source manifest、source ZIP）。\n3. `resume`/`eval_only` 还要把上一次下载的 `guandan-marvel-recovery.zip` 建成第二个 Dataset。\n4. 不要改文件名、路径、manifest 或 hash。\n\n## 3. 添加 Notebook 并运行\n\n1. 导入 `guandan_marvel_t4x2.ipynb`。\n2. Add Input：只添加一个模式 Dataset；恢复模式再添加一个 recovery Dataset。\n3. Accelerator 选择 **GPU T4 x2**。\n4. Internet 可关闭；源码从 Dataset 解压，本地编译 pybind 扩展。\n5. 点击 **Run All**，不需要修改任何代码、绝对路径、checkpoint 名称或设备参数。\n\n训练模式固定使用 `torchrun --standalone --nproc_per_node=2`。rank 0 写主日志、manifest、checkpoint 和 bundle；每个 rank 另有诊断日志。\n\n## 4. 下载 output\n\n运行完成后下载：\n\n- `/kaggle/working/guandan-marvel-output/guandan-marvel-output.zip`；\n- `/kaggle/working/guandan-marvel-output/guandan-marvel-recovery.zip`。\n\n后者用于下一次 `resume` 或 `eval_only`。正常结束、预算停止和可捕获异常会尽力保留最近 durable checkpoint；Kaggle 平台硬杀无法保证 finally 执行，因此 checkpoint 会周期生成。\n\n## 5. 语义边界\n\n- `preflight`/`pilot` 只证明管线和恢复流程，不证明模型强度；\n- M07 `accepted` 只表示 package 构建和本地验证完成，即 `remote_ready`；\n- 真实双 T4 是否达到 1.5×、显存峰值和 full 参数必须由 M08 的下载证据确认；\n- `evaluation_summary.json` 是有限管线评估，不是 formal selection 或 final holdout；\n- Notebook 遇到多个 source/recovery、hash 不匹配、GPU 数量不符或恢复 world size 不符时会拒绝运行。\n"""
 
 
 def build_delivery(
@@ -459,11 +394,17 @@ def build_delivery(
     source_manifest = source_build["source_manifest"]
     atomic_json(delivery_root / SOURCE_MANIFEST_NAME, source_manifest)
     source_manifest_sha = sha256_file(delivery_root / SOURCE_MANIFEST_NAME)
+    with zipfile.ZipFile(delivery_root / SOURCE_ARCHIVE_NAME) as archive:
+        bootstrap_bytes = archive.read(f"guandan-marvel-source/guandan_marvel/kaggle/bootstrap.py")
+    bootstrap_path = delivery_root / BOOTSTRAP_NAME
+    bootstrap_path.write_bytes(bootstrap_bytes)
+    bootstrap_sha = sha256_file(bootstrap_path)
     for mode in sorted(SUPPORTED_MODES):
         dataset_root = delivery_root / "datasets" / mode
         dataset_root.mkdir(parents=True)
         shutil.copy2(delivery_root / SOURCE_ARCHIVE_NAME, dataset_root / SOURCE_ARCHIVE_NAME)
         shutil.copy2(delivery_root / SOURCE_MANIFEST_NAME, dataset_root / SOURCE_MANIFEST_NAME)
+        shutil.copy2(bootstrap_path, dataset_root / BOOTSTRAP_NAME)
         profile = profiles_payload["profiles"][mode]
         dataset = {
             "schema": DATASET_MANIFEST_SCHEMA,
@@ -476,7 +417,9 @@ def build_delivery(
                 "manifest": SOURCE_MANIFEST_NAME,
                 "manifest_sha256": source_manifest_sha,
                 "git_commit": source_manifest["git_commit"],
+                "content_manifest_hash": source_manifest["manifest_hash"],
             },
+            "bootstrap": {"path": BOOTSTRAP_NAME, "sha256": bootstrap_sha},
             "profiles": {mode: profile},
             "recovery": {"required": mode in {"resume", "eval_only"}, "auto_discovery": True},
             "claims": {"package_ready": True, "remote_ready": True, "remote_verified": False, "model_strength": False},
@@ -489,6 +432,7 @@ def build_delivery(
     (delivery_root / README_NAME).write_text(_readme(), encoding="utf-8", newline="\n")
     (delivery_root / SOURCE_ARCHIVE_NAME).unlink()
     (delivery_root / SOURCE_MANIFEST_NAME).unlink()
+    bootstrap_path.unlink()
     validation = validate_delivery(delivery_root)
     files = [path for path in delivery_root.rglob("*") if path.is_file() and path.name != DELIVERY_MANIFEST_NAME]
     body = {
@@ -557,7 +501,7 @@ def validate_delivery(delivery_root: str | Path) -> dict[str, object]:
     if len(commits) != 1 or len(archive_hashes) != 1:
         raise ValueError("mode datasets do not share one source identity")
     return {
-        "schema": "guandan-marvel-delivery-validation-v1",
+        "schema": "guandan-marvel-delivery-validation-v2",
         "valid": True,
         "delivery_manifest_verified": manifest_verified,
         "notebook": {**notebook, "path": NOTEBOOK_NAME},
