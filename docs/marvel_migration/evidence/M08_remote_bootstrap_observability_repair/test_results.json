@@ -1,0 +1,10 @@
+{
+  "schema": "guandan-marvel-m08-bootstrap-observability-test-results-v1",
+  "commands": [
+    {"command": "python -m pytest --import-mode=importlib tests/marvel_kaggle -q", "passed": 33, "failed": 0, "errors": 0, "skipped": 0, "exit_code": 0},
+    {"command": "python -m pytest --import-mode=importlib tests/marvel_training tests/marvel_core/test_core.py tests/marvel_evaluation -q", "passed": 87, "failed": 0, "errors": 0, "skipped": 0, "exit_code": 0},
+    {"command": "python -m pytest --import-mode=importlib tests/acceptance/test_a00_specification.py -q", "passed": 5, "failed": 0, "errors": 0, "skipped": 0, "exit_code": 0},
+    {"command": "generated Notebook bootstrap actual source ZIP build/import", "exit_code": 0, "elapsed_seconds": 48.922}
+  ],
+  "total": {"passed": 125, "failed": 0, "errors": 0, "skipped": 0}
+}

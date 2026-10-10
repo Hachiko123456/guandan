@@ -1,0 +1,47 @@
+{
+  "schema": "guandan-marvel-m08-bootstrap-observability-verification-v1",
+  "date": "2026-10-10",
+  "accepted": true,
+  "m08_accepted": false,
+  "remote_verified": false,
+  "real_remote_reproduction": {
+    "runtime_seconds": 5581.8,
+    "logs_visible": false,
+    "output_bytes": 0,
+    "runner_started": false,
+    "usable_checkpoint": false
+  },
+  "fixes": {
+    "immediate_stage_logs": true,
+    "heartbeat_seconds": 5,
+    "compiler_timeout_seconds": 600,
+    "notebook_build_timeout_seconds": 660,
+    "native_import_timeout_seconds": 120,
+    "unbuffered_child_python": true,
+    "failure_progress_json": true,
+    "failure_log": true,
+    "failure_json": true,
+    "downloadable_diagnostics_zip": true,
+    "runner_outer_timeout": true
+  },
+  "local_actual_bootstrap": {
+    "passed": true,
+    "elapsed_seconds": 48.922,
+    "final_stage": "ready_for_runner",
+    "final_status": "complete",
+    "source_input_kind": "zip",
+    "native_identity_match": true,
+    "scope": "Windows local generated Notebook cell; not Kaggle/T4 evidence"
+  },
+  "tests": {
+    "marvel_kaggle_passed": 33,
+    "target_regression_passed": 87,
+    "a00_passed": 5,
+    "total_passed": 125,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "rerun_required": true,
+  "old_delivery_must_not_be_reused": true
+}

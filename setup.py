@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import sysconfig
+import time
 
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
@@ -27,6 +28,37 @@ SOURCES = [
     ROOT / "nanopokerlib" / "cpp" / "bindings.cpp",
     ROOT / "nanopokerlib" / "cpp" / "guandan" / "guandan.cpp",
 ]
+
+
+def _build_timeout_seconds() -> float:
+    raw = os.environ.get("GUANDAN_BUILD_TIMEOUT_SECONDS", "600")
+    try:
+        timeout = float(raw)
+    except ValueError as error:
+        raise RuntimeError("GUANDAN_BUILD_TIMEOUT_SECONDS must be numeric") from error
+    if timeout <= 0:
+        raise RuntimeError("GUANDAN_BUILD_TIMEOUT_SECONDS must be positive")
+    return timeout
+
+
+def _run_build_command(command: list[str], *, cwd: Path, label: str) -> None:
+    timeout = _build_timeout_seconds()
+    started = time.monotonic()
+    print(
+        f"[Guandan build] {label} start timeout={timeout:.0f}s: "
+        + subprocess.list2cmdline(command),
+        flush=True,
+    )
+    try:
+        subprocess.run(command, cwd=cwd, check=True, timeout=timeout)
+    except subprocess.TimeoutExpired as error:
+        raise RuntimeError(
+            f"Guandan native build timed out during {label} after {timeout:.0f}s"
+        ) from error
+    print(
+        f"[Guandan build] {label} complete elapsed={time.monotonic() - started:.1f}s",
+        flush=True,
+    )
 
 
 class GuandanBuildExt(build_ext):
@@ -72,14 +104,12 @@ class GuandanBuildExt(build_ext):
             def_file = build_temp / f"python{sys.version_info.major}{sys.version_info.minor}.def"
             import_lib = build_temp / f"libpython{sys.version_info.major}{sys.version_info.minor}.a"
             gendef_command = [gendef, str(python_dll)]
-            print("Guandan build gendef command:", subprocess.list2cmdline(gendef_command))
-            subprocess.check_call(gendef_command, cwd=build_temp)
+            _run_build_command(gendef_command, cwd=build_temp, label="gendef")
             generated = build_temp / python_dll.with_suffix(".def").name
             if generated != def_file:
                 generated.replace(def_file)
             dlltool_command = [dlltool, "-d", str(def_file), "-l", str(import_lib), "-D", python_dll.name]
-            print("Guandan build dlltool command:", subprocess.list2cmdline(dlltool_command))
-            subprocess.check_call(dlltool_command, cwd=build_temp)
+            _run_build_command(dlltool_command, cwd=build_temp, label="dlltool")
             command = [
                 cxx,
                 "-O3",
@@ -116,12 +146,11 @@ class GuandanBuildExt(build_ext):
             ]
             if platform.system() == "Darwin":
                 command[1:1] = ["-undefined", "dynamic_lookup"]
-        print("Guandan build Python executable:", sys.executable)
-        print("Guandan build Python include:", sysconfig.get_paths()["include"])
-        print("Guandan build pybind11 include:", pybind11.get_include())
-        print("Guandan build compiler:", cxx)
-        print("Guandan build command:", subprocess.list2cmdline(command))
-        subprocess.check_call(command, cwd=ROOT)
+        print("Guandan build Python executable:", sys.executable, flush=True)
+        print("Guandan build Python include:", sysconfig.get_paths()["include"], flush=True)
+        print("Guandan build pybind11 include:", pybind11.get_include(), flush=True)
+        print("Guandan build compiler:", cxx, flush=True)
+        _run_build_command(command, cwd=ROOT, label="compile_and_link")
 
 
 setup(

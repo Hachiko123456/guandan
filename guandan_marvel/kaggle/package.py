@@ -178,10 +178,129 @@ def build_source_archive(
 
 
 NOTEBOOK_BOOTSTRAP = r'''from pathlib import Path
-import hashlib, importlib.util, json, os, subprocess, sys
+import hashlib, importlib.util, json, os, subprocess, sys, threading, time, traceback, zipfile
 
 INPUT_ROOT = Path('/kaggle/input')
 WORKING_ROOT = Path('/kaggle/working')
+BOOTSTRAP_ROOT = WORKING_ROOT / 'guandan-marvel-bootstrap'
+BOOTSTRAP_ROOT.mkdir(parents=True, exist_ok=True)
+BOOTSTRAP_LOG = BOOTSTRAP_ROOT / 'bootstrap.log'
+BOOTSTRAP_PROGRESS = BOOTSTRAP_ROOT / 'bootstrap_progress.json'
+BOOTSTRAP_FAILURE = BOOTSTRAP_ROOT / 'bootstrap_failure.json'
+BOOTSTRAP_DIAGNOSTICS = WORKING_ROOT / 'guandan-marvel-bootstrap-diagnostics.zip'
+BOOTSTRAP_STARTED = time.monotonic()
+BOOTSTRAP_LOCK = threading.Lock()
+MODE = None
+
+
+def _atomic_json(path, payload):
+    target = Path(path)
+    temporary = target.with_suffix(target.suffix + '.tmp')
+    temporary.write_text(json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + '\n', encoding='utf-8')
+    os.replace(temporary, target)
+
+
+def _append_log(text):
+    with BOOTSTRAP_LOG.open('a', encoding='utf-8', newline='\n') as stream:
+        stream.write(str(text).rstrip('\n') + '\n')
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def bootstrap_event(stage, message, *, status='running', **extra):
+    elapsed = time.monotonic() - BOOTSTRAP_STARTED
+    line = f'[Guandan bootstrap] stage={stage} status={status} elapsed={elapsed:.1f}s {message}'
+    payload = {
+        'schema': 'guandan-marvel-bootstrap-progress-v1',
+        'stage': stage,
+        'status': status,
+        'message': str(message),
+        'elapsed_seconds': elapsed,
+        'mode': MODE,
+        'pid': os.getpid(),
+        **extra,
+    }
+    with BOOTSTRAP_LOCK:
+        print(line, flush=True)
+        _append_log(line)
+        _atomic_json(BOOTSTRAP_PROGRESS, payload)
+    return payload
+
+
+def _write_diagnostics_zip():
+    temporary = BOOTSTRAP_DIAGNOSTICS.with_suffix('.zip.tmp')
+    with zipfile.ZipFile(temporary, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in (BOOTSTRAP_LOG, BOOTSTRAP_PROGRESS, BOOTSTRAP_FAILURE):
+            if path.is_file():
+                archive.write(path, path.name)
+    os.replace(temporary, BOOTSTRAP_DIAGNOSTICS)
+
+
+def bootstrap_failed(error):
+    payload = {
+        'schema': 'guandan-marvel-bootstrap-failure-v1',
+        'stage': json.loads(BOOTSTRAP_PROGRESS.read_text(encoding='utf-8')).get('stage') if BOOTSTRAP_PROGRESS.is_file() else 'unknown',
+        'error_type': type(error).__name__,
+        'error': str(error),
+        'elapsed_seconds': time.monotonic() - BOOTSTRAP_STARTED,
+        'mode': MODE,
+        'traceback': traceback.format_exc(),
+    }
+    _atomic_json(BOOTSTRAP_FAILURE, payload)
+    bootstrap_event('failed', f'{type(error).__name__}: {error}', status='failed')
+    _write_diagnostics_zip()
+
+
+def run_with_heartbeat(command, *, cwd, env=None, label, timeout_seconds, allowed_returncodes=(0,)):
+    command = [str(value) for value in command]
+    process_env = os.environ.copy() if env is None else dict(env)
+    process_env['PYTHONUNBUFFERED'] = '1'
+    stop = threading.Event()
+    started = time.monotonic()
+    bootstrap_event(label, 'process starting', command=command, timeout_seconds=float(timeout_seconds))
+
+    def heartbeat():
+        while not stop.wait(5.0):
+            bootstrap_event(
+                label,
+                'process still running',
+                process_elapsed_seconds=time.monotonic() - started,
+                timeout_seconds=float(timeout_seconds),
+            )
+
+    thread = threading.Thread(target=heartbeat, name=f'{label}-heartbeat', daemon=True)
+    thread.start()
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=Path(cwd),
+            env=process_env,
+            check=False,
+            timeout=float(timeout_seconds),
+        )
+    except subprocess.TimeoutExpired as error:
+        bootstrap_event(
+            label,
+            f'process timed out after {float(timeout_seconds):.0f}s',
+            status='failed',
+            process_elapsed_seconds=time.monotonic() - started,
+        )
+        raise RuntimeError(
+            f'{label} timed out after {float(timeout_seconds):.0f}s; see {BOOTSTRAP_LOG}'
+        ) from error
+    finally:
+        stop.set()
+        thread.join(timeout=2.0)
+    if completed.returncode not in set(allowed_returncodes):
+        raise RuntimeError(f'{label} failed with exit code {completed.returncode}')
+    bootstrap_event(
+        label,
+        f'process completed exit={completed.returncode}',
+        status='complete',
+        process_elapsed_seconds=time.monotonic() - started,
+    )
+    return completed
+
 
 def sha256_file(path):
     digest = hashlib.sha256()
@@ -190,56 +309,87 @@ def sha256_file(path):
             digest.update(chunk)
     return digest.hexdigest()
 
-manifests = sorted(INPUT_ROOT.rglob('guandan_marvel_dataset.json'))
-if len(manifests) != 1:
-    raise RuntimeError(f'必须且只能发现一个 guandan_marvel_dataset.json，实际: {manifests}')
-DATASET_MANIFEST_PATH = manifests[0].resolve()
-DATASET = json.loads(DATASET_MANIFEST_PATH.read_text(encoding='utf-8'))
-if DATASET.get('schema') != 'guandan-marvel-kaggle-dataset-v2':
-    raise RuntimeError('Dataset manifest schema 不受支持')
-bootstrap_spec = DATASET.get('bootstrap') or {}
-bootstrap_relative = Path(str(bootstrap_spec.get('path', '')))
-if bootstrap_relative.is_absolute() or '..' in bootstrap_relative.parts:
-    raise RuntimeError('bootstrap 路径不安全')
-BOOTSTRAP_PATH = (DATASET_MANIFEST_PATH.parent / bootstrap_relative).resolve()
-if not BOOTSTRAP_PATH.is_relative_to(DATASET_MANIFEST_PATH.parent.resolve()) or not BOOTSTRAP_PATH.is_file():
-    raise RuntimeError('Dataset bootstrap 文件缺失')
-if sha256_file(BOOTSTRAP_PATH) != bootstrap_spec.get('sha256'):
-    raise RuntimeError('Dataset bootstrap SHA-256 不匹配')
-module_spec = importlib.util.spec_from_file_location('guandan_marvel_dataset_bootstrap', BOOTSTRAP_PATH)
-if module_spec is None or module_spec.loader is None:
-    raise RuntimeError('无法加载 Dataset bootstrap')
-BOOTSTRAP = importlib.util.module_from_spec(module_spec)
-sys.modules[module_spec.name] = BOOTSTRAP
-module_spec.loader.exec_module(BOOTSTRAP)
-PREPARED = BOOTSTRAP.prepare_inputs(
-    DATASET_MANIFEST_PATH, input_root=INPUT_ROOT, working_root=WORKING_ROOT,
-)
-MODE = PREPARED['mode']
-SOURCE_ROOT = Path(PREPARED['source_root'])
-RECOVERY_PATH = None if PREPARED['recovery_root'] is None else Path(PREPARED['recovery_root'])
-if not PREPARED['runtime_binary_restored']:
-    subprocess.run([sys.executable, 'setup.py', 'build_ext', '--inplace'], cwd=SOURCE_ROOT, check=True)
 
-ENV = os.environ.copy()
-ENV['PYTHONPATH'] = str(SOURCE_ROOT) + (os.pathsep + ENV['PYTHONPATH'] if ENV.get('PYTHONPATH') else '')
-ENV['GUANDAN_MARVEL_SOURCE_ROOT'] = str(SOURCE_ROOT)
-ENV['GUANDAN_MARVEL_SOURCE_COMMIT'] = DATASET['source']['git_commit']
-ENV['GUANDAN_MARVEL_SOURCE_ARCHIVE_SHA256'] = DATASET['source']['archive_sha256']
-ENV['GUANDAN_MARVEL_SOURCE_CONTENT_MANIFEST_HASH'] = DATASET['source']['content_manifest_hash']
-subprocess.run([sys.executable, '-c', "import guandan_marvel.cpp_game as g; print(g.get_backend_build_identity())"], cwd=SOURCE_ROOT, env=ENV, check=True)
-print(json.dumps({
-    'mode': MODE,
-    'dataset_manifest': str(DATASET_MANIFEST_PATH),
-    'source_commit': DATASET['source']['git_commit'],
-    'source_input_kind': PREPARED['source_input_kind'],
-    'source_archive_sha256_verified': PREPARED['source_archive_sha256_verified'],
-    'recovery_input_kind': PREPARED['recovery_input_kind'],
-    'recovery': None if RECOVERY_PATH is None else str(RECOVERY_PATH),
-}, ensure_ascii=False, indent=2))
+bootstrap_event('start', 'Notebook bootstrap started')
+try:
+    bootstrap_event('dataset_discovery', 'searching for the unique Dataset manifest')
+    manifests = sorted(INPUT_ROOT.rglob('guandan_marvel_dataset.json'))
+    if len(manifests) != 1:
+        raise RuntimeError(f'必须且只能发现一个 guandan_marvel_dataset.json，实际: {manifests}')
+    DATASET_MANIFEST_PATH = manifests[0].resolve()
+    bootstrap_event('dataset_validation', f'loading {DATASET_MANIFEST_PATH}')
+    DATASET = json.loads(DATASET_MANIFEST_PATH.read_text(encoding='utf-8'))
+    if DATASET.get('schema') != 'guandan-marvel-kaggle-dataset-v2':
+        raise RuntimeError('Dataset manifest schema 不受支持')
+    MODE = str(DATASET.get('mode'))
+    bootstrap_spec = DATASET.get('bootstrap') or {}
+    bootstrap_relative = Path(str(bootstrap_spec.get('path', '')))
+    if bootstrap_relative.is_absolute() or '..' in bootstrap_relative.parts:
+        raise RuntimeError('bootstrap 路径不安全')
+    BOOTSTRAP_PATH = (DATASET_MANIFEST_PATH.parent / bootstrap_relative).resolve()
+    if not BOOTSTRAP_PATH.is_relative_to(DATASET_MANIFEST_PATH.parent.resolve()) or not BOOTSTRAP_PATH.is_file():
+        raise RuntimeError('Dataset bootstrap 文件缺失')
+    if sha256_file(BOOTSTRAP_PATH) != bootstrap_spec.get('sha256'):
+        raise RuntimeError('Dataset bootstrap SHA-256 不匹配')
+    bootstrap_event('bootstrap_import', f'importing {BOOTSTRAP_PATH}')
+    module_spec = importlib.util.spec_from_file_location('guandan_marvel_dataset_bootstrap', BOOTSTRAP_PATH)
+    if module_spec is None or module_spec.loader is None:
+        raise RuntimeError('无法加载 Dataset bootstrap')
+    BOOTSTRAP = importlib.util.module_from_spec(module_spec)
+    sys.modules[module_spec.name] = BOOTSTRAP
+    module_spec.loader.exec_module(BOOTSTRAP)
+    bootstrap_event('input_materialization', 'validating and copying source/recovery into /kaggle/working')
+    PREPARED = BOOTSTRAP.prepare_inputs(
+        DATASET_MANIFEST_PATH, input_root=INPUT_ROOT, working_root=WORKING_ROOT,
+    )
+    SOURCE_ROOT = Path(PREPARED['source_root'])
+    RECOVERY_PATH = None if PREPARED['recovery_root'] is None else Path(PREPARED['recovery_root'])
+    ENV = os.environ.copy()
+    ENV['PYTHONPATH'] = str(SOURCE_ROOT) + (os.pathsep + ENV['PYTHONPATH'] if ENV.get('PYTHONPATH') else '')
+    ENV['PYTHONUNBUFFERED'] = '1'
+    ENV['GUANDAN_MARVEL_SOURCE_ROOT'] = str(SOURCE_ROOT)
+    ENV['GUANDAN_MARVEL_SOURCE_COMMIT'] = DATASET['source']['git_commit']
+    ENV['GUANDAN_MARVEL_SOURCE_ARCHIVE_SHA256'] = DATASET['source']['archive_sha256']
+    ENV['GUANDAN_MARVEL_SOURCE_CONTENT_MANIFEST_HASH'] = DATASET['source']['content_manifest_hash']
+    if not PREPARED['runtime_binary_restored']:
+        BUILD_ENV = dict(ENV)
+        BUILD_ENV['GUANDAN_BUILD_TIMEOUT_SECONDS'] = '600'
+        run_with_heartbeat(
+            [sys.executable, '-u', 'setup.py', 'build_ext', '--inplace'],
+            cwd=SOURCE_ROOT,
+            env=BUILD_ENV,
+            label='native_build',
+            timeout_seconds=660,
+        )
+    else:
+        bootstrap_event('native_build', 'restored verified native binary from recovery; build skipped', status='complete')
+    run_with_heartbeat(
+        [sys.executable, '-u', '-c', "import guandan_marvel.cpp_game as g; print(g.get_backend_build_identity(), flush=True)"],
+        cwd=SOURCE_ROOT,
+        env=ENV,
+        label='native_import',
+        timeout_seconds=120,
+    )
+    bootstrap_event('ready_for_runner', 'bootstrap complete; training runner may start', status='complete')
+    print(json.dumps({
+        'mode': MODE,
+        'dataset_manifest': str(DATASET_MANIFEST_PATH),
+        'source_commit': DATASET['source']['git_commit'],
+        'source_input_kind': PREPARED['source_input_kind'],
+        'source_archive_sha256_verified': PREPARED['source_archive_sha256_verified'],
+        'recovery_input_kind': PREPARED['recovery_input_kind'],
+        'recovery': None if RECOVERY_PATH is None else str(RECOVERY_PATH),
+        'bootstrap_log': str(BOOTSTRAP_LOG),
+    }, ensure_ascii=False, indent=2), flush=True)
+except BaseException as error:
+    bootstrap_failed(error)
+    raise
 '''
 
-NOTEBOOK_RUN = r'''command = [
+NOTEBOOK_RUN = r'''profile = DATASET['profiles'][MODE]
+run_control = profile.get('training') or profile.get('resume') or {}
+runner_timeout_seconds = float(run_control.get('max_wall_seconds', 600)) + 900.0
+command = [
     sys.executable, '-u', '-m', 'guandan_marvel.kaggle.runner',
     '--dataset-manifest', str(DATASET_MANIFEST_PATH),
     '--input-root', str(INPUT_ROOT),
@@ -248,12 +398,17 @@ NOTEBOOK_RUN = r'''command = [
 ]
 if RECOVERY_PATH is not None:
     command += ['--recovery-root', str(RECOVERY_PATH)]
-print('RUN:', command)
-completed = subprocess.run(command, cwd=SOURCE_ROOT, env=ENV)
-if completed.returncode not in (0, 2):
-    raise RuntimeError(f'M07 runner 失败，exit={completed.returncode}')
+print('RUN:', command, flush=True)
+completed = run_with_heartbeat(
+    command,
+    cwd=SOURCE_ROOT,
+    env=ENV,
+    label='runner',
+    timeout_seconds=runner_timeout_seconds,
+    allowed_returncodes=(0, 2),
+)
 if completed.returncode == 2:
-    print('达到时间预算，最近 durable recovery 已保留。')
+    print('达到时间预算，最近 durable recovery 已保留。', flush=True)
 '''
 
 NOTEBOOK_RESULTS = r'''from IPython.display import FileLink, display
@@ -358,6 +513,8 @@ def validate_notebook(path: str | Path) -> dict[str, object]:
     required = (
         "guandan_marvel_dataset.json", "nproc_per_node=2", "build_ext", "--dataset-manifest",
         "guandan-marvel-recovery.zip", "Run All" if False else "guandan-marvel-output.zip",
+        "GUANDAN_BUILD_TIMEOUT_SECONDS", "bootstrap_progress.json", "process still running",
+        "guandan-marvel-bootstrap-diagnostics.zip",
     )
     missing = [item for item in required if item not in notebook_path.read_text(encoding="utf-8")]
     if missing:
@@ -370,7 +527,7 @@ def validate_notebook(path: str | Path) -> dict[str, object]:
 
 
 def _readme() -> str:
-    return """# 掼蛋 MARVEL Kaggle T4×2 使用说明\n\n本目录是 **M07 remote-ready 本地交付**。它没有自动上传 Kaggle，也没有把本地检查伪装成真实 T4×2 验证；真实远端吞吐、显存、双卡效率和 pilot 结论属于 M08。\n\n## 1. 选择模式 Dataset\n\n在 `datasets` 下只选择一个目录创建 Kaggle Dataset：\n\n- `preflight`：推荐先运行，只检查源码、C++ 扩展、两张 T4、NCCL 和输入；\n- `pilot`：短 DDP 训练、durable checkpoint 和短评估；\n- `resume`：从另一个 Kaggle Dataset 中的 `guandan-marvel-recovery.zip` 精确恢复；\n- `full`：长训练。只有你明确选择 `datasets/full` 时才会启动，不是默认；\n- `eval_only`：从 recovery 中的冻结/训练 checkpoint 做只读短评估。\n\n不要把多个模式目录合并成同一个 Kaggle Dataset；Notebook 发现多个 `guandan_marvel_dataset.json` 会 fail closed。\n\n## 2. 创建 Kaggle Dataset\n\n1. 在 Kaggle 新建私有 Dataset。\n2. 上传所选 `datasets/<mode>` 目录内的全部四个文件（Dataset manifest、bootstrap、source manifest、source ZIP）。\n3. `resume`/`eval_only` 还要把上一次下载的 `guandan-marvel-recovery.zip` 建成第二个 Dataset。\n4. 不要改文件名、路径、manifest 或 hash。\n\n## 3. 添加 Notebook 并运行\n\n1. 导入 `guandan_marvel_t4x2.ipynb`。\n2. Add Input：只添加一个模式 Dataset；恢复模式再添加一个 recovery Dataset。\n3. Accelerator 选择 **GPU T4 x2**。\n4. Internet 可关闭；源码从 Dataset 解压，本地编译 pybind 扩展。\n5. 点击 **Run All**，不需要修改任何代码、绝对路径、checkpoint 名称或设备参数。\n\n训练模式固定使用 `torchrun --standalone --nproc_per_node=2`。rank 0 写主日志、manifest、checkpoint 和 bundle；每个 rank 另有诊断日志。\n\n## 4. 下载 output\n\n运行完成后下载：\n\n- `/kaggle/working/guandan-marvel-output/guandan-marvel-output.zip`；\n- `/kaggle/working/guandan-marvel-output/guandan-marvel-recovery.zip`。\n\n后者用于下一次 `resume` 或 `eval_only`。正常结束、预算停止和可捕获异常会尽力保留最近 durable checkpoint；Kaggle 平台硬杀无法保证 finally 执行，因此 checkpoint 会周期生成。\n\n## 5. 语义边界\n\n- `preflight`/`pilot` 只证明管线和恢复流程，不证明模型强度；\n- M07 `accepted` 只表示 package 构建和本地验证完成，即 `remote_ready`；\n- 真实双 T4 是否达到 1.5×、显存峰值和 full 参数必须由 M08 的下载证据确认；\n- `evaluation_summary.json` 是有限管线评估，不是 formal selection 或 final holdout；\n- Notebook 遇到多个 source/recovery、hash 不匹配、GPU 数量不符或恢复 world size 不符时会拒绝运行。\n"""
+    return """# 掼蛋 MARVEL Kaggle T4×2 使用说明\n\n本目录是 **M07 remote-ready 本地交付**。它没有自动上传 Kaggle，也没有把本地检查伪装成真实 T4×2 验证；真实远端吞吐、显存、双卡效率和 pilot 结论属于 M08。\n\n## 1. 选择模式 Dataset\n\n在 `datasets` 下只选择一个目录创建 Kaggle Dataset：\n\n- `preflight`：推荐先运行，只检查源码、C++ 扩展、两张 T4、NCCL 和输入；\n- `pilot`：短 DDP 训练、durable checkpoint 和短评估；\n- `resume`：从另一个 Kaggle Dataset 中的 `guandan-marvel-recovery.zip` 精确恢复；\n- `full`：长训练。只有你明确选择 `datasets/full` 时才会启动，不是默认；\n- `eval_only`：从 recovery 中的冻结/训练 checkpoint 做只读短评估。\n\n不要把多个模式目录合并成同一个 Kaggle Dataset；Notebook 发现多个 `guandan_marvel_dataset.json` 会 fail closed。\n\n## 2. 创建 Kaggle Dataset\n\n1. 在 Kaggle 新建私有 Dataset。\n2. 上传所选 `datasets/<mode>` 目录内的全部四个文件（Dataset manifest、bootstrap、source manifest、source ZIP）。\n3. `resume`/`eval_only` 还要把上一次下载的 `guandan-marvel-recovery.zip` 建成第二个 Dataset。\n4. 不要改文件名、路径、manifest 或 hash。\n\n## 3. 添加 Notebook 并运行\n\n1. 导入 `guandan_marvel_t4x2.ipynb`。\n2. Add Input：只添加一个模式 Dataset；恢复模式再添加一个 recovery Dataset。\n3. Accelerator 选择 **GPU T4 x2**。\n4. Internet 可关闭；源码从 Dataset 解压，本地编译 pybind 扩展。\n5. 点击 **Run All**，不需要修改任何代码、绝对路径、checkpoint 名称或设备参数。\n\n首次 source 构建会从 bootstrap 开始立即打印阶段日志，并每 5 秒打印 heartbeat。native build 内层硬超时为 600 秒，Notebook 外层硬超时为 660 秒；超时或异常会在 `/kaggle/working/guandan-marvel-bootstrap/` 写进度、日志和失败 JSON，并生成 `/kaggle/working/guandan-marvel-bootstrap-diagnostics.zip`。不要继续运行长期无日志的旧 Notebook。\n\n训练模式固定使用 `torchrun --standalone --nproc_per_node=2`。rank 0 写主日志、manifest、checkpoint 和 bundle；每个 rank 另有诊断日志。\n\n## 4. 下载 output\n\n运行完成后下载：\n\n- `/kaggle/working/guandan-marvel-output/guandan-marvel-output.zip`；\n- `/kaggle/working/guandan-marvel-output/guandan-marvel-recovery.zip`。\n\n后者用于下一次 `resume` 或 `eval_only`。正常结束、预算停止和可捕获异常会尽力保留最近 durable checkpoint；Kaggle 平台硬杀无法保证 finally 执行，因此 checkpoint 会周期生成。\n\n## 5. 语义边界\n\n- `preflight`/`pilot` 只证明管线和恢复流程，不证明模型强度；\n- M07 `accepted` 只表示 package 构建和本地验证完成，即 `remote_ready`；\n- 真实双 T4 是否达到 1.5×、显存峰值和 full 参数必须由 M08 的下载证据确认；\n- `evaluation_summary.json` 是有限管线评估，不是 formal selection 或 final holdout；\n- Notebook 遇到多个 source/recovery、hash 不匹配、GPU 数量不符或恢复 world size 不符时会拒绝运行。\n"""
 
 
 def build_delivery(

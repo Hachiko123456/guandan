@@ -214,6 +214,39 @@ def test_generated_notebook_actual_bootstrap_cell_handles_layout(layout_delivery
     assert prepared["source_input_kind"] == ("directory" if unpacked else "zip")
     assert Path(prepared["source_root"]).is_dir()
     assert calls
+    build_call = next(row for row in calls if "build_ext" in row[0][0])
+    assert build_call[1]["timeout"] == 660.0
+    assert build_call[1]["env"]["PYTHONUNBUFFERED"] == "1"
+    progress = json.loads((tmp_path / "working/guandan-marvel-bootstrap/bootstrap_progress.json").read_text(encoding="utf-8"))
+    assert progress["stage"] == "ready_for_runner"
+    assert progress["status"] == "complete"
+
+
+def test_generated_notebook_build_timeout_writes_downloadable_diagnostics(layout_delivery, tmp_path, monkeypatch):
+    _copy_mode(layout_delivery, tmp_path)
+    notebook = json.loads((layout_delivery / "guandan_marvel_t4x2.ipynb").read_text(encoding="utf-8"))
+    code = "".join(notebook["cells"][1]["source"])
+    code = code.replace("Path('/kaggle/input')", f"Path({str(tmp_path / 'input')!r})")
+    code = code.replace("Path('/kaggle/working')", f"Path({str(tmp_path / 'working')!r})")
+
+    def timeout_build(command, *args, **kwargs):
+        if "build_ext" in command:
+            raise subprocess.TimeoutExpired(command, kwargs["timeout"])
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr(subprocess, "run", timeout_build)
+    with pytest.raises(RuntimeError, match="native_build timed out"):
+        exec(compile(code, "generated-notebook-bootstrap-timeout", "exec"), {})
+    diagnostic_root = tmp_path / "working/guandan-marvel-bootstrap"
+    failure = json.loads((diagnostic_root / "bootstrap_failure.json").read_text(encoding="utf-8"))
+    assert failure["error_type"] == "RuntimeError"
+    assert failure["stage"] == "native_build"
+    assert (diagnostic_root / "bootstrap.log").is_file()
+    bundle = tmp_path / "working/guandan-marvel-bootstrap-diagnostics.zip"
+    assert bundle.is_file()
+    with zipfile.ZipFile(bundle) as archive:
+        assert {"bootstrap.log", "bootstrap_progress.json", "bootstrap_failure.json"} <= set(archive.namelist())
+
 
 def test_generated_notebook_actual_bootstrap_cell_handles_unpacked_recovery(layout_delivery, tmp_path, monkeypatch):
     dataset_root = _copy_mode(layout_delivery, tmp_path, mode="resume")

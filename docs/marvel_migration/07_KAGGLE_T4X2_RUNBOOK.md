@@ -60,6 +60,12 @@ Notebook 必须提供固定的模式入口，不要求用户改代码：
 
 模式通过单一配置 cell 或 Dataset manifest 选择。最终交付 notebook 默认模式必须在说明中明确，避免误启动长跑。
 
+## 5.1 Bootstrap 可观测性与超时
+
+Notebook 必须在 Dataset 发现、manifest 校验、source materialization、native build、native import 和 runner 启动前后立即 `flush` 日志。Native build 期间至少每 5-10 秒输出 heartbeat；内外层都必须有硬超时，不能在训练前无限占用 GPU。任何 bootstrap 异常都必须在 `/kaggle/working` 留下 progress、log、failure JSON 和可下载 diagnostics ZIP。
+
+当前正式门槛：native compiler 内层 600 秒、Notebook 外层 660 秒、native import 120 秒。旧版长期空白 Notebook 不得重跑。
+
 ## 6. 必需日志
 
 ```text

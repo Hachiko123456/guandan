@@ -336,7 +336,12 @@ stages:
     status: ready
     accepted: false
     commit: null
-    reports: []
+    reports:
+      - docs/marvel_migration/reports/M08_remote_bootstrap_observability_repair.md
+    evidence:
+      - docs/marvel_migration/evidence/M08_remote_bootstrap_observability_repair/verification.json
+      - docs/marvel_migration/evidence/M08_remote_bootstrap_observability_repair/test_results.json
+    note: first real T4x2 attempt exposed a pre-run blank hang; delivery repaired locally and must be rerun, no remote acceptance claimed
     blockers: []
 
   M09_full_training:
