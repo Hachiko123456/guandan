@@ -210,14 +210,14 @@ stages:
   M06_evaluation_champion:
     status: accepted
     accepted: true
-    commit: null
+    commit: 60dbaa5bc57acd3067822ffaab898d8c62653675
     original_implementation_commit: 10cb3452f69cd23a3bed848498e4353dcfbe3b9c
     original_registration_commit: a46204c756802541c36d49f90ab922cc1f4b6fb8
     repair_implementation_commit: afcd8d9817a2e993b1fae5652bb339fce3294809
     repair_registration_commit: 597392519c776d65874cc646bc1787261f66a837
-    final_binding_repair_implementation_commit: null
+    final_binding_repair_implementation_commit: 60dbaa5bc57acd3067822ffaab898d8c62653675
     final_binding_repair_registration_commit: null
-    repair_note: final dataset binding repair passed; exact implementation SHA will be recorded by registration commit
+    repair_note: final dataset binding repair passed; implementation SHA recorded exactly and registration SHA reported in final response
     reports:
       - docs/marvel_migration/reports/M06_evaluation_champion.md
       - docs/marvel_migration/reports/M06_evaluation_champion.json

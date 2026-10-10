@@ -1,6 +1,6 @@
 {
   "schema": "guandan-marvel-m06-final-binding-artifact-manifest-v1",
-  "implementation_commit": null,
+  "implementation_commit": "60dbaa5bc57acd3067822ffaab898d8c62653675",
   "large_artifacts_committed": false,
   "run_root": "runs/M06_final_dataset_binding_repair/20261010_acceptance_tests",
   "run_artifacts": [
@@ -123,8 +123,8 @@
     },
     {
       "path": "docs/marvel_migration/evidence/M06_final_dataset_binding_repair/verification.json",
-      "bytes": 1138,
-      "sha256": "f4f0f10e506894d01a2e4de3e4a92a27eeea486509fa359a3a899eb000a65f44"
+      "bytes": 1176,
+      "sha256": "56baa2955bc5b4fe9f11e7065167bbb1b68ed0ff7beb85477922d319bb4955e9"
     }
   ],
   "historical_manifest_correction": {

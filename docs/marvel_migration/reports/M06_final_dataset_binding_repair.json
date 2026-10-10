@@ -3,7 +3,7 @@
   "date": "2026-10-10",
   "start_head": "597392519c776d65874cc646bc1787261f66a837",
   "baseline_implementation": "afcd8d9817a2e993b1fae5652bb339fce3294809",
-  "implementation_commit": null,
+  "implementation_commit": "60dbaa5bc57acd3067822ffaab898d8c62653675",
   "status": "accepted",
   "accepted": true,
   "m07_allowed": true,
@@ -220,7 +220,7 @@
   },
   "verification": {
     "schema": "guandan-marvel-m06-final-binding-verification-v1",
-    "implementation_commit": null,
+    "implementation_commit": "60dbaa5bc57acd3067822ffaab898d8c62653675",
     "passes": true,
     "accepted": true,
     "m07_allowed": true,

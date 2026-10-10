@@ -1,6 +1,6 @@
 {
   "schema": "guandan-marvel-m06-final-binding-verification-v1",
-  "implementation_commit": null,
+  "implementation_commit": "60dbaa5bc57acd3067822ffaab898d8c62653675",
   "passes": true,
   "accepted": true,
   "m07_allowed": true,
