@@ -141,3 +141,8 @@ M06 candidate/champion/opponent-pool V2 loader 只接受 training checkpoint v4 
 ## 12. M06 repair checkpoint v5（2026-10-10）
 
 Canonical training schema 升级为 `guandan-marvel-training-checkpoint-v5`，semantic contract 升级为 v4，sampler state 升级为 v2。新增 hash-protected `guandan-marvel-training-data-provenance-v1`。v4 因缺实际训练来源，对 training resume 为 migration；可作为 smoke-only opponent/candidate evaluation source，但不得正式 selection promotion 或 final audit。Evaluation-only snapshot 必须携带其来源 checkpoint 的 provenance，不得补造。
+## 13. M07 DDP envelope 与 recovery（2026-10-10）
+
+`guandan-marvel-ddp-checkpoint-v1` 是 training checkpoint v5 的双 rank durable envelope。`rank000.pt`/`rank001.pt` 各自保存 sampler、RNG 和 replay；rank 0 manifest 保存 shard hash、跨 rank 模型 state hash、global counters 和 `guandan-marvel-ddp-training-data-provenance-v1`。它只允许相同 world size exact/compatible resume；缺 rank、模型不一致、source/backend/semantic 不兼容或 world size 变化都 fail closed。
+
+`guandan-marvel-recovery-manifest-v1` 将最近 durable envelope 与实际 native extension binary/hash 一起打包。恢复优先使用该 binary 维持 backend/build identity；不得用重新编译后不同 binary 静默重标 exact。Legacy V1 评估能力和单 rank v5 只读能力保留。

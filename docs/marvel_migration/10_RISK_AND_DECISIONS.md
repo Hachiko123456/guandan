@@ -266,3 +266,6 @@ Round 1 保留 active-only post-decoder heads；四座位 history/KV 仍完整�
 决定：final audit reservation 不再隐式使用 `self.dataset_hash` 代替外部核验。Runner 计算并显式传入实际 dataset identity、generator version 和 deal count；audit 在独占锁内对调用值、对象预期值和持久化值做三方比较。
 
 兼容性：schema v2 和持久化状态不变；reserve API 新增必填 identity 参数。旧终态记录不重置。
+## M07 决策：DDP rank shard 与 native binary 随 recovery 保存
+
+单一 rank 0 checkpoint 无法精确恢复另一个 rank 的 sampler/RNG/replay；重新编译 native extension 又可能改变 M05 要求的 binary identity。因此 M07 采用 rank 0 原子发布的两 shard envelope，并在 recovery ZIP 中携带实际 extension binary。代价是 recovery 体积增加，但避免伪 exact resume、rank stream 丢失和跨会话 binary hash 漂移。

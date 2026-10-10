@@ -1,0 +1,14 @@
+{
+  "branch": "codex/marvel-guandan-migration",
+  "cuda_available": false,
+  "cuda_device_count": 0,
+  "git_start_head": "d44c92bc7bb30efa89ad75ec67272be43e5e4649",
+  "numpy": "2.3.5",
+  "nvidia_smi_visible": "NVIDIA GeForce RTX 3050 Ti Laptop GPU, 4096 MiB",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]",
+  "reference_repo": "D:/project/doudizhu",
+  "reference_repo_write_performed": false,
+  "schema": "guandan-marvel-m07-environment-v1",
+  "torch": "2.13.0+cpu"
+}

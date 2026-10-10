@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M07_kaggle_t4x2
+current_stage: M08_remote_pilot
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -268,19 +268,34 @@ stages:
     blockers: []
 
   M07_kaggle_t4x2:
+    status: remote_ready
+    accepted: true
+    commit: self
+    commit_note: exact atomic commit SHA is reported in the final response and clean-commit source manifest
+    reports:
+      - docs/marvel_migration/reports/M07_kaggle_t4x2.md
+      - docs/marvel_migration/reports/M07_kaggle_t4x2.json
+    evidence:
+      - docs/marvel_migration/evidence/M07_kaggle_t4x2/protocol_schema.json
+      - docs/marvel_migration/evidence/M07_kaggle_t4x2/package_validation.json
+      - docs/marvel_migration/evidence/M07_kaggle_t4x2/local_ddp_recovery.json
+      - docs/marvel_migration/evidence/M07_kaggle_t4x2/source_build_validation.json
+      - docs/marvel_migration/evidence/M07_kaggle_t4x2/cli_integration.json
+      - docs/marvel_migration/evidence/M07_kaggle_t4x2/environment.json
+      - docs/marvel_migration/evidence/M07_kaggle_t4x2/test_results.json
+      - docs/marvel_migration/evidence/M07_kaggle_t4x2/source_manifest.json
+      - docs/marvel_migration/evidence/M07_kaggle_t4x2/verification.json
+      - docs/marvel_migration/evidence/M07_kaggle_t4x2/artifact_manifest.json
+    delivery_root: D:\project\kaggle_train\guandan-marvel-t4x2-20261010
+    acceptance_semantics: local package complete and remote_ready; not Kaggle T4x2 verified
+    blockers: []
+
+  M08_remote_pilot:
     status: ready
     accepted: false
     commit: null
     reports: []
     blockers: []
-
-  M08_remote_pilot:
-    status: blocked
-    accepted: false
-    commit: null
-    reports: []
-    blockers:
-      - M07_kaggle_t4x2 is not accepted
 
   M09_full_training:
     status: blocked

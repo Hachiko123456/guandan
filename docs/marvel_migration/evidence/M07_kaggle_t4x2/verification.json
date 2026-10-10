@@ -1,0 +1,47 @@
+{
+  "accepted": true,
+  "blockers": [],
+  "hard_gates": {
+    "cli_integration": true,
+    "five_modes_supported": true,
+    "full_not_default": true,
+    "legacy_v1_preserved": true,
+    "local_cpu_two_process_resume": true,
+    "no_kaggle_success_fabricated": true,
+    "no_upload": true,
+    "notebook_syntax": true,
+    "offline_source_build_import": true,
+    "partial_recovery_bundle": true,
+    "per_rank_diagnostics": true,
+    "periodic_durable_checkpoint": true,
+    "previous_m06_accepted_and_evidence_reviewed": true,
+    "protected_rules_unchanged": true,
+    "rank0_publishes_main_artifacts": true,
+    "remote_training_command_torchrun_nproc2": true,
+    "required_logs_and_manifests": true,
+    "run_all_notebook_no_placeholders": true,
+    "scoped_and_dependency_tests": true,
+    "single_model_ddp_state_hashes_equal": true,
+    "source_zip_manifest_commit_hashes_licenses": true,
+    "unique_dataset_source_recovery_fail_closed": true
+  },
+  "limitations": [
+    "no real Kaggle session or T4 GPU execution",
+    "local torch build is CPU-only; physical GPU is visible only to nvidia-smi",
+    "Windows local DDP test uses two explicit rank processes because local torchrun elastic store lacks libuv",
+    "full/pilot throughput, memory, speedup and ETA remain for M08",
+    "bounded evaluation is not formal selection, champion promotion, final holdout, or strength evidence"
+  ],
+  "m08_allowed": true,
+  "remote_verified": false,
+  "schema": "guandan-marvel-m07-verification-v1",
+  "stage": "M07_kaggle_t4x2",
+  "status": "remote_ready",
+  "tests": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 100,
+    "skipped": 0,
+    "tests": 100
+  }
+}

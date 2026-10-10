@@ -1,0 +1,14 @@
+{
+  "archive": "D:\\project\\kaggle_train\\guandan-marvel-t4x2-20261010-staging\\datasets\\preflight\\guandan-marvel-source.zip",
+  "build_command": "python setup.py build_ext --inplace",
+  "build_exit_code": 0,
+  "build_log": "runs/M07_kaggle_t4x2/20261010_acceptance/source_extract_staging_final/build_ext.log",
+  "build_log_sha256": "2871651601b89ef54d794ffb2936e3c1dd5dbd1f242c846e6726ac5b31f8ad6f",
+  "extension_sha256": "199d93ab8d0de872ba3bf8a230d29a5e02aa77b7d43be448cc7dcf1728b556a2",
+  "game_identifier": "GuandanMARVELV2Cpp",
+  "import_command": "python -c import guandan_marvel.cpp_game ...",
+  "import_exit_code": 0,
+  "passes": true,
+  "schema": "guandan-marvel-m07-source-build-validation-v1",
+  "source_matches_loaded_binary": true
+}

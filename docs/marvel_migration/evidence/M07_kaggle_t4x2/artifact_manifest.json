@@ -1,0 +1,204 @@
+{
+  "external_delivery": {
+    "final": "D:/project/kaggle_train/guandan-marvel-t4x2-20261010",
+    "staging": "D:/project/kaggle_train/guandan-marvel-t4x2-20261010-staging",
+    "staging_only_not_remote_evidence": true
+  },
+  "large_artifacts_committed": false,
+  "remote_verified": false,
+  "run_artifacts": [
+    {
+      "bytes": 100,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/m07_scoped.log",
+      "sha256": "fd03259291c356bb2353c3c24cf865b046d00c2d50f1ea868e82c89ab03b6685"
+    },
+    {
+      "bytes": 1287,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/m07_scoped.junit.xml",
+      "sha256": "0461d822403895436ee2b02200640947166a123c1eef46cabc2da7868e469b16"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/m07_scoped.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 193,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/target_regression.log",
+      "sha256": "ebd5cf4a372deb71a1c6c1a95615c5d17ff0644cb943671e07b38b6a48dc1f11"
+    },
+    {
+      "bytes": 13302,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/target_regression.junit.xml",
+      "sha256": "7eabc97351661e47064e6c81cea880a380c4828d05c5298a29ce250845b8e326"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/target_regression.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 100,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/a00_specification.log",
+      "sha256": "0e658b1cf5fdc415e724c6e0ad5eaf6a177061c51588c92fb01a90d0667a25d8"
+    },
+    {
+      "bytes": 951,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/a00_specification.junit.xml",
+      "sha256": "c278c5d72fb239a491de205a5d927293149ab978a448858c6a46a6d61271f9f0"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/a00_specification.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 5042,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/package_build_staging.log",
+      "sha256": "f913fe413a78ace059c4e736f326061579205ca2ea8af61ba5963625ec94dd08"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/package_build_staging.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 1228,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/package_validate_staging.log",
+      "sha256": "1f8d9cad40d7703cb2bf316b8a02f17a17ca575d53a4c684fd30cb4439e6cb59"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/package_validate_staging.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 5889,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/local_ddp_recovery.log",
+      "sha256": "4bcea019ceb804e6a970635f0903145293255042253914752c74f69aeda8512d"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/local_ddp_recovery.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 173,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/m03_regression_smoke.log",
+      "sha256": "ef1459df316fc797755b375a4c353255f480743837ba23d855db7d7e1d33b559"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/m03_regression_smoke.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 97,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/source_cli.log",
+      "sha256": "f7df87aa8ebeeb23ed08a17ec4a42b2cfe19ab8d713f7ba6627d893eed38e56e"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/source_cli.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 2467,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/source_extract_staging_final/build_ext.log",
+      "sha256": "2871651601b89ef54d794ffb2936e3c1dd5dbd1f242c846e6726ac5b31f8ad6f"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/source_extract_staging_final/build_ext.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 86,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/source_extract_staging_final/import.log",
+      "sha256": "b49cc13e247a752736af388660bb088fb7cd5e1d4da236dbb2b95a98266b5bbf"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/source_extract_staging_final/import.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 1691,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/local_ddp_recovery/summary.json",
+      "sha256": "4d7b56832217cf33e0c4d399c405c9695f4dc386879f84d1ed4b6b764c111c68"
+    },
+    {
+      "bytes": 20586,
+      "path": "runs/M07_kaggle_t4x2/20261010_acceptance/m03_regression_smoke_final/summary.json",
+      "sha256": "0c8d98d6f30065d70a869e095f7616e4012b4e07523d8c785b84d5c9349f6e7d"
+    }
+  ],
+  "schema": "guandan-marvel-m07-artifact-manifest-v1",
+  "tracked_evidence": [
+    {
+      "bytes": 888,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2/cli_integration.json",
+      "sha256": "21169521eae6d2cc61277fec83ffd5b7bceabb0d892d35f91d50c0c8651ef539"
+    },
+    {
+      "bytes": 574,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2/environment.json",
+      "sha256": "a403809922a443d901cf8f6e9339c32aecb602e0e01fa6b77cfd1e32780be57a"
+    },
+    {
+      "bytes": 1691,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2/local_ddp_recovery.json",
+      "sha256": "4d7b56832217cf33e0c4d399c405c9695f4dc386879f84d1ed4b6b764c111c68"
+    },
+    {
+      "bytes": 1605,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2/package_validation.json",
+      "sha256": "0921f2c44a74474632fac4cd0a2e92c07888676790648f5bb2031ff0521db822"
+    },
+    {
+      "bytes": 744,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2/protocol_schema.json",
+      "sha256": "d5b57a8bca9194f598d736ed8462d5669ff35546d69d7451effcd88cdb71d875"
+    },
+    {
+      "bytes": 764,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2/source_build_validation.json",
+      "sha256": "54d14ce1790ac56e6c2589e07425b9db5cd4524c9978f55bc5fb0dd0703d6cfc"
+    },
+    {
+      "bytes": 4834,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2/source_manifest.json",
+      "sha256": "60546a14972765ffd7303010b8f41b6a732c8f2ac87fed2ee187233cf4543da3"
+    },
+    {
+      "bytes": 4001,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2/test_results.json",
+      "sha256": "59ea7b1d9ac03d7b91661b9cfd4046a6f7e43f9d83c28f75931872d8240b7478"
+    },
+    {
+      "bytes": 1714,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2/verification.json",
+      "sha256": "aa0d02e029fb15b11ff8494a28821c6a1baea8c128897dbda7b0a4b27da0d0f7"
+    },
+    {
+      "bytes": 6082,
+      "path": "docs/marvel_migration/reports/M07_kaggle_t4x2.md",
+      "sha256": "782dab90795663a1c9461ef7e349b72efb95def4fc620e1dc82beb98b2ab132f"
+    },
+    {
+      "bytes": 12833,
+      "path": "docs/marvel_migration/reports/M07_kaggle_t4x2.json",
+      "sha256": "dd0d2ff14a25734551179899cb78c40e676552a5b3b55706e557e70cf9b94055"
+    },
+    {
+      "bytes": 6068,
+      "path": "docs/marvel_migration/M07_KAGGLE_DDP_PROTOCOL.md",
+      "sha256": "4888af869c7b8bae4be4a124cf41550560242aba6f717970fbd5b9be928d1b2e"
+    },
+    {
+      "bytes": 2142,
+      "path": "docs/marvel_migration/M07_SOURCE_AUDIT.md",
+      "sha256": "17e9982ac5a034afa96115eb4f7253db9c9ac299570f3b12295306f67b73a8f0"
+    }
+  ]
+}

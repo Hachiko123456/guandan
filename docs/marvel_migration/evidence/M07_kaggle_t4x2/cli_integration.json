@@ -1,0 +1,26 @@
+{
+  "command": "python -m guandan_marvel.kaggle.runner ... --allow-local-validation",
+  "exit_code": 0,
+  "passes": true,
+  "preflight_status": "local_only",
+  "remote_preflight_passed": false,
+  "required_artifacts": [
+    "champion_manifest.json",
+    "checkpoint_manifest.json",
+    "console.log",
+    "evaluation_summary.json",
+    "metrics.jsonl",
+    "preflight.json",
+    "progress.json",
+    "resolved_config.json",
+    "run_result.json",
+    "runtime_environment.json",
+    "selected_profile.json",
+    "source_manifest.json",
+    "telemetry.jsonl"
+  ],
+  "schema": "guandan-marvel-m07-cli-integration-v1",
+  "scope": "local extracted-source CLI only; no /kaggle path and no remote claim",
+  "source_root": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2\\20261010_acceptance\\source_extract_staging_final\\guandan-marvel-source",
+  "status": "complete"
+}

@@ -1,0 +1,15 @@
+{
+  "champion_manifest": "guandan-marvel-kaggle-champion-manifest-v1",
+  "checkpoint_manifest": "guandan-marvel-checkpoint-manifest-v1",
+  "dataset": "guandan-marvel-kaggle-dataset-v1",
+  "ddp_checkpoint": "guandan-marvel-ddp-checkpoint-v1",
+  "ddp_provenance": "guandan-marvel-ddp-training-data-provenance-v1",
+  "delivery": "guandan-marvel-kaggle-delivery-v1",
+  "evaluation_summary": "guandan-marvel-kaggle-evaluation-summary-v1",
+  "profile": "guandan-marvel-kaggle-profile-v1",
+  "progress": "guandan-marvel-progress-v1",
+  "recovery": "guandan-marvel-recovery-manifest-v1",
+  "schema": "guandan-marvel-m07-protocol-schema-v1",
+  "source": "guandan-marvel-source-manifest-v1",
+  "telemetry": "guandan-marvel-telemetry-v1"
+}

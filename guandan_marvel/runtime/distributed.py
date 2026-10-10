@@ -33,9 +33,16 @@ class DistributedContext:
     def wrap_model(self, model: torch.nn.Module, *, find_unused_parameters: bool = False) -> torch.nn.Module:
         if not self.enabled:
             return model
-        if self.device.type != "cuda":
-            raise RuntimeError("MARVEL DDP requires CUDA and will not silently fall back to CPU.")
-        return DDP(model, device_ids=[self.device.index], output_device=self.device, find_unused_parameters=find_unused_parameters)
+        if self.device.type == "cuda":
+            return DDP(
+                model,
+                device_ids=[self.device.index],
+                output_device=self.device,
+                find_unused_parameters=find_unused_parameters,
+            )
+        if dist.get_backend() != "gloo":
+            raise RuntimeError("CPU DDP is allowed only with the explicit gloo test backend.")
+        return DDP(model, find_unused_parameters=find_unused_parameters)
 
     def _reduce(self, value: float | int | torch.Tensor | None, *, average: bool):
         if value is None:
@@ -56,6 +63,17 @@ class DistributedContext:
     def reduce_sum(self, value):
         return self._reduce(value, average=False)
 
+    def barrier(self) -> None:
+        if self.enabled:
+            dist.barrier()
+
+    def all_gather_object(self, value: object) -> list[object]:
+        if not self.enabled:
+            return [value]
+        gathered: list[object] = [None for _ in range(self.world_size)]
+        dist.all_gather_object(gathered, value)
+        return gathered
+
 
 class NullProgressBar:
     def set_postfix(self, **_kwargs: Any) -> None: pass
@@ -66,6 +84,30 @@ class NullProgressBar:
 class DistributedRuntime:
     def __init__(self, context: DistributedContext) -> None:
         self.context = context
+
+    @property
+    def enabled(self) -> bool:
+        return self.context.enabled
+
+    @property
+    def is_primary(self) -> bool:
+        return self.context.is_primary
+
+    @property
+    def world_size(self) -> int:
+        return self.context.world_size
+
+    @property
+    def rank(self) -> int:
+        return self.context.rank
+
+    @property
+    def local_rank(self) -> int:
+        return self.context.local_rank
+
+    @property
+    def device(self) -> torch.device:
+        return self.context.device
 
     @classmethod
     def from_config(cls, cfg: DDPConfig, *, device: str) -> "DistributedRuntime":
@@ -90,16 +132,22 @@ class DistributedRuntime:
         backend = cfg.backend
         if backend == "nccl" and resolved.type != "cuda":
             raise RuntimeError("NCCL backend requires CUDA; no backend fallback is performed.")
+        if resolved.type == "cpu" and backend != "gloo":
+            raise RuntimeError("CPU DDP requires an explicit gloo backend; no backend fallback is performed.")
         if not dist.is_initialized():
             dist.init_process_group(backend=backend, init_method="env://")
         context = DistributedContext(True, rank == 0, dist.get_world_size(), dist.get_rank(), local_rank, resolved)
+        if context.world_size != world_size:
+            raise RuntimeError("torchrun WORLD_SIZE and initialized process-group size differ")
         return cls(context)
 
     @classmethod
     def from_env(cls, cfg_device: str) -> "DistributedRuntime":
         """Compatibility path: only initializes when an explicit torchrun world exists."""
         enabled = int(os.environ.get("WORLD_SIZE", "1")) > 1
-        return cls.from_config(DDPConfig(enabled=enabled), device=cfg_device)
+        require_cuda = torch.device(cfg_device).type == "cuda"
+        backend = "nccl" if require_cuda else "gloo"
+        return cls.from_config(DDPConfig(enabled=enabled, backend=backend, require_cuda=require_cuda), device=cfg_device)
 
     def close(self) -> None:
         if dist.is_initialized():

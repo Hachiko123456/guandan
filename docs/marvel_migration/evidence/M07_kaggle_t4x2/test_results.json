@@ -1,0 +1,104 @@
+{
+  "blocking_nonoverlapping_totals": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 100,
+    "skipped": 0,
+    "tests": 100
+  },
+  "commands": [
+    {
+      "command": "python -m pytest tests/marvel_kaggle -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 8,
+        "seconds": 5.798,
+        "skipped": 0,
+        "tests": 8
+      },
+      "exit_code": 0,
+      "junit": "runs/M07_kaggle_t4x2/20261010_acceptance/m07_scoped.junit.xml",
+      "junit_sha256": "0461d822403895436ee2b02200640947166a123c1eef46cabc2da7868e469b16",
+      "log": "runs/M07_kaggle_t4x2/20261010_acceptance/m07_scoped.log",
+      "log_sha256": "fd03259291c356bb2353c3c24cf865b046d00c2d50f1ea868e82c89ab03b6685",
+      "name": "m07_scoped"
+    },
+    {
+      "command": "python -m pytest tests/marvel_training tests/marvel_core/test_core.py tests/marvel_evaluation -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 87,
+        "seconds": 92.967,
+        "skipped": 0,
+        "tests": 87
+      },
+      "exit_code": 0,
+      "junit": "runs/M07_kaggle_t4x2/20261010_acceptance/target_regression.junit.xml",
+      "junit_sha256": "7eabc97351661e47064e6c81cea880a380c4828d05c5298a29ce250845b8e326",
+      "log": "runs/M07_kaggle_t4x2/20261010_acceptance/target_regression.log",
+      "log_sha256": "ebd5cf4a372deb71a1c6c1a95615c5d17ff0644cb943671e07b38b6a48dc1f11",
+      "name": "target_regression"
+    },
+    {
+      "command": "python -m pytest tests/acceptance/test_a00_specification.py -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 5,
+        "seconds": 0.052,
+        "skipped": 0,
+        "tests": 5
+      },
+      "exit_code": 0,
+      "junit": "runs/M07_kaggle_t4x2/20261010_acceptance/a00_specification.junit.xml",
+      "junit_sha256": "c278c5d72fb239a491de205a5d927293149ab978a448858c6a46a6d61271f9f0",
+      "log": "runs/M07_kaggle_t4x2/20261010_acceptance/a00_specification.log",
+      "log_sha256": "0e658b1cf5fdc415e724c6e0ad5eaf6a177061c51588c92fb01a90d0667a25d8",
+      "name": "a00_specification"
+    }
+  ],
+  "dynamic_checks": [
+    {
+      "command": "python scripts/run_m07_local_ddp_recovery.py ...",
+      "exit_code": 0,
+      "log": "runs/M07_kaggle_t4x2/20261010_acceptance/local_ddp_recovery.log",
+      "log_sha256": "4bcea019ceb804e6a970635f0903145293255042253914752c74f69aeda8512d",
+      "name": "local_cpu_gloo_ddp_recovery",
+      "summary": "docs/marvel_migration/evidence/M07_kaggle_t4x2/local_ddp_recovery.json"
+    },
+    {
+      "command": "python scripts/run_marvel_training_smoke.py ...",
+      "exit_code": 0,
+      "log": "runs/M07_kaggle_t4x2/20261010_acceptance/m03_regression_smoke.log",
+      "log_sha256": "ef1459df316fc797755b375a4c353255f480743837ba23d855db7d7e1d33b559",
+      "name": "m03_ippo_vrpo_regression_smoke",
+      "summary": "runs/M07_kaggle_t4x2/20261010_acceptance/m03_regression_smoke_final/summary.json"
+    },
+    {
+      "exit_code": 0,
+      "log": "runs/M07_kaggle_t4x2/20261010_acceptance/package_build_staging.log",
+      "log_sha256": "f913fe413a78ace059c4e736f326061579205ca2ea8af61ba5963625ec94dd08",
+      "name": "staging_package_build"
+    },
+    {
+      "exit_code": 0,
+      "log": "runs/M07_kaggle_t4x2/20261010_acceptance/package_validate_staging.log",
+      "log_sha256": "1f8d9cad40d7703cb2bf316b8a02f17a17ca575d53a4c684fd30cb4439e6cb59",
+      "name": "staging_package_validate"
+    },
+    {
+      "build_exit_code": 0,
+      "import_exit_code": 0,
+      "name": "extracted_source_build_import"
+    },
+    {
+      "exit_code": 0,
+      "log": "runs/M07_kaggle_t4x2/20261010_acceptance/source_cli.log",
+      "log_sha256": "f7df87aa8ebeeb23ed08a17ec4a42b2cfe19ab8d713f7ba6627d893eed38e56e",
+      "name": "extracted_source_cli"
+    }
+  ],
+  "schema": "guandan-marvel-m07-test-results-v1"
+}

@@ -116,3 +116,8 @@ M08 必须先测：
 - 实际完成计数与报告一致；
 - 评估基于冻结 checkpoint；
 - 任何 incomplete 不标 complete。
+## 10. M07 实现绑定（2026-10-10）
+
+M07 canonical delivery schema 为 `guandan-marvel-kaggle-delivery-v1`，Dataset/source/DDP checkpoint/recovery/progress/telemetry 均有独立版本。生成器、五模式 Dataset、Run-All Notebook、中文说明、fail-closed discovery、两 rank worker、周期 durable checkpoint 和 recovery binary 规则见 `M07_KAGGLE_DDP_PROTOCOL.md`。
+
+阶段 `accepted` 的语义仅为 `remote_ready`：本地 package validation、Notebook 语法、离线 source build/import、CLI 和 CPU/gloo 双进程恢复通过。没有伪造 `/kaggle`，没有自动上传，真实 T4×2 仍由 M08 验证。

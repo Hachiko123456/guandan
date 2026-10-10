@@ -76,7 +76,14 @@ def verify_data_isolation(
         if provenance.get("domain") != "training" or not provenance.get("manifest_hash"):
             raise ValueError("checkpoint training provenance domain/manifest identity is invalid")
         training_seed = provenance.get("initial_env_seed")
-        seed_overlap = sorted(seeds & ({int(training_seed)} if training_seed is not None else set()))
+        training_seeds = provenance.get("initial_env_seeds")
+        if training_seeds is None:
+            known_training_seeds = {int(training_seed)} if training_seed is not None else set()
+        elif isinstance(training_seeds, (list, tuple)):
+            known_training_seeds = {int(value) for value in training_seeds}
+        else:
+            raise ValueError("checkpoint training provenance initial_env_seeds is malformed")
+        seed_overlap = sorted(seeds & known_training_seeds)
         training_hashes = {str(value) for value in provenance.get("deal_hashes", [])}
         deal_overlap = sorted(hashes & training_hashes)
         checks.append({
@@ -85,6 +92,7 @@ def verify_data_isolation(
             "training_manifest_hash": provenance.get("manifest_hash"),
             "training_generator_version": provenance.get("generator_version"),
             "seed_semantics": provenance.get("seed_semantics"),
+            "training_initial_seeds": sorted(known_training_seeds),
             "seed_overlap": seed_overlap,
             "deal_hash_overlap": deal_overlap,
         })

@@ -1,0 +1,324 @@
+{
+  "accepted": true,
+  "blockers": [],
+  "branch": "codex/marvel-guandan-migration",
+  "claims": {
+    "model_strength": false,
+    "package_ready": true,
+    "practical_play": false,
+    "remote_ready": true,
+    "remote_verified": false,
+    "t4x2_verified": false
+  },
+  "cli_integration": {
+    "command": "python -m guandan_marvel.kaggle.runner ... --allow-local-validation",
+    "exit_code": 0,
+    "passes": true,
+    "preflight_status": "local_only",
+    "remote_preflight_passed": false,
+    "required_artifacts": [
+      "champion_manifest.json",
+      "checkpoint_manifest.json",
+      "console.log",
+      "evaluation_summary.json",
+      "metrics.jsonl",
+      "preflight.json",
+      "progress.json",
+      "resolved_config.json",
+      "run_result.json",
+      "runtime_environment.json",
+      "selected_profile.json",
+      "source_manifest.json",
+      "telemetry.jsonl"
+    ],
+    "schema": "guandan-marvel-m07-cli-integration-v1",
+    "scope": "local extracted-source CLI only; no /kaggle path and no remote claim",
+    "source_root": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2\\20261010_acceptance\\source_extract_staging_final\\guandan-marvel-source",
+    "status": "complete"
+  },
+  "date": "2026-10-10",
+  "delivery_root": "D:/project/kaggle_train/guandan-marvel-t4x2-20261010",
+  "end_commit": "self: exact SHA reported in final response and clean-commit source manifest",
+  "limitations": [
+    "no real Kaggle/T4/NCCL/CUDA run",
+    "local torch build is CPU-only",
+    "local Windows two-process test bypasses torchrun elastic launcher because libuv is unavailable; packaged remote path still uses torchrun",
+    "pilot/full performance and configuration remain for M08",
+    "bounded evaluation is not formal selection/final holdout/strength evidence"
+  ],
+  "local_ddp_recovery": {
+    "backend": "gloo",
+    "cuda_used": false,
+    "kaggle_verified": false,
+    "launcher": "two_process_env_local_test",
+    "passes": true,
+    "pilot": {
+      "checkpoint": {
+        "checkpoint": "checkpoints/iter000001",
+        "created_at": "2026-10-10T04:01:55.556995+00:00",
+        "durable": true,
+        "evaluation_checkpoint": null,
+        "evaluation_checkpoint_sha256": null,
+        "iteration": 1,
+        "manifest_hash": "3975bbf851fc3c8ad00070fe9b6149a7794f572ef42844f47a2cb2eccc852863",
+        "manifest_sha256": "870528f91eb430f711e586346b7f9d6c5b15a0ef35c8bcd9eaacdcecc24045b7"
+      },
+      "iteration": 1,
+      "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2\\20261010_acceptance\\local_ddp_recovery\\pilot_working\\guandan-marvel-output\\runs\\20261010T040144Z-pilot-1daf1ee3",
+      "status": "complete"
+    },
+    "resume": {
+      "checkpoint": {
+        "checkpoint": "checkpoints/iter000002",
+        "created_at": "2026-10-10T04:02:17.033355+00:00",
+        "durable": true,
+        "evaluation_checkpoint": null,
+        "evaluation_checkpoint_sha256": null,
+        "iteration": 2,
+        "manifest_hash": "131ca39b8ad92ee88df56b30c498c8116e1db7423b6c22a9df09b662766569d6",
+        "manifest_sha256": "0fe61c0bb444a9316e837866e309bb0ae4bf0f069bc00bdd896f3d56a81283d7"
+      },
+      "iteration": 2,
+      "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2\\20261010_acceptance\\local_ddp_recovery\\resume_working\\guandan-marvel-output\\runs\\20261010T040203Z-resume-4a623114",
+      "status": "complete"
+    },
+    "schema": "guandan-marvel-m07-local-ddp-recovery-v1",
+    "scope": "local CPU/gloo two-process recovery only; not Kaggle or GPU evidence",
+    "world_size": 2
+  },
+  "m08_allowed": true,
+  "package_validation": {
+    "datasets": [
+      {
+        "manifest": "datasets/eval_only/guandan_marvel_dataset.json",
+        "mode": "eval_only",
+        "valid": true
+      },
+      {
+        "manifest": "datasets/full/guandan_marvel_dataset.json",
+        "mode": "full",
+        "valid": true
+      },
+      {
+        "manifest": "datasets/pilot/guandan_marvel_dataset.json",
+        "mode": "pilot",
+        "valid": true
+      },
+      {
+        "manifest": "datasets/preflight/guandan_marvel_dataset.json",
+        "mode": "preflight",
+        "valid": true
+      },
+      {
+        "manifest": "datasets/resume/guandan_marvel_dataset.json",
+        "mode": "resume",
+        "valid": true
+      }
+    ],
+    "default_recommended_mode": "preflight",
+    "delivery_manifest_verified": true,
+    "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-t4x2-20261010-staging",
+    "final_clean_commit_delivery": "generated after the single atomic stage commit",
+    "modes": [
+      "eval_only",
+      "full",
+      "pilot",
+      "preflight",
+      "resume"
+    ],
+    "notebook": {
+      "code_cells": 3,
+      "path": "guandan_marvel_t4x2.ipynb",
+      "placeholders_absent": true,
+      "schema": "guandan-marvel-notebook-validation-v1",
+      "syntax_valid": true,
+      "valid": true
+    },
+    "passes": true,
+    "remote_verified": false,
+    "schema": "guandan-marvel-m07-package-validation-v1",
+    "source_archive_file_count": 180,
+    "source_archive_sha256": "80d8e6bd55b93284b20d9bb62100a78a104a80ff31c774fdd9612f0af4b52703",
+    "source_commit": "d44c92bc7bb30efa89ad75ec67272be43e5e4649",
+    "staging_workspace_snapshot": true,
+    "uploaded": false
+  },
+  "protected_scope": {
+    "legacy_v1_removed": false,
+    "reference_repo_written": false,
+    "rule_semantics_changed": false
+  },
+  "remote_ready": true,
+  "remote_verified": false,
+  "schema": "guandan-marvel-stage-report-v1",
+  "scope": "Kaggle T4x2 source/Dataset/Notebook/DDP/checkpoint/recovery/evaluation delivery and local verification",
+  "source_build_validation": {
+    "archive": "D:\\project\\kaggle_train\\guandan-marvel-t4x2-20261010-staging\\datasets\\preflight\\guandan-marvel-source.zip",
+    "build_command": "python setup.py build_ext --inplace",
+    "build_exit_code": 0,
+    "build_log": "runs/M07_kaggle_t4x2/20261010_acceptance/source_extract_staging_final/build_ext.log",
+    "build_log_sha256": "2871651601b89ef54d794ffb2936e3c1dd5dbd1f242c846e6726ac5b31f8ad6f",
+    "extension_sha256": "199d93ab8d0de872ba3bf8a230d29a5e02aa77b7d43be448cc7dcf1728b556a2",
+    "game_identifier": "GuandanMARVELV2Cpp",
+    "import_command": "python -c import guandan_marvel.cpp_game ...",
+    "import_exit_code": 0,
+    "passes": true,
+    "schema": "guandan-marvel-m07-source-build-validation-v1",
+    "source_matches_loaded_binary": true
+  },
+  "stage": "M07_kaggle_t4x2",
+  "staging_delivery_root": "D:/project/kaggle_train/guandan-marvel-t4x2-20261010-staging",
+  "start_commit": "d44c92bc7bb30efa89ad75ec67272be43e5e4649",
+  "status": "remote_ready",
+  "tests": {
+    "blocking_nonoverlapping_totals": {
+      "errors": 0,
+      "failed": 0,
+      "passed": 100,
+      "skipped": 0,
+      "tests": 100
+    },
+    "commands": [
+      {
+        "command": "python -m pytest tests/marvel_kaggle -q --junitxml=...",
+        "counts": {
+          "errors": 0,
+          "failed": 0,
+          "passed": 8,
+          "seconds": 5.798,
+          "skipped": 0,
+          "tests": 8
+        },
+        "exit_code": 0,
+        "junit": "runs/M07_kaggle_t4x2/20261010_acceptance/m07_scoped.junit.xml",
+        "junit_sha256": "0461d822403895436ee2b02200640947166a123c1eef46cabc2da7868e469b16",
+        "log": "runs/M07_kaggle_t4x2/20261010_acceptance/m07_scoped.log",
+        "log_sha256": "fd03259291c356bb2353c3c24cf865b046d00c2d50f1ea868e82c89ab03b6685",
+        "name": "m07_scoped"
+      },
+      {
+        "command": "python -m pytest tests/marvel_training tests/marvel_core/test_core.py tests/marvel_evaluation -q --junitxml=...",
+        "counts": {
+          "errors": 0,
+          "failed": 0,
+          "passed": 87,
+          "seconds": 92.967,
+          "skipped": 0,
+          "tests": 87
+        },
+        "exit_code": 0,
+        "junit": "runs/M07_kaggle_t4x2/20261010_acceptance/target_regression.junit.xml",
+        "junit_sha256": "7eabc97351661e47064e6c81cea880a380c4828d05c5298a29ce250845b8e326",
+        "log": "runs/M07_kaggle_t4x2/20261010_acceptance/target_regression.log",
+        "log_sha256": "ebd5cf4a372deb71a1c6c1a95615c5d17ff0644cb943671e07b38b6a48dc1f11",
+        "name": "target_regression"
+      },
+      {
+        "command": "python -m pytest tests/acceptance/test_a00_specification.py -q --junitxml=...",
+        "counts": {
+          "errors": 0,
+          "failed": 0,
+          "passed": 5,
+          "seconds": 0.052,
+          "skipped": 0,
+          "tests": 5
+        },
+        "exit_code": 0,
+        "junit": "runs/M07_kaggle_t4x2/20261010_acceptance/a00_specification.junit.xml",
+        "junit_sha256": "c278c5d72fb239a491de205a5d927293149ab978a448858c6a46a6d61271f9f0",
+        "log": "runs/M07_kaggle_t4x2/20261010_acceptance/a00_specification.log",
+        "log_sha256": "0e658b1cf5fdc415e724c6e0ad5eaf6a177061c51588c92fb01a90d0667a25d8",
+        "name": "a00_specification"
+      }
+    ],
+    "dynamic_checks": [
+      {
+        "command": "python scripts/run_m07_local_ddp_recovery.py ...",
+        "exit_code": 0,
+        "log": "runs/M07_kaggle_t4x2/20261010_acceptance/local_ddp_recovery.log",
+        "log_sha256": "4bcea019ceb804e6a970635f0903145293255042253914752c74f69aeda8512d",
+        "name": "local_cpu_gloo_ddp_recovery",
+        "summary": "docs/marvel_migration/evidence/M07_kaggle_t4x2/local_ddp_recovery.json"
+      },
+      {
+        "command": "python scripts/run_marvel_training_smoke.py ...",
+        "exit_code": 0,
+        "log": "runs/M07_kaggle_t4x2/20261010_acceptance/m03_regression_smoke.log",
+        "log_sha256": "ef1459df316fc797755b375a4c353255f480743837ba23d855db7d7e1d33b559",
+        "name": "m03_ippo_vrpo_regression_smoke",
+        "summary": "runs/M07_kaggle_t4x2/20261010_acceptance/m03_regression_smoke_final/summary.json"
+      },
+      {
+        "exit_code": 0,
+        "log": "runs/M07_kaggle_t4x2/20261010_acceptance/package_build_staging.log",
+        "log_sha256": "f913fe413a78ace059c4e736f326061579205ca2ea8af61ba5963625ec94dd08",
+        "name": "staging_package_build"
+      },
+      {
+        "exit_code": 0,
+        "log": "runs/M07_kaggle_t4x2/20261010_acceptance/package_validate_staging.log",
+        "log_sha256": "1f8d9cad40d7703cb2bf316b8a02f17a17ca575d53a4c684fd30cb4439e6cb59",
+        "name": "staging_package_validate"
+      },
+      {
+        "build_exit_code": 0,
+        "import_exit_code": 0,
+        "name": "extracted_source_build_import"
+      },
+      {
+        "exit_code": 0,
+        "log": "runs/M07_kaggle_t4x2/20261010_acceptance/source_cli.log",
+        "log_sha256": "f7df87aa8ebeeb23ed08a17ec4a42b2cfe19ab8d713f7ba6627d893eed38e56e",
+        "name": "extracted_source_cli"
+      }
+    ],
+    "schema": "guandan-marvel-m07-test-results-v1"
+  },
+  "verification": {
+    "accepted": true,
+    "blockers": [],
+    "hard_gates": {
+      "cli_integration": true,
+      "five_modes_supported": true,
+      "full_not_default": true,
+      "legacy_v1_preserved": true,
+      "local_cpu_two_process_resume": true,
+      "no_kaggle_success_fabricated": true,
+      "no_upload": true,
+      "notebook_syntax": true,
+      "offline_source_build_import": true,
+      "partial_recovery_bundle": true,
+      "per_rank_diagnostics": true,
+      "periodic_durable_checkpoint": true,
+      "previous_m06_accepted_and_evidence_reviewed": true,
+      "protected_rules_unchanged": true,
+      "rank0_publishes_main_artifacts": true,
+      "remote_training_command_torchrun_nproc2": true,
+      "required_logs_and_manifests": true,
+      "run_all_notebook_no_placeholders": true,
+      "scoped_and_dependency_tests": true,
+      "single_model_ddp_state_hashes_equal": true,
+      "source_zip_manifest_commit_hashes_licenses": true,
+      "unique_dataset_source_recovery_fail_closed": true
+    },
+    "limitations": [
+      "no real Kaggle session or T4 GPU execution",
+      "local torch build is CPU-only; physical GPU is visible only to nvidia-smi",
+      "Windows local DDP test uses two explicit rank processes because local torchrun elastic store lacks libuv",
+      "full/pilot throughput, memory, speedup and ETA remain for M08",
+      "bounded evaluation is not formal selection, champion promotion, final holdout, or strength evidence"
+    ],
+    "m08_allowed": true,
+    "remote_verified": false,
+    "schema": "guandan-marvel-m07-verification-v1",
+    "stage": "M07_kaggle_t4x2",
+    "status": "remote_ready",
+    "tests": {
+      "errors": 0,
+      "failed": 0,
+      "passed": 100,
+      "skipped": 0,
+      "tests": 100
+    }
+  }
+}

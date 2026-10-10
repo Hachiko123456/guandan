@@ -288,3 +288,8 @@ Resume compatibility now compares the actual semantic configuration and componen
 ## 13. M06 repair training provenance
 
 Canonical training checkpoint 为 v5，sampler state 为 v2。On-policy sampler 记录初始 stream seed、连续 PRNG 语义和每个实际训练 deal hash；checkpoint 保存 hash-protected `training_data_provenance`。v4 缺 provenance，训练 resume 分类为 migration，仅允许 smoke-only evaluation。Training evaluator 使用 spawn process；trainer 在 durable iteration 自动收集结果，worker 永远不接收 live training state。
+## 14. M07 单模型双 rank DDP
+
+M07 将既有 trainer 扩展为显式 DDP runtime：global rollout/collect batch 按 world size 等分，每 rank 独立环境 seed，模型初始化一致，trainable actor/critic 由 `DistributedDataParallel` 包装并同步梯度。远端只允许 `WORLD_SIZE=2`、NCCL、CUDA；CPU/gloo 仅用于明确标记的本地双进程恢复测试。
+
+Durable checkpoint 由 rank 0 原子发布 `guandan-marvel-ddp-checkpoint-v1` envelope；每 rank shard 保存 sampler/RNG/replay，manifest 验证跨 rank resume/merged/critic state hash 一致并汇总全局 counters。当前恢复策略只接受相同 world size。完整协议见 `M07_KAGGLE_DDP_PROTOCOL.md`。

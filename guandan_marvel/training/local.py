@@ -22,6 +22,7 @@ from guandan_marvel.config import TrainConfig
 from guandan_marvel.model import Agent, CentralCritic
 from guandan_marvel.optim.common import ExponentialMovingAverageUpdater, apply_learning_rate
 from guandan_marvel.runtime.compilation import ModuleCompiler
+from guandan_marvel.runtime.distributed import DistributedRuntime
 from guandan_marvel.runtime.logger import MetricSinks
 from guandan_marvel.runtime.sampler import (
     SAMPLER_CONTRACT_SCHEMA, SAMPLER_STATE_SCHEMA, Sampler, SamplerConfig,
@@ -68,8 +69,9 @@ COMMON_RUNTIME_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
     ),
     "runtime": (
         "guandan_marvel/config.py", "guandan_marvel/runtime/__init__.py",
-        "guandan_marvel/runtime/compilation.py", "guandan_marvel/runtime/logger.py",
-        "guandan_marvel/runtime/sampler.py", "guandan_marvel/utils.py",
+        "guandan_marvel/runtime/compilation.py", "guandan_marvel/runtime/distributed.py",
+        "guandan_marvel/runtime/logger.py", "guandan_marvel/runtime/sampler.py",
+        "guandan_marvel/utils.py",
     ),
     "training": (
         "guandan_marvel/training/__init__.py", "guandan_marvel/training/checkpoints.py",
@@ -78,6 +80,11 @@ COMMON_RUNTIME_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
         "guandan_marvel/training/metrics.py", "guandan_marvel/training/schedules.py",
         "guandan_marvel/training/smoke.py", "guandan_marvel/training/validation.py",
         "guandan_marvel/training/vrpo.py",
+    ),
+    "distributed_orchestration": (
+        "guandan_marvel/kaggle/checkpoints.py", "guandan_marvel/kaggle/common.py",
+        "guandan_marvel/kaggle/profiles.py", "guandan_marvel/kaggle/runner.py",
+        "guandan_marvel/kaggle/worker.py",
     ),
 }
 PYTHON_BACKEND_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
@@ -125,6 +132,9 @@ def runtime_source_components(backend: str, root: Path) -> dict[str, tuple[str, 
 
 
 def _git_head(root: Path) -> str:
+    exported = os.environ.get("GUANDAN_MARVEL_SOURCE_COMMIT", "").strip().lower()
+    if len(exported) == 40 and all(ch in "0123456789abcdef" for ch in exported):
+        return exported
     try:
         return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
     except Exception:
@@ -152,17 +162,27 @@ class LocalTrainerBase:
     def __init__(self, cfg: TrainConfig, *, game: object, run_dir: str | Path) -> None:
         self.cfg = cfg
         self.game = game
-        self.device = torch.device(cfg.device)
+        self.distributed_runtime = DistributedRuntime.from_config(cfg.ddp, device=cfg.device)
+        self.distributed = self.distributed_runtime.context
+        self.device = self.distributed.device
+        self.rank = int(self.distributed.rank)
+        self.local_rank = int(self.distributed.local_rank)
+        self.world_size = int(self.distributed.world_size)
+        self.is_primary = bool(self.distributed.is_primary)
         if self.device.type not in {"cpu", "cuda"}:
-            raise ValueError("M03 local runtime supports cpu/cuda devices only")
-        if cfg.ddp.enabled:
-            raise ValueError("M03 local smoke does not enable DDP")
+            raise ValueError("MARVEL runtime supports cpu/cuda devices only")
         if cfg.amp_enabled:
             raise ValueError("AMP is explicitly disabled for the first M03 smoke profile")
         if cfg.max_sampler_bytes_per_rank is None:
             raise ValueError("max_sampler_bytes_per_rank is required before sampler allocation")
         if cfg.game.identifier != getattr(game, "identifier"):
             raise ValueError("TrainConfig.game and runtime game identifier differ")
+        if cfg.rollout_batch_size % self.world_size or cfg.collect_batch_size % self.world_size:
+            raise ValueError("global rollout/collect batch sizes must be divisible by DDP world size")
+        self.local_rollout_batch_size = cfg.rollout_batch_size // self.world_size
+        self.local_collect_batch_size = cfg.collect_batch_size // self.world_size
+        if self.local_rollout_batch_size <= 0 or self.local_collect_batch_size <= 0:
+            raise ValueError("each DDP rank must receive positive rollout and collect batches")
         self.run_dir = Path(run_dir)
         self.run_dir.mkdir(parents=True, exist_ok=True)
         self.checkpoint_dir = self.run_dir / "checkpoints"
@@ -174,10 +194,12 @@ class LocalTrainerBase:
             game,
             rollout_batch_size=cfg.rollout_batch_size,
             collect_batch_size=cfg.collect_batch_size,
-            world_size=1,
+            world_size=self.world_size,
             max_sampler_bytes_per_rank=cfg.max_sampler_bytes_per_rank,
         )
         self.replay_memory_budget: dict[str, object] | None = None
+        # All ranks create identical model parameters.  Per-rank stochastic streams
+        # are activated after DDP has synchronized the trainable modules.
         set_global_seed(cfg.seed)
         self.iteration = 0
         self.durable_updates = 0
@@ -223,11 +245,11 @@ class LocalTrainerBase:
         self.sampler = Sampler(config=SamplerConfig(
             game=game,
             device=self.device,
-            rollout_batch_size=cfg.rollout_batch_size,
-            collect_batch_size=cfg.collect_batch_size,
+            rollout_batch_size=self.local_rollout_batch_size,
+            collect_batch_size=self.local_collect_batch_size,
             sampling_temperature=1.0,
             purpose="on_policy",
-            env_seed=cfg.seed,
+            env_seed=cfg.seed + self.rank * 1_000_003,
             data_domain=cfg.training_data_domain,
             data_manifest_hash=cfg.training_data_manifest_hash,
             data_generator_version=cfg.training_data_generator_version,
@@ -272,6 +294,18 @@ class LocalTrainerBase:
         if not self.cfg.compile.enabled:
             return module
         return ModuleCompiler.from_cfg(self.cfg).compile(module)
+
+    def _prepare_trainable(self, module: nn.Module) -> nn.Module:
+        compiled = self._compile(module)
+        return self.distributed.wrap_model(
+            compiled, find_unused_parameters=self.cfg.ddp.find_unused_parameters,
+        )
+
+    def _activate_rank_rng(self) -> None:
+        set_global_seed(self.cfg.seed, offset=self.rank * 1_000_003)
+
+    def close(self) -> None:
+        self.distributed_runtime.close()
 
     def _require_healthy(self) -> None:
         if self.failed or self.iteration_status == "failed":
@@ -360,8 +394,13 @@ class LocalTrainerBase:
             "runtime/schema": M03_RUNTIME_SCHEMA,
             "runtime/backend": str(getattr(self.game, "BACKEND", "unknown")),
             "runtime/algorithm": self.algorithm,
-            "runtime/smoke_profile": True,
+            "runtime/smoke_profile": "local-smoke" in self.cfg.game.identifier,
             "runtime/reduced_horizon": int(self.cfg.game.max_game_horizon),
+            "runtime/ddp_enabled": self.distributed.enabled,
+            "runtime/world_size": self.world_size,
+            "runtime/rank": self.rank,
+            "runtime/local_rollout_batch_size": self.local_rollout_batch_size,
+            "runtime/local_collect_batch_size": self.local_collect_batch_size,
             "runtime/merged_policy_identity": self.merged_policy_identity,
             "runtime/optimizer": "muon+adamw" if self.cfg.optimizer.use_muon else "adamw",
             "runtime/compile_enabled": self.cfg.compile.enabled,
@@ -498,10 +537,11 @@ class IPPOTrainer(LocalTrainerBase):
             merged_model=self.agent_merged,
             beta=cfg.agent_merging_beta,
         )
-        self.agent_model = self._compile(self.agent_resume)
+        self.agent_model = self._prepare_trainable(self.agent_resume)
         self.agent_optimizer = self.agent_resume.configure_optimizer(
             lr=cfg.ppo.base_lr, optimizer=cfg.optimizer,
         )
+        self._activate_rank_rng()
 
     def train_iteration(self) -> dict[str, object]:
         self._begin_iteration()
@@ -600,10 +640,9 @@ class IPPOTrainer(LocalTrainerBase):
         destination = Path(path) if path is not None else self.checkpoint_dir / f"guandan-marvel-v2-ippo-iter{self.iteration:06d}.pt"
         return TrainingCheckpointStore.save(self.checkpoint_payload(), destination)
 
-    def load_checkpoint(self, path: str | Path):
+    def load_checkpoint_payload(self, payload: Mapping[str, object]):
         self._begin_load()
         try:
-            payload = TrainingCheckpointStore.load(path, device=self.device)
             decision = self._classify_checkpoint(payload, require_replay=False)
             self.agent_resume.load_state_dict(payload["agent_resume_state_dict"], strict=True)
             self.agent_merged.load_state_dict(payload["agent_state_dict"], strict=True)
@@ -614,6 +653,10 @@ class IPPOTrainer(LocalTrainerBase):
         except BaseException as error:
             self._poison(stage="checkpoint_load", error=error)
             raise
+
+    def load_checkpoint(self, path: str | Path):
+        payload = TrainingCheckpointStore.load(path, device=self.device)
+        return self.load_checkpoint_payload(payload)
 
 
 class VRPOTrainer(LocalTrainerBase):
@@ -629,15 +672,15 @@ class VRPOTrainer(LocalTrainerBase):
             model=self.agent_resume, merged_model=self.agent_merged,
             beta=cfg.agent_merging_beta,
         )
-        self.agent_model = self._compile(self.agent_resume)
-        self.critic_model = self._compile(self.critic)
+        self.agent_model = self._prepare_trainable(self.agent_resume)
+        self.critic_model = self._prepare_trainable(self.critic)
         self.agent_optimizer = self.agent_resume.configure_optimizer(
             lr=cfg.ppo.base_lr, optimizer=cfg.optimizer,
         )
         self.critic_optimizer = self.critic.configure_optimizer(
             lr=cfg.vrpo.base_lr, optimizer=cfg.optimizer,
         )
-        replay_capacity = max(int(cfg.replay_buffer_scale * cfg.collect_batch_size), 1)
+        replay_capacity = max(int(cfg.replay_buffer_scale * self.local_collect_batch_size), 1)
         per_trajectory = int(self.memory_budget["per_trajectory_bytes"])
         self.replay_memory_budget = {
             "capacity": replay_capacity,
@@ -647,6 +690,7 @@ class VRPOTrainer(LocalTrainerBase):
             replay_capacity,
             BufferConfig(game=cfg.game, device=cfg.vrpo.replay_buffer_device),
         )
+        self._activate_rank_rng()
 
     def _validate_replay_storage(self) -> None:
         mask = self.replay_buffer.storage["num_steps"] > 0
@@ -801,10 +845,9 @@ class VRPOTrainer(LocalTrainerBase):
         destination = Path(path) if path is not None else self.checkpoint_dir / f"guandan-marvel-v2-vrpo-iter{self.iteration:06d}.pt"
         return TrainingCheckpointStore.save(self.checkpoint_payload(), destination)
 
-    def load_checkpoint(self, path: str | Path):
+    def load_checkpoint_payload(self, payload: Mapping[str, object]):
         self._begin_load()
         try:
-            payload = TrainingCheckpointStore.load(path, device=self.device)
             decision = self._classify_checkpoint(payload, require_replay=True)
             self.agent_resume.load_state_dict(payload["agent_resume_state_dict"], strict=True)
             self.agent_merged.load_state_dict(payload["agent_state_dict"], strict=True)
@@ -819,6 +862,10 @@ class VRPOTrainer(LocalTrainerBase):
         except BaseException as error:
             self._poison(stage="checkpoint_load", error=error)
             raise
+
+    def load_checkpoint(self, path: str | Path):
+        payload = TrainingCheckpointStore.load(path, device=self.device)
+        return self.load_checkpoint_payload(payload)
 
 
 __all__ = [

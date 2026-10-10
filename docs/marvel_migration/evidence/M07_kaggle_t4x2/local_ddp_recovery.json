@@ -1,0 +1,40 @@
+{
+  "backend": "gloo",
+  "cuda_used": false,
+  "kaggle_verified": false,
+  "launcher": "two_process_env_local_test",
+  "passes": true,
+  "pilot": {
+    "checkpoint": {
+      "checkpoint": "checkpoints/iter000001",
+      "created_at": "2026-10-10T04:01:55.556995+00:00",
+      "durable": true,
+      "evaluation_checkpoint": null,
+      "evaluation_checkpoint_sha256": null,
+      "iteration": 1,
+      "manifest_hash": "3975bbf851fc3c8ad00070fe9b6149a7794f572ef42844f47a2cb2eccc852863",
+      "manifest_sha256": "870528f91eb430f711e586346b7f9d6c5b15a0ef35c8bcd9eaacdcecc24045b7"
+    },
+    "iteration": 1,
+    "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2\\20261010_acceptance\\local_ddp_recovery\\pilot_working\\guandan-marvel-output\\runs\\20261010T040144Z-pilot-1daf1ee3",
+    "status": "complete"
+  },
+  "resume": {
+    "checkpoint": {
+      "checkpoint": "checkpoints/iter000002",
+      "created_at": "2026-10-10T04:02:17.033355+00:00",
+      "durable": true,
+      "evaluation_checkpoint": null,
+      "evaluation_checkpoint_sha256": null,
+      "iteration": 2,
+      "manifest_hash": "131ca39b8ad92ee88df56b30c498c8116e1db7423b6c22a9df09b662766569d6",
+      "manifest_sha256": "0fe61c0bb444a9316e837866e309bb0ae4bf0f069bc00bdd896f3d56a81283d7"
+    },
+    "iteration": 2,
+    "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2\\20261010_acceptance\\local_ddp_recovery\\resume_working\\guandan-marvel-output\\runs\\20261010T040203Z-resume-4a623114",
+    "status": "complete"
+  },
+  "schema": "guandan-marvel-m07-local-ddp-recovery-v1",
+  "scope": "local CPU/gloo two-process recovery only; not Kaggle or GPU evidence",
+  "world_size": 2
+}

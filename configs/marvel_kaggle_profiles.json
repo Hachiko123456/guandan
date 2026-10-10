@@ -1,0 +1,150 @@
+{
+  "schema": "guandan-marvel-kaggle-profiles-v1",
+  "profiles": {
+    "preflight": {
+      "schema": "guandan-marvel-kaggle-profile-v1",
+      "mode": "preflight",
+      "required_gpu_count": 2,
+      "required_gpu_name_contains": "T4",
+      "telemetry_interval_seconds": 5
+    },
+    "pilot": {
+      "schema": "guandan-marvel-kaggle-profile-v1",
+      "mode": "pilot",
+      "algorithm": "ippo",
+      "ddp": {
+        "launcher": "torchrun",
+        "world_size": 2,
+        "backend": "nccl",
+        "require_cuda": true
+      },
+      "training": {
+        "target_iterations": 2,
+        "checkpoint_interval": 1,
+        "evaluation_interval": 1,
+        "rollout_batch_size": 2,
+        "collect_batch_size": 2,
+        "replay_buffer_scale": 2,
+        "mini_batches": 1,
+        "max_sampler_bytes_per_rank": 2147483648,
+        "seed": 470700,
+        "agent_epoch": 1,
+        "critic_aux_epoch": 1,
+        "amp_enabled": false,
+        "compile_enabled": false,
+        "model": {
+          "architecture": "v1.3",
+          "history_dim": 32,
+          "feature_dim": 64,
+          "decoder_layers": 1,
+          "decoder_heads": 4,
+          "state_layers": 1,
+          "action_layers": 1,
+          "fuse_layers": 1
+        },
+        "max_wall_seconds": 1800
+      },
+      "evaluation": {
+        "base_deals": 1,
+        "seed_base": 870700
+      },
+      "telemetry_interval_seconds": 5
+    },
+    "resume": {
+      "schema": "guandan-marvel-kaggle-profile-v1",
+      "mode": "resume",
+      "algorithm": "ippo",
+      "ddp": {
+        "launcher": "torchrun",
+        "world_size": 2,
+        "backend": "nccl",
+        "require_cuda": true
+      },
+      "training": {
+        "additional_iterations": 2,
+        "checkpoint_interval": 1,
+        "evaluation_interval": 1,
+        "rollout_batch_size": 2,
+        "collect_batch_size": 2,
+        "replay_buffer_scale": 2,
+        "mini_batches": 1,
+        "max_sampler_bytes_per_rank": 2147483648,
+        "seed": 470700,
+        "agent_epoch": 1,
+        "critic_aux_epoch": 1,
+        "amp_enabled": false,
+        "compile_enabled": false,
+        "model": {
+          "architecture": "v1.3",
+          "history_dim": 32,
+          "feature_dim": 64,
+          "decoder_layers": 1,
+          "decoder_heads": 4,
+          "state_layers": 1,
+          "action_layers": 1,
+          "fuse_layers": 1
+        },
+        "max_wall_seconds": 1800
+      },
+      "evaluation": {
+        "base_deals": 1,
+        "seed_base": 870700
+      },
+      "telemetry_interval_seconds": 5
+    },
+    "full": {
+      "schema": "guandan-marvel-kaggle-profile-v1",
+      "mode": "full",
+      "algorithm": "ippo",
+      "user_selected_full_manifest_required": true,
+      "ddp": {
+        "launcher": "torchrun",
+        "world_size": 2,
+        "backend": "nccl",
+        "require_cuda": true
+      },
+      "training": {
+        "target_iterations": 2000,
+        "checkpoint_interval": 25,
+        "evaluation_interval": 100,
+        "rollout_batch_size": 4,
+        "collect_batch_size": 4,
+        "replay_buffer_scale": 8,
+        "mini_batches": 2,
+        "max_sampler_bytes_per_rank": 4294967296,
+        "seed": 470700,
+        "agent_epoch": 4,
+        "critic_aux_epoch": 4,
+        "amp_enabled": false,
+        "compile_enabled": false,
+        "model": {
+          "architecture": "v1.3",
+          "history_dim": 128,
+          "feature_dim": 256,
+          "decoder_layers": 4,
+          "decoder_heads": 4,
+          "state_layers": 3,
+          "action_layers": 2,
+          "fuse_layers": 2
+        },
+        "max_wall_seconds": 42000
+      },
+      "evaluation": {
+        "base_deals": 4,
+        "seed_base": 870700
+      },
+      "telemetry_interval_seconds": 5
+    },
+    "eval_only": {
+      "schema": "guandan-marvel-kaggle-profile-v1",
+      "mode": "eval_only",
+      "required_gpu_count": 2,
+      "required_gpu_name_contains": "T4",
+      "evaluation": {
+        "base_deals": 4,
+        "seed_base": 870700
+      },
+      "telemetry_interval_seconds": 5
+    }
+  }
+}

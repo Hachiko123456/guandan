@@ -1,0 +1,56 @@
+{
+  "datasets": [
+    {
+      "manifest": "datasets/eval_only/guandan_marvel_dataset.json",
+      "mode": "eval_only",
+      "valid": true
+    },
+    {
+      "manifest": "datasets/full/guandan_marvel_dataset.json",
+      "mode": "full",
+      "valid": true
+    },
+    {
+      "manifest": "datasets/pilot/guandan_marvel_dataset.json",
+      "mode": "pilot",
+      "valid": true
+    },
+    {
+      "manifest": "datasets/preflight/guandan_marvel_dataset.json",
+      "mode": "preflight",
+      "valid": true
+    },
+    {
+      "manifest": "datasets/resume/guandan_marvel_dataset.json",
+      "mode": "resume",
+      "valid": true
+    }
+  ],
+  "default_recommended_mode": "preflight",
+  "delivery_manifest_verified": true,
+  "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-t4x2-20261010-staging",
+  "final_clean_commit_delivery": "generated after the single atomic stage commit",
+  "modes": [
+    "eval_only",
+    "full",
+    "pilot",
+    "preflight",
+    "resume"
+  ],
+  "notebook": {
+    "code_cells": 3,
+    "path": "guandan_marvel_t4x2.ipynb",
+    "placeholders_absent": true,
+    "schema": "guandan-marvel-notebook-validation-v1",
+    "syntax_valid": true,
+    "valid": true
+  },
+  "passes": true,
+  "remote_verified": false,
+  "schema": "guandan-marvel-m07-package-validation-v1",
+  "source_archive_file_count": 180,
+  "source_archive_sha256": "80d8e6bd55b93284b20d9bb62100a78a104a80ff31c774fdd9612f0af4b52703",
+  "source_commit": "d44c92bc7bb30efa89ad75ec67272be43e5e4649",
+  "staging_workspace_snapshot": true,
+  "uploaded": false
+}
