@@ -1,0 +1,106 @@
+{
+  "A_level_rank": {
+    "Rank.TWO": 15,
+    "error": "level_rank must be a printed non-joker rank",
+    "error_type": "ValueError",
+    "reproduced": true,
+    "wrong_literal": 2
+  },
+  "B_durable_publish_order": {
+    "bundle_pos": 14588,
+    "checkpoint_recovery_depends_on_evaluation": true,
+    "evaluation_pos": 13904,
+    "index_pos": 14360,
+    "save_pos": 12984
+  },
+  "C_resume_semantics": {
+    "full": {
+      "agent_epoch": 4,
+      "collect_batch_size": 4,
+      "critic_aux_epoch": 4,
+      "mini_batches": 2,
+      "model": {
+        "action_layers": 2,
+        "architecture": "v1.3",
+        "decoder_heads": 4,
+        "decoder_layers": 4,
+        "feature_dim": 256,
+        "fuse_layers": 2,
+        "history_dim": 128,
+        "state_layers": 3
+      },
+      "replay_buffer_scale": 8,
+      "rollout_batch_size": 4
+    },
+    "pilot": {
+      "agent_epoch": 1,
+      "collect_batch_size": 2,
+      "critic_aux_epoch": 1,
+      "mini_batches": 1,
+      "model": {
+        "action_layers": 1,
+        "architecture": "v1.3",
+        "decoder_heads": 4,
+        "decoder_layers": 1,
+        "feature_dim": 64,
+        "fuse_layers": 1,
+        "history_dim": 32,
+        "state_layers": 1
+      },
+      "replay_buffer_scale": 2,
+      "rollout_batch_size": 2
+    },
+    "resume": {
+      "agent_epoch": 1,
+      "collect_batch_size": 2,
+      "critic_aux_epoch": 1,
+      "mini_batches": 1,
+      "model": {
+        "action_layers": 1,
+        "architecture": "v1.3",
+        "decoder_heads": 4,
+        "decoder_layers": 1,
+        "feature_dim": 64,
+        "fuse_layers": 1,
+        "history_dim": 32,
+        "state_layers": 1
+      },
+      "replay_buffer_scale": 2,
+      "rollout_batch_size": 2
+    },
+    "resume_matches_full": false,
+    "resume_matches_pilot": true
+  },
+  "D_budget_decision": {
+    "has_budget_collective_between_metrics_and_checkpoint": false,
+    "local_budget_expression": "time.perf_counter() - started",
+    "reproduced": true
+  },
+  "E_evaluation_rng": {
+    "changed_fields": [
+      "torch"
+    ],
+    "checkpoint": "runs\\M07_kaggle_t4x2_repair\\20261010_reproduction\\rng_repro_eval.pt",
+    "error": "ValueError: level_rank must be a printed non-joker rank",
+    "real_model_load_path": true,
+    "rng_after": {
+      "numpy": "80a87396fdfdf984abf339df49a6b49420bf5d0eb92f7b3d5c15c6c6e3f82214",
+      "python": "da20ca10f5ddf128f4d3b6fad77999f32a287764c70f1c60c324ce90171e1195",
+      "torch": "24c4b627fbadc9540939df2d5fbb7245000a3ed54382597a77e2fa3e3045d431"
+    },
+    "rng_before": {
+      "numpy": "80a87396fdfdf984abf339df49a6b49420bf5d0eb92f7b3d5c15c6c6e3f82214",
+      "python": "da20ca10f5ddf128f4d3b6fad77999f32a287764c70f1c60c324ce90171e1195",
+      "torch": "6b1534d140e94097af839f113fb6da33491b230ef515644de5af84445565e4ec"
+    },
+    "rng_changed": true
+  },
+  "F_live_progress": {
+    "notes": "telemetry recorder writes JSONL; worker updates progress at start and completed iteration only",
+    "progress_updates_before_first_iteration": false,
+    "telemetry_stdout": false,
+    "worker_heartbeat_loop": false
+  },
+  "baseline": "4dbba7ae502ff21b3ca4e4f4da0dc3ad6879f65b",
+  "schema": "guandan-marvel-m07-repair-reproduction-v1"
+}

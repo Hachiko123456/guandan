@@ -1,0 +1,14 @@
+{
+  "baseline": "4dbba7ae502ff21b3ca4e4f4da0dc3ad6879f65b",
+  "branch": "codex/marvel-guandan-migration",
+  "cuda_available": false,
+  "cuda_device_count": 0,
+  "implementation_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+  "numpy": "2.3.5",
+  "nvidia_smi_visible": "NVIDIA GeForce RTX 3050 Ti Laptop GPU, 4096 MiB",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]",
+  "reference_repo_written": false,
+  "schema": "guandan-marvel-m07-repair-environment-v1",
+  "torch": "2.13.0+cpu"
+}

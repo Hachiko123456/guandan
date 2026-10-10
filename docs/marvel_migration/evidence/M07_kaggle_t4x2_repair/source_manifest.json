@@ -1,0 +1,128 @@
+{
+  "files": [
+    {
+      "bytes": 3384,
+      "path": "configs/marvel_kaggle_profiles.json",
+      "sha256": "cbcce7033fff46db360da688638f8948aadf7b1344213279edbf2707b3e3a2f7"
+    },
+    {
+      "bytes": 4211,
+      "path": "docs/marvel_migration/00_README.md",
+      "sha256": "6ae0af521d7ec2bc13b145da86dcd4330543c174abbfe02125df924149b91cf5"
+    },
+    {
+      "bytes": 10585,
+      "path": "docs/marvel_migration/05_TRAINING_SPEC.md",
+      "sha256": "d65bb20d6bec24569128e17ab83b5f6d232e407c4a6877b2e477c2bd9e164fab"
+    },
+    {
+      "bytes": 4529,
+      "path": "docs/marvel_migration/07_KAGGLE_T4X2_RUNBOOK.md",
+      "sha256": "898955f17ab222e3516f6b3e7be2b2a895f9c1bcec73ce13b3c0214687594f64"
+    },
+    {
+      "bytes": 8342,
+      "path": "docs/marvel_migration/09_CHECKPOINT_COMPATIBILITY.md",
+      "sha256": "b2cf7896ccbd414d625023dd0499b35f7110552d179910193d28d14b42ac34f0"
+    },
+    {
+      "bytes": 5472,
+      "path": "docs/marvel_migration/M07_KAGGLE_DDP_REPAIR_PROTOCOL.md",
+      "sha256": "27f1161a1ae53f47fc328786ce1ca727123b085db617eee1ff4b51e32a78a446"
+    },
+    {
+      "bytes": 3051,
+      "path": "docs/marvel_migration/M07_SOURCE_AUDIT.md",
+      "sha256": "7bb5a75dc224231d485d57d17b35cd135dea87fd29de157aa2e156bb0fa425b0"
+    },
+    {
+      "bytes": 19495,
+      "path": "docs/marvel_migration/STATUS.yaml",
+      "sha256": "ee40301ba6a86e6c10af8a84f3432ebd8a9ae9ab7662e533544e2254376bee78"
+    },
+    {
+      "bytes": 21501,
+      "path": "guandan_marvel/kaggle/checkpoints.py",
+      "sha256": "cfb379c78188d17b86905374bd49a93bf812286a958b09959aa582f51dc07034"
+    },
+    {
+      "bytes": 10863,
+      "path": "guandan_marvel/kaggle/discovery.py",
+      "sha256": "cb17c1500238bbec5ada6519b67e4b2cf6b4eee148f04fead23b59f199159836"
+    },
+    {
+      "bytes": 10256,
+      "path": "guandan_marvel/kaggle/evaluation.py",
+      "sha256": "0e4eca42f30602e62dee5c86287d8868000cf1eddf2b9b2944959ac6389a1b53"
+    },
+    {
+      "bytes": 31175,
+      "path": "guandan_marvel/kaggle/package.py",
+      "sha256": "c87c33130f48dafb0f427fc6ec0faef86c33ab45e2442e252be4ea560b5dda44"
+    },
+    {
+      "bytes": 6442,
+      "path": "guandan_marvel/kaggle/profiles.py",
+      "sha256": "2788b14abdc79976694b05de8b3dcf0b9e1a9c62260e155f9679535a3ed2595d"
+    },
+    {
+      "bytes": 8418,
+      "path": "guandan_marvel/kaggle/progress.py",
+      "sha256": "09309f776c973754010545aa79d877be201f2cf027fb751d77d75a0102e07621"
+    },
+    {
+      "bytes": 22325,
+      "path": "guandan_marvel/kaggle/runner.py",
+      "sha256": "1f6500ee909798a571f55bc1a19cc088cdf059e39ec83b097196309faf8250db"
+    },
+    {
+      "bytes": 24869,
+      "path": "guandan_marvel/kaggle/worker.py",
+      "sha256": "5eebbd2c05124c6cc19ccd780dba207eb6a84706f2620b83b92f0491d9839723"
+    },
+    {
+      "bytes": 45169,
+      "path": "guandan_marvel/training/local.py",
+      "sha256": "975fbe94a1d1bd30a90a56e37453ebc5bd9550c254c1a73a453baa0a9b325cc9"
+    },
+    {
+      "bytes": 4515,
+      "path": "guandan_marvel/training/smoke.py",
+      "sha256": "3eafd7e611fd7efe6d29b6a0a4ecbaf53186ce1a81868e9c9767dd2817135eb5"
+    },
+    {
+      "bytes": 15313,
+      "path": "scripts/run_m07_local_ddp_recovery.py",
+      "sha256": "c375458b37994d829c9b28f68b96ec394f3041c8c9cdfcbecb0e0b102a5ca55a"
+    },
+    {
+      "bytes": 2733,
+      "path": "tests/marvel_kaggle/conftest.py",
+      "sha256": "ced4e73959c4865f3997bd35230af1cc64ca0997d193931d3db1074e86ec6ac6"
+    },
+    {
+      "bytes": 2314,
+      "path": "tests/marvel_kaggle/test_evaluation_runtime.py",
+      "sha256": "45cd917447f1a781f42bd64331372768b80de36110e9caff1039d57d8a9db7ee"
+    },
+    {
+      "bytes": 4675,
+      "path": "tests/marvel_kaggle/test_package.py",
+      "sha256": "5935ef5fcf0006432537cc8c3ef03626abe578bcf17989205d052c05322c2d72"
+    },
+    {
+      "bytes": 4721,
+      "path": "tests/marvel_kaggle/test_progress_recovery.py",
+      "sha256": "b75e4b3e245f618eb0d5868b832873de9a5a133597d8b137e2c8cc127ab49a4d"
+    },
+    {
+      "bytes": 3424,
+      "path": "tests/marvel_kaggle/test_resume_inheritance.py",
+      "sha256": "a6882874ea04e2ee541bcd352211b1a7e7d8528b2cd23bf5c253d48173edcedd"
+    }
+  ],
+  "implementation_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+  "protected_rule_files_changed": false,
+  "reference_repo_written": false,
+  "schema": "guandan-marvel-m07-repair-source-manifest-v1"
+}

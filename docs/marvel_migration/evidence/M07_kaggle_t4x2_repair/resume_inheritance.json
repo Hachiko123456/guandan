@@ -1,0 +1,40 @@
+{
+  "full_config_resume": {
+    "actual": {
+      "agent_epoch": 4,
+      "collect_batch_size": 4,
+      "decoder_layers": 4,
+      "feature_dim": 256,
+      "history_dim": 128,
+      "rollout_batch_size": 4
+    },
+    "expected": {
+      "agent_epoch": 4,
+      "collect_batch_size": 4,
+      "decoder_layers": 4,
+      "feature_dim": 256,
+      "history_dim": 128,
+      "rollout_batch_size": 4
+    },
+    "full_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\full_config\\working\\guandan-marvel-output\\runs\\20261010T053628Z-full-164df153",
+    "full_update_elapsed_seconds": 51.651902400000836,
+    "resume_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\full_config_resume\\working\\guandan-marvel-output\\runs\\20261010T053720Z-resume-bc38903d"
+  },
+  "old_package_compatibility": "rejected by source commit/archive/schema identity",
+  "passes": true,
+  "pilot_resume_continuation": {
+    "continuous_hashes": [
+      "fde5344d0a9fcee99b7c3dcf9df80865ceb482ad2f02f2a89ffa379b58f83048",
+      "a20bc9b7d6ab0ac5fa87abe810724121e250528a0a82ab4e46a5f8839f5343e9"
+    ],
+    "equal": true,
+    "resumed_hashes": [
+      "fde5344d0a9fcee99b7c3dcf9df80865ceb482ad2f02f2a89ffa379b58f83048",
+      "a20bc9b7d6ab0ac5fa87abe810724121e250528a0a82ab4e46a5f8839f5343e9"
+    ],
+    "resumed_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\split_resume\\working\\guandan-marvel-output\\runs\\20261010T053558Z-resume-a049406e",
+    "split_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\split\\working\\guandan-marvel-output\\runs\\20261010T053530Z-pilot-e3429537"
+  },
+  "resume_profile_semantics": "inherited from validated rank shard; only run controls override",
+  "schema": "guandan-marvel-m07-repair-resume-inheritance-v1"
+}

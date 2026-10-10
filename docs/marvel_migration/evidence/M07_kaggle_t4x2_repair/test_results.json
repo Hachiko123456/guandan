@@ -1,0 +1,98 @@
+{
+  "blocking_nonoverlapping_totals": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 112,
+    "skipped": 0,
+    "tests": 112
+  },
+  "commands": [
+    {
+      "command": "python -m pytest tests/marvel_kaggle -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 20,
+        "seconds": 26.95,
+        "skipped": 0,
+        "tests": 20
+      },
+      "exit_code": 0,
+      "junit": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/m07_repair_scoped.junit.xml",
+      "junit_sha256": "1cd6caa653a8f920abc3d244b9d7b481a622c176c6bfedd1746f910a42a45cbe",
+      "log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/m07_repair_scoped.log",
+      "log_sha256": "deec4cc8b309677c52e4d8bb45e231a8cd3febd91e1fcff29f176d5027c1679a",
+      "name": "m07_repair_scoped"
+    },
+    {
+      "command": "python -m pytest tests/marvel_training tests/marvel_core/test_core.py tests/marvel_evaluation -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 87,
+        "seconds": 92.279,
+        "skipped": 0,
+        "tests": 87
+      },
+      "exit_code": 0,
+      "junit": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/target_regression.junit.xml",
+      "junit_sha256": "388287d88ac8248e5626bdeb438dbee014183965db8bc2e9e8fdea7298ffd967",
+      "log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/target_regression.log",
+      "log_sha256": "9a3d939e555308c74f5dcbdb0d42824ba10b0236e423aed0223491b6ba09d732",
+      "name": "target_regression"
+    },
+    {
+      "command": "python -m pytest tests/acceptance/test_a00_specification.py -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 5,
+        "seconds": 1.098,
+        "skipped": 0,
+        "tests": 5
+      },
+      "exit_code": 0,
+      "junit": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/a00_specification.junit.xml",
+      "junit_sha256": "1357988bcafa7b2853dbea14945f18fc704a92877c49dc29c73a54117cb011d8",
+      "log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/a00_specification.log",
+      "log_sha256": "bef1e1293e86ea851411ed66a8264ffcd36b8e21d062b50e917807860d9d68bc",
+      "name": "a00_specification"
+    }
+  ],
+  "dynamic_checks": [
+    {
+      "exit_code": 0,
+      "log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/package_build_final.log",
+      "name": "exact_final_package_build",
+      "sha256": "36871e6c46759f42d4de9e3ec57ed1dbbcbc74587da5d851bf35509e6ee24f96"
+    },
+    {
+      "exit_code": 0,
+      "log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/package_validate_final.log",
+      "name": "exact_final_package_validation",
+      "sha256": "3ca4288181231fe2d5a6dd405da7d61da9e3ad5676e7523cad784714f9678e5c"
+    },
+    {
+      "exit_code": 0,
+      "log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/dynamic.log",
+      "name": "actual_cpp_ddp_fault_resume_budget_heartbeat",
+      "sha256": "781d1655660f520d7743b03b8e515aa14b455bb0c972c6401c09b0fd99332e0d",
+      "summary": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/dynamic/summary.json"
+    },
+    {
+      "exit_code": 0,
+      "name": "m03_ippo_vrpo_smoke",
+      "summary": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/m03_regression_smoke/summary.json"
+    },
+    {
+      "build_exit_code": 0,
+      "import_exit_code": 0,
+      "name": "extracted_source_build_import"
+    },
+    {
+      "exit_code": 0,
+      "name": "extracted_source_cli"
+    }
+  ],
+  "schema": "guandan-marvel-m07-repair-test-results-v1"
+}

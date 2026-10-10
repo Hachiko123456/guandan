@@ -1,0 +1,269 @@
+{
+  "atomic_bundle_replace_test": "tests/marvel_kaggle/test_progress_recovery.py::test_recovery_bundle_replace_failure_preserves_previous_bundle",
+  "passes": true,
+  "scenarios": {
+    "bundle_failure": {
+      "checkpoint_latest": {
+        "checkpoint": "checkpoints/iter000002",
+        "created_at": "2026-10-10T05:40:04.489284+00:00",
+        "durable": true,
+        "evaluation_checkpoint": null,
+        "evaluation_checkpoint_sha256": null,
+        "evaluation_error": null,
+        "evaluation_status": "not_due",
+        "iteration": 2,
+        "manifest_hash": "956589ea7e44caf428c1475ca16b967b93977bab0733f10e237d76803317d6d8",
+        "manifest_sha256": "9a8626956083c4fa725a2d995dda0eaee2d13bb3cf929c0db13f53d6f593f006"
+      },
+      "exit_code": 1,
+      "progress": {
+        "complete": false,
+        "completed_games": 4,
+        "env_steps": 1385,
+        "env_steps_per_second": 453.45823618028066,
+        "error": "RuntimeError: durable checkpoint publication failed on rank 0: RuntimeError: injected recovery bundle failure at iteration 2",
+        "eta_seconds": null,
+        "game_steps": 608,
+        "game_steps_per_second": 193.8313776235438,
+        "gpus": [
+          {
+            "index": 0,
+            "memory_total_mib": 4096.0,
+            "memory_used_mib": 1229.0,
+            "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+            "power_watts": 6.95,
+            "status": "ok",
+            "utilization_percent": 16.0
+          }
+        ],
+        "heartbeat_at": "2026-10-10T05:40:04.804113+00:00",
+        "iteration": 2,
+        "latest_checkpoint": "checkpoints/iter000001",
+        "latest_evaluation": null,
+        "latest_evaluation_status": "not_run",
+        "mode": "pilot",
+        "phase": "failed",
+        "ranks": [
+          {
+            "heartbeat_age_seconds": 0.10246239999833051,
+            "heartbeat_at": "2026-10-10T05:40:04.684039+00:00",
+            "iteration": 2,
+            "phase": "failed",
+            "pid": 26804,
+            "rank": 0,
+            "status": "alive"
+          },
+          {
+            "heartbeat_age_seconds": 0.10212160000082804,
+            "heartbeat_at": "2026-10-10T05:40:04.684039+00:00",
+            "iteration": 2,
+            "phase": "failed",
+            "pid": 25496,
+            "rank": 1,
+            "status": "alive"
+          }
+        ],
+        "remote_verified": false,
+        "schema": "guandan-marvel-progress-v2",
+        "session_completed_iterations": 2,
+        "session_elapsed_seconds": 9.445410899999843,
+        "session_start_iteration": 0,
+        "target_iterations": 2
+      },
+      "rank_final_events": [
+        {
+          "error": "RuntimeError: durable checkpoint publication failed on rank 0: RuntimeError: injected recovery bundle failure at iteration 2",
+          "event": "failed",
+          "rank": 0,
+          "schema": "guandan-marvel-rank-diagnostic-v1",
+          "timestamp": "2026-10-10T05:40:04.631558+00:00"
+        },
+        {
+          "error": "RuntimeError: durable checkpoint publication failed on rank 0: RuntimeError: injected recovery bundle failure at iteration 2",
+          "event": "failed",
+          "rank": 1,
+          "schema": "guandan-marvel-rank-diagnostic-v1",
+          "timestamp": "2026-10-10T05:40:04.631558+00:00"
+        }
+      ],
+      "recovery_iteration": 2,
+      "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\bundle_failure\\working\\guandan-marvel-output\\runs\\20261010T053948Z-pilot-b88ce813"
+    },
+    "first_eval_failure": {
+      "checkpoint_latest": {
+        "checkpoint": "checkpoints/iter000001",
+        "created_at": "2026-10-10T05:38:34.950149+00:00",
+        "durable": true,
+        "evaluation_checkpoint": "evaluation_checkpoints/iter000001.pt",
+        "evaluation_checkpoint_sha256": "52b521137bcaed9688d78bb890e4d54e8aa36fb3a523f4e6d9f30f786968a06e",
+        "evaluation_error": "RuntimeError: injected evaluation failure at iteration 1",
+        "evaluation_status": "failed",
+        "iteration": 1,
+        "manifest_hash": "b1127886387e9984ecea5bf8ce84324e29e1969daf56e7e8aa26947e326b57ab",
+        "manifest_sha256": "50dd10f0b3d8cd94cc0c4f3721029dcb133b33d808d9428ad748b82d8522bb3b"
+      },
+      "direct_resume_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\first_eval_failure_resume\\working\\guandan-marvel-output\\runs\\20261010T053844Z-resume-d65513c5",
+      "exit_code": 1,
+      "progress": {
+        "complete": false,
+        "completed_games": 2,
+        "env_steps": 692,
+        "env_steps_per_second": 358.5981612049984,
+        "error": "RuntimeError: evaluation failed on rank 0: RuntimeError: injected evaluation failure at iteration 1",
+        "eta_seconds": null,
+        "game_steps": 310,
+        "game_steps_per_second": 160.64200987483395,
+        "gpus": [
+          {
+            "index": 0,
+            "memory_total_mib": 4096.0,
+            "memory_used_mib": 1248.0,
+            "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+            "power_watts": 6.89,
+            "status": "ok",
+            "utilization_percent": 14.0
+          }
+        ],
+        "heartbeat_at": "2026-10-10T05:38:37.268330+00:00",
+        "iteration": 1,
+        "latest_checkpoint": "checkpoints/iter000001",
+        "latest_evaluation": null,
+        "latest_evaluation_status": "failed",
+        "mode": "pilot",
+        "phase": "failed",
+        "ranks": [
+          {
+            "heartbeat_age_seconds": 0.1255247999979474,
+            "heartbeat_at": "2026-10-10T05:38:37.126639+00:00",
+            "iteration": 1,
+            "phase": "failed",
+            "pid": 27684,
+            "rank": 0,
+            "status": "alive"
+          },
+          {
+            "heartbeat_age_seconds": 0.1258641999993415,
+            "heartbeat_at": "2026-10-10T05:38:37.126639+00:00",
+            "iteration": 1,
+            "phase": "failed",
+            "pid": 25396,
+            "rank": 1,
+            "status": "alive"
+          }
+        ],
+        "remote_verified": false,
+        "schema": "guandan-marvel-progress-v2",
+        "session_completed_iterations": 1,
+        "session_elapsed_seconds": 6.686194300000352,
+        "session_start_iteration": 0,
+        "target_iterations": 1
+      },
+      "rank_final_events": [
+        {
+          "error": "RuntimeError: evaluation failed on rank 0: RuntimeError: injected evaluation failure at iteration 1",
+          "event": "failed",
+          "rank": 0,
+          "schema": "guandan-marvel-rank-diagnostic-v1",
+          "timestamp": "2026-10-10T05:38:37.018629+00:00"
+        },
+        {
+          "error": "RuntimeError: evaluation failed on rank 0: RuntimeError: injected evaluation failure at iteration 1",
+          "event": "failed",
+          "rank": 1,
+          "schema": "guandan-marvel-rank-diagnostic-v1",
+          "timestamp": "2026-10-10T05:38:37.017629+00:00"
+        }
+      ],
+      "recovery_iteration": 1,
+      "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\first_eval_failure\\working\\guandan-marvel-output\\runs\\20261010T053824Z-pilot-02270753"
+    },
+    "later_eval_failure": {
+      "checkpoint_latest": {
+        "checkpoint": "checkpoints/iter000002",
+        "created_at": "2026-10-10T05:39:37.982408+00:00",
+        "durable": true,
+        "evaluation_checkpoint": "evaluation_checkpoints/iter000002.pt",
+        "evaluation_checkpoint_sha256": "41da2145b81e744d0a3a9cd45e872328b92bc1fcb3a01f5acf70435bdc51282e",
+        "evaluation_error": "RuntimeError: injected evaluation failure at iteration 2",
+        "evaluation_status": "failed",
+        "iteration": 2,
+        "manifest_hash": "6cb1362df0789c1eb8787263e15c662eaf728977d8beccc31149451f8d9e7a44",
+        "manifest_sha256": "943711da279d9eff5f32b9079e6b2b8213c95176d223f589efaabe6398e89c29"
+      },
+      "exit_code": 1,
+      "progress": {
+        "complete": false,
+        "completed_games": 4,
+        "env_steps": 1385,
+        "env_steps_per_second": 446.501491559315,
+        "error": "RuntimeError: evaluation failed on rank 0: RuntimeError: injected evaluation failure at iteration 2",
+        "eta_seconds": null,
+        "game_steps": 608,
+        "game_steps_per_second": 190.98638225067572,
+        "gpus": [
+          {
+            "index": 0,
+            "memory_total_mib": 4096.0,
+            "memory_used_mib": 1239.0,
+            "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+            "power_watts": 6.89,
+            "status": "ok",
+            "utilization_percent": 19.0
+          }
+        ],
+        "heartbeat_at": "2026-10-10T05:39:40.390122+00:00",
+        "iteration": 2,
+        "latest_checkpoint": "checkpoints/iter000002",
+        "latest_evaluation": "evaluation_checkpoints/iter000001.pt",
+        "latest_evaluation_status": "failed",
+        "mode": "pilot",
+        "phase": "failed",
+        "ranks": [
+          {
+            "heartbeat_age_seconds": 0.1356274999998277,
+            "heartbeat_at": "2026-10-10T05:39:40.229158+00:00",
+            "iteration": 2,
+            "phase": "failed",
+            "pid": 16472,
+            "rank": 0,
+            "status": "alive"
+          },
+          {
+            "heartbeat_age_seconds": 0.17634820000239415,
+            "heartbeat_at": "2026-10-10T05:39:40.189367+00:00",
+            "iteration": 2,
+            "phase": "evaluation",
+            "pid": 4208,
+            "rank": 1,
+            "status": "alive"
+          }
+        ],
+        "remote_verified": false,
+        "schema": "guandan-marvel-progress-v2",
+        "session_completed_iterations": 2,
+        "session_elapsed_seconds": 19.328138600001694,
+        "session_start_iteration": 0,
+        "target_iterations": 2
+      },
+      "rank_final_events": [
+        {
+          "error": "RuntimeError: evaluation failed on rank 0: RuntimeError: injected evaluation failure at iteration 2",
+          "event": "failed",
+          "rank": 0,
+          "schema": "guandan-marvel-rank-diagnostic-v1",
+          "timestamp": "2026-10-10T05:39:40.138929+00:00"
+        },
+        {
+          "error": "RuntimeError: evaluation failed on rank 0: RuntimeError: injected evaluation failure at iteration 2",
+          "event": "failed",
+          "rank": 1,
+          "schema": "guandan-marvel-rank-diagnostic-v1",
+          "timestamp": "2026-10-10T05:39:40.138929+00:00"
+        }
+      ],
+      "recovery_iteration": 2,
+      "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\later_eval_failure\\working\\guandan-marvel-output\\runs\\20261010T053914Z-pilot-2cbe946a"
+    }
+  },
+  "schema": "guandan-marvel-m07-repair-failure-recovery-v1"
+}

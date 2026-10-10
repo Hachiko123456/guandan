@@ -1,0 +1,797 @@
+{
+  "A_evaluation": {
+    "actual_cpp_backend": true,
+    "eval_only_evaluation": {
+      "base_deals": 1,
+      "candidate": {
+        "algorithm": "ippo",
+        "architecture": "v1.3",
+        "backend": "cpp",
+        "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+        "checkpoint_path": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\eval_only\\working\\guandan-marvel-recovery\\checkpoint\\rank000.pt",
+        "checkpoint_schema": "guandan-marvel-training-checkpoint-v5",
+        "checkpoint_sha256": "ce0d2df4a464ded0faabbc5be15473370898337cc9e049d2b5defbe89ada7e35",
+        "iteration": 1,
+        "merged_policy": {
+          "beta": 0.0,
+          "identity": "current_policy_copy",
+          "not_smoothed_when_beta_zero": true
+        },
+        "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+        "resolved_config_hash": "9e0652d3f921c5f32b72ccf3b863e72cf93658d9b23d876e255bfe90c597c676",
+        "schema": "guandan-marvel-policy-identity-v1",
+        "source_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+        "source_hash": "0b5ecb27a4ccb27b084ad7ef9d9273f2910f4031e064ac1f9d8687410d9055aa",
+        "training_counters": {
+          "iteration": 1
+        },
+        "training_data_provenance_hash": "8b87b07be681f1f3b548af0961d1acfc217af232e40b3edf721367f0937db506",
+        "training_data_provenance_status": "complete"
+      },
+      "candidate_wins": 0,
+      "complete_games": 1,
+      "descriptive_wilson95_high": 0.7934506856227626,
+      "descriptive_wilson95_low": 0.0,
+      "elapsed_seconds": 1.4529828000013367,
+      "final_holdout": false,
+      "formal_selection": false,
+      "games": 1,
+      "generated_at": "2026-10-10T05:38:18.241812+00:00",
+      "illegal_count": 0,
+      "level_ranks": [
+        15
+      ],
+      "opponents": [
+        "random"
+      ],
+      "promotion_eligible": false,
+      "remote_verified": false,
+      "schema": "guandan-marvel-kaggle-evaluation-summary-v2",
+      "scope": "bounded M07 pipeline evaluation; not formal selection or final holdout",
+      "seat_rotations": [
+        0
+      ],
+      "status": "complete",
+      "strength_claim": false,
+      "truncated_count": 0,
+      "win_rate": 0.0
+    },
+    "final_holdout": false,
+    "kaggle_verified": false,
+    "pilot_first_periodic_evaluation": {
+      "base_deals": 1,
+      "candidate": {
+        "algorithm": "ippo",
+        "architecture": "v1.3",
+        "backend": "cpp",
+        "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+        "checkpoint_path": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\split\\working\\guandan-marvel-output\\runs\\20261010T053530Z-pilot-e3429537\\evaluation_checkpoints\\iter000001.pt",
+        "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+        "checkpoint_sha256": "5abed7160e850d080e790b23c5556081a660d2d521666ae9ba784928c287d70f",
+        "iteration": 1,
+        "merged_policy": {
+          "beta": 0.0,
+          "frozen_for_evaluation": true,
+          "identity": "current_policy_copy"
+        },
+        "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+        "resolved_config_hash": "9e0652d3f921c5f32b72ccf3b863e72cf93658d9b23d876e255bfe90c597c676",
+        "schema": "guandan-marvel-policy-identity-v1",
+        "source_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+        "source_hash": "0b5ecb27a4ccb27b084ad7ef9d9273f2910f4031e064ac1f9d8687410d9055aa",
+        "training_counters": {
+          "iteration": 1
+        },
+        "training_data_provenance_hash": "d6804a945d4085693dd98d07de165957eb0ab9ec7a08f4a3ac2c3dde95535e35",
+        "training_data_provenance_status": "complete"
+      },
+      "candidate_wins": 0,
+      "complete_games": 1,
+      "descriptive_wilson95_high": 0.7934506856227626,
+      "descriptive_wilson95_low": 0.0,
+      "elapsed_seconds": 1.5511979999973846,
+      "final_holdout": false,
+      "formal_selection": false,
+      "games": 1,
+      "generated_at": "2026-10-10T05:35:48.990772+00:00",
+      "illegal_count": 0,
+      "level_ranks": [
+        15
+      ],
+      "opponents": [
+        "random"
+      ],
+      "promotion_eligible": false,
+      "remote_verified": false,
+      "schema": "guandan-marvel-kaggle-evaluation-summary-v2",
+      "scope": "bounded M07 pipeline evaluation; not formal selection or final holdout",
+      "seat_rotations": [
+        0
+      ],
+      "status": "complete",
+      "strength_claim": false,
+      "truncated_count": 0,
+      "win_rate": 0.0
+    },
+    "schema": "guandan-marvel-m07-repair-evaluation-evidence-v1"
+  },
+  "B_failure_recovery": {
+    "atomic_bundle_replace_test": "tests/marvel_kaggle/test_progress_recovery.py::test_recovery_bundle_replace_failure_preserves_previous_bundle",
+    "passes": true,
+    "scenarios": {
+      "bundle_failure": {
+        "checkpoint_latest": {
+          "checkpoint": "checkpoints/iter000002",
+          "created_at": "2026-10-10T05:40:04.489284+00:00",
+          "durable": true,
+          "evaluation_checkpoint": null,
+          "evaluation_checkpoint_sha256": null,
+          "evaluation_error": null,
+          "evaluation_status": "not_due",
+          "iteration": 2,
+          "manifest_hash": "956589ea7e44caf428c1475ca16b967b93977bab0733f10e237d76803317d6d8",
+          "manifest_sha256": "9a8626956083c4fa725a2d995dda0eaee2d13bb3cf929c0db13f53d6f593f006"
+        },
+        "exit_code": 1,
+        "progress": {
+          "complete": false,
+          "completed_games": 4,
+          "env_steps": 1385,
+          "env_steps_per_second": 453.45823618028066,
+          "error": "RuntimeError: durable checkpoint publication failed on rank 0: RuntimeError: injected recovery bundle failure at iteration 2",
+          "eta_seconds": null,
+          "game_steps": 608,
+          "game_steps_per_second": 193.8313776235438,
+          "gpus": [
+            {
+              "index": 0,
+              "memory_total_mib": 4096.0,
+              "memory_used_mib": 1229.0,
+              "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+              "power_watts": 6.95,
+              "status": "ok",
+              "utilization_percent": 16.0
+            }
+          ],
+          "heartbeat_at": "2026-10-10T05:40:04.804113+00:00",
+          "iteration": 2,
+          "latest_checkpoint": "checkpoints/iter000001",
+          "latest_evaluation": null,
+          "latest_evaluation_status": "not_run",
+          "mode": "pilot",
+          "phase": "failed",
+          "ranks": [
+            {
+              "heartbeat_age_seconds": 0.10246239999833051,
+              "heartbeat_at": "2026-10-10T05:40:04.684039+00:00",
+              "iteration": 2,
+              "phase": "failed",
+              "pid": 26804,
+              "rank": 0,
+              "status": "alive"
+            },
+            {
+              "heartbeat_age_seconds": 0.10212160000082804,
+              "heartbeat_at": "2026-10-10T05:40:04.684039+00:00",
+              "iteration": 2,
+              "phase": "failed",
+              "pid": 25496,
+              "rank": 1,
+              "status": "alive"
+            }
+          ],
+          "remote_verified": false,
+          "schema": "guandan-marvel-progress-v2",
+          "session_completed_iterations": 2,
+          "session_elapsed_seconds": 9.445410899999843,
+          "session_start_iteration": 0,
+          "target_iterations": 2
+        },
+        "rank_final_events": [
+          {
+            "error": "RuntimeError: durable checkpoint publication failed on rank 0: RuntimeError: injected recovery bundle failure at iteration 2",
+            "event": "failed",
+            "rank": 0,
+            "schema": "guandan-marvel-rank-diagnostic-v1",
+            "timestamp": "2026-10-10T05:40:04.631558+00:00"
+          },
+          {
+            "error": "RuntimeError: durable checkpoint publication failed on rank 0: RuntimeError: injected recovery bundle failure at iteration 2",
+            "event": "failed",
+            "rank": 1,
+            "schema": "guandan-marvel-rank-diagnostic-v1",
+            "timestamp": "2026-10-10T05:40:04.631558+00:00"
+          }
+        ],
+        "recovery_iteration": 2,
+        "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\bundle_failure\\working\\guandan-marvel-output\\runs\\20261010T053948Z-pilot-b88ce813"
+      },
+      "first_eval_failure": {
+        "checkpoint_latest": {
+          "checkpoint": "checkpoints/iter000001",
+          "created_at": "2026-10-10T05:38:34.950149+00:00",
+          "durable": true,
+          "evaluation_checkpoint": "evaluation_checkpoints/iter000001.pt",
+          "evaluation_checkpoint_sha256": "52b521137bcaed9688d78bb890e4d54e8aa36fb3a523f4e6d9f30f786968a06e",
+          "evaluation_error": "RuntimeError: injected evaluation failure at iteration 1",
+          "evaluation_status": "failed",
+          "iteration": 1,
+          "manifest_hash": "b1127886387e9984ecea5bf8ce84324e29e1969daf56e7e8aa26947e326b57ab",
+          "manifest_sha256": "50dd10f0b3d8cd94cc0c4f3721029dcb133b33d808d9428ad748b82d8522bb3b"
+        },
+        "direct_resume_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\first_eval_failure_resume\\working\\guandan-marvel-output\\runs\\20261010T053844Z-resume-d65513c5",
+        "exit_code": 1,
+        "progress": {
+          "complete": false,
+          "completed_games": 2,
+          "env_steps": 692,
+          "env_steps_per_second": 358.5981612049984,
+          "error": "RuntimeError: evaluation failed on rank 0: RuntimeError: injected evaluation failure at iteration 1",
+          "eta_seconds": null,
+          "game_steps": 310,
+          "game_steps_per_second": 160.64200987483395,
+          "gpus": [
+            {
+              "index": 0,
+              "memory_total_mib": 4096.0,
+              "memory_used_mib": 1248.0,
+              "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+              "power_watts": 6.89,
+              "status": "ok",
+              "utilization_percent": 14.0
+            }
+          ],
+          "heartbeat_at": "2026-10-10T05:38:37.268330+00:00",
+          "iteration": 1,
+          "latest_checkpoint": "checkpoints/iter000001",
+          "latest_evaluation": null,
+          "latest_evaluation_status": "failed",
+          "mode": "pilot",
+          "phase": "failed",
+          "ranks": [
+            {
+              "heartbeat_age_seconds": 0.1255247999979474,
+              "heartbeat_at": "2026-10-10T05:38:37.126639+00:00",
+              "iteration": 1,
+              "phase": "failed",
+              "pid": 27684,
+              "rank": 0,
+              "status": "alive"
+            },
+            {
+              "heartbeat_age_seconds": 0.1258641999993415,
+              "heartbeat_at": "2026-10-10T05:38:37.126639+00:00",
+              "iteration": 1,
+              "phase": "failed",
+              "pid": 25396,
+              "rank": 1,
+              "status": "alive"
+            }
+          ],
+          "remote_verified": false,
+          "schema": "guandan-marvel-progress-v2",
+          "session_completed_iterations": 1,
+          "session_elapsed_seconds": 6.686194300000352,
+          "session_start_iteration": 0,
+          "target_iterations": 1
+        },
+        "rank_final_events": [
+          {
+            "error": "RuntimeError: evaluation failed on rank 0: RuntimeError: injected evaluation failure at iteration 1",
+            "event": "failed",
+            "rank": 0,
+            "schema": "guandan-marvel-rank-diagnostic-v1",
+            "timestamp": "2026-10-10T05:38:37.018629+00:00"
+          },
+          {
+            "error": "RuntimeError: evaluation failed on rank 0: RuntimeError: injected evaluation failure at iteration 1",
+            "event": "failed",
+            "rank": 1,
+            "schema": "guandan-marvel-rank-diagnostic-v1",
+            "timestamp": "2026-10-10T05:38:37.017629+00:00"
+          }
+        ],
+        "recovery_iteration": 1,
+        "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\first_eval_failure\\working\\guandan-marvel-output\\runs\\20261010T053824Z-pilot-02270753"
+      },
+      "later_eval_failure": {
+        "checkpoint_latest": {
+          "checkpoint": "checkpoints/iter000002",
+          "created_at": "2026-10-10T05:39:37.982408+00:00",
+          "durable": true,
+          "evaluation_checkpoint": "evaluation_checkpoints/iter000002.pt",
+          "evaluation_checkpoint_sha256": "41da2145b81e744d0a3a9cd45e872328b92bc1fcb3a01f5acf70435bdc51282e",
+          "evaluation_error": "RuntimeError: injected evaluation failure at iteration 2",
+          "evaluation_status": "failed",
+          "iteration": 2,
+          "manifest_hash": "6cb1362df0789c1eb8787263e15c662eaf728977d8beccc31149451f8d9e7a44",
+          "manifest_sha256": "943711da279d9eff5f32b9079e6b2b8213c95176d223f589efaabe6398e89c29"
+        },
+        "exit_code": 1,
+        "progress": {
+          "complete": false,
+          "completed_games": 4,
+          "env_steps": 1385,
+          "env_steps_per_second": 446.501491559315,
+          "error": "RuntimeError: evaluation failed on rank 0: RuntimeError: injected evaluation failure at iteration 2",
+          "eta_seconds": null,
+          "game_steps": 608,
+          "game_steps_per_second": 190.98638225067572,
+          "gpus": [
+            {
+              "index": 0,
+              "memory_total_mib": 4096.0,
+              "memory_used_mib": 1239.0,
+              "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+              "power_watts": 6.89,
+              "status": "ok",
+              "utilization_percent": 19.0
+            }
+          ],
+          "heartbeat_at": "2026-10-10T05:39:40.390122+00:00",
+          "iteration": 2,
+          "latest_checkpoint": "checkpoints/iter000002",
+          "latest_evaluation": "evaluation_checkpoints/iter000001.pt",
+          "latest_evaluation_status": "failed",
+          "mode": "pilot",
+          "phase": "failed",
+          "ranks": [
+            {
+              "heartbeat_age_seconds": 0.1356274999998277,
+              "heartbeat_at": "2026-10-10T05:39:40.229158+00:00",
+              "iteration": 2,
+              "phase": "failed",
+              "pid": 16472,
+              "rank": 0,
+              "status": "alive"
+            },
+            {
+              "heartbeat_age_seconds": 0.17634820000239415,
+              "heartbeat_at": "2026-10-10T05:39:40.189367+00:00",
+              "iteration": 2,
+              "phase": "evaluation",
+              "pid": 4208,
+              "rank": 1,
+              "status": "alive"
+            }
+          ],
+          "remote_verified": false,
+          "schema": "guandan-marvel-progress-v2",
+          "session_completed_iterations": 2,
+          "session_elapsed_seconds": 19.328138600001694,
+          "session_start_iteration": 0,
+          "target_iterations": 2
+        },
+        "rank_final_events": [
+          {
+            "error": "RuntimeError: evaluation failed on rank 0: RuntimeError: injected evaluation failure at iteration 2",
+            "event": "failed",
+            "rank": 0,
+            "schema": "guandan-marvel-rank-diagnostic-v1",
+            "timestamp": "2026-10-10T05:39:40.138929+00:00"
+          },
+          {
+            "error": "RuntimeError: evaluation failed on rank 0: RuntimeError: injected evaluation failure at iteration 2",
+            "event": "failed",
+            "rank": 1,
+            "schema": "guandan-marvel-rank-diagnostic-v1",
+            "timestamp": "2026-10-10T05:39:40.138929+00:00"
+          }
+        ],
+        "recovery_iteration": 2,
+        "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\later_eval_failure\\working\\guandan-marvel-output\\runs\\20261010T053914Z-pilot-2cbe946a"
+      }
+    },
+    "schema": "guandan-marvel-m07-repair-failure-recovery-v1"
+  },
+  "C_resume": {
+    "full_config_resume": {
+      "actual": {
+        "agent_epoch": 4,
+        "collect_batch_size": 4,
+        "decoder_layers": 4,
+        "feature_dim": 256,
+        "history_dim": 128,
+        "rollout_batch_size": 4
+      },
+      "expected": {
+        "agent_epoch": 4,
+        "collect_batch_size": 4,
+        "decoder_layers": 4,
+        "feature_dim": 256,
+        "history_dim": 128,
+        "rollout_batch_size": 4
+      },
+      "full_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\full_config\\working\\guandan-marvel-output\\runs\\20261010T053628Z-full-164df153",
+      "full_update_elapsed_seconds": 51.651902400000836,
+      "resume_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\full_config_resume\\working\\guandan-marvel-output\\runs\\20261010T053720Z-resume-bc38903d"
+    },
+    "old_package_compatibility": "rejected by source commit/archive/schema identity",
+    "passes": true,
+    "pilot_resume_continuation": {
+      "continuous_hashes": [
+        "fde5344d0a9fcee99b7c3dcf9df80865ceb482ad2f02f2a89ffa379b58f83048",
+        "a20bc9b7d6ab0ac5fa87abe810724121e250528a0a82ab4e46a5f8839f5343e9"
+      ],
+      "equal": true,
+      "resumed_hashes": [
+        "fde5344d0a9fcee99b7c3dcf9df80865ceb482ad2f02f2a89ffa379b58f83048",
+        "a20bc9b7d6ab0ac5fa87abe810724121e250528a0a82ab4e46a5f8839f5343e9"
+      ],
+      "resumed_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\split_resume\\working\\guandan-marvel-output\\runs\\20261010T053558Z-resume-a049406e",
+      "split_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\split\\working\\guandan-marvel-output\\runs\\20261010T053530Z-pilot-e3429537"
+    },
+    "resume_profile_semantics": "inherited from validated rank shard; only run controls override",
+    "schema": "guandan-marvel-m07-repair-resume-inheritance-v1"
+  },
+  "D_budget": {
+    "actual_two_process": true,
+    "diagnostics": [
+      {
+        "decision": true,
+        "final_event": "budget_stopped",
+        "rank": 0,
+        "votes": [
+          {
+            "budget_reached": false,
+            "elapsed_seconds": 2.7608279999985825,
+            "rank": 0
+          },
+          {
+            "budget_reached": true,
+            "elapsed_seconds": 1002.9836087999975,
+            "rank": 1
+          }
+        ]
+      },
+      {
+        "decision": true,
+        "final_event": "budget_stopped",
+        "rank": 1,
+        "votes": [
+          {
+            "budget_reached": false,
+            "elapsed_seconds": 2.7608279999985825,
+            "rank": 0
+          },
+          {
+            "budget_reached": true,
+            "elapsed_seconds": 1002.9836087999975,
+            "rank": 1
+          }
+        ]
+      }
+    ],
+    "exit_code": 2,
+    "iteration": 1,
+    "kaggle_verified": false,
+    "passes": true,
+    "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\budget_skew\\working\\guandan-marvel-output\\runs\\20261010T054012Z-pilot-09266304",
+    "schema": "guandan-marvel-m07-repair-budget-consensus-v1",
+    "timeout_enforced": true
+  },
+  "E_rng": {
+    "continuous_vs_resume_continuation_hashes": {
+      "continuous_hashes": [
+        "fde5344d0a9fcee99b7c3dcf9df80865ceb482ad2f02f2a89ffa379b58f83048",
+        "a20bc9b7d6ab0ac5fa87abe810724121e250528a0a82ab4e46a5f8839f5343e9"
+      ],
+      "equal": true,
+      "resumed_hashes": [
+        "fde5344d0a9fcee99b7c3dcf9df80865ceb482ad2f02f2a89ffa379b58f83048",
+        "a20bc9b7d6ab0ac5fa87abe810724121e250528a0a82ab4e46a5f8839f5343e9"
+      ],
+      "resumed_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\split_resume\\working\\guandan-marvel-output\\runs\\20261010T053558Z-resume-a049406e",
+      "split_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\split\\working\\guandan-marvel-output\\runs\\20261010T053530Z-pilot-e3429537"
+    },
+    "cuda_rng_remote_verification": "deferred to M08",
+    "mechanism": "spawned evaluation process receives immutable checkpoint/config only",
+    "passes": true,
+    "real_loader_failure_test": "tests/marvel_kaggle/test_evaluation_runtime.py::test_spawned_real_loader_failure_preserves_parent_rng",
+    "real_loader_success_test": "tests/marvel_kaggle/test_evaluation_runtime.py::test_spawned_real_cpp_evaluation_preserves_parent_rng",
+    "schema": "guandan-marvel-m07-repair-rng-isolation-v1"
+  },
+  "F_heartbeat": {
+    "actual_short_run_log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/dynamic.log",
+    "actual_short_run_log_sha256": "781d1655660f520d7743b03b8e515aa14b455bb0c972c6401c09b0fd99332e0d",
+    "first_iteration_unknown_verified": true,
+    "line_count": 23,
+    "passes": true,
+    "progress_schema": "guandan-marvel-progress-v2",
+    "resume_session_eta_verified": true,
+    "sample": [
+      "[rank0] [M07 heartbeat] mode=pilot phase=initializing iteration=0/2 games=unknown env_steps=unknown game_steps=unknown env_sps=unknown game_sps=unknown elapsed=0.3s eta=unknown checkpoint=unknown evaluation=not_run gpu0=util:1.0% mem:1566.0/4096.0MiB r0:initializing age=0.06660259999989648s r1:initializing age=0.2733239000008325s",
+      "[rank0] [M07 heartbeat] mode=pilot phase=rollout iteration=0/2 games=unknown env_steps=unknown game_steps=unknown env_sps=unknown game_sps=unknown elapsed=0.6s eta=unknown checkpoint=unknown evaluation=not_run gpu0=util:2.0% mem:1322.0/4096.0MiB r0:initializing age=0.07738959999915096s r1:initializing age=0.49583780000102706s",
+      "[rank0] [M07 heartbeat] mode=pilot phase=rollout iteration=0/2 games=unknown env_steps=unknown game_steps=unknown env_sps=unknown game_sps=unknown elapsed=1.8s eta=unknown checkpoint=unknown evaluation=not_run gpu0=util:5.0% mem:1322.0/4096.0MiB r0:rollout age=0.07907500000146683s r1:rollout age=0.5780282000014267s",
+      "[rank0] [M07 heartbeat] mode=pilot phase=checkpoint iteration=1/2 games=2 env_steps=692 game_steps=310 env_sps=338.8710273151685 game_sps=151.8090204016841 elapsed=4.0s eta=4.008978900001239 checkpoint=unknown evaluation=not_run gpu0=util:15.0% mem:1322.0/4096.0MiB r0:checkpoint age=1.082317599997623s r1:checkpoint age=0.5370645000002696s",
+      "[rank0] [M07 heartbeat] mode=pilot phase=evaluation iteration=1/2 games=2 env_steps=692 game_steps=310 env_sps=338.8710273151685 game_sps=151.8090204016841 elapsed=5.5s eta=5.481068199998845 checkpoint=checkpoints/iter000001 evaluation=not_run gpu0=util:14.0% mem:1322.0/4096.0MiB r0:evaluation age=0.15251569999963976s r1:checkpoint age=0.4639610000012908s"
+    ],
+    "schema": "guandan-marvel-m07-repair-heartbeat-v1"
+  },
+  "accepted": true,
+  "baseline_commit": "4dbba7ae502ff21b3ca4e4f4da0dc3ad6879f65b",
+  "blockers": [],
+  "branch": "codex/marvel-guandan-migration",
+  "claims": {
+    "final_holdout": false,
+    "model_strength": false,
+    "remote_ready": true,
+    "remote_verified": false,
+    "t4x2_verified": false
+  },
+  "cli": {
+    "exit_code": 0,
+    "passes": true,
+    "preflight": {
+      "checks": {
+        "cpp_backend": "cpp",
+        "cpp_extension_sha256": "43bd36348e52fa66d1572f16f8ec877ee1057a746d2e8639bc80ae0f4d60f944",
+        "cpp_source_matches_binary": true,
+        "cuda_available": false,
+        "cuda_device_count": 0,
+        "distributed_available": true,
+        "gpu_count_ok": false,
+        "gpu_names": [],
+        "gpu_names_ok": false,
+        "nccl_available": false,
+        "required_gpu_count": 2,
+        "required_gpu_name_contains": "T4",
+        "source_root_exists": true,
+        "torchrun_available": true
+      },
+      "environment": {
+        "cpu_count_logical": 12,
+        "cpu_count_physical": 6,
+        "cuda_available": false,
+        "cuda_device_count": 0,
+        "cuda_runtime": null,
+        "gpus": [
+          {
+            "index": 0,
+            "memory_total_mib": 4096.0,
+            "memory_used_mib": 1229.0,
+            "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+            "power_watts": 7.01,
+            "status": "ok",
+            "utilization_percent": 19.0
+          }
+        ],
+        "platform": "Windows-11-10.0.26200-SP0",
+        "python": "3.12.0",
+        "ram_total_bytes": 14894297088,
+        "schema": "guandan-marvel-runtime-environment-v1",
+        "timestamp": "2026-10-10T05:34:30.068411+00:00",
+        "torch": "2.13.0+cpu"
+      },
+      "remote_preflight_passed": false,
+      "remote_verified": false,
+      "schema": "guandan-marvel-kaggle-preflight-v1",
+      "status": "local_only",
+      "timestamp": "2026-10-10T05:34:30.142188+00:00"
+    },
+    "result": {
+      "exit_code": 0,
+      "finished_at": "2026-10-10T05:34:30.500491+00:00",
+      "kaggle_runtime": false,
+      "local_cpu_test": false,
+      "mode": "preflight",
+      "package_ready": true,
+      "remote_verified": false,
+      "run_id": "20261010T053429Z-preflight-29e578fb",
+      "schema": "guandan-marvel-kaggle-run-result-v1",
+      "status": "complete"
+    },
+    "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\source_cli_working\\guandan-marvel-output\\runs\\20261010T053429Z-preflight-29e578fb",
+    "schema": "guandan-marvel-m07-repair-cli-v1",
+    "scope": "local extracted clean-commit source; no /kaggle fabrication"
+  },
+  "date": "2026-10-10",
+  "delivery_root": "D:/project/kaggle_train/guandan-marvel-t4x2-20261010",
+  "implementation_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+  "m08_allowed": true,
+  "package": {
+    "datasets": [
+      {
+        "manifest": "datasets/eval_only/guandan_marvel_dataset.json",
+        "mode": "eval_only",
+        "valid": true
+      },
+      {
+        "manifest": "datasets/full/guandan_marvel_dataset.json",
+        "mode": "full",
+        "valid": true
+      },
+      {
+        "manifest": "datasets/pilot/guandan_marvel_dataset.json",
+        "mode": "pilot",
+        "valid": true
+      },
+      {
+        "manifest": "datasets/preflight/guandan_marvel_dataset.json",
+        "mode": "preflight",
+        "valid": true
+      },
+      {
+        "manifest": "datasets/resume/guandan_marvel_dataset.json",
+        "mode": "resume",
+        "valid": true
+      }
+    ],
+    "delivery_manifest_hash": "15ab0e4899dc1f00e61895eedeb73008b27b13b53ad4ba7152d2f051fd954287",
+    "delivery_manifest_verified": true,
+    "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-t4x2-20261010",
+    "implementation_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+    "notebook": {
+      "code_cells": 3,
+      "path": "guandan_marvel_t4x2.ipynb",
+      "placeholders_absent": true,
+      "schema": "guandan-marvel-notebook-validation-v1",
+      "syntax_valid": true,
+      "valid": true
+    },
+    "passes": true,
+    "remote_ready": true,
+    "remote_verified": false,
+    "schema": "guandan-marvel-m07-repair-package-validation-v1",
+    "source_archive_file_count": 181,
+    "source_archive_sha256": "92b6a40bf3f23d7b0bff9c895072f1a15070e3300ec066d4ddf482c0f1ba784b",
+    "workspace_snapshot": false
+  },
+  "registration_commit": "self: exact SHA reported in final response",
+  "remote_verified": false,
+  "schema": "guandan-marvel-stage-repair-report-v1",
+  "source_build": {
+    "build_exit_code": 0,
+    "build_log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/source_extract_final/build_ext.log",
+    "build_log_sha256": "53721d5faaa0c89408991b96b41bd76dd576cede2643219daafba20576952827",
+    "extension_sha256": "43bd36348e52fa66d1572f16f8ec877ee1057a746d2e8639bc80ae0f4d60f944",
+    "game_identifier": "GuandanMARVELV2Cpp",
+    "import_exit_code": 0,
+    "passes": true,
+    "schema": "guandan-marvel-m07-repair-source-build-v1",
+    "source_matches_loaded_binary": true
+  },
+  "stage": "M07_kaggle_t4x2_repair",
+  "status": "remote_ready",
+  "tests": {
+    "blocking_nonoverlapping_totals": {
+      "errors": 0,
+      "failed": 0,
+      "passed": 112,
+      "skipped": 0,
+      "tests": 112
+    },
+    "commands": [
+      {
+        "command": "python -m pytest tests/marvel_kaggle -q --junitxml=...",
+        "counts": {
+          "errors": 0,
+          "failed": 0,
+          "passed": 20,
+          "seconds": 26.95,
+          "skipped": 0,
+          "tests": 20
+        },
+        "exit_code": 0,
+        "junit": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/m07_repair_scoped.junit.xml",
+        "junit_sha256": "1cd6caa653a8f920abc3d244b9d7b481a622c176c6bfedd1746f910a42a45cbe",
+        "log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/m07_repair_scoped.log",
+        "log_sha256": "deec4cc8b309677c52e4d8bb45e231a8cd3febd91e1fcff29f176d5027c1679a",
+        "name": "m07_repair_scoped"
+      },
+      {
+        "command": "python -m pytest tests/marvel_training tests/marvel_core/test_core.py tests/marvel_evaluation -q --junitxml=...",
+        "counts": {
+          "errors": 0,
+          "failed": 0,
+          "passed": 87,
+          "seconds": 92.279,
+          "skipped": 0,
+          "tests": 87
+        },
+        "exit_code": 0,
+        "junit": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/target_regression.junit.xml",
+        "junit_sha256": "388287d88ac8248e5626bdeb438dbee014183965db8bc2e9e8fdea7298ffd967",
+        "log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/target_regression.log",
+        "log_sha256": "9a3d939e555308c74f5dcbdb0d42824ba10b0236e423aed0223491b6ba09d732",
+        "name": "target_regression"
+      },
+      {
+        "command": "python -m pytest tests/acceptance/test_a00_specification.py -q --junitxml=...",
+        "counts": {
+          "errors": 0,
+          "failed": 0,
+          "passed": 5,
+          "seconds": 1.098,
+          "skipped": 0,
+          "tests": 5
+        },
+        "exit_code": 0,
+        "junit": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/a00_specification.junit.xml",
+        "junit_sha256": "1357988bcafa7b2853dbea14945f18fc704a92877c49dc29c73a54117cb011d8",
+        "log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/a00_specification.log",
+        "log_sha256": "bef1e1293e86ea851411ed66a8264ffcd36b8e21d062b50e917807860d9d68bc",
+        "name": "a00_specification"
+      }
+    ],
+    "dynamic_checks": [
+      {
+        "exit_code": 0,
+        "log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/package_build_final.log",
+        "name": "exact_final_package_build",
+        "sha256": "36871e6c46759f42d4de9e3ec57ed1dbbcbc74587da5d851bf35509e6ee24f96"
+      },
+      {
+        "exit_code": 0,
+        "log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/package_validate_final.log",
+        "name": "exact_final_package_validation",
+        "sha256": "3ca4288181231fe2d5a6dd405da7d61da9e3ad5676e7523cad784714f9678e5c"
+      },
+      {
+        "exit_code": 0,
+        "log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/dynamic.log",
+        "name": "actual_cpp_ddp_fault_resume_budget_heartbeat",
+        "sha256": "781d1655660f520d7743b03b8e515aa14b455bb0c972c6401c09b0fd99332e0d",
+        "summary": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/dynamic/summary.json"
+      },
+      {
+        "exit_code": 0,
+        "name": "m03_ippo_vrpo_smoke",
+        "summary": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/m03_regression_smoke/summary.json"
+      },
+      {
+        "build_exit_code": 0,
+        "import_exit_code": 0,
+        "name": "extracted_source_build_import"
+      },
+      {
+        "exit_code": 0,
+        "name": "extracted_source_cli"
+      }
+    ],
+    "schema": "guandan-marvel-m07-repair-test-results-v1"
+  },
+  "verification": {
+    "accepted": true,
+    "blockers": [],
+    "hard_gates": {
+      "A_eval_only_real_cpp": true,
+      "A_rank_two_and_real_pilot_eval": true,
+      "B_bundle_atomicity": true,
+      "B_checkpoint_recoverable_before_eval": true,
+      "B_first_and_later_eval_failure": true,
+      "B_rank_failure_propagation": true,
+      "B_recovery_direct_resume": true,
+      "C_full_resume_inherits": true,
+      "C_pilot_continuation_equal": true,
+      "C_strict_source_world_schema_hash": true,
+      "D_same_iteration_and_model": true,
+      "D_shared_budget_decision": true,
+      "E_continuation_equal_with_eval": true,
+      "E_spawn_rng_isolation": true,
+      "F_stdout_heartbeat": true,
+      "F_unknown_and_session_eta": true,
+      "no_kaggle_or_final_holdout": true,
+      "package_clean_commit": true,
+      "protected_rules_unchanged": true,
+      "tests_pass": true
+    },
+    "limitations": [
+      "no real Kaggle/T4/NCCL/CUDA training",
+      "CUDA RNG isolation remains for M08 hardware verification",
+      "bounded one-game local evaluations are pipeline evidence only",
+      "full configuration used smoke horizon and two updates, not long training or strength evidence"
+    ],
+    "m08_allowed": true,
+    "remote_verified": false,
+    "schema": "guandan-marvel-m07-repair-verification-v1",
+    "status": "remote_ready",
+    "tests": {
+      "errors": 0,
+      "failed": 0,
+      "passed": 112,
+      "skipped": 0,
+      "tests": 112
+    }
+  }
+}

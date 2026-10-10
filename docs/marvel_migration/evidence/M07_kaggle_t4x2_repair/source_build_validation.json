@@ -1,0 +1,11 @@
+{
+  "build_exit_code": 0,
+  "build_log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/source_extract_final/build_ext.log",
+  "build_log_sha256": "53721d5faaa0c89408991b96b41bd76dd576cede2643219daafba20576952827",
+  "extension_sha256": "43bd36348e52fa66d1572f16f8ec877ee1057a746d2e8639bc80ae0f4d60f944",
+  "game_identifier": "GuandanMARVELV2Cpp",
+  "import_exit_code": 0,
+  "passes": true,
+  "schema": "guandan-marvel-m07-repair-source-build-v1",
+  "source_matches_loaded_binary": true
+}

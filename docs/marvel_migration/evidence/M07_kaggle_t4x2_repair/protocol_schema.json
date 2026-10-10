@@ -1,0 +1,9 @@
+{
+  "checkpoint_manifest": "guandan-marvel-checkpoint-manifest-v2",
+  "ddp_checkpoint": "guandan-marvel-ddp-checkpoint-v2",
+  "evaluation_summary": "guandan-marvel-kaggle-evaluation-summary-v2",
+  "progress": "guandan-marvel-progress-v2",
+  "rank_summary": "guandan-marvel-ddp-rank-checkpoint-summary-v2",
+  "recovery": "guandan-marvel-recovery-manifest-v2",
+  "schema": "guandan-marvel-m07-repair-protocol-schema-v1"
+}

@@ -1,0 +1,17 @@
+{
+  "actual_short_run_log": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/dynamic.log",
+  "actual_short_run_log_sha256": "781d1655660f520d7743b03b8e515aa14b455bb0c972c6401c09b0fd99332e0d",
+  "first_iteration_unknown_verified": true,
+  "line_count": 23,
+  "passes": true,
+  "progress_schema": "guandan-marvel-progress-v2",
+  "resume_session_eta_verified": true,
+  "sample": [
+    "[rank0] [M07 heartbeat] mode=pilot phase=initializing iteration=0/2 games=unknown env_steps=unknown game_steps=unknown env_sps=unknown game_sps=unknown elapsed=0.3s eta=unknown checkpoint=unknown evaluation=not_run gpu0=util:1.0% mem:1566.0/4096.0MiB r0:initializing age=0.06660259999989648s r1:initializing age=0.2733239000008325s",
+    "[rank0] [M07 heartbeat] mode=pilot phase=rollout iteration=0/2 games=unknown env_steps=unknown game_steps=unknown env_sps=unknown game_sps=unknown elapsed=0.6s eta=unknown checkpoint=unknown evaluation=not_run gpu0=util:2.0% mem:1322.0/4096.0MiB r0:initializing age=0.07738959999915096s r1:initializing age=0.49583780000102706s",
+    "[rank0] [M07 heartbeat] mode=pilot phase=rollout iteration=0/2 games=unknown env_steps=unknown game_steps=unknown env_sps=unknown game_sps=unknown elapsed=1.8s eta=unknown checkpoint=unknown evaluation=not_run gpu0=util:5.0% mem:1322.0/4096.0MiB r0:rollout age=0.07907500000146683s r1:rollout age=0.5780282000014267s",
+    "[rank0] [M07 heartbeat] mode=pilot phase=checkpoint iteration=1/2 games=2 env_steps=692 game_steps=310 env_sps=338.8710273151685 game_sps=151.8090204016841 elapsed=4.0s eta=4.008978900001239 checkpoint=unknown evaluation=not_run gpu0=util:15.0% mem:1322.0/4096.0MiB r0:checkpoint age=1.082317599997623s r1:checkpoint age=0.5370645000002696s",
+    "[rank0] [M07 heartbeat] mode=pilot phase=evaluation iteration=1/2 games=2 env_steps=692 game_steps=310 env_sps=338.8710273151685 game_sps=151.8090204016841 elapsed=5.5s eta=5.481068199998845 checkpoint=checkpoints/iter000001 evaluation=not_run gpu0=util:14.0% mem:1322.0/4096.0MiB r0:evaluation age=0.15251569999963976s r1:checkpoint age=0.4639610000012908s"
+  ],
+  "schema": "guandan-marvel-m07-repair-heartbeat-v1"
+}

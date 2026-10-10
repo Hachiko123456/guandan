@@ -1,0 +1,21 @@
+{
+  "continuous_vs_resume_continuation_hashes": {
+    "continuous_hashes": [
+      "fde5344d0a9fcee99b7c3dcf9df80865ceb482ad2f02f2a89ffa379b58f83048",
+      "a20bc9b7d6ab0ac5fa87abe810724121e250528a0a82ab4e46a5f8839f5343e9"
+    ],
+    "equal": true,
+    "resumed_hashes": [
+      "fde5344d0a9fcee99b7c3dcf9df80865ceb482ad2f02f2a89ffa379b58f83048",
+      "a20bc9b7d6ab0ac5fa87abe810724121e250528a0a82ab4e46a5f8839f5343e9"
+    ],
+    "resumed_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\split_resume\\working\\guandan-marvel-output\\runs\\20261010T053558Z-resume-a049406e",
+    "split_run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\split\\working\\guandan-marvel-output\\runs\\20261010T053530Z-pilot-e3429537"
+  },
+  "cuda_rng_remote_verification": "deferred to M08",
+  "mechanism": "spawned evaluation process receives immutable checkpoint/config only",
+  "passes": true,
+  "real_loader_failure_test": "tests/marvel_kaggle/test_evaluation_runtime.py::test_spawned_real_loader_failure_preserves_parent_rng",
+  "real_loader_success_test": "tests/marvel_kaggle/test_evaluation_runtime.py::test_spawned_real_cpp_evaluation_preserves_parent_rng",
+  "schema": "guandan-marvel-m07-repair-rng-isolation-v1"
+}

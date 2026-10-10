@@ -1,0 +1,116 @@
+{
+  "actual_cpp_backend": true,
+  "eval_only_evaluation": {
+    "base_deals": 1,
+    "candidate": {
+      "algorithm": "ippo",
+      "architecture": "v1.3",
+      "backend": "cpp",
+      "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+      "checkpoint_path": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\eval_only\\working\\guandan-marvel-recovery\\checkpoint\\rank000.pt",
+      "checkpoint_schema": "guandan-marvel-training-checkpoint-v5",
+      "checkpoint_sha256": "ce0d2df4a464ded0faabbc5be15473370898337cc9e049d2b5defbe89ada7e35",
+      "iteration": 1,
+      "merged_policy": {
+        "beta": 0.0,
+        "identity": "current_policy_copy",
+        "not_smoothed_when_beta_zero": true
+      },
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+      "resolved_config_hash": "9e0652d3f921c5f32b72ccf3b863e72cf93658d9b23d876e255bfe90c597c676",
+      "schema": "guandan-marvel-policy-identity-v1",
+      "source_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+      "source_hash": "0b5ecb27a4ccb27b084ad7ef9d9273f2910f4031e064ac1f9d8687410d9055aa",
+      "training_counters": {
+        "iteration": 1
+      },
+      "training_data_provenance_hash": "8b87b07be681f1f3b548af0961d1acfc217af232e40b3edf721367f0937db506",
+      "training_data_provenance_status": "complete"
+    },
+    "candidate_wins": 0,
+    "complete_games": 1,
+    "descriptive_wilson95_high": 0.7934506856227626,
+    "descriptive_wilson95_low": 0.0,
+    "elapsed_seconds": 1.4529828000013367,
+    "final_holdout": false,
+    "formal_selection": false,
+    "games": 1,
+    "generated_at": "2026-10-10T05:38:18.241812+00:00",
+    "illegal_count": 0,
+    "level_ranks": [
+      15
+    ],
+    "opponents": [
+      "random"
+    ],
+    "promotion_eligible": false,
+    "remote_verified": false,
+    "schema": "guandan-marvel-kaggle-evaluation-summary-v2",
+    "scope": "bounded M07 pipeline evaluation; not formal selection or final holdout",
+    "seat_rotations": [
+      0
+    ],
+    "status": "complete",
+    "strength_claim": false,
+    "truncated_count": 0,
+    "win_rate": 0.0
+  },
+  "final_holdout": false,
+  "kaggle_verified": false,
+  "pilot_first_periodic_evaluation": {
+    "base_deals": 1,
+    "candidate": {
+      "algorithm": "ippo",
+      "architecture": "v1.3",
+      "backend": "cpp",
+      "backend_identity_hash": "a874e8374f86787e194dcf30cfed54fbc0ba273bb199f5315b5dbf03a82ece54",
+      "checkpoint_path": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\split\\working\\guandan-marvel-output\\runs\\20261010T053530Z-pilot-e3429537\\evaluation_checkpoints\\iter000001.pt",
+      "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+      "checkpoint_sha256": "5abed7160e850d080e790b23c5556081a660d2d521666ae9ba784928c287d70f",
+      "iteration": 1,
+      "merged_policy": {
+        "beta": 0.0,
+        "frozen_for_evaluation": true,
+        "identity": "current_policy_copy"
+      },
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+      "resolved_config_hash": "9e0652d3f921c5f32b72ccf3b863e72cf93658d9b23d876e255bfe90c597c676",
+      "schema": "guandan-marvel-policy-identity-v1",
+      "source_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+      "source_hash": "0b5ecb27a4ccb27b084ad7ef9d9273f2910f4031e064ac1f9d8687410d9055aa",
+      "training_counters": {
+        "iteration": 1
+      },
+      "training_data_provenance_hash": "d6804a945d4085693dd98d07de165957eb0ab9ec7a08f4a3ac2c3dde95535e35",
+      "training_data_provenance_status": "complete"
+    },
+    "candidate_wins": 0,
+    "complete_games": 1,
+    "descriptive_wilson95_high": 0.7934506856227626,
+    "descriptive_wilson95_low": 0.0,
+    "elapsed_seconds": 1.5511979999973846,
+    "final_holdout": false,
+    "formal_selection": false,
+    "games": 1,
+    "generated_at": "2026-10-10T05:35:48.990772+00:00",
+    "illegal_count": 0,
+    "level_ranks": [
+      15
+    ],
+    "opponents": [
+      "random"
+    ],
+    "promotion_eligible": false,
+    "remote_verified": false,
+    "schema": "guandan-marvel-kaggle-evaluation-summary-v2",
+    "scope": "bounded M07 pipeline evaluation; not formal selection or final holdout",
+    "seat_rotations": [
+      0
+    ],
+    "status": "complete",
+    "strength_claim": false,
+    "truncated_count": 0,
+    "win_rate": 0.0
+  },
+  "schema": "guandan-marvel-m07-repair-evaluation-evidence-v1"
+}

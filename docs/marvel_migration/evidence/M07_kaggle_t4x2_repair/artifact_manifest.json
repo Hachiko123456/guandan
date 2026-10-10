@@ -1,0 +1,241 @@
+{
+  "external_delivery": {
+    "delivery_manifest_hash": "15ab0e4899dc1f00e61895eedeb73008b27b13b53ad4ba7152d2f051fd954287",
+    "path": "D:/project/kaggle_train/guandan-marvel-t4x2-20261010",
+    "source_archive_sha256": "92b6a40bf3f23d7b0bff9c895072f1a15070e3300ec066d4ddf482c0f1ba784b",
+    "source_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67"
+  },
+  "implementation_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+  "large_artifacts_committed": false,
+  "remote_verified": false,
+  "run_artifacts": [
+    {
+      "bytes": 102,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/m07_repair_scoped.log",
+      "sha256": "deec4cc8b309677c52e4d8bb45e231a8cd3febd91e1fcff29f176d5027c1679a"
+    },
+    {
+      "bytes": 2992,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/m07_repair_scoped.junit.xml",
+      "sha256": "1cd6caa653a8f920abc3d244b9d7b481a622c176c6bfedd1746f910a42a45cbe"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/m07_repair_scoped.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 193,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/target_regression.log",
+      "sha256": "9a3d939e555308c74f5dcbdb0d42824ba10b0236e423aed0223491b6ba09d732"
+    },
+    {
+      "bytes": 13302,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/target_regression.junit.xml",
+      "sha256": "388287d88ac8248e5626bdeb438dbee014183965db8bc2e9e8fdea7298ffd967"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/target_regression.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 100,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/a00_specification.log",
+      "sha256": "bef1e1293e86ea851411ed66a8264ffcd36b8e21d062b50e917807860d9d68bc"
+    },
+    {
+      "bytes": 951,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/a00_specification.junit.xml",
+      "sha256": "1357988bcafa7b2853dbea14945f18fc704a92877c49dc29c73a54117cb011d8"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/a00_specification.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 5043,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/package_build_final.log",
+      "sha256": "36871e6c46759f42d4de9e3ec57ed1dbbcbc74587da5d851bf35509e6ee24f96"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/package_build_final.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 1228,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/package_validate_final.log",
+      "sha256": "3ca4288181231fe2d5a6dd405da7d61da9e3ad5676e7523cad784714f9678e5c"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/package_validate_final.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 81508,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/dynamic.log",
+      "sha256": "781d1655660f520d7743b03b8e515aa14b455bb0c972c6401c09b0fd99332e0d"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/dynamic.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 8944,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/dynamic/summary.json",
+      "sha256": "c2031889a41628d39b721978b241d1850322799efa1a7a5c85dbaa9ad95fa3c5"
+    },
+    {
+      "bytes": 174,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/m03_regression_smoke.log",
+      "sha256": "ed2d842043dfbd710550cedd379210f46569754eda8bbdf54a4bd088cbe30875"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/m03_regression_smoke.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 20594,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/m03_regression_smoke/summary.json",
+      "sha256": "1ad48f9350f99e08c780eea337a7c3c8f0c267db16bb87241ede77f733fb226b"
+    },
+    {
+      "bytes": 97,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/source_cli.log",
+      "sha256": "100a84b39d0b9f31a1d3e2041e4d4840230ce1649c672fe275982b86badabf6f"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/source_cli.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 2457,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/source_extract_final/build_ext.log",
+      "sha256": "53721d5faaa0c89408991b96b41bd76dd576cede2643219daafba20576952827"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/source_extract_final/build_ext.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 86,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/source_extract_final/import.log",
+      "sha256": "d7744c4dab546ae98aff42ad7f3b72da86d10e3fc92763ea6977167c63f02b6e"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_acceptance/source_extract_final/import.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 3315,
+      "path": "runs/M07_kaggle_t4x2_repair/20261010_reproduction/reproduction.json",
+      "sha256": "0acdde15065a587dc73598d6bd1cce7ed378c505a6357849021526c4dcd3963a"
+    }
+  ],
+  "schema": "guandan-marvel-m07-repair-artifact-manifest-v1",
+  "tracked_evidence": [
+    {
+      "bytes": 1182,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/budget_consensus.json",
+      "sha256": "6b060344eedaf55b1afcf483d4b2ca22b756c16ab9c86adeb131a12d99e2cc67"
+    },
+    {
+      "bytes": 2250,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/cli_integration.json",
+      "sha256": "06836ea1f7ad4063e7a6213aec58af3771377e46637bf4130b4c63c5001a06bf"
+    },
+    {
+      "bytes": 595,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/environment.json",
+      "sha256": "3be8d89d2a46cf89d3c1ad895b3cbb835ce58d89246e8acd0cca09221e9db595"
+    },
+    {
+      "bytes": 4622,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/evaluation_paths.json",
+      "sha256": "995b3cad2e433f35b9508bafb3efce3263eb6c3d80d7216a164d264d3f08775f"
+    },
+    {
+      "bytes": 11017,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/failure_recovery.json",
+      "sha256": "1839cbc5dbae0dbc49b5ba44e1f9abb04cb7b9dc2ec366a57efaea0b2d52c2f8"
+    },
+    {
+      "bytes": 2165,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/heartbeat_console.json",
+      "sha256": "ba87f926d7f06d335ae068c5901416b6ab0c1f0975e3e2ed654b6bc818ed80fa"
+    },
+    {
+      "bytes": 1480,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/package_validation.json",
+      "sha256": "b9341d3c55c18c242f8fe9d999f9e5508c535c64f55c66e38b6c30ae98e39e05"
+    },
+    {
+      "bytes": 429,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/protocol_schema.json",
+      "sha256": "6c4feeef3e14207e71055504e81d7d737f8562ab02db3faffacf9b3941944e98"
+    },
+    {
+      "bytes": 3315,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/reproduction.json",
+      "sha256": "0acdde15065a587dc73598d6bd1cce7ed378c505a6357849021526c4dcd3963a"
+    },
+    {
+      "bytes": 1926,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/resume_inheritance.json",
+      "sha256": "7b6eca3033877cd7822052b722a7ae3d54547258ab817c64466dffea582dfcfb"
+    },
+    {
+      "bytes": 1308,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/rng_isolation.json",
+      "sha256": "7481a85f2b39900057d4cb7b8351ea7ed08ba43630831b2be543e08e4b62f526"
+    },
+    {
+      "bytes": 502,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/source_build_validation.json",
+      "sha256": "96de1e0c219c285572cdfeb06495085f13a8b8c4ef3befc63dfe2c594aa78732"
+    },
+    {
+      "bytes": 4512,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/source_manifest.json",
+      "sha256": "b9e3cc1dfd7217267933e8ee51355782933268ff47e0a9a59a5ca6a92a2b3f40"
+    },
+    {
+      "bytes": 3609,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/test_results.json",
+      "sha256": "2e477ba648393fed3aad1a3426335b777a98054408e4eaa51c74cf9e0b114cf5"
+    },
+    {
+      "bytes": 1419,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/verification.json",
+      "sha256": "217d50fe6236d460df9c86288f4447df952091a07fddde932474da592f80e4d8"
+    },
+    {
+      "bytes": 7022,
+      "path": "docs/marvel_migration/reports/M07_kaggle_t4x2_repair.md",
+      "sha256": "f6a19391ddbbdecbf0944b4b4423a264ddf2ef367be0a41822361f974c9bf089"
+    },
+    {
+      "bytes": 33929,
+      "path": "docs/marvel_migration/reports/M07_kaggle_t4x2_repair.json",
+      "sha256": "857dcff3a7bf73311a1444d367faa6f098c9cfaf11c8051ee41e77e93bcc3ab2"
+    },
+    {
+      "bytes": 5572,
+      "path": "docs/marvel_migration/M07_KAGGLE_DDP_REPAIR_PROTOCOL.md",
+      "sha256": "d68ac004feee478f86a72af0c9753f4b350fbec9aea73d80710d20284d866c17"
+    },
+    {
+      "bytes": 21313,
+      "path": "docs/marvel_migration/STATUS.yaml",
+      "sha256": "6cfe5a3bd3f03c18c817bcc35f63ca9aade2ae442fde9f03bcb43a9486c7b148"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "accepted": true,
+  "blockers": [],
+  "hard_gates": {
+    "A_eval_only_real_cpp": true,
+    "A_rank_two_and_real_pilot_eval": true,
+    "B_bundle_atomicity": true,
+    "B_checkpoint_recoverable_before_eval": true,
+    "B_first_and_later_eval_failure": true,
+    "B_rank_failure_propagation": true,
+    "B_recovery_direct_resume": true,
+    "C_full_resume_inherits": true,
+    "C_pilot_continuation_equal": true,
+    "C_strict_source_world_schema_hash": true,
+    "D_same_iteration_and_model": true,
+    "D_shared_budget_decision": true,
+    "E_continuation_equal_with_eval": true,
+    "E_spawn_rng_isolation": true,
+    "F_stdout_heartbeat": true,
+    "F_unknown_and_session_eta": true,
+    "no_kaggle_or_final_holdout": true,
+    "package_clean_commit": true,
+    "protected_rules_unchanged": true,
+    "tests_pass": true
+  },
+  "limitations": [
+    "no real Kaggle/T4/NCCL/CUDA training",
+    "CUDA RNG isolation remains for M08 hardware verification",
+    "bounded one-game local evaluations are pipeline evidence only",
+    "full configuration used smoke horizon and two updates, not long training or strength evidence"
+  ],
+  "m08_allowed": true,
+  "remote_verified": false,
+  "schema": "guandan-marvel-m07-repair-verification-v1",
+  "status": "remote_ready",
+  "tests": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 112,
+    "skipped": 0,
+    "tests": 112
+  }
+}

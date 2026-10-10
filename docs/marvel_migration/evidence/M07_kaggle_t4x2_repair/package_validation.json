@@ -1,0 +1,48 @@
+{
+  "datasets": [
+    {
+      "manifest": "datasets/eval_only/guandan_marvel_dataset.json",
+      "mode": "eval_only",
+      "valid": true
+    },
+    {
+      "manifest": "datasets/full/guandan_marvel_dataset.json",
+      "mode": "full",
+      "valid": true
+    },
+    {
+      "manifest": "datasets/pilot/guandan_marvel_dataset.json",
+      "mode": "pilot",
+      "valid": true
+    },
+    {
+      "manifest": "datasets/preflight/guandan_marvel_dataset.json",
+      "mode": "preflight",
+      "valid": true
+    },
+    {
+      "manifest": "datasets/resume/guandan_marvel_dataset.json",
+      "mode": "resume",
+      "valid": true
+    }
+  ],
+  "delivery_manifest_hash": "15ab0e4899dc1f00e61895eedeb73008b27b13b53ad4ba7152d2f051fd954287",
+  "delivery_manifest_verified": true,
+  "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-t4x2-20261010",
+  "implementation_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+  "notebook": {
+    "code_cells": 3,
+    "path": "guandan_marvel_t4x2.ipynb",
+    "placeholders_absent": true,
+    "schema": "guandan-marvel-notebook-validation-v1",
+    "syntax_valid": true,
+    "valid": true
+  },
+  "passes": true,
+  "remote_ready": true,
+  "remote_verified": false,
+  "schema": "guandan-marvel-m07-repair-package-validation-v1",
+  "source_archive_file_count": 181,
+  "source_archive_sha256": "92b6a40bf3f23d7b0bff9c895072f1a15070e3300ec066d4ddf482c0f1ba784b",
+  "workspace_snapshot": false
+}

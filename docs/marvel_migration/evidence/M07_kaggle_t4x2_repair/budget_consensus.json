@@ -1,0 +1,46 @@
+{
+  "actual_two_process": true,
+  "diagnostics": [
+    {
+      "decision": true,
+      "final_event": "budget_stopped",
+      "rank": 0,
+      "votes": [
+        {
+          "budget_reached": false,
+          "elapsed_seconds": 2.7608279999985825,
+          "rank": 0
+        },
+        {
+          "budget_reached": true,
+          "elapsed_seconds": 1002.9836087999975,
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "decision": true,
+      "final_event": "budget_stopped",
+      "rank": 1,
+      "votes": [
+        {
+          "budget_reached": false,
+          "elapsed_seconds": 2.7608279999985825,
+          "rank": 0
+        },
+        {
+          "budget_reached": true,
+          "elapsed_seconds": 1002.9836087999975,
+          "rank": 1
+        }
+      ]
+    }
+  ],
+  "exit_code": 2,
+  "iteration": 1,
+  "kaggle_verified": false,
+  "passes": true,
+  "run": "D:\\project\\guandan\\runs\\M07_kaggle_t4x2_repair\\20261010_acceptance\\dynamic\\budget_skew\\working\\guandan-marvel-output\\runs\\20261010T054012Z-pilot-09266304",
+  "schema": "guandan-marvel-m07-repair-budget-consensus-v1",
+  "timeout_enforced": true
+}
