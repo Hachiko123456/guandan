@@ -1,0 +1,54 @@
+{
+  "datasets": [
+    {
+      "manifest": "datasets/eval_only/guandan_marvel_dataset.json",
+      "mode": "eval_only",
+      "valid": true
+    },
+    {
+      "manifest": "datasets/full/guandan_marvel_dataset.json",
+      "mode": "full",
+      "valid": true
+    },
+    {
+      "manifest": "datasets/pilot/guandan_marvel_dataset.json",
+      "mode": "pilot",
+      "valid": true
+    },
+    {
+      "manifest": "datasets/preflight/guandan_marvel_dataset.json",
+      "mode": "preflight",
+      "valid": true
+    },
+    {
+      "manifest": "datasets/resume/guandan_marvel_dataset.json",
+      "mode": "resume",
+      "valid": true
+    }
+  ],
+  "delivery_manifest_hash": "720a7364041c07e761104cfdfcbdce5b1fa36f469cc3cb00b22d1efa335b7de1",
+  "delivery_manifest_verified": true,
+  "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-t4x2-20261010",
+  "delivery_schema": "guandan-marvel-kaggle-delivery-v2",
+  "implementation_commit": "3934d1f70a8db728ac6c825bb70ce80d6fd60f9a",
+  "notebook": {
+    "code_cells": 3,
+    "path": "guandan_marvel_t4x2.ipynb",
+    "placeholders_absent": true,
+    "schema": "guandan-marvel-notebook-validation-v1",
+    "syntax_valid": true,
+    "valid": true
+  },
+  "passes": true,
+  "pilot_dataset_files": [
+    "guandan-marvel-source.zip",
+    "guandan_marvel_bootstrap.py",
+    "guandan_marvel_dataset.json",
+    "source_manifest.json"
+  ],
+  "remote_verified": false,
+  "schema": "guandan-marvel-m07-input-layout-package-validation-v1",
+  "source_archive_file_count": 182,
+  "source_archive_sha256": "9eb4c4040a3dafda040e6f1b19fd060f110c4137af551f3b489fe42a5f9b1b35",
+  "workspace_snapshot": false
+}

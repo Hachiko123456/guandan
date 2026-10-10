@@ -1,0 +1,11 @@
+{
+  "build_exit_code": 0,
+  "build_log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/source_extract_final/build_ext.log",
+  "build_log_sha256": "9275d97cc4ad3136f67e6a50f196b1407ec4a100938b89d9293370a06ef6df2f",
+  "extension_sha256": "28b22c0f8a86bbaf949b57234f3330f49759a50380b7f087f811f8a67285815d",
+  "game_identifier": "GuandanMARVELV2Cpp",
+  "import_exit_code": 0,
+  "passes": true,
+  "schema": "guandan-marvel-m07-input-layout-source-build-v1",
+  "source_matches_loaded_binary": true
+}

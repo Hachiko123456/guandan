@@ -1,0 +1,9 @@
+{
+  "bootstrap": "guandan_marvel_bootstrap.py",
+  "dataset": "guandan-marvel-kaggle-dataset-v2",
+  "delivery": "guandan-marvel-kaggle-delivery-v2",
+  "recovery": "guandan-marvel-recovery-manifest-v3",
+  "schema": "guandan-marvel-m07-input-layout-protocol-schema-v1",
+  "source_manifest": "guandan-marvel-source-manifest-v1",
+  "zip_directory_policy": "validate both; deduplicate identical content; reject different identity"
+}

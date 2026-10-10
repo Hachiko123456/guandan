@@ -1,0 +1,14 @@
+{
+  "inputs_unchanged": true,
+  "passes": true,
+  "pilot_run": "D:\\project\\guandan\\runs\\M07_kaggle_input_layout_repair\\20261010_acceptance\\cpu_unpacked_resume\\pilot-working\\guandan-marvel-output\\runs\\20261010T065314Z-pilot-bf7c7d6f",
+  "recovery_input": "unpacked_directory_without_zip",
+  "recovery_wrapper": "D:\\project\\guandan\\runs\\M07_kaggle_input_layout_repair\\20261010_acceptance\\cpu_unpacked_resume\\resume-input\\other-dataset\\wrapped\\recovery",
+  "resume_inherited": true,
+  "resume_iteration": 2,
+  "resume_run": "D:\\project\\guandan\\runs\\M07_kaggle_input_layout_repair\\20261010_acceptance\\cpu_unpacked_resume\\resume-working\\guandan-marvel-output\\runs\\20261010T065337Z-resume-e2318889",
+  "schema": "guandan-marvel-m07-input-layout-cpu-resume-v1",
+  "scope": "local CPU/gloo; no Kaggle/T4/NCCL claim",
+  "source_input": "unpacked_directory_without_zip",
+  "source_wrapper": "D:\\project\\guandan\\runs\\M07_kaggle_input_layout_repair\\20261010_acceptance\\cpu_unpacked_resume\\resume-input\\outer\\dataset\\resume\\kaggle-auto\\source\\guandan-marvel-source"
+}

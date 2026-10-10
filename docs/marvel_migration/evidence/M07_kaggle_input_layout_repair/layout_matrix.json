@@ -1,0 +1,39 @@
+{
+  "A_source_zip_retained": "test_source_zip_retained_still_resolves",
+  "B_source_unpacked_no_zip": [
+    "test_source_auto_unpacked_without_zip_resolves_with_wrappers",
+    "test_source_auto_unpack_flattened_into_dataset_directory"
+  ],
+  "C_recovery_zip_retained": "test_recovery_zip_and_unpacked_directory_with_wrappers",
+  "D_recovery_unpacked_no_zip": [
+    "test_recovery_zip_and_unpacked_directory_with_wrappers",
+    "cpu_unpacked_recovery.json"
+  ],
+  "E_wrapper_levels": [
+    "source outer/inner",
+    "recovery directory-wrapper/outer"
+  ],
+  "F_tamper_missing_identity_path_link": [
+    "test_unpacked_source_tamper_missing_and_conflict_fail_closed",
+    "test_source_zip_path_traversal_and_symlink_fail_closed",
+    "test_source_zip_symlink_member_fails_closed",
+    "test_recovery_tamper_missing_identity_and_conflict_fail_closed"
+  ],
+  "G_conflicts": [
+    "test_dataset_discovery_is_unique_and_conflicts_fail_closed",
+    "source/recovery conflict tests"
+  ],
+  "H_zip_directory_coexistence": [
+    "test_identical_source_zip_and_directory_are_deduplicated",
+    "recovery ZIP+directory prefers identical directory"
+  ],
+  "I_generated_notebook_actual_cell": [
+    "test_generated_notebook_actual_bootstrap_cell_handles_layout[False]",
+    "[True]",
+    "test_generated_notebook_actual_bootstrap_cell_handles_unpacked_recovery"
+  ],
+  "passes": true,
+  "policy": "identical ZIP+directory deduplicated after both validate; different content fails closed",
+  "remote_verified": false,
+  "schema": "guandan-marvel-m07-input-layout-matrix-v1"
+}

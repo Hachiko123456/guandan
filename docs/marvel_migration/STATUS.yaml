@@ -6,7 +6,7 @@ reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M07_kaggle_input_layout_repair
+current_stage: M08_remote_pilot
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -268,12 +268,15 @@ stages:
     blockers: []
 
   M07_kaggle_t4x2:
-    status: in_progress
-    accepted: false
+    status: remote_ready
+    accepted: true
     commit: 77a3674993d14d8c87fcab3a5084b1cf0c399b67
     repair_baseline_commit: 4dbba7ae502ff21b3ca4e4f4da0dc3ad6879f65b
     repair_implementation_commit: 77a3674993d14d8c87fcab3a5084b1cf0c399b67
     repair_registration_commit: self
+    input_layout_baseline_registration_commit: 33e06507041f702e49f05e6ef47b60d7a8909d8f
+    input_layout_implementation_commit: 3934d1f70a8db728ac6c825bb70ce80d6fd60f9a
+    input_layout_registration_commit: self
     commit_note: exact atomic commit SHA is reported in the final response and clean-commit source manifest
     reports:
       - docs/marvel_migration/reports/M07_kaggle_t4x2.md
@@ -309,18 +312,32 @@ stages:
       - docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/protocol_schema.json
       - docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/verification.json
       - docs/marvel_migration/evidence/M07_kaggle_t4x2_repair/artifact_manifest.json
+    input_layout_reports:
+      - docs/marvel_migration/reports/M07_kaggle_input_layout_repair.md
+      - docs/marvel_migration/reports/M07_kaggle_input_layout_repair.json
+    input_layout_evidence:
+      - docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/reproduction.json
+      - docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/layout_matrix.json
+      - docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/cpu_unpacked_recovery.json
+      - docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/package_validation.json
+      - docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/source_build_validation.json
+      - docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/cli_integration.json
+      - docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/test_results.json
+      - docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/environment.json
+      - docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/source_manifest.json
+      - docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/protocol_schema.json
+      - docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/verification.json
+      - docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/artifact_manifest.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-t4x2-20261010
-    acceptance_semantics: prior acceptance suspended during Kaggle auto-unpack input-layout repair
-    blockers:
-      - source/recovery ZIP and auto-unpacked directory compatibility is not yet accepted
+    acceptance_semantics: Kaggle ZIP-retained and auto-unpacked source/recovery layouts locally accepted; remote_ready, not remote_verified
+    blockers: []
 
   M08_remote_pilot:
-    status: blocked
+    status: ready
     accepted: false
     commit: null
     reports: []
-    blockers:
-      - M07 Kaggle auto-unpack input-layout repair is not accepted
+    blockers: []
 
   M09_full_training:
     status: blocked

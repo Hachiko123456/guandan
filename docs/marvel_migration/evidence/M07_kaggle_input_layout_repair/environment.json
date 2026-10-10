@@ -1,0 +1,12 @@
+{
+  "baseline_registration": "33e06507041f702e49f05e6ef47b60d7a8909d8f",
+  "cuda_available": false,
+  "cuda_device_count": 0,
+  "implementation_commit": "3934d1f70a8db728ac6c825bb70ce80d6fd60f9a",
+  "numpy": "2.3.5",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]",
+  "reference_repo_written": false,
+  "schema": "guandan-marvel-m07-input-layout-environment-v1",
+  "torch": "2.13.0+cpu"
+}

@@ -1,0 +1,8 @@
+{
+  "baseline_delivery_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+  "discovery_auto_unpacked_recovery_error": "RuntimeError: a unique matching recovery bundle is required but none was found; scanned=0, invalid=[]",
+  "discovery_auto_unpacked_source_error": "FileNotFoundError: dataset source archive or external source manifest is missing",
+  "notebook_auto_unpacked_source_error": "FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\project\\\\guandan\\\\runs\\\\M07_kaggle_input_layout_repair\\\\20261010_reproduction\\\\layout\\\\input\\\\wrapper\\\\pilot\\\\guandan-marvel-source.zip'",
+  "reproduced": true,
+  "schema": "guandan-marvel-m07-input-layout-reproduction-v1"
+}

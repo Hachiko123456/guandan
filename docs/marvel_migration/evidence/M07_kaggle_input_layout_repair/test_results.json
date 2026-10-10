@@ -1,0 +1,93 @@
+{
+  "blocking_nonoverlapping_totals": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 124,
+    "skipped": 0,
+    "tests": 124
+  },
+  "commands": [
+    {
+      "command": "python -m pytest tests/marvel_kaggle -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 32,
+        "seconds": 53.271,
+        "skipped": 0,
+        "tests": 32
+      },
+      "exit_code": 0,
+      "junit": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/m07_layout_scoped.junit.xml",
+      "junit_sha256": "46d20be7d4c832fff26f72de9a3592c0fa56123d2079d0d1be8c716c539bf8e9",
+      "log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/m07_layout_scoped.log",
+      "log_sha256": "44426aa09a1ac70aae9601b40fd9992ed7ccb4dc684ae5836b6ec8a4263fb3ec",
+      "name": "m07_layout_scoped"
+    },
+    {
+      "command": "python -m pytest tests/marvel_training tests/marvel_core/test_core.py tests/marvel_evaluation -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 87,
+        "seconds": 93.092,
+        "skipped": 0,
+        "tests": 87
+      },
+      "exit_code": 0,
+      "junit": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/target_regression.junit.xml",
+      "junit_sha256": "42a3412e0cbbfa2ca13954ab8d0a2ac872c6edc2df7212d71c02154e3c9344a2",
+      "log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/target_regression.log",
+      "log_sha256": "9ec03ab08ecb0a4b6fdb3385403d8a74065d577aac85a4f0aa8e2d3bc5d01494",
+      "name": "target_regression"
+    },
+    {
+      "command": "python -m pytest tests/acceptance/test_a00_specification.py -q --junitxml=...",
+      "counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 5,
+        "seconds": 0.052,
+        "skipped": 0,
+        "tests": 5
+      },
+      "exit_code": 0,
+      "junit": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/a00_specification.junit.xml",
+      "junit_sha256": "8eb692bdbcfcbc943b19cb4bf6a418d6917ce2737771346ebc38cb22a2a1adeb",
+      "log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/a00_specification.log",
+      "log_sha256": "8ce9dfaaa51365c61dc3325c4aaf40a82ee495c852aea5780ee5b11bb68fc2c4",
+      "name": "a00_specification"
+    }
+  ],
+  "dynamic_checks": [
+    {
+      "exit_code": 0,
+      "log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/package_build_final.log",
+      "name": "final_package_build",
+      "sha256": "e3581e120de86afd0e395565643ed9e52515085dbac0d2775ebf5a85c79b8651"
+    },
+    {
+      "exit_code": 0,
+      "log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/package_validate_final.log",
+      "name": "final_package_validate",
+      "sha256": "3e132117f613d46185887768c39b80a69c43fa17b6f7b5115f05385d32f31cd5"
+    },
+    {
+      "exit_code": 0,
+      "log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/cpu_unpacked_resume.log",
+      "name": "unpacked_source_recovery_cpu_resume",
+      "sha256": "f1e6a6187a67f05a7ba53987fd29d3ee5a5577f9b288a19e3f526af469063b6a",
+      "summary": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/cpu_unpacked_resume/summary.json"
+    },
+    {
+      "build_exit_code": 0,
+      "import_exit_code": 0,
+      "name": "source_build_import"
+    },
+    {
+      "exit_code": 0,
+      "name": "source_cli"
+    }
+  ],
+  "schema": "guandan-marvel-m07-input-layout-test-results-v1"
+}

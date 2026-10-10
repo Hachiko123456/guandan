@@ -1,0 +1,88 @@
+{
+  "files": [
+    {
+      "bytes": 4258,
+      "path": "docs/marvel_migration/00_README.md",
+      "sha256": "a5b10086408e53e1607a554c97a5489a9f1d13eb5ecb9be32874bd0ca9980d4d"
+    },
+    {
+      "bytes": 5016,
+      "path": "docs/marvel_migration/07_KAGGLE_T4X2_RUNBOOK.md",
+      "sha256": "180ea58ddd7d8fd158f2e55751d55ced6fad3ca7f3ebd0020bf31b3fbed40e73"
+    },
+    {
+      "bytes": 3811,
+      "path": "docs/marvel_migration/M07_KAGGLE_INPUT_LAYOUT_REPAIR_PROTOCOL.md",
+      "sha256": "e75efedd279021e9d022f336246676e27faa0a71d00fefcd914b4a9f9baa8865"
+    },
+    {
+      "bytes": 3662,
+      "path": "docs/marvel_migration/M07_SOURCE_AUDIT.md",
+      "sha256": "fe55731623c2ae869b374bc44c2f9f9b002915b0bd464dca3f6bb762934f9fe4"
+    },
+    {
+      "bytes": 21120,
+      "path": "docs/marvel_migration/STATUS.yaml",
+      "sha256": "fa1c8b53242969a733cf0663210f3dbe77468443acf34fe05421e3df27764f67"
+    },
+    {
+      "bytes": 24275,
+      "path": "guandan_marvel/kaggle/bootstrap.py",
+      "sha256": "7370771c1ff0b46070c90790b20a6223e8434a162a7bd0a540a7ee859223afbe"
+    },
+    {
+      "bytes": 21610,
+      "path": "guandan_marvel/kaggle/checkpoints.py",
+      "sha256": "d7c5d657820bc0d49abbd7faed69db3f907ed5e4da3fdefb1b1e82b660f12d05"
+    },
+    {
+      "bytes": 3637,
+      "path": "guandan_marvel/kaggle/discovery.py",
+      "sha256": "2da2aca6e6502e04253fbc93f0690bd2a7fa6db70ffec7442a592fc4b1d8bfd1"
+    },
+    {
+      "bytes": 28214,
+      "path": "guandan_marvel/kaggle/package.py",
+      "sha256": "e2a5850cecaec6b6df2207e15bdba2aee2aaa17d1e7fbb2f2bbe6b345a791c27"
+    },
+    {
+      "bytes": 21208,
+      "path": "guandan_marvel/kaggle/runner.py",
+      "sha256": "17e0a5eeabb481d882e66eed656f3fb9352d0049e5b0e3fe43fd1d811f9a9ae3"
+    },
+    {
+      "bytes": 24438,
+      "path": "guandan_marvel/kaggle/worker.py",
+      "sha256": "4dfa9097d1685a3c57eecf32c2ebc9cb67b8aa7c818d0e2f64ec276f5838c840"
+    },
+    {
+      "bytes": 45253,
+      "path": "guandan_marvel/training/local.py",
+      "sha256": "b8d8ba4ffb0924aec3e8201007d9e4ee03a1045ae64320001059505df45fb37e"
+    },
+    {
+      "bytes": 5846,
+      "path": "scripts/run_m07_input_layout_recovery.py",
+      "sha256": "9eaebdf1852cec1cea61eb070b9c432b9d446c849148a6246b1603976d3b75db"
+    },
+    {
+      "bytes": 13844,
+      "path": "tests/marvel_kaggle/test_input_layouts.py",
+      "sha256": "7a168914ebecbad759b9277280be0c56b6cba8cf21ac86578c2f2adddd902b2c"
+    },
+    {
+      "bytes": 4974,
+      "path": "tests/marvel_kaggle/test_package.py",
+      "sha256": "09a77349ee520e4972f3f2b112ab688fdf1b35caa69ef816b3759fed994a1b8a"
+    },
+    {
+      "bytes": 4772,
+      "path": "tests/marvel_kaggle/test_progress_recovery.py",
+      "sha256": "8a0fd8fcd826357f656760737c380c7b3df57f092c3be79054fc302d3fd32e6d"
+    }
+  ],
+  "implementation_commit": "3934d1f70a8db728ac6c825bb70ce80d6fd60f9a",
+  "protected_rule_files_changed": false,
+  "reference_repo_written": false,
+  "schema": "guandan-marvel-m07-input-layout-source-manifest-v1"
+}

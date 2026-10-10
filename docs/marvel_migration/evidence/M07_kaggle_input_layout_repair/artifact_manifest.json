@@ -1,0 +1,206 @@
+{
+  "external_delivery": {
+    "delivery_manifest_hash": "720a7364041c07e761104cfdfcbdce5b1fa36f469cc3cb00b22d1efa335b7de1",
+    "path": "D:/project/kaggle_train/guandan-marvel-t4x2-20261010",
+    "source_archive_sha256": "9eb4c4040a3dafda040e6f1b19fd060f110c4137af551f3b489fe42a5f9b1b35",
+    "source_commit": "3934d1f70a8db728ac6c825bb70ce80d6fd60f9a"
+  },
+  "implementation_commit": "3934d1f70a8db728ac6c825bb70ce80d6fd60f9a",
+  "large_artifacts_committed": false,
+  "remote_verified": false,
+  "run_artifacts": [
+    {
+      "bytes": 102,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/m07_layout_scoped.log",
+      "sha256": "44426aa09a1ac70aae9601b40fd9992ed7ccb4dc684ae5836b6ec8a4263fb3ec"
+    },
+    {
+      "bytes": 4689,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/m07_layout_scoped.junit.xml",
+      "sha256": "46d20be7d4c832fff26f72de9a3592c0fa56123d2079d0d1be8c716c539bf8e9"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/m07_layout_scoped.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 193,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/target_regression.log",
+      "sha256": "9ec03ab08ecb0a4b6fdb3385403d8a74065d577aac85a4f0aa8e2d3bc5d01494"
+    },
+    {
+      "bytes": 13302,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/target_regression.junit.xml",
+      "sha256": "42a3412e0cbbfa2ca13954ab8d0a2ac872c6edc2df7212d71c02154e3c9344a2"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/target_regression.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 100,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/a00_specification.log",
+      "sha256": "8ce9dfaaa51365c61dc3325c4aaf40a82ee495c852aea5780ee5b11bb68fc2c4"
+    },
+    {
+      "bytes": 951,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/a00_specification.junit.xml",
+      "sha256": "8eb692bdbcfcbc943b19cb4bf6a418d6917ce2737771346ebc38cb22a2a1adeb"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/a00_specification.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 5966,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/package_build_final.log",
+      "sha256": "e3581e120de86afd0e395565643ed9e52515085dbac0d2775ebf5a85c79b8651"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/package_build_final.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 1228,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/package_validate_final.log",
+      "sha256": "3e132117f613d46185887768c39b80a69c43fa17b6f7b5115f05385d32f31cd5"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/package_validate_final.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 9900,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/cpu_unpacked_resume.log",
+      "sha256": "f1e6a6187a67f05a7ba53987fd29d3ee5a5577f9b288a19e3f526af469063b6a"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/cpu_unpacked_resume.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 1112,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/cpu_unpacked_resume/summary.json",
+      "sha256": "6121ec1ce5519fcb737e1769259fe1d8b3ca8619b21e0473200cbbdb6c7c00dd"
+    },
+    {
+      "bytes": 97,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/source_cli.log",
+      "sha256": "ddd978b2a6c8b29e094f99fbfdf10dfdca3464515858962d185c0d8b1d317507"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/source_cli.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 2537,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/source_extract_final/build_ext.log",
+      "sha256": "9275d97cc4ad3136f67e6a50f196b1407ec4a100938b89d9293370a06ef6df2f"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/source_extract_final/build_ext.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 86,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/source_extract_final/import.log",
+      "sha256": "9cd35a304755a462c589c620043f8a830b277e5c0208a93f48fed4018f3c5290"
+    },
+    {
+      "bytes": 3,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/source_extract_final/import.exitcode",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "bytes": 707,
+      "path": "runs/M07_kaggle_input_layout_repair/20261010_reproduction/reproduction.json",
+      "sha256": "fa0959844ce1ba4754aed9f48ff55393c10862f457cea5bed3198b8c8b6a0604"
+    }
+  ],
+  "schema": "guandan-marvel-m07-input-layout-artifact-manifest-v1",
+  "tracked_evidence": [
+    {
+      "bytes": 2264,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/cli_integration.json",
+      "sha256": "0dbe1f0a72fa3fc0f8881a799d0bb775de189b7efe0786546a9d957ed79602d1"
+    },
+    {
+      "bytes": 1112,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/cpu_unpacked_recovery.json",
+      "sha256": "6121ec1ce5519fcb737e1769259fe1d8b3ca8619b21e0473200cbbdb6c7c00dd"
+    },
+    {
+      "bytes": 491,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/environment.json",
+      "sha256": "23efddf6afe73901b96c5adff7aadc2c2a884ad2b6522278832f5cdabbf117c9"
+    },
+    {
+      "bytes": 1600,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/layout_matrix.json",
+      "sha256": "f833bef8f81401132060717b645435ad713b1df7ecb93888dfdf7727e1c0a5a0"
+    },
+    {
+      "bytes": 1688,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/package_validation.json",
+      "sha256": "a84b6c7e52265f96f8af5d5a7f7185003de70c4de7d08043802503f0be887ea3"
+    },
+    {
+      "bytes": 436,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/protocol_schema.json",
+      "sha256": "24751c4403bf5630007f18bb918ca20fda15134178792d950424e778b7f5bf34"
+    },
+    {
+      "bytes": 707,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/reproduction.json",
+      "sha256": "fa0959844ce1ba4754aed9f48ff55393c10862f457cea5bed3198b8c8b6a0604"
+    },
+    {
+      "bytes": 516,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/source_build_validation.json",
+      "sha256": "b17b96f8454d8552280cd690f580d27dfcd8762a18c96e55ca32cd9a8f157f9b"
+    },
+    {
+      "bytes": 3099,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/source_manifest.json",
+      "sha256": "60b3e60e4a64a825a7d861e8cc65eee333d1458f6cdee274dc07e93e2219a30a"
+    },
+    {
+      "bytes": 3499,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/test_results.json",
+      "sha256": "e044a64fcfa2cef8ad15051bf3c2c90d5a7959ef1d6999c7c13f896c728f2042"
+    },
+    {
+      "bytes": 1138,
+      "path": "docs/marvel_migration/evidence/M07_kaggle_input_layout_repair/verification.json",
+      "sha256": "b125c13383234b61461c2eadb243e808e1532fa230abf8ad7fcf3c89159976e4"
+    },
+    {
+      "bytes": 4776,
+      "path": "docs/marvel_migration/reports/M07_kaggle_input_layout_repair.md",
+      "sha256": "028e2b87661c06f7f98dd6eba908bb41adf6608f8cbdb531b45cee1319f81982"
+    },
+    {
+      "bytes": 14154,
+      "path": "docs/marvel_migration/reports/M07_kaggle_input_layout_repair.json",
+      "sha256": "9ecaa06e716b7fbf86d0879869af93714971a6d64f4fe14be091c26811f6d4bc"
+    },
+    {
+      "bytes": 3890,
+      "path": "docs/marvel_migration/M07_KAGGLE_INPUT_LAYOUT_REPAIR_PROTOCOL.md",
+      "sha256": "531c60ed5e548763903c40630d4564f3d11258c3abd6af23c0f382be48128b62"
+    },
+    {
+      "bytes": 22857,
+      "path": "docs/marvel_migration/STATUS.yaml",
+      "sha256": "a8a776c48474f0c639dc9d9bba19b557fc238f99106d49420ad00a051af546f8"
+    }
+  ]
+}

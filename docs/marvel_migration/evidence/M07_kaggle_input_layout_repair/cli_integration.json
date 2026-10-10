@@ -1,0 +1,66 @@
+{
+  "exit_code": 0,
+  "passes": true,
+  "preflight": {
+    "checks": {
+      "cpp_backend": "cpp",
+      "cpp_extension_sha256": "28b22c0f8a86bbaf949b57234f3330f49759a50380b7f087f811f8a67285815d",
+      "cpp_source_matches_binary": true,
+      "cuda_available": false,
+      "cuda_device_count": 0,
+      "distributed_available": true,
+      "gpu_count_ok": false,
+      "gpu_names": [],
+      "gpu_names_ok": false,
+      "nccl_available": false,
+      "required_gpu_count": 2,
+      "required_gpu_name_contains": "T4",
+      "source_root_exists": true,
+      "torchrun_available": true
+    },
+    "environment": {
+      "cpu_count_logical": 12,
+      "cpu_count_physical": 6,
+      "cuda_available": false,
+      "cuda_device_count": 0,
+      "cuda_runtime": null,
+      "gpus": [
+        {
+          "index": 0,
+          "memory_total_mib": 4096.0,
+          "memory_used_mib": 1213.0,
+          "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+          "power_watts": 7.01,
+          "status": "ok",
+          "utilization_percent": 27.0
+        }
+      ],
+      "platform": "Windows-11-10.0.26200-SP0",
+      "python": "3.12.0",
+      "ram_total_bytes": 14894297088,
+      "schema": "guandan-marvel-runtime-environment-v1",
+      "timestamp": "2026-10-10T06:55:27.353401+00:00",
+      "torch": "2.13.0+cpu"
+    },
+    "remote_preflight_passed": false,
+    "remote_verified": false,
+    "schema": "guandan-marvel-kaggle-preflight-v1",
+    "status": "local_only",
+    "timestamp": "2026-10-10T06:55:27.450940+00:00"
+  },
+  "result": {
+    "exit_code": 0,
+    "finished_at": "2026-10-10T06:55:27.829652+00:00",
+    "kaggle_runtime": false,
+    "local_cpu_test": false,
+    "mode": "preflight",
+    "package_ready": true,
+    "remote_verified": false,
+    "run_id": "20261010T065526Z-preflight-5dc55e2e",
+    "schema": "guandan-marvel-kaggle-run-result-v1",
+    "status": "complete"
+  },
+  "run": "D:\\project\\guandan\\runs\\M07_kaggle_input_layout_repair\\20261010_acceptance\\source_cli_working\\guandan-marvel-output\\runs\\20261010T065526Z-preflight-5dc55e2e",
+  "schema": "guandan-marvel-m07-input-layout-cli-v1",
+  "scope": "local extracted clean-commit source; no /kaggle fabrication"
+}

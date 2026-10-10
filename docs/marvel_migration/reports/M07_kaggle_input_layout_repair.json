@@ -1,0 +1,345 @@
+{
+  "accepted": true,
+  "baseline_implementation_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+  "baseline_registration_commit": "33e06507041f702e49f05e6ef47b60d7a8909d8f",
+  "blockers": [],
+  "branch": "codex/marvel-guandan-migration",
+  "claims": {
+    "kaggle_layout_verified": false,
+    "local_layout_verified": true,
+    "model_strength": false,
+    "remote_ready": true,
+    "remote_verified": false
+  },
+  "cli": {
+    "exit_code": 0,
+    "passes": true,
+    "preflight": {
+      "checks": {
+        "cpp_backend": "cpp",
+        "cpp_extension_sha256": "28b22c0f8a86bbaf949b57234f3330f49759a50380b7f087f811f8a67285815d",
+        "cpp_source_matches_binary": true,
+        "cuda_available": false,
+        "cuda_device_count": 0,
+        "distributed_available": true,
+        "gpu_count_ok": false,
+        "gpu_names": [],
+        "gpu_names_ok": false,
+        "nccl_available": false,
+        "required_gpu_count": 2,
+        "required_gpu_name_contains": "T4",
+        "source_root_exists": true,
+        "torchrun_available": true
+      },
+      "environment": {
+        "cpu_count_logical": 12,
+        "cpu_count_physical": 6,
+        "cuda_available": false,
+        "cuda_device_count": 0,
+        "cuda_runtime": null,
+        "gpus": [
+          {
+            "index": 0,
+            "memory_total_mib": 4096.0,
+            "memory_used_mib": 1213.0,
+            "name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+            "power_watts": 7.01,
+            "status": "ok",
+            "utilization_percent": 27.0
+          }
+        ],
+        "platform": "Windows-11-10.0.26200-SP0",
+        "python": "3.12.0",
+        "ram_total_bytes": 14894297088,
+        "schema": "guandan-marvel-runtime-environment-v1",
+        "timestamp": "2026-10-10T06:55:27.353401+00:00",
+        "torch": "2.13.0+cpu"
+      },
+      "remote_preflight_passed": false,
+      "remote_verified": false,
+      "schema": "guandan-marvel-kaggle-preflight-v1",
+      "status": "local_only",
+      "timestamp": "2026-10-10T06:55:27.450940+00:00"
+    },
+    "result": {
+      "exit_code": 0,
+      "finished_at": "2026-10-10T06:55:27.829652+00:00",
+      "kaggle_runtime": false,
+      "local_cpu_test": false,
+      "mode": "preflight",
+      "package_ready": true,
+      "remote_verified": false,
+      "run_id": "20261010T065526Z-preflight-5dc55e2e",
+      "schema": "guandan-marvel-kaggle-run-result-v1",
+      "status": "complete"
+    },
+    "run": "D:\\project\\guandan\\runs\\M07_kaggle_input_layout_repair\\20261010_acceptance\\source_cli_working\\guandan-marvel-output\\runs\\20261010T065526Z-preflight-5dc55e2e",
+    "schema": "guandan-marvel-m07-input-layout-cli-v1",
+    "scope": "local extracted clean-commit source; no /kaggle fabrication"
+  },
+  "cpu_unpacked_recovery": {
+    "inputs_unchanged": true,
+    "passes": true,
+    "pilot_run": "D:\\project\\guandan\\runs\\M07_kaggle_input_layout_repair\\20261010_acceptance\\cpu_unpacked_resume\\pilot-working\\guandan-marvel-output\\runs\\20261010T065314Z-pilot-bf7c7d6f",
+    "recovery_input": "unpacked_directory_without_zip",
+    "recovery_wrapper": "D:\\project\\guandan\\runs\\M07_kaggle_input_layout_repair\\20261010_acceptance\\cpu_unpacked_resume\\resume-input\\other-dataset\\wrapped\\recovery",
+    "resume_inherited": true,
+    "resume_iteration": 2,
+    "resume_run": "D:\\project\\guandan\\runs\\M07_kaggle_input_layout_repair\\20261010_acceptance\\cpu_unpacked_resume\\resume-working\\guandan-marvel-output\\runs\\20261010T065337Z-resume-e2318889",
+    "schema": "guandan-marvel-m07-input-layout-cpu-resume-v1",
+    "scope": "local CPU/gloo; no Kaggle/T4/NCCL claim",
+    "source_input": "unpacked_directory_without_zip",
+    "source_wrapper": "D:\\project\\guandan\\runs\\M07_kaggle_input_layout_repair\\20261010_acceptance\\cpu_unpacked_resume\\resume-input\\outer\\dataset\\resume\\kaggle-auto\\source\\guandan-marvel-source"
+  },
+  "date": "2026-10-10",
+  "delivery_root": "D:/project/kaggle_train/guandan-marvel-t4x2-20261010",
+  "implementation_commit": "3934d1f70a8db728ac6c825bb70ce80d6fd60f9a",
+  "layout_matrix": {
+    "A_source_zip_retained": "test_source_zip_retained_still_resolves",
+    "B_source_unpacked_no_zip": [
+      "test_source_auto_unpacked_without_zip_resolves_with_wrappers",
+      "test_source_auto_unpack_flattened_into_dataset_directory"
+    ],
+    "C_recovery_zip_retained": "test_recovery_zip_and_unpacked_directory_with_wrappers",
+    "D_recovery_unpacked_no_zip": [
+      "test_recovery_zip_and_unpacked_directory_with_wrappers",
+      "cpu_unpacked_recovery.json"
+    ],
+    "E_wrapper_levels": [
+      "source outer/inner",
+      "recovery directory-wrapper/outer"
+    ],
+    "F_tamper_missing_identity_path_link": [
+      "test_unpacked_source_tamper_missing_and_conflict_fail_closed",
+      "test_source_zip_path_traversal_and_symlink_fail_closed",
+      "test_source_zip_symlink_member_fails_closed",
+      "test_recovery_tamper_missing_identity_and_conflict_fail_closed"
+    ],
+    "G_conflicts": [
+      "test_dataset_discovery_is_unique_and_conflicts_fail_closed",
+      "source/recovery conflict tests"
+    ],
+    "H_zip_directory_coexistence": [
+      "test_identical_source_zip_and_directory_are_deduplicated",
+      "recovery ZIP+directory prefers identical directory"
+    ],
+    "I_generated_notebook_actual_cell": [
+      "test_generated_notebook_actual_bootstrap_cell_handles_layout[False]",
+      "[True]",
+      "test_generated_notebook_actual_bootstrap_cell_handles_unpacked_recovery"
+    ],
+    "passes": true,
+    "policy": "identical ZIP+directory deduplicated after both validate; different content fails closed",
+    "remote_verified": false,
+    "schema": "guandan-marvel-m07-input-layout-matrix-v1"
+  },
+  "m08_allowed": true,
+  "package": {
+    "datasets": [
+      {
+        "manifest": "datasets/eval_only/guandan_marvel_dataset.json",
+        "mode": "eval_only",
+        "valid": true
+      },
+      {
+        "manifest": "datasets/full/guandan_marvel_dataset.json",
+        "mode": "full",
+        "valid": true
+      },
+      {
+        "manifest": "datasets/pilot/guandan_marvel_dataset.json",
+        "mode": "pilot",
+        "valid": true
+      },
+      {
+        "manifest": "datasets/preflight/guandan_marvel_dataset.json",
+        "mode": "preflight",
+        "valid": true
+      },
+      {
+        "manifest": "datasets/resume/guandan_marvel_dataset.json",
+        "mode": "resume",
+        "valid": true
+      }
+    ],
+    "delivery_manifest_hash": "720a7364041c07e761104cfdfcbdce5b1fa36f469cc3cb00b22d1efa335b7de1",
+    "delivery_manifest_verified": true,
+    "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-t4x2-20261010",
+    "delivery_schema": "guandan-marvel-kaggle-delivery-v2",
+    "implementation_commit": "3934d1f70a8db728ac6c825bb70ce80d6fd60f9a",
+    "notebook": {
+      "code_cells": 3,
+      "path": "guandan_marvel_t4x2.ipynb",
+      "placeholders_absent": true,
+      "schema": "guandan-marvel-notebook-validation-v1",
+      "syntax_valid": true,
+      "valid": true
+    },
+    "passes": true,
+    "pilot_dataset_files": [
+      "guandan-marvel-source.zip",
+      "guandan_marvel_bootstrap.py",
+      "guandan_marvel_dataset.json",
+      "source_manifest.json"
+    ],
+    "remote_verified": false,
+    "schema": "guandan-marvel-m07-input-layout-package-validation-v1",
+    "source_archive_file_count": 182,
+    "source_archive_sha256": "9eb4c4040a3dafda040e6f1b19fd060f110c4137af551f3b489fe42a5f9b1b35",
+    "workspace_snapshot": false
+  },
+  "registration_commit": "self: exact SHA reported in final response",
+  "remote_verified": false,
+  "reproduction": {
+    "baseline_delivery_commit": "77a3674993d14d8c87fcab3a5084b1cf0c399b67",
+    "discovery_auto_unpacked_recovery_error": "RuntimeError: a unique matching recovery bundle is required but none was found; scanned=0, invalid=[]",
+    "discovery_auto_unpacked_source_error": "FileNotFoundError: dataset source archive or external source manifest is missing",
+    "notebook_auto_unpacked_source_error": "FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\project\\\\guandan\\\\runs\\\\M07_kaggle_input_layout_repair\\\\20261010_reproduction\\\\layout\\\\input\\\\wrapper\\\\pilot\\\\guandan-marvel-source.zip'",
+    "reproduced": true,
+    "schema": "guandan-marvel-m07-input-layout-reproduction-v1"
+  },
+  "schema": "guandan-marvel-stage-repair-report-v1",
+  "source_build": {
+    "build_exit_code": 0,
+    "build_log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/source_extract_final/build_ext.log",
+    "build_log_sha256": "9275d97cc4ad3136f67e6a50f196b1407ec4a100938b89d9293370a06ef6df2f",
+    "extension_sha256": "28b22c0f8a86bbaf949b57234f3330f49759a50380b7f087f811f8a67285815d",
+    "game_identifier": "GuandanMARVELV2Cpp",
+    "import_exit_code": 0,
+    "passes": true,
+    "schema": "guandan-marvel-m07-input-layout-source-build-v1",
+    "source_matches_loaded_binary": true
+  },
+  "stage": "M07_kaggle_input_layout_repair",
+  "status": "remote_ready",
+  "tests": {
+    "blocking_nonoverlapping_totals": {
+      "errors": 0,
+      "failed": 0,
+      "passed": 124,
+      "skipped": 0,
+      "tests": 124
+    },
+    "commands": [
+      {
+        "command": "python -m pytest tests/marvel_kaggle -q --junitxml=...",
+        "counts": {
+          "errors": 0,
+          "failed": 0,
+          "passed": 32,
+          "seconds": 53.271,
+          "skipped": 0,
+          "tests": 32
+        },
+        "exit_code": 0,
+        "junit": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/m07_layout_scoped.junit.xml",
+        "junit_sha256": "46d20be7d4c832fff26f72de9a3592c0fa56123d2079d0d1be8c716c539bf8e9",
+        "log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/m07_layout_scoped.log",
+        "log_sha256": "44426aa09a1ac70aae9601b40fd9992ed7ccb4dc684ae5836b6ec8a4263fb3ec",
+        "name": "m07_layout_scoped"
+      },
+      {
+        "command": "python -m pytest tests/marvel_training tests/marvel_core/test_core.py tests/marvel_evaluation -q --junitxml=...",
+        "counts": {
+          "errors": 0,
+          "failed": 0,
+          "passed": 87,
+          "seconds": 93.092,
+          "skipped": 0,
+          "tests": 87
+        },
+        "exit_code": 0,
+        "junit": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/target_regression.junit.xml",
+        "junit_sha256": "42a3412e0cbbfa2ca13954ab8d0a2ac872c6edc2df7212d71c02154e3c9344a2",
+        "log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/target_regression.log",
+        "log_sha256": "9ec03ab08ecb0a4b6fdb3385403d8a74065d577aac85a4f0aa8e2d3bc5d01494",
+        "name": "target_regression"
+      },
+      {
+        "command": "python -m pytest tests/acceptance/test_a00_specification.py -q --junitxml=...",
+        "counts": {
+          "errors": 0,
+          "failed": 0,
+          "passed": 5,
+          "seconds": 0.052,
+          "skipped": 0,
+          "tests": 5
+        },
+        "exit_code": 0,
+        "junit": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/a00_specification.junit.xml",
+        "junit_sha256": "8eb692bdbcfcbc943b19cb4bf6a418d6917ce2737771346ebc38cb22a2a1adeb",
+        "log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/a00_specification.log",
+        "log_sha256": "8ce9dfaaa51365c61dc3325c4aaf40a82ee495c852aea5780ee5b11bb68fc2c4",
+        "name": "a00_specification"
+      }
+    ],
+    "dynamic_checks": [
+      {
+        "exit_code": 0,
+        "log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/package_build_final.log",
+        "name": "final_package_build",
+        "sha256": "e3581e120de86afd0e395565643ed9e52515085dbac0d2775ebf5a85c79b8651"
+      },
+      {
+        "exit_code": 0,
+        "log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/package_validate_final.log",
+        "name": "final_package_validate",
+        "sha256": "3e132117f613d46185887768c39b80a69c43fa17b6f7b5115f05385d32f31cd5"
+      },
+      {
+        "exit_code": 0,
+        "log": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/cpu_unpacked_resume.log",
+        "name": "unpacked_source_recovery_cpu_resume",
+        "sha256": "f1e6a6187a67f05a7ba53987fd29d3ee5a5577f9b288a19e3f526af469063b6a",
+        "summary": "runs/M07_kaggle_input_layout_repair/20261010_acceptance/cpu_unpacked_resume/summary.json"
+      },
+      {
+        "build_exit_code": 0,
+        "import_exit_code": 0,
+        "name": "source_build_import"
+      },
+      {
+        "exit_code": 0,
+        "name": "source_cli"
+      }
+    ],
+    "schema": "guandan-marvel-m07-input-layout-test-results-v1"
+  },
+  "verification": {
+    "accepted": true,
+    "blockers": [],
+    "hard_gates": {
+      "actual_generated_notebook_cell": true,
+      "clean_commit_package": true,
+      "conflict_fail_closed": true,
+      "cpu_resume_from_unpacked_recovery": true,
+      "input_read_only": true,
+      "no_kaggle_or_final_holdout": true,
+      "prior_A_F_not_reopened": true,
+      "recovery_directory": true,
+      "recovery_zip": true,
+      "source_directory": true,
+      "source_zip": true,
+      "tamper_missing_identity_path_link": true,
+      "tests": true,
+      "wrapper_levels": true,
+      "zip_directory_coexistence": true
+    },
+    "limitations": [
+      "local temp directories simulate Kaggle layouts; no remote Kaggle execution",
+      "CPU/gloo resume is input-layout evidence only",
+      "original ZIP byte SHA cannot be verified when Kaggle removes the ZIP; content manifest identity is verified instead"
+    ],
+    "m08_allowed": true,
+    "remote_verified": false,
+    "schema": "guandan-marvel-m07-input-layout-verification-v1",
+    "status": "remote_ready",
+    "tests": {
+      "errors": 0,
+      "failed": 0,
+      "passed": 124,
+      "skipped": 0,
+      "tests": 124
+    }
+  }
+}

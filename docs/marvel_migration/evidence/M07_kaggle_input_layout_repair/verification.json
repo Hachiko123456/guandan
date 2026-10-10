@@ -1,0 +1,37 @@
+{
+  "accepted": true,
+  "blockers": [],
+  "hard_gates": {
+    "actual_generated_notebook_cell": true,
+    "clean_commit_package": true,
+    "conflict_fail_closed": true,
+    "cpu_resume_from_unpacked_recovery": true,
+    "input_read_only": true,
+    "no_kaggle_or_final_holdout": true,
+    "prior_A_F_not_reopened": true,
+    "recovery_directory": true,
+    "recovery_zip": true,
+    "source_directory": true,
+    "source_zip": true,
+    "tamper_missing_identity_path_link": true,
+    "tests": true,
+    "wrapper_levels": true,
+    "zip_directory_coexistence": true
+  },
+  "limitations": [
+    "local temp directories simulate Kaggle layouts; no remote Kaggle execution",
+    "CPU/gloo resume is input-layout evidence only",
+    "original ZIP byte SHA cannot be verified when Kaggle removes the ZIP; content manifest identity is verified instead"
+  ],
+  "m08_allowed": true,
+  "remote_verified": false,
+  "schema": "guandan-marvel-m07-input-layout-verification-v1",
+  "status": "remote_ready",
+  "tests": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 124,
+    "skipped": 0,
+    "tests": 124
+  }
+}
