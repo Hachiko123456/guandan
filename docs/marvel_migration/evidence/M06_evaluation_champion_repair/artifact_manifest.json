@@ -1,7 +1,7 @@
 {
   "schema": "guandan-marvel-m06-repair-artifact-manifest-v1",
   "stage": "M06_evaluation_champion_repair",
-  "implementation_commit": null,
+  "implementation_commit": "afcd8d9817a2e993b1fae5652bb339fce3294809",
   "large_artifacts_committed": false,
   "run_root": "runs/M06_evaluation_champion_repair/20261010_repair_acceptance_final2",
   "test_root": "runs/M06_evaluation_champion_repair/20261010_repair_tests",
@@ -156,8 +156,8 @@
     },
     {
       "path": "docs/marvel_migration/evidence/M06_evaluation_champion_repair/verification.json",
-      "bytes": 1622,
-      "sha256": "34b733ffad050caae18da87b9c4763102cd23619e4fd2f1c1ebc9517f1d858da"
+      "bytes": 1660,
+      "sha256": "10891525e3100a766dea577b8ffbb36fad08c49bd9925c60e0fdc757e85fd370"
     }
   ]
 }

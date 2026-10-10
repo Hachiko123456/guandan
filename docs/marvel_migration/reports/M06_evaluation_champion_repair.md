@@ -5,7 +5,7 @@
 - 开始 HEAD：`a46204c756802541c36d49f90ab922cc1f4b6fb8`
 - 原实现：`10cb3452f69cd23a3bed848498e4353dcfbe3b9c`
 - 原登记：`a46204c756802541c36d49f90ab922cc1f4b6fb8`
-- 补修实现 commit：由本报告所在的第一笔提交确定，第二笔登记准确 SHA
+- 补修实现 commit：`afcd8d9817a2e993b1fae5652bb339fce3294809`
 - 状态：`accepted`（repair verification）
 
 ## 范围

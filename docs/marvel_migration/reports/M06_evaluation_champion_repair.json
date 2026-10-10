@@ -6,7 +6,7 @@
   "start_head": "a46204c756802541c36d49f90ab922cc1f4b6fb8",
   "original_implementation": "10cb3452f69cd23a3bed848498e4353dcfbe3b9c",
   "original_registration": "a46204c756802541c36d49f90ab922cc1f4b6fb8",
-  "repair_implementation_commit": null,
+  "repair_implementation_commit": "afcd8d9817a2e993b1fae5652bb339fce3294809",
   "status": "accepted",
   "accepted": true,
   "m07_allowed": true,
@@ -277,7 +277,7 @@
   "verification": {
     "schema": "guandan-marvel-m06-repair-verification-v1",
     "stage": "M06_evaluation_champion_repair",
-    "implementation_commit": null,
+    "implementation_commit": "afcd8d9817a2e993b1fae5652bb339fce3294809",
     "passes": true,
     "accepted": true,
     "m07_allowed": true,
