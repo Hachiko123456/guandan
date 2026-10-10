@@ -53,44 +53,21 @@
     "resume": {
       "schema": "guandan-marvel-kaggle-profile-v1",
       "mode": "resume",
-      "algorithm": "ippo",
       "ddp": {
         "launcher": "torchrun",
-        "world_size": 2,
-        "backend": "nccl",
-        "require_cuda": true
-      },
-      "training": {
-        "additional_iterations": 2,
-        "checkpoint_interval": 1,
-        "evaluation_interval": 1,
-        "rollout_batch_size": 2,
-        "collect_batch_size": 2,
-        "replay_buffer_scale": 2,
-        "mini_batches": 1,
-        "max_sampler_bytes_per_rank": 2147483648,
-        "seed": 470700,
-        "agent_epoch": 1,
-        "critic_aux_epoch": 1,
-        "amp_enabled": false,
-        "compile_enabled": false,
-        "model": {
-          "architecture": "v1.3",
-          "history_dim": 32,
-          "feature_dim": 64,
-          "decoder_layers": 1,
-          "decoder_heads": 4,
-          "state_layers": 1,
-          "action_layers": 1,
-          "fuse_layers": 1
-        },
-        "max_wall_seconds": 1800
+        "world_size": 2
       },
       "evaluation": {
         "base_deals": 1,
         "seed_base": 870700
       },
-      "telemetry_interval_seconds": 5
+      "telemetry_interval_seconds": 5,
+      "resume": {
+        "additional_iterations": 2,
+        "checkpoint_interval": 1,
+        "evaluation_interval": 1,
+        "max_wall_seconds": 1800
+      }
     },
     "full": {
       "schema": "guandan-marvel-kaggle-profile-v1",

@@ -117,7 +117,7 @@ def _safe_extract_recovery(bundle: Path, destination: Path) -> Path:
 
 def _validate_recovery_root(recovery_root: Path) -> dict[str, object]:
     recovery = _load_json(recovery_root / "recovery_manifest.json")
-    if recovery.get("schema") != "guandan-marvel-recovery-manifest-v1":
+    if recovery.get("schema") != "guandan-marvel-recovery-manifest-v2":
         raise ValueError("unsupported recovery manifest schema")
     declared = recovery.get("manifest_hash")
     actual = canonical_hash({key: value for key, value in recovery.items() if key != "manifest_hash"})
@@ -165,6 +165,7 @@ def _run_torchrun(
     recovery_root: Path | None,
     console: Console,
     local_cpu_test: bool,
+    local_process_timeout_seconds: float,
 ) -> int:
     worker_args = [
         "-m", "guandan_marvel.kaggle.worker",
@@ -212,7 +213,23 @@ def _run_torchrun(
         for rank, process in processes:
             thread = threading.Thread(target=pump, args=(rank, process), daemon=True)
             thread.start(); threads.append(thread)
-        codes = [process.wait() for _, process in processes]
+        deadline = time.monotonic() + max(float(local_process_timeout_seconds), 1.0)
+        while any(process.poll() is None for _, process in processes):
+            if time.monotonic() >= deadline:
+                console.write(f"LOCAL_DDP_TIMEOUT after {local_process_timeout_seconds} seconds")
+                for _, process in processes:
+                    if process.poll() is None:
+                        process.terminate()
+                for _, process in processes:
+                    try:
+                        process.wait(timeout=10)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                for thread in threads:
+                    thread.join(timeout=5)
+                return 124
+            time.sleep(0.1)
+        codes = [int(process.returncode or 0) for _, process in processes]
         for thread in threads:
             thread.join(timeout=5)
         return max(codes)
@@ -248,6 +265,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--recovery-root", type=Path)
     parser.add_argument("--allow-local-validation", action="store_true")
     parser.add_argument("--local-cpu-test", action="store_true")
+    parser.add_argument("--local-process-timeout-seconds", type=float, default=600.0)
     args = parser.parse_args(argv)
 
     dataset_path = args.dataset_manifest.resolve()
@@ -264,25 +282,6 @@ def main(argv: list[str] | None = None) -> int:
         raise RuntimeError("--local-cpu-test is allowed only for explicit local validation")
     mode = str(manifest["mode"])
     profile = json.loads(json.dumps(manifest["profiles"][mode]))
-    if args.local_cpu_test and mode in {"pilot", "resume", "full"}:
-        training = profile["training"]
-        training["target_iterations"] = 1
-        training["additional_iterations"] = 1
-        training["checkpoint_interval"] = 1
-        training["evaluation_interval"] = 0
-        training["rollout_batch_size"] = 2
-        training["collect_batch_size"] = 2
-        training["replay_buffer_scale"] = 1
-        training["mini_batches"] = 1
-        training["agent_epoch"] = 1
-        training["critic_aux_epoch"] = 1
-        training["max_sampler_bytes_per_rank"] = 128 * 2**20
-        training["model"] = {
-            "architecture": "v1.3", "history_dim": 16, "feature_dim": 24,
-            "decoder_layers": 1, "decoder_heads": 4, "state_layers": 1,
-            "action_layers": 1, "fuse_layers": 1,
-        }
-        profile["smoke_horizon"] = 512
     run_id = f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{mode}-{uuid.uuid4().hex[:8]}"
     output_root = working_root / "guandan-marvel-output"
     run_root = output_root / "runs" / run_id
@@ -317,7 +316,7 @@ def main(argv: list[str] | None = None) -> int:
                 "profile": profile, "source": source, "remote_verified": False,
             })
             atomic_json(run_root / "checkpoint_manifest.json", {
-                "schema": "guandan-marvel-checkpoint-manifest-v1", "latest": None,
+                "schema": "guandan-marvel-checkpoint-manifest-v2", "latest": None,
                 "history": [], "reason": "preflight performs no training",
             })
             atomic_json(run_root / "progress.json", {
@@ -343,6 +342,12 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 if discovered is not None:
                     recovery_root = _safe_extract_recovery(discovered.bundle_path, working_root / "guandan-marvel-recovery")
+            if recovery_root is not None:
+                recovery_identity = _validate_recovery_root(recovery_root)
+                if recovery_identity.get("source_commit") != source["git_commit"] or recovery_identity.get("source_archive_sha256") != source["archive_sha256"]:
+                    raise ValueError(
+                        "recovery belongs to an incompatible delivery; add the exact Dataset/source ZIP that created it"
+                    )
             if mode == "eval_only":
                 if recovery_root is None:
                     raise RuntimeError("eval_only requires a unique matching recovery bundle")
@@ -353,10 +358,12 @@ def main(argv: list[str] | None = None) -> int:
                     output_root=run_root,
                     base_deals=int(evaluation_cfg.get("base_deals", 1)),
                     seed_base=int(evaluation_cfg.get("seed_base", 870700)),
-                    device="cuda:0" if torch.cuda.is_available() else "cpu",
+                    device="cuda:0" if torch.cuda.is_available() and not args.local_cpu_test else "cpu",
+                    opponents=tuple(evaluation_cfg.get("opponents", ("random", "rule"))),
+                    seat_rotations=tuple(evaluation_cfg.get("seat_rotations", (0, 1, 2, 3))),
                 )
                 atomic_json(run_root / "checkpoint_manifest.json", {
-                    "schema": "guandan-marvel-checkpoint-manifest-v1",
+                    "schema": "guandan-marvel-checkpoint-manifest-v2",
                     "latest": {"checkpoint": str(checkpoint), "input_only": True, "sha256": sha256_file(checkpoint)},
                     "history": [],
                 })
@@ -381,6 +388,7 @@ def main(argv: list[str] | None = None) -> int:
                     recovery_root=recovery_root,
                     console=console,
                     local_cpu_test=args.local_cpu_test,
+                    local_process_timeout_seconds=args.local_process_timeout_seconds,
                 )
                 if returncode == 0 and (run_root / "progress.json").is_file():
                     final_progress = _load_json(run_root / "progress.json")

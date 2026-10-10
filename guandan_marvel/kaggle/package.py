@@ -245,7 +245,7 @@ for bundle in sorted(INPUT_ROOT.rglob('*.zip')):
     try:
         with zipfile.ZipFile(bundle) as archive:
             payload = json.loads(archive.read('recovery_manifest.json').decode('utf-8'))
-            if payload.get('schema') != 'guandan-marvel-recovery-manifest-v1':
+            if payload.get('schema') != 'guandan-marvel-recovery-manifest-v2':
                 continue
             declared = payload.get('manifest_hash')
             actual = canonical_hash({key: value for key, value in payload.items() if key != 'manifest_hash'})
@@ -393,6 +393,9 @@ def validate_source_archive(path: str | Path) -> dict[str, object]:
         worker_source = archive.read("guandan-marvel-source/guandan_marvel/kaggle/worker.py").decode("utf-8")
         if "world_size != 2" not in worker_source:
             raise ValueError("packaged worker does not fail closed outside world_size=2")
+        progress_source = archive.read("guandan-marvel-source/guandan_marvel/kaggle/progress.py").decode("utf-8")
+        if "[M07 heartbeat]" not in progress_source or "heartbeat_age_seconds" not in progress_source:
+            raise ValueError("packaged runtime lacks Notebook-visible heartbeat diagnostics")
     return {
         "schema": "guandan-marvel-source-validation-v1",
         "archive": str(archive_path),

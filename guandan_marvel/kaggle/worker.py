@@ -5,27 +5,28 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import json
-import math
 import os
 from pathlib import Path
-import shutil
-import sys
 import time
 from typing import Mapping
-
-import torch
 
 from guandan_marvel.kaggle.checkpoints import (
     build_recovery_bundle,
     freeze_distributed_policy,
     load_ddp_manifest,
-    load_distributed_checkpoint,
+    load_rank_checkpoint_for_resume,
     save_distributed_checkpoint,
     update_checkpoint_index,
 )
 from guandan_marvel.kaggle.common import append_jsonl, atomic_json, canonical_hash, sha256_file
-from guandan_marvel.kaggle.evaluation import run_smoke_evaluation, write_empty_champion, write_empty_evaluation
-from guandan_marvel.kaggle.profiles import build_train_config
+from guandan_marvel.kaggle.evaluation import (
+    run_smoke_evaluation_isolated, write_empty_champion, write_empty_evaluation,
+    write_failed_evaluation,
+)
+from guandan_marvel.kaggle.profiles import (
+    build_resume_train_config, build_train_config, require_strict_resume_decision,
+)
+from guandan_marvel.kaggle.progress import LiveProgressHeartbeat
 from guandan_marvel.training.local import IPPOTrainer, VRPOTrainer
 from guandan_marvel.utils import configure_torch
 
@@ -81,42 +82,6 @@ def _aggregate_metrics(context, local: Mapping[str, object]) -> dict[str, object
     return aggregated
 
 
-def _progress(
-    *,
-    phase: str,
-    iteration: int,
-    target_iterations: int,
-    metrics: Mapping[str, object] | None,
-    started: float,
-    checkpoint: str | None,
-    evaluation: str | None,
-    complete: bool,
-    error: str | None = None,
-) -> dict[str, object]:
-    elapsed = time.perf_counter() - started
-    remaining = max(target_iterations - iteration, 0)
-    eta = (elapsed / iteration * remaining) if iteration > 0 else None
-    return {
-        "schema": "guandan-marvel-progress-v1",
-        "phase": phase,
-        "iteration": iteration,
-        "target_iterations": target_iterations,
-        "completed_games": None if metrics is None else metrics.get("statistics/completed_games_total"),
-        "env_steps": None if metrics is None else metrics.get("statistics/env_steps_total"),
-        "game_steps": None if metrics is None else metrics.get("statistics/game_steps_total"),
-        "env_steps_per_second": None if metrics is None else metrics.get("perf/env_steps_per_second"),
-        "game_steps_per_second": None if metrics is None else metrics.get("perf/game_steps_per_second"),
-        "elapsed_seconds": elapsed,
-        "eta_seconds": eta,
-        "latest_checkpoint": checkpoint,
-        "latest_evaluation": evaluation,
-        "heartbeat_at": _timestamp(),
-        "complete": complete,
-        "error": error,
-        "remote_verified": False,
-    }
-
-
 def _native_extension(game: object) -> Path | None:
     builder = getattr(game, "get_backend_build_identity", None)
     if not callable(builder):
@@ -126,10 +91,10 @@ def _native_extension(game: object) -> Path | None:
     return path if path.is_file() else None
 
 
-def _resolve_recovery_checkpoint(recovery_root: Path) -> Path:
+def _resolve_recovery_checkpoint(recovery_root: Path) -> tuple[Path, dict[str, object]]:
     manifest_path = recovery_root / "recovery_manifest.json"
     payload = _load_json(manifest_path)
-    if payload.get("schema") != "guandan-marvel-recovery-manifest-v1":
+    if payload.get("schema") != "guandan-marvel-recovery-manifest-v2":
         raise ValueError("unsupported recovery manifest schema")
     declared = payload.get("manifest_hash")
     actual = canonical_hash({key: value for key, value in payload.items() if key != "manifest_hash"})
@@ -150,7 +115,49 @@ def _resolve_recovery_checkpoint(recovery_root: Path) -> Path:
     manifest = (recovery_root / relative).resolve()
     if not manifest.is_relative_to(recovery_root.resolve()) or not manifest.is_file():
         raise FileNotFoundError("recovery checkpoint manifest is missing")
-    return manifest.parent
+    if payload.get("checkpoint_manifest_hash") != load_ddp_manifest(manifest, verify_shards=True).get("manifest_hash"):
+        raise ValueError("recovery/DDP checkpoint manifest identity mismatch")
+    return manifest.parent, payload
+
+
+def _primary_outcome(context, primary_event: Mapping[str, object] | None, *, stage: str) -> dict[str, object]:
+    rows = context.all_gather_object(dict(primary_event) if context.is_primary and primary_event is not None else None)
+    event = rows[0]
+    if not isinstance(event, Mapping):
+        raise RuntimeError(f"rank 0 did not publish a {stage} outcome")
+    if event.get("status") != "complete":
+        raise RuntimeError(f"{stage} failed on rank 0: {event.get('error')}")
+    return dict(event)
+
+
+def shared_budget_decision(
+    context, *, rank: int, local_elapsed: float, max_wall_seconds: float,
+    iteration: int, target_iterations: int,
+) -> tuple[bool, list[dict[str, object]]]:
+    local_vote = bool(
+        max_wall_seconds > 0 and local_elapsed >= max_wall_seconds and iteration < target_iterations
+    )
+    votes = [dict(row) for row in context.all_gather_object({
+        "rank": int(rank), "elapsed_seconds": float(local_elapsed), "budget_reached": local_vote,
+    })]
+    return any(bool(row["budget_reached"]) for row in votes), votes
+
+
+def _controls(profile: Mapping[str, object], mode: str) -> Mapping[str, object]:
+    value = profile.get("resume" if mode == "resume" else "training")
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{mode} profile controls are missing")
+    return value
+
+
+def _fault_mapping(profile: Mapping[str, object]) -> Mapping[str, object]:
+    value = profile.get("fault_injection", {})
+    return value if isinstance(value, Mapping) else {}
+
+
+def _fault_iterations(faults: Mapping[str, object], key: str) -> set[int]:
+    values = faults.get(key, [])
+    return {int(value) for value in values} if isinstance(values, (list, tuple)) else set()
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -169,8 +176,16 @@ def main(argv: list[str] | None = None) -> int:
     if mode not in {"pilot", "resume", "full"}:
         raise ValueError(f"worker cannot run mode {mode!r}")
     if args.local_cpu_test:
-        from guandan_marvel.training.smoke import PythonReferenceSmokeGame
-        game = PythonReferenceSmokeGame(int(profile.get("smoke_horizon", 512)))
+        backend = str(profile.get("local_test_backend", "cpp"))
+        horizon = int(profile.get("smoke_horizon", 512))
+        if backend == "cpp":
+            from guandan_marvel.training.smoke import CppSmokeGame
+            game = CppSmokeGame(horizon)
+        elif backend == "python_reference":
+            from guandan_marvel.training.smoke import PythonReferenceSmokeGame
+            game = PythonReferenceSmokeGame(horizon)
+        else:
+            raise ValueError(f"unsupported local test backend {backend!r}")
     else:
         from guandan_marvel import cpp_game as game
 
@@ -190,25 +205,78 @@ def main(argv: list[str] | None = None) -> int:
         "world_size": world_size, "pid": os.getpid(), "timestamp": _timestamp(),
     })
 
-    cfg = build_train_config(profile, game=game, run_root=rank_root, local_cpu_test=args.local_cpu_test)
+    recovery_payload: dict[str, object] | None = None
+    restored_manifest: dict[str, object] | None = None
+    checkpoint_payload: dict[str, object] | None = None
+    checkpoint_root: Path | None = None
+    if mode == "resume":
+        if args.recovery_root is None:
+            raise ValueError("resume mode requires --recovery-root")
+        checkpoint_root, recovery_payload = _resolve_recovery_checkpoint(args.recovery_root.resolve())
+        if recovery_payload.get("source_commit") != args.source_commit or recovery_payload.get("source_archive_sha256") != args.source_archive_sha256:
+            raise ValueError(
+                "recovery belongs to a different source package; use the exact Dataset/source ZIP that created it"
+            )
+        checkpoint_payload, restored_manifest = load_rank_checkpoint_for_resume(
+            checkpoint_root, rank=rank, expected_world_size=world_size,
+            expected_source_commit=args.source_commit,
+        )
+        cfg = build_resume_train_config(
+            profile, checkpoint_payload=checkpoint_payload, game=game, run_root=rank_root,
+        )
+    else:
+        cfg = build_train_config(profile, game=game, run_root=rank_root, local_cpu_test=args.local_cpu_test)
+
     configure_torch(cfg)
     trainer_cls = IPPOTrainer if cfg.algo_name == "ippo" else VRPOTrainer
     trainer = trainer_cls(cfg, game=game, run_dir=rank_root / "trainer")
     context = trainer.distributed
-    started = time.perf_counter()
-    latest_checkpoint: Path | None = None
+    controls = _controls(profile, mode)
+    max_wall_seconds = float(controls.get("max_wall_seconds", 0) or 0)
+    checkpoint_interval = int(controls["checkpoint_interval"])
+    evaluation_interval = int(controls["evaluation_interval"])
+    latest_checkpoint: Path | None = checkpoint_root
     latest_evaluation: Path | None = None
     latest_metrics: dict[str, object] | None = None
-    target_iterations = int(profile["training"].get("target_iterations", 0))
-    max_wall_seconds = float(profile["training"].get("max_wall_seconds", 0) or 0)
     budget_stopped = False
+    failure_text: str | None = None
+    faults = _fault_mapping(profile)
+    if faults and not args.local_cpu_test:
+        raise ValueError("fault_injection is permitted only for explicit local CPU validation")
+
+    if checkpoint_payload is not None:
+        decision = require_strict_resume_decision(trainer.load_checkpoint_payload(checkpoint_payload))
+        session_start_iteration = trainer.iteration
+        target_iterations = cfg.total_iterations
+        append_jsonl(diagnostic_path, {
+            "schema": "guandan-marvel-rank-diagnostic-v1", "event": "resumed",
+            "rank": rank, "iteration": trainer.iteration, "decision": decision.kind,
+            "decision_reasons": list(decision.reasons),
+            "checkpoint_manifest_hash": restored_manifest["manifest_hash"], "timestamp": _timestamp(),
+        })
+    else:
+        session_start_iteration = trainer.iteration
+        target_iterations = int(controls.get("target_iterations", cfg.total_iterations))
+    if target_iterations <= trainer.iteration:
+        raise ValueError("target iteration must be greater than restored/current iteration")
+
+    heartbeat = LiveProgressHeartbeat(
+        run_root=run_root, rank_root=rank_root, mode=mode, rank=rank,
+        world_size=world_size, target_iterations=target_iterations,
+        session_start_iteration=session_start_iteration,
+        interval_seconds=float(profile.get("heartbeat_interval_seconds", profile.get("telemetry_interval_seconds", 5))),
+        is_primary=context.is_primary,
+    )
+    trainer.set_phase_callback(heartbeat.set_phase)
     if context.is_primary:
         atomic_json(run_root / "resolved_config.json", {
-            "schema": "guandan-marvel-kaggle-resolved-config-v1",
+            "schema": "guandan-marvel-kaggle-resolved-config-v2",
             "mode": mode,
             "profile": profile,
             "train_config": trainer.resolved_config,
             "train_config_hash": trainer.resolved_config_hash,
+            "resume_inherited": mode == "resume",
+            "recovery_manifest_hash": None if recovery_payload is None else recovery_payload.get("manifest_hash"),
             "source_commit": args.source_commit,
             "source_archive_sha256": args.source_archive_sha256,
             "world_size": world_size,
@@ -216,33 +284,10 @@ def main(argv: list[str] | None = None) -> int:
         })
         write_empty_champion(run_root, reason="no evaluation has completed")
         write_empty_evaluation(run_root, reason="no evaluation has completed")
-        atomic_json(run_root / "progress.json", _progress(
-            phase="starting", iteration=0, target_iterations=target_iterations, metrics=None,
-            started=started, checkpoint=None, evaluation=None, complete=False,
-        ))
+    heartbeat.start()
     try:
-        if mode == "resume":
-            if args.recovery_root is None:
-                raise ValueError("resume mode requires --recovery-root")
-            checkpoint_root = _resolve_recovery_checkpoint(args.recovery_root.resolve())
-            decision, restored_manifest = load_distributed_checkpoint(trainer, checkpoint_root, context=context)
-            if decision.kind not in {"exact_resume", "compatible_resume"}:
-                raise RuntimeError(f"resume classification is not trainable: {decision.kind}")
-            additional = int(profile["training"].get("additional_iterations", 0))
-            if additional <= 0:
-                raise ValueError("resume profile additional_iterations must be positive")
-            target_iterations = trainer.iteration + additional
-            latest_checkpoint = checkpoint_root
-            append_jsonl(diagnostic_path, {
-                "schema": "guandan-marvel-rank-diagnostic-v1", "event": "resumed",
-                "rank": rank, "iteration": trainer.iteration, "decision": decision.kind,
-                "checkpoint_manifest_hash": restored_manifest["manifest_hash"], "timestamp": _timestamp(),
-            })
-        checkpoint_interval = int(profile["training"]["checkpoint_interval"])
-        evaluation_interval = int(profile["training"]["evaluation_interval"])
-        if target_iterations <= trainer.iteration:
-            raise ValueError("target iteration must be greater than restored/current iteration")
         while trainer.iteration < target_iterations:
+            heartbeat.set_phase("rollout")
             local_metrics = trainer.train_iteration()
             append_jsonl(diagnostic_path, {
                 "schema": "guandan-marvel-rank-diagnostic-v1", "event": "iteration_completed",
@@ -253,82 +298,160 @@ def main(argv: list[str] | None = None) -> int:
             if context.is_primary:
                 latest_metrics = dict(aggregated or {})
                 append_jsonl(run_root / "metrics.jsonl", latest_metrics)
-                atomic_json(run_root / "progress.json", _progress(
-                    phase="training", iteration=trainer.iteration, target_iterations=target_iterations,
-                    metrics=latest_metrics, started=started,
-                    checkpoint=None if latest_checkpoint is None else latest_checkpoint.relative_to(run_root).as_posix() if latest_checkpoint.is_relative_to(run_root) else str(latest_checkpoint),
-                    evaluation=None if latest_evaluation is None else latest_evaluation.relative_to(run_root).as_posix(),
-                    complete=False,
-                ))
-            budget_reached = max_wall_seconds > 0 and (time.perf_counter() - started) >= max_wall_seconds and trainer.iteration < target_iterations
+            heartbeat.update(iteration=trainer.iteration, metrics=latest_metrics if context.is_primary else local_metrics)
+
+            rank_delays = faults.get("rank_boundary_delay_seconds", {})
+            if isinstance(rank_delays, Mapping):
+                delay = float(rank_delays.get(str(rank), rank_delays.get(rank, 0.0)) or 0.0)
+                if delay > 0:
+                    time.sleep(delay)
+            offsets = faults.get("budget_elapsed_offset_seconds", {})
+            offset = float(offsets.get(str(rank), offsets.get(rank, 0.0)) or 0.0) if isinstance(offsets, Mapping) else 0.0
+            local_elapsed = time.perf_counter() - heartbeat.started + offset
+            budget_reached, budget_votes = shared_budget_decision(
+                context, rank=rank, local_elapsed=local_elapsed,
+                max_wall_seconds=max_wall_seconds, iteration=trainer.iteration,
+                target_iterations=target_iterations,
+            )
+            append_jsonl(diagnostic_path, {
+                "schema": "guandan-marvel-rank-diagnostic-v1", "event": "budget_decision",
+                "rank": rank, "iteration": trainer.iteration, "votes": budget_votes,
+                "decision": budget_reached, "timestamp": _timestamp(),
+            })
             checkpoint_due = trainer.iteration % checkpoint_interval == 0 or trainer.iteration == target_iterations or budget_reached
             if checkpoint_due:
+                heartbeat.set_phase("checkpoint")
                 checkpoint_dir = run_root / "checkpoints" / f"iter{trainer.iteration:06d}"
                 saved = save_distributed_checkpoint(trainer, checkpoint_dir, context=context)
-                context.barrier()
+                primary_event = None
                 if context.is_primary:
-                    latest_checkpoint = saved
-                    ddp_manifest = load_ddp_manifest(checkpoint_dir, verify_shards=True)
-                    evaluation_checkpoint = None
-                    evaluation_due = evaluation_interval > 0 and (
-                        trainer.iteration % evaluation_interval == 0 or trainer.iteration == target_iterations
-                    )
-                    if evaluation_due and not args.local_cpu_test:
-                        evaluation_checkpoint = run_root / "evaluation_checkpoints" / f"iter{trainer.iteration:06d}.pt"
-                        freeze_distributed_policy(trainer, evaluation_checkpoint, ddp_manifest=ddp_manifest)
-                        evaluation_cfg = profile.get("evaluation") or {}
-                        run_smoke_evaluation(
-                            evaluation_checkpoint,
-                            output_root=run_root,
-                            base_deals=int(evaluation_cfg.get("base_deals", 1)),
-                            seed_base=int(evaluation_cfg.get("seed_base", 870700)),
-                            device=str(trainer.device),
+                    try:
+                        latest_checkpoint = saved
+                        ddp_manifest = load_ddp_manifest(checkpoint_dir, verify_shards=True)
+                        evaluation_due = evaluation_interval > 0 and (
+                            trainer.iteration % evaluation_interval == 0 or trainer.iteration == target_iterations
                         )
-                        latest_evaluation = evaluation_checkpoint
-                    update_checkpoint_index(
-                        run_root, checkpoint_dir=checkpoint_dir, ddp_manifest=ddp_manifest,
-                        evaluation_checkpoint=evaluation_checkpoint,
+                        update_checkpoint_index(
+                            run_root, checkpoint_dir=checkpoint_dir, ddp_manifest=ddp_manifest,
+                            evaluation_status="pending" if evaluation_due else "not_due",
+                        )
+                        if trainer.iteration in _fault_iterations(faults, "bundle_fail_iterations"):
+                            raise RuntimeError(f"injected recovery bundle failure at iteration {trainer.iteration}")
+                        bundle = build_recovery_bundle(
+                            run_root=run_root,
+                            destination=run_root / "guandan-marvel-recovery.zip",
+                            source_commit=args.source_commit,
+                            source_archive_sha256=args.source_archive_sha256,
+                            package_id=args.package_id,
+                            status="durable_pending_evaluation" if evaluation_due else (
+                                "partial" if trainer.iteration < target_iterations else "complete"
+                            ),
+                            native_extension=_native_extension(game),
+                        )
+                        primary_event = {
+                            "status": "complete", "evaluation_due": evaluation_due,
+                            "checkpoint": str(checkpoint_dir), "bundle": str(bundle),
+                            "ddp_manifest_hash": ddp_manifest["manifest_hash"],
+                        }
+                    except BaseException as error:
+                        primary_event = {"status": "failed", "error": f"{type(error).__name__}: {error}"}
+                boundary = _primary_outcome(context, primary_event, stage="durable checkpoint publication")
+                latest_checkpoint = checkpoint_dir
+                heartbeat.update(latest_checkpoint=checkpoint_dir.relative_to(run_root).as_posix())
+
+                if bool(boundary["evaluation_due"]):
+                    heartbeat.set_phase("evaluation")
+                    evaluation_checkpoint = run_root / "evaluation_checkpoints" / f"iter{trainer.iteration:06d}.pt"
+                    eval_event = None
+                    if context.is_primary:
+                        try:
+                            ddp_manifest = load_ddp_manifest(checkpoint_dir, verify_shards=True)
+                            freeze_distributed_policy(trainer, evaluation_checkpoint, ddp_manifest=ddp_manifest)
+                            if trainer.iteration in _fault_iterations(faults, "evaluation_fail_iterations"):
+                                raise RuntimeError(f"injected evaluation failure at iteration {trainer.iteration}")
+                            evaluation_cfg = profile.get("evaluation") or {}
+                            summary = run_smoke_evaluation_isolated(
+                                evaluation_checkpoint,
+                                output_root=run_root,
+                                base_deals=int(evaluation_cfg.get("base_deals", 1)),
+                                seed_base=int(evaluation_cfg.get("seed_base", 870700)),
+                                device=str(trainer.device),
+                                opponents=tuple(evaluation_cfg.get("opponents", ("random", "rule"))),
+                                seat_rotations=tuple(evaluation_cfg.get("seat_rotations", (0, 1, 2, 3))),
+                                timeout_seconds=float(evaluation_cfg.get("timeout_seconds", 900)),
+                            )
+                            latest_evaluation = evaluation_checkpoint
+                            update_checkpoint_index(
+                                run_root, checkpoint_dir=checkpoint_dir, ddp_manifest=ddp_manifest,
+                                evaluation_checkpoint=evaluation_checkpoint,
+                                evaluation_status=str(summary["status"]),
+                            )
+                            build_recovery_bundle(
+                                run_root=run_root,
+                                destination=run_root / "guandan-marvel-recovery.zip",
+                                source_commit=args.source_commit,
+                                source_archive_sha256=args.source_archive_sha256,
+                                package_id=args.package_id,
+                                status="partial" if trainer.iteration < target_iterations else "complete",
+                                native_extension=_native_extension(game),
+                            )
+                            eval_event = {
+                                "status": "complete", "evaluation_status": summary["status"],
+                                "evaluation_checkpoint": str(evaluation_checkpoint),
+                            }
+                        except BaseException as error:
+                            message = f"{type(error).__name__}: {error}"
+                            write_failed_evaluation(
+                                run_root, iteration=trainer.iteration, error=message,
+                                checkpoint=evaluation_checkpoint if evaluation_checkpoint.is_file() else checkpoint_dir,
+                            )
+                            ddp_manifest = load_ddp_manifest(checkpoint_dir, verify_shards=True)
+                            update_checkpoint_index(
+                                run_root, checkpoint_dir=checkpoint_dir, ddp_manifest=ddp_manifest,
+                                evaluation_checkpoint=evaluation_checkpoint if evaluation_checkpoint.is_file() else None,
+                                evaluation_status="failed", evaluation_error=message,
+                            )
+                            try:
+                                build_recovery_bundle(
+                                    run_root=run_root,
+                                    destination=run_root / "guandan-marvel-recovery.zip",
+                                    source_commit=args.source_commit,
+                                    source_archive_sha256=args.source_archive_sha256,
+                                    package_id=args.package_id,
+                                    status="evaluation_failed",
+                                    native_extension=_native_extension(game),
+                                )
+                            except Exception:
+                                # The pre-evaluation durable bundle remains atomically intact.
+                                pass
+                            eval_event = {"status": "failed", "error": message, "evaluation_status": "failed"}
+                    rows = context.all_gather_object(eval_event if context.is_primary else None)
+                    shared_eval = rows[0]
+                    heartbeat.update(
+                        latest_evaluation=None if latest_evaluation is None else latest_evaluation.relative_to(run_root).as_posix(),
+                        latest_evaluation_status="failed" if not isinstance(shared_eval, Mapping) else shared_eval.get("evaluation_status", "unknown"),
                     )
-                    build_recovery_bundle(
-                        run_root=run_root,
-                        destination=run_root / "guandan-marvel-recovery.zip",
-                        source_commit=args.source_commit,
-                        source_archive_sha256=args.source_archive_sha256,
-                        package_id=args.package_id,
-                        status="partial" if trainer.iteration < target_iterations else "complete",
-                        native_extension=_native_extension(game),
-                    )
-                context.barrier()
+                    if not isinstance(shared_eval, Mapping) or shared_eval.get("status") != "complete":
+                        raise RuntimeError(f"evaluation failed on rank 0: {None if shared_eval is None else shared_eval.get('error')}")
             if budget_reached:
                 budget_stopped = True
                 break
-        if context.is_primary:
-            atomic_json(run_root / "progress.json", _progress(
-                phase="budget_stopped" if budget_stopped else "complete", iteration=trainer.iteration, target_iterations=target_iterations,
-                metrics=latest_metrics, started=started,
-                checkpoint=None if latest_checkpoint is None else latest_checkpoint.relative_to(run_root).as_posix(),
-                evaluation=None if latest_evaluation is None else latest_evaluation.relative_to(run_root).as_posix(),
-                complete=not budget_stopped,
-            ))
+        final_phase = "budget_stopped" if budget_stopped else "complete"
+        heartbeat.update(iteration=trainer.iteration, metrics=latest_metrics, phase=final_phase, complete=not budget_stopped)
         append_jsonl(diagnostic_path, {
-            "schema": "guandan-marvel-rank-diagnostic-v1",
-            "event": "budget_stopped" if budget_stopped else "complete",
+            "schema": "guandan-marvel-rank-diagnostic-v1", "event": final_phase,
             "rank": rank, "iteration": trainer.iteration, "timestamp": _timestamp(),
         })
+        heartbeat.close(phase=final_phase, complete=not budget_stopped)
         return 0
     except BaseException as error:
+        failure_text = f"{type(error).__name__}: {error}"
         append_jsonl(diagnostic_path, {
             "schema": "guandan-marvel-rank-diagnostic-v1", "event": "failed", "rank": rank,
-            "error": f"{type(error).__name__}: {error}", "timestamp": _timestamp(),
+            "error": failure_text, "timestamp": _timestamp(),
         })
-        if context.is_primary:
-            atomic_json(run_root / "progress.json", _progress(
-                phase="failed", iteration=trainer.iteration, target_iterations=target_iterations,
-                metrics=latest_metrics, started=started,
-                checkpoint=None if latest_checkpoint is None else str(latest_checkpoint),
-                evaluation=None if latest_evaluation is None else str(latest_evaluation),
-                complete=False, error=f"{type(error).__name__}: {error}",
-            ))
+        heartbeat.update(iteration=trainer.iteration, metrics=latest_metrics)
+        heartbeat.close(phase="failed", complete=False, error=failure_text)
         raise
     finally:
         trainer.close()

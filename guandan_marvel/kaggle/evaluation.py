@@ -3,18 +3,24 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import json
 import math
+import multiprocessing
 from pathlib import Path
 import time
+import traceback
+from typing import Sequence
 
+from guandan.cards import Rank
 from guandan_marvel.evaluation.checkpoints import load_v2_policy
 from guandan_marvel.evaluation.host import play_game
 from guandan_marvel.evaluation.manifests import build_deals_manifest, deals_for
 
 from .common import append_jsonl, atomic_json
 
-EVALUATION_SUMMARY_SCHEMA = "guandan-marvel-kaggle-evaluation-summary-v1"
+EVALUATION_SUMMARY_SCHEMA = "guandan-marvel-kaggle-evaluation-summary-v2"
 CHAMPION_MANIFEST_SCHEMA = "guandan-marvel-kaggle-champion-manifest-v1"
+EVALUATION_PROCESS_RESULT_SCHEMA = "guandan-marvel-kaggle-evaluation-process-result-v1"
 
 
 def _timestamp() -> str:
@@ -43,6 +49,29 @@ def write_empty_evaluation(output_root: str | Path, *, reason: str) -> Path:
     })
 
 
+def write_failed_evaluation(
+    output_root: str | Path,
+    *,
+    iteration: int,
+    error: BaseException | str,
+    checkpoint: str | Path | None,
+) -> Path:
+    message = str(error) if isinstance(error, str) else f"{type(error).__name__}: {error}"
+    return atomic_json(Path(output_root) / "evaluation_summary.json", {
+        "schema": EVALUATION_SUMMARY_SCHEMA,
+        "status": "failed",
+        "iteration": int(iteration),
+        "checkpoint": None if checkpoint is None else str(Path(checkpoint)),
+        "error": message,
+        "formal_selection": False,
+        "final_holdout": False,
+        "promotion_eligible": False,
+        "strength_claim": False,
+        "remote_verified": False,
+        "generated_at": _timestamp(),
+    })
+
+
 def write_empty_champion(output_root: str | Path, *, reason: str) -> Path:
     return atomic_json(Path(output_root) / "champion_manifest.json", {
         "schema": CHAMPION_MANIFEST_SCHEMA,
@@ -61,21 +90,35 @@ def run_smoke_evaluation(
     base_deals: int,
     seed_base: int,
     device: str,
+    opponents: Sequence[str] = ("random", "rule"),
+    seat_rotations: Sequence[int] = (0, 1, 2, 3),
 ) -> dict[str, object]:
+    """Run bounded C++ evaluation in the current process.
+
+    Training callers must use :func:`run_smoke_evaluation_isolated`; this direct
+    entrypoint is retained for eval_only and focused evaluation tests where no
+    live trainer RNG/state exists in the calling process.
+    """
     root = Path(output_root)
     artifact = load_v2_policy(checkpoint, device=device)
     manifest = build_deals_manifest(
         counts={"training": 0, "selection": int(base_deals), "final": 0},
         bases={"training": seed_base - 10_000, "selection": seed_base, "final": seed_base + 10_000},
-        level_ranks=(2,), leader_seats=(0,), previous_results=(None,),
+        level_ranks=(int(Rank.TWO),), leader_seats=(0,), previous_results=(None,),
     )
+    resolved_opponents = tuple(str(value) for value in opponents)
+    resolved_rotations = tuple(int(value) for value in seat_rotations)
+    if not resolved_opponents or any(value not in {"random", "rule"} for value in resolved_opponents):
+        raise ValueError("bounded evaluation opponents must be a non-empty subset of random/rule")
+    if not resolved_rotations or any(value not in {0, 1, 2, 3} for value in resolved_rotations):
+        raise ValueError("bounded evaluation seat rotations must be non-empty values in 0..3")
     records_path = root / "evaluation_games.jsonl"
     records_path.unlink(missing_ok=True)
     records = []
     started = time.perf_counter()
-    for opponent in ("random", "rule"):
+    for opponent in resolved_opponents:
         for deal in deals_for(manifest, "selection"):
-            for rotation in range(4):
+            for rotation in resolved_rotations:
                 row = play_game(
                     deal=deal,
                     rotation=rotation,
@@ -96,8 +139,9 @@ def run_smoke_evaluation(
         "scope": "bounded M07 pipeline evaluation; not formal selection or final holdout",
         "candidate": artifact.identity,
         "base_deals": int(base_deals),
-        "seat_rotations": [0, 1, 2, 3],
-        "opponents": ["random", "rule"],
+        "level_ranks": [int(Rank.TWO)],
+        "seat_rotations": list(resolved_rotations),
+        "opponents": list(resolved_opponents),
         "games": len(records),
         "complete_games": len(complete),
         "candidate_wins": successes,
@@ -119,7 +163,95 @@ def run_smoke_evaluation(
     return summary
 
 
+def _evaluation_process_main(request_path: str, result_path: str) -> None:
+    request = json.loads(Path(request_path).read_text(encoding="utf-8"))
+    try:
+        summary = run_smoke_evaluation(
+            request["checkpoint"],
+            output_root=request["output_root"],
+            base_deals=int(request["base_deals"]),
+            seed_base=int(request["seed_base"]),
+            device=str(request["device"]),
+            opponents=tuple(request["opponents"]),
+            seat_rotations=tuple(int(value) for value in request["seat_rotations"]),
+        )
+        atomic_json(result_path, {
+            "schema": EVALUATION_PROCESS_RESULT_SCHEMA,
+            "status": "complete",
+            "summary": summary,
+            "finished_at": _timestamp(),
+        })
+    except BaseException as error:
+        atomic_json(result_path, {
+            "schema": EVALUATION_PROCESS_RESULT_SCHEMA,
+            "status": "failed",
+            "error_type": type(error).__name__,
+            "error": str(error),
+            "traceback": traceback.format_exc(),
+            "finished_at": _timestamp(),
+        })
+        raise
+
+
+def run_smoke_evaluation_isolated(
+    checkpoint: str | Path,
+    *,
+    output_root: str | Path,
+    base_deals: int,
+    seed_base: int,
+    device: str,
+    opponents: Sequence[str] = ("random", "rule"),
+    seat_rotations: Sequence[int] = (0, 1, 2, 3),
+    timeout_seconds: float = 900.0,
+) -> dict[str, object]:
+    """Run real model loading/evaluation in a spawned process.
+
+    The child receives only immutable paths and JSON-friendly configuration, so
+    Python/NumPy/Torch CPU/CUDA RNG and live trainer state remain isolated on
+    both success and failure paths.
+    """
+    root = Path(output_root).resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    request_path = root / "evaluation_process_request.json"
+    result_path = root / "evaluation_process_result.json"
+    result_path.unlink(missing_ok=True)
+    atomic_json(request_path, {
+        "schema": "guandan-marvel-kaggle-evaluation-process-request-v1",
+        "checkpoint": str(Path(checkpoint).resolve()),
+        "output_root": str(root),
+        "base_deals": int(base_deals),
+        "seed_base": int(seed_base),
+        "device": str(device),
+        "opponents": [str(value) for value in opponents],
+        "seat_rotations": [int(value) for value in seat_rotations],
+    })
+    process = multiprocessing.get_context("spawn").Process(
+        target=_evaluation_process_main,
+        args=(str(request_path), str(result_path)),
+        name="guandan-marvel-m07-evaluation",
+    )
+    process.start()
+    process.join(timeout=max(float(timeout_seconds), 1.0))
+    if process.is_alive():
+        process.terminate()
+        process.join(timeout=10)
+        raise TimeoutError(f"bounded evaluation exceeded {timeout_seconds} seconds")
+    if not result_path.is_file():
+        raise RuntimeError(f"evaluation process exited {process.exitcode} without a result")
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    if result.get("status") != "complete" or process.exitcode != 0:
+        raise RuntimeError(
+            "isolated evaluation failed: "
+            f"exit={process.exitcode}; {result.get('error_type')}: {result.get('error')}"
+        )
+    summary = result.get("summary")
+    if not isinstance(summary, dict):
+        raise RuntimeError("isolated evaluation returned a malformed summary")
+    return summary
+
+
 __all__ = [
-    "CHAMPION_MANIFEST_SCHEMA", "EVALUATION_SUMMARY_SCHEMA", "run_smoke_evaluation",
-    "write_empty_champion", "write_empty_evaluation",
+    "CHAMPION_MANIFEST_SCHEMA", "EVALUATION_PROCESS_RESULT_SCHEMA", "EVALUATION_SUMMARY_SCHEMA",
+    "run_smoke_evaluation", "run_smoke_evaluation_isolated", "write_empty_champion",
+    "write_empty_evaluation", "write_failed_evaluation",
 ]

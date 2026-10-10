@@ -26,3 +26,13 @@
 ## 第三方离线构建依赖
 
 生成器将当前 `pybind11` Python/header 包和其 LICENSE 逐文件 hash 后放入 source ZIP，用于 Kaggle 离线 `setup.py build_ext --inplace`。该依赖不声称属于目标 Git commit；source manifest 的 `origin=bundled_pybind11` 与版本字段明确区分。
+## 集中补修扩展
+
+| 目标 | 参考来源 | 分类 | 说明 |
+|---|---|---|---|
+| `guandan_marvel/kaggle/evaluation.py` | M06 `evaluation/hooks.py`/`workers.py` 的 spawn 隔离原则 | 重写 | 同步等待 spawn 子进程，真实加载 C++ policy；父训练 RNG/状态不共享 |
+| `guandan_marvel/kaggle/progress.py` | 无直接复制 | 新写 | rank heartbeat、Notebook stdout 摘要、session ETA 和 GPU/进程诊断 |
+| `guandan_marvel/kaggle/profiles.py` | M03 checkpoint compatibility 原则 | 重写 | resume 从 shard resolved config 继承训练语义，只允许 run-control 覆盖 |
+| `guandan_marvel/kaggle/checkpoints.py` | M03/M05 checkpoint identity + M06 provenance | 加固 | pre-trainer shard 验证、continuation hash、evaluation-independent recovery publication |
+
+补修没有复制斗地主评估指标、规则或 checkpoint；只复用已审计的进程隔离、身份绑定和 fail-closed 原则。

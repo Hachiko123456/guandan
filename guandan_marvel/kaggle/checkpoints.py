@@ -12,18 +12,22 @@ import shutil
 from typing import Mapping
 import zipfile
 
+import numpy as np
 import torch
 
 from guandan_marvel.evaluation.checkpoints import freeze_merged_policy
 from guandan_marvel.runtime.distributed import DistributedContext
-from guandan_marvel.training.checkpoints import TrainingCheckpointStore
+from guandan_marvel.training.checkpoints import (
+    TRAINING_CHECKPOINT_SCHEMA, TrainingCheckpointStore, canonical_json_hash,
+    validate_declared_hash, validate_source_fingerprint,
+)
 
 from .common import atomic_json, canonical_hash, sha256_file
 
-DDP_CHECKPOINT_SCHEMA = "guandan-marvel-ddp-checkpoint-v1"
+DDP_CHECKPOINT_SCHEMA = "guandan-marvel-ddp-checkpoint-v2"
 DDP_PROVENANCE_SCHEMA = "guandan-marvel-ddp-training-data-provenance-v1"
-RECOVERY_MANIFEST_SCHEMA = "guandan-marvel-recovery-manifest-v1"
-CHECKPOINT_MANIFEST_SCHEMA = "guandan-marvel-checkpoint-manifest-v1"
+RECOVERY_MANIFEST_SCHEMA = "guandan-marvel-recovery-manifest-v2"
+CHECKPOINT_MANIFEST_SCHEMA = "guandan-marvel-checkpoint-manifest-v2"
 
 
 def _timestamp() -> str:
@@ -44,9 +48,59 @@ def _state_dict_hash(state: Mapping[str, object]) -> str:
     return digest.hexdigest()
 
 
+
+def _update_object_digest(digest: "hashlib._Hash", value: object) -> None:
+    if isinstance(value, torch.Tensor):
+        tensor = value.detach().cpu().contiguous()
+        digest.update(b"tensor")
+        digest.update(str(tensor.dtype).encode("ascii"))
+        digest.update(json.dumps(list(tensor.shape), separators=(",", ":")).encode("ascii"))
+        digest.update(tensor.reshape(-1).view(torch.uint8).numpy().tobytes())
+    elif isinstance(value, np.ndarray):
+        array = np.ascontiguousarray(value)
+        digest.update(b"ndarray")
+        digest.update(str(array.dtype).encode("ascii"))
+        digest.update(json.dumps(list(array.shape), separators=(",", ":")).encode("ascii"))
+        digest.update(array.tobytes())
+    elif isinstance(value, Mapping):
+        digest.update(b"mapping")
+        for key in sorted(value, key=lambda item: str(item)):
+            _update_object_digest(digest, str(key))
+            _update_object_digest(digest, value[key])
+    elif isinstance(value, (list, tuple)):
+        digest.update(b"sequence")
+        for item in value:
+            _update_object_digest(digest, item)
+    elif isinstance(value, bytes):
+        digest.update(b"bytes")
+        digest.update(value)
+    elif value is None or isinstance(value, (str, int, float, bool)):
+        digest.update(type(value).__name__.encode("ascii"))
+        digest.update(repr(value).encode("utf-8"))
+    else:
+        digest.update(type(value).__qualname__.encode("utf-8"))
+        digest.update(repr(value).encode("utf-8"))
+
+
+def continuation_state_hash(payload: Mapping[str, object]) -> str:
+    """Hash state that determines the next training update, excluding run paths."""
+    keys = (
+        "agent_resume_state_dict", "agent_state_dict", "critic_state_dict",
+        "agent_optimizer_state_dict", "critic_optimizer_state_dict",
+        "replay_buffer_state", "sampler_state", "rng_state", "schedule_state",
+        "merge_state", "iteration", "durable_updates", "learner_updates",
+        "durable_learner_updates", "counters",
+    )
+    digest = hashlib.sha256()
+    for key in keys:
+        if key in payload:
+            _update_object_digest(digest, key)
+            _update_object_digest(digest, payload[key])
+    return digest.hexdigest()
+
 def _rank_summary(payload: Mapping[str, object], *, rank: int, shard: Path) -> dict[str, object]:
     summary: dict[str, object] = {
-        "schema": "guandan-marvel-ddp-rank-checkpoint-summary-v1",
+        "schema": "guandan-marvel-ddp-rank-checkpoint-summary-v2",
         "rank": int(rank),
         "shard": shard.name,
         "shard_sha256": sha256_file(shard),
@@ -64,6 +118,7 @@ def _rank_summary(payload: Mapping[str, object], *, rank: int, shard: Path) -> d
         "agent_merged_state_hash": _state_dict_hash(payload["agent_state_dict"]),
         "training_data_provenance": deepcopy(payload.get("training_data_provenance")),
         "counters": deepcopy(payload.get("counters")),
+        "continuation_state_hash": continuation_state_hash(payload),
     }
     if payload.get("critic_state_dict") is not None:
         summary["critic_state_hash"] = _state_dict_hash(payload["critic_state_dict"])
@@ -194,22 +249,77 @@ def load_ddp_manifest(path: str | Path, *, verify_shards: bool = True) -> dict[s
     return payload
 
 
+
+def load_rank_checkpoint_for_resume(
+    checkpoint: str | Path,
+    *,
+    rank: int,
+    expected_world_size: int,
+    expected_source_commit: str | None = None,
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Validate the envelope and one rank shard before trainer construction."""
+    root = Path(checkpoint).resolve()
+    manifest = load_ddp_manifest(root, verify_shards=True)
+    if int(manifest["world_size"]) != int(expected_world_size):
+        raise ValueError(
+            "recovery world size is incompatible: "
+            f"checkpoint={manifest['world_size']}, requested={expected_world_size}"
+        )
+    if expected_source_commit is not None and manifest.get("source_commit") != expected_source_commit:
+        raise ValueError(
+            "recovery source commit is incompatible with this delivery: "
+            f"checkpoint={manifest.get('source_commit')}, delivery={expected_source_commit}; "
+            "use the Dataset/source package that created the recovery ZIP"
+        )
+    rows = {int(row["rank"]): row for row in manifest["rank_shards"]}
+    if int(rank) not in rows:
+        raise ValueError(f"recovery does not contain rank {rank}")
+    row = rows[int(rank)]
+    shard = root / str(row["shard"])
+    payload = dict(TrainingCheckpointStore.load(shard, device="cpu"))
+    if payload.get("schema") != TRAINING_CHECKPOINT_SCHEMA:
+        raise ValueError(f"unsupported rank training checkpoint schema {payload.get('schema')!r}")
+    if payload.get("source_parent_commit") != manifest.get("source_commit"):
+        raise ValueError("rank shard source commit differs from DDP manifest")
+    if payload.get("source_hash") != manifest.get("source_hash"):
+        raise ValueError("rank shard source hash differs from DDP manifest")
+    if payload.get("resolved_config_hash") != canonical_json_hash(payload.get("resolved_config")):
+        raise ValueError("rank shard resolved config hash is inconsistent")
+    for name in ("semantic_contract", "backend_identity", "training_data_provenance"):
+        value = payload.get(name)
+        if not isinstance(value, Mapping):
+            raise ValueError(f"rank shard {name} is missing")
+        validate_declared_hash(value, name=f"rank shard {name}")
+    source_fingerprint = payload.get("source_fingerprint")
+    if not isinstance(source_fingerprint, Mapping):
+        raise ValueError("rank shard source_fingerprint is missing")
+    validate_source_fingerprint(source_fingerprint, name="rank shard source_fingerprint")
+    recomputed = _rank_summary(payload, rank=int(rank), shard=shard)
+    for key in (
+        "shard_sha256", "shard_bytes", "checkpoint_schema", "algorithm", "iteration",
+        "durable_updates", "source_hash", "source_commit", "semantic_contract_hash",
+        "resolved_config_hash", "backend_identity_hash", "agent_resume_state_hash",
+        "agent_merged_state_hash", "critic_state_hash", "continuation_state_hash",
+    ):
+        if row.get(key) != recomputed.get(key):
+            raise ValueError(f"rank shard identity mismatch for {key}")
+    return payload, manifest
+
 def load_distributed_checkpoint(
     trainer: object,
     checkpoint: str | Path,
     *,
     context: DistributedContext,
+    expected_source_commit: str | None = None,
 ):
-    root = Path(checkpoint).resolve()
-    manifest = load_ddp_manifest(root, verify_shards=True)
-    if int(manifest["world_size"]) != context.world_size:
-        raise ValueError(
-            "DDP exact resume requires the same world size: "
-            f"checkpoint={manifest['world_size']}, runtime={context.world_size}"
-        )
-    rows = {int(row["rank"]): row for row in manifest["rank_shards"]}
-    shard = root / str(rows[context.rank]["shard"])
-    decision = trainer.load_checkpoint(shard)
+    payload, manifest = load_rank_checkpoint_for_resume(
+        checkpoint, rank=context.rank, expected_world_size=context.world_size,
+        expected_source_commit=expected_source_commit,
+    )
+    loader = getattr(trainer, "load_checkpoint_payload", None)
+    if not callable(loader):
+        raise TypeError("trainer does not support payload-based resume")
+    decision = loader(payload)
     context.barrier()
     return decision, manifest
 
@@ -242,6 +352,8 @@ def update_checkpoint_index(
     checkpoint_dir: Path,
     ddp_manifest: Mapping[str, object],
     evaluation_checkpoint: Path | None = None,
+    evaluation_status: str = "pending",
+    evaluation_error: str | None = None,
 ) -> Path:
     root = Path(output_root).resolve()
     path = root / "checkpoint_manifest.json"
@@ -256,6 +368,8 @@ def update_checkpoint_index(
         "manifest_hash": ddp_manifest["manifest_hash"],
         "evaluation_checkpoint": None if evaluation_checkpoint is None else evaluation_checkpoint.relative_to(root).as_posix(),
         "evaluation_checkpoint_sha256": None if evaluation_checkpoint is None else sha256_file(evaluation_checkpoint),
+        "evaluation_status": str(evaluation_status),
+        "evaluation_error": evaluation_error,
         "durable": True,
         "created_at": ddp_manifest["created_at"],
     }
@@ -285,7 +399,7 @@ def build_recovery_bundle(
         return None
     checkpoint_index = json.loads(checkpoint_index_path.read_text(encoding="utf-8"))
     latest = checkpoint_index.get("latest")
-    if not isinstance(latest, Mapping):
+    if not isinstance(latest, Mapping) or bool(latest.get("input_only", False)):
         return None
     checkpoint_root = (root / str(latest["checkpoint"])).resolve()
     if not checkpoint_root.is_dir() or not checkpoint_root.is_relative_to(root):
@@ -347,6 +461,7 @@ def build_recovery_bundle(
 __all__ = [
     "CHECKPOINT_MANIFEST_SCHEMA", "DDP_CHECKPOINT_SCHEMA", "DDP_PROVENANCE_SCHEMA",
     "RECOVERY_MANIFEST_SCHEMA", "aggregate_training_provenance", "build_recovery_bundle",
-    "freeze_distributed_policy", "load_ddp_manifest", "load_distributed_checkpoint",
+    "continuation_state_hash", "freeze_distributed_policy", "load_ddp_manifest",
+    "load_distributed_checkpoint", "load_rank_checkpoint_for_resume",
     "save_distributed_checkpoint", "update_checkpoint_index",
 ]

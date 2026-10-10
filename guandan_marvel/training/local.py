@@ -83,7 +83,8 @@ COMMON_RUNTIME_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
     ),
     "distributed_orchestration": (
         "guandan_marvel/kaggle/checkpoints.py", "guandan_marvel/kaggle/common.py",
-        "guandan_marvel/kaggle/profiles.py", "guandan_marvel/kaggle/runner.py",
+        "guandan_marvel/kaggle/evaluation.py", "guandan_marvel/kaggle/profiles.py",
+        "guandan_marvel/kaggle/progress.py", "guandan_marvel/kaggle/runner.py",
         "guandan_marvel/kaggle/worker.py",
     ),
 }
@@ -217,6 +218,7 @@ class LocalTrainerBase:
         self.last_policy_epochs = 0
         self.last_critic_batch_sources: tuple[str, ...] = ()
         self.evaluation_hook = None
+        self.phase_callback = None
         self.evaluation_result_history: list[dict[str, object]] = []
         self.repo_root = Path(__file__).resolve().parents[2]
         self.backend_identity = build_backend_identity(game)
@@ -258,6 +260,16 @@ class LocalTrainerBase:
     @property
     def merged_policy_identity(self) -> str:
         return "current_policy_copy" if self.cfg.agent_merging_beta == 0.0 else "exponential_moving_average"
+
+    def set_phase_callback(self, callback) -> None:
+        if callback is not None and not callable(callback):
+            raise TypeError("phase callback must be callable")
+        self.phase_callback = callback
+
+    def _emit_phase(self, phase: str) -> None:
+        callback = getattr(self, "phase_callback", None)
+        if callback is not None:
+            callback(str(phase))
 
     def set_evaluation_hook(self, hook: object | None) -> None:
         """Attach a process-isolated M06 evaluator hook at durable boundaries."""
@@ -358,6 +370,7 @@ class LocalTrainerBase:
             raise RuntimeError("refusing to checkpoint before a durable learner update")
 
     def _collect(self, agent_model: nn.Module):
+        self._emit_phase("rollout")
         started = time.perf_counter()
         rollout = self.sampler.collect(agent_model=agent_model)
         seconds = time.perf_counter() - started
@@ -368,6 +381,7 @@ class LocalTrainerBase:
         return rollout, validation, terminal_infos, seconds
 
     def _optimizer_step(self, *, loss: torch.Tensor, module: nn.Module, optimizer, name: str) -> float:
+        self._emit_phase("learner")
         ensure_finite_tensor(f"{name}_loss", loss)
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
@@ -442,6 +456,7 @@ class LocalTrainerBase:
                 metrics["evaluation/hook_status"] = "schedule_failed"
                 metrics["evaluation/hook_error"] = f"{type(error).__name__}: {error}"
         _finite_metrics(metrics)
+        self._emit_phase("metrics")
         self.metrics.log(metrics, step=target_iteration)
         self.iteration = target_iteration
         self.durable_updates = target_durable

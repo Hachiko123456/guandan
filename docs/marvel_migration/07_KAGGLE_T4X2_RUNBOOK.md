@@ -121,3 +121,6 @@ M08 必须先测：
 M07 canonical delivery schema 为 `guandan-marvel-kaggle-delivery-v1`，Dataset/source/DDP checkpoint/recovery/progress/telemetry 均有独立版本。生成器、五模式 Dataset、Run-All Notebook、中文说明、fail-closed discovery、两 rank worker、周期 durable checkpoint 和 recovery binary 规则见 `M07_KAGGLE_DDP_PROTOCOL.md`。
 
 阶段 `accepted` 的语义仅为 `remote_ready`：本地 package validation、Notebook 语法、离线 source build/import、CLI 和 CPU/gloo 双进程恢复通过。没有伪造 `/kaggle`，没有自动上传，真实 T4×2 仍由 M08 验证。
+## 11. M07 集中补修绑定（2026-10-10）
+
+补修后，bounded evaluation 使用 `Rank.TWO=15` 并在 spawn 子进程加载真实 C++ policy；durable checkpoint/index/recovery 必须先于评估发布。Resume 从已验证 rank shard 继承全部训练语义，profile 只覆盖追加迭代数和会话控制。预算停止由所有 rank collective 形成共同决定。Notebook 每 5–10 秒输出 progress/GPU/rank heartbeat，首个 iteration 前未知计数不得伪造为 0。完整协议见 `M07_KAGGLE_DDP_REPAIR_PROTOCOL.md`。

@@ -293,3 +293,6 @@ Canonical training checkpoint 为 v5，sampler state 为 v2。On-policy sampler 
 M07 将既有 trainer 扩展为显式 DDP runtime：global rollout/collect batch 按 world size 等分，每 rank 独立环境 seed，模型初始化一致，trainable actor/critic 由 `DistributedDataParallel` 包装并同步梯度。远端只允许 `WORLD_SIZE=2`、NCCL、CUDA；CPU/gloo 仅用于明确标记的本地双进程恢复测试。
 
 Durable checkpoint 由 rank 0 原子发布 `guandan-marvel-ddp-checkpoint-v1` envelope；每 rank shard 保存 sampler/RNG/replay，manifest 验证跨 rank resume/merged/critic state hash 一致并汇总全局 counters。当前恢复策略只接受相同 world size。完整协议见 `M07_KAGGLE_DDP_PROTOCOL.md`。
+## 15. M07 补修 DDP resume 与预算边界
+
+DDP resume 必须继承 checkpoint 的模型、batch、optimizer、sampling/replay 和训练数据来源，只允许日志/输出/追加迭代/会话预算等明确 run-control 差异。连续执行和 evaluation-enabled checkpoint/resume 的下一状态以完整 continuation hash 验证。预算停止只在完整 update 后由所有 rank collective 决定，并在共同 checkpoint boundary 停止。

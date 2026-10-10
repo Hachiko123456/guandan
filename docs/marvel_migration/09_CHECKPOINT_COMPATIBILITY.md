@@ -146,3 +146,6 @@ Canonical training schema 升级为 `guandan-marvel-training-checkpoint-v5`，se
 `guandan-marvel-ddp-checkpoint-v1` 是 training checkpoint v5 的双 rank durable envelope。`rank000.pt`/`rank001.pt` 各自保存 sampler、RNG 和 replay；rank 0 manifest 保存 shard hash、跨 rank 模型 state hash、global counters 和 `guandan-marvel-ddp-training-data-provenance-v1`。它只允许相同 world size exact/compatible resume；缺 rank、模型不一致、source/backend/semantic 不兼容或 world size 变化都 fail closed。
 
 `guandan-marvel-recovery-manifest-v1` 将最近 durable envelope 与实际 native extension binary/hash 一起打包。恢复优先使用该 binary 维持 backend/build identity；不得用重新编译后不同 binary 静默重标 exact。Legacy V1 评估能力和单 rank v5 只读能力保留。
+## 14. M07 补修 continuation identity（2026-10-10）
+
+DDP rank summary 增加 `continuation_state_hash`，覆盖模型、optimizer、sampler、RNG、replay、schedule 和 durable counters。Resume 在 trainer 构建前验证 recovery/envelope/shard 身份，并从 shard resolved config 重建原算法、模型和训练语义；resume manifest 不得指定替代 model/batch/optimizer/sampling。旧 M07 包与补修包 source commit/archive 不匹配时必须拒绝。

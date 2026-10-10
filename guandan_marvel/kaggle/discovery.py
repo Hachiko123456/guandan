@@ -12,7 +12,7 @@ from .common import canonical_hash, sha256_file
 
 DATASET_MANIFEST_SCHEMA = "guandan-marvel-kaggle-dataset-v1"
 SOURCE_MANIFEST_SCHEMA = "guandan-marvel-source-manifest-v1"
-RECOVERY_MANIFEST_SCHEMA = "guandan-marvel-recovery-manifest-v1"
+RECOVERY_MANIFEST_SCHEMA = "guandan-marvel-recovery-manifest-v2"
 DATASET_MANIFEST_NAME = "guandan_marvel_dataset.json"
 RECOVERY_BUNDLE_NAMES = frozenset({"guandan-marvel-recovery.zip", "guandan-marvel-partial.zip"})
 SUPPORTED_MODES = frozenset({"preflight", "pilot", "resume", "full", "eval_only"})
@@ -85,12 +85,24 @@ def validate_dataset_manifest(payload: Mapping[str, object], *, manifest_path: P
             raise ValueError("training profiles require a DDP object")
         if int(ddp.get("world_size", 0)) != 2 or ddp.get("launcher") != "torchrun":
             raise ValueError("training profiles must require torchrun world_size=2")
+    if mode in {"pilot", "full"}:
         training = profile.get("training")
         if not isinstance(training, Mapping):
-            raise ValueError("training profile object is required")
+            raise ValueError("pilot/full profile requires a training object")
         for key in ("rollout_batch_size", "collect_batch_size"):
             if int(training.get(key, 0)) <= 0 or int(training[key]) % 2:
                 raise ValueError(f"training.{key} must be positive and divisible by 2")
+    if mode == "resume":
+        controls = profile.get("resume")
+        if not isinstance(controls, Mapping) or int(controls.get("additional_iterations", 0)) <= 0:
+            raise ValueError("resume profile requires positive resume.additional_iterations")
+        forbidden = sorted(set(controls) - {
+            "additional_iterations", "checkpoint_interval", "evaluation_interval", "max_wall_seconds",
+        })
+        if forbidden:
+            raise ValueError(f"resume profile contains forbidden semantic overrides: {forbidden}")
+        if "training" in profile or "algorithm" in profile:
+            raise ValueError("resume profile must inherit algorithm/training semantics from recovery")
     recovery = payload.get("recovery")
     if not isinstance(recovery, Mapping):
         raise ValueError("dataset manifest recovery object is required")

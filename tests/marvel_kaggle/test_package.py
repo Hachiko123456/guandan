@@ -64,7 +64,7 @@ def test_source_zip_rejects_unsafe_extra_member(delivery, tmp_path):
 
 def _recovery(path: Path, *, commit: str, archive_sha: str, iteration: int) -> None:
     body = {
-        "schema": "guandan-marvel-recovery-manifest-v1",
+        "schema": "guandan-marvel-recovery-manifest-v2",
         "package_id": "guandan-marvel-t4x2-20261010",
         "created_at": "2026-10-10T00:00:00+00:00",
         "status": "partial",
