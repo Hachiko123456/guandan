@@ -41,6 +41,47 @@ def _timestamp() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+EVALUATION_RENDEZVOUS_SCHEMA = "guandan-marvel-ddp-evaluation-rendezvous-v1"
+
+
+def _publish_evaluation_rendezvous(
+    path: Path, *, iteration: int, event: Mapping[str, object],
+) -> Path:
+    return atomic_json(path, {
+        "schema": EVALUATION_RENDEZVOUS_SCHEMA,
+        "iteration": int(iteration),
+        "event": dict(event),
+        "published_at": _timestamp(),
+    })
+
+
+def _wait_evaluation_rendezvous(
+    path: Path, *, iteration: int, timeout_seconds: float, poll_seconds: float = 0.25,
+) -> dict[str, object]:
+    """Wait on the shared run filesystem, not a pending NCCL collective."""
+    deadline = time.monotonic() + max(float(timeout_seconds), 1.0)
+    last_error: str | None = None
+    while time.monotonic() < deadline:
+        if path.is_file():
+            try:
+                payload = _load_json(path)
+                if payload.get("schema") != EVALUATION_RENDEZVOUS_SCHEMA:
+                    raise ValueError("evaluation rendezvous schema mismatch")
+                if int(payload.get("iteration", -1)) != int(iteration):
+                    raise ValueError("evaluation rendezvous iteration mismatch")
+                event = payload.get("event")
+                if not isinstance(event, Mapping):
+                    raise ValueError("evaluation rendezvous event is malformed")
+                return dict(event)
+            except (OSError, ValueError, json.JSONDecodeError) as error:
+                last_error = f"{type(error).__name__}: {error}"
+        time.sleep(max(float(poll_seconds), 0.01))
+    detail = "" if last_error is None else f"; last_error={last_error}"
+    raise TimeoutError(
+        f"timed out waiting for rank-0 evaluation rendezvous at iteration {iteration}{detail}"
+    )
+
+
 def _load_json(path: Path) -> dict[str, object]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
@@ -526,6 +567,7 @@ def main(argv: list[str] | None = None) -> int:
                             if trainer.iteration in _fault_iterations(faults, "evaluation_fail_iterations"):
                                 raise RuntimeError(f"injected evaluation failure at iteration {trainer.iteration}")
                             evaluation_cfg = profile.get("evaluation") or {}
+                            evaluation_timeout_seconds = float(evaluation_cfg.get("timeout_seconds", 900))
                             summary = run_smoke_evaluation_isolated(
                                 evaluation_checkpoint,
                                 output_root=run_root,
@@ -537,7 +579,7 @@ def main(argv: list[str] | None = None) -> int:
                                 level_ranks=tuple(evaluation_cfg.get("level_ranks", (int(Rank.TWO),))),
                                 leader_seats=tuple(evaluation_cfg.get("leader_seats", (0,))),
                                 previous_results=tuple(evaluation_cfg.get("previous_results", (None,))),
-                                timeout_seconds=float(evaluation_cfg.get("timeout_seconds", 900)),
+                                timeout_seconds=evaluation_timeout_seconds,
                             )
                             expected_selection_hash = evaluation_cfg.get("expected_selection_dataset_hash")
                             if (
@@ -602,14 +644,27 @@ def main(argv: list[str] | None = None) -> int:
                                 # The pre-evaluation durable bundle remains atomically intact.
                                 pass
                             eval_event = {"status": "failed", "error": message, "evaluation_status": "failed"}
-                    rows = context.all_gather_object(eval_event if context.is_primary else None)
-                    shared_eval = rows[0]
+                    evaluation_cfg = profile.get("evaluation") or {}
+                    evaluation_timeout_seconds = float(evaluation_cfg.get("timeout_seconds", 900))
+                    rendezvous_path = run_root / f"evaluation_rendezvous_iter{trainer.iteration:06d}.json"
+                    if context.is_primary:
+                        if not isinstance(eval_event, Mapping):
+                            eval_event = {"status": "failed", "error": "rank 0 produced no evaluation event"}
+                        _publish_evaluation_rendezvous(
+                            rendezvous_path, iteration=trainer.iteration, event=eval_event,
+                        )
+                        shared_eval = dict(eval_event)
+                    else:
+                        shared_eval = _wait_evaluation_rendezvous(
+                            rendezvous_path, iteration=trainer.iteration,
+                            timeout_seconds=evaluation_timeout_seconds + 120.0,
+                        )
                     heartbeat.update(
                         latest_evaluation=None if latest_evaluation is None else latest_evaluation.relative_to(run_root).as_posix(),
-                        latest_evaluation_status="failed" if not isinstance(shared_eval, Mapping) else shared_eval.get("evaluation_status", "unknown"),
+                        latest_evaluation_status=shared_eval.get("evaluation_status", "unknown"),
                     )
-                    if not isinstance(shared_eval, Mapping) or shared_eval.get("status") != "complete":
-                        raise RuntimeError(f"evaluation failed on rank 0: {None if shared_eval is None else shared_eval.get('error')}")
+                    if shared_eval.get("status") != "complete":
+                        raise RuntimeError(f"evaluation failed on rank 0: {shared_eval.get('error')}")
             if budget_reached:
                 budget_stopped = True
                 break

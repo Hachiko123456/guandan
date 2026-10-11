@@ -65,7 +65,7 @@ def test_m09_safety_check_rejects_old_full_dataset_reuse_boundary():
     assert result["valid"] is True
     assert result["m08_commit_is_ancestor"] is True
     assert result["forbidden_package_ids_absent"] is True
-    assert result["package_id"] == "guandan-marvel-m09-algorithm-pilot-20261011"
+    assert result["package_id"] == "guandan-marvel-m09-algorithm-pilot-20261011-r2"
     assert result["main_full_generated"] is False
     assert result["final_holdout_generated"] is False
     assert result["remote_verified"] is False
@@ -74,7 +74,7 @@ def test_m09_safety_check_rejects_old_full_dataset_reuse_boundary():
 @pytest.fixture(scope="module")
 def m09_delivery(tmp_path_factory):
     root = Path(__file__).resolve().parents[2]
-    output = tmp_path_factory.mktemp("m09-delivery") / "guandan-marvel-m09-algorithm-pilot-20261011"
+    output = tmp_path_factory.mktemp("m09-delivery") / "guandan-marvel-m09-algorithm-pilot-20261011-r2"
     build_m09_delivery(root, output, allow_dirty=True)
     return output
 
@@ -103,6 +103,7 @@ def test_m09_dataset_claims_and_resume_binding_are_fail_closed(m09_delivery):
     assert ippo["package_id"] == vrpo["package_id"]
     assert ippo["package_id"] not in {
         "guandan-marvel-t4x2-20261010", "guandan-marvel-t4x2-20261010-r2",
+        "guandan-marvel-m09-algorithm-pilot-20261011",
     }
     assert ippo["claims"]["remote_verified"] is False
     assert ippo["claims"]["formal_training_complete"] is False

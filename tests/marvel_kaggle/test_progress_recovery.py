@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import threading
+import time
 from pathlib import Path
 
 import pytest
@@ -9,7 +11,9 @@ import guandan_marvel.kaggle.checkpoints as checkpoints
 from guandan_marvel.kaggle.common import atomic_json, canonical_hash, sha256_file
 from guandan_marvel.kaggle.progress import LiveProgressHeartbeat, format_console_summary
 from guandan_marvel.kaggle.runner import _build_output_zip
-from guandan_marvel.kaggle.worker import shared_budget_decision
+from guandan_marvel.kaggle.worker import (
+    _publish_evaluation_rendezvous, _wait_evaluation_rendezvous, shared_budget_decision,
+)
 
 
 def test_progress_eta_uses_session_iterations_not_historical(monkeypatch, tmp_path):
@@ -190,3 +194,33 @@ def test_output_zip_excludes_training_shards_and_nested_recovery(tmp_path):
     _build_output_zip(run, destination)
     with zipfile.ZipFile(destination) as archive:
         assert archive.namelist() == ["metrics.jsonl"]
+
+def test_long_evaluation_uses_filesystem_rendezvous_not_pending_collective(tmp_path):
+    path = tmp_path / "evaluation_rendezvous_iter000100.json"
+    expected = {"status": "complete", "evaluation_status": "complete"}
+
+    def publish():
+        time.sleep(0.05)
+        _publish_evaluation_rendezvous(path, iteration=100, event=expected)
+
+    thread = threading.Thread(target=publish)
+    thread.start()
+    observed = _wait_evaluation_rendezvous(
+        path, iteration=100, timeout_seconds=2.0, poll_seconds=0.01,
+    )
+    thread.join(timeout=1.0)
+    assert observed == expected
+    source = Path("guandan_marvel/kaggle/worker.py").read_text(encoding="utf-8")
+    assert "all_gather_object(eval_event" not in source
+    assert source.index("run_smoke_evaluation_isolated(") < source.index("_publish_evaluation_rendezvous(", source.index("run_smoke_evaluation_isolated("))
+
+
+def test_evaluation_rendezvous_rejects_wrong_iteration(tmp_path):
+    path = tmp_path / "evaluation_rendezvous.json"
+    _publish_evaluation_rendezvous(
+        path, iteration=99, event={"status": "complete"},
+    )
+    with pytest.raises(TimeoutError, match="iteration mismatch"):
+        _wait_evaluation_rendezvous(
+            path, iteration=100, timeout_seconds=0.05, poll_seconds=0.01,
+        )
