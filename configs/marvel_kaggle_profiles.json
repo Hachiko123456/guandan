@@ -104,7 +104,9 @@
           "action_layers": 2,
           "fuse_layers": 2
         },
-        "max_wall_seconds": 42000
+        "max_wall_seconds": 42000,
+        "checkpoint_keep_last": 2,
+        "evaluation_keep_last": 2
       },
       "evaluation": {
         "base_deals": 4,

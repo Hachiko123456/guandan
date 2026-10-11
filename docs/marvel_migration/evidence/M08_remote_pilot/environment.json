@@ -1,0 +1,28 @@
+{
+  "cpu_logical": 4,
+  "cpu_physical": 2,
+  "cuda_runtime": "12.8",
+  "dual_gpu": {
+    "memory_peak_mib_gpu0": 6713.0,
+    "memory_peak_mib_gpu1": 6815.0,
+    "utilization_mean_gpu0": 52.048780487804876,
+    "utilization_mean_gpu1": 52.48780487804878
+  },
+  "gpu_count": 2,
+  "gpu_memory_mib_each": 15360,
+  "gpu_names": [
+    "Tesla T4",
+    "Tesla T4"
+  ],
+  "nccl_available": true,
+  "platform": "Kaggle",
+  "python": "3.13.15",
+  "ram_bytes": 33658318848,
+  "schema": "guandan-marvel-m08-remote-environment-v1",
+  "single_gpu": {
+    "memory_peak_mib_gpu0": 13349.0,
+    "utilization_mean_gpu0": 68.29824561403508,
+    "utilization_mean_gpu1": 0.0
+  },
+  "torch": "2.11.0+cu128"
+}

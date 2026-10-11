@@ -1,0 +1,48 @@
+{
+  "commands": [
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle -q",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 40
+      },
+      "exit_code": 0,
+      "junit": "runs\\M08_remote_pilot\\final_acceptance_20261011\\marvel_kaggle.junit.xml",
+      "junit_sha256": "aee931631b517ae5133275f9a31c85a78d62e8992715d33692b892c00031e87e",
+      "log": "runs\\M08_remote_pilot\\final_acceptance_20261011\\marvel_kaggle.log",
+      "log_sha256": "05997d5044c798d94ef2edb74eeab9d97194dc7a9a496136904aef539bd55f3d",
+      "name": "marvel_kaggle"
+    },
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_training tests/marvel_core/test_core.py tests/marvel_evaluation tests/acceptance/test_a00_specification.py -q",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 92
+      },
+      "exit_code": 0,
+      "junit": "runs\\M08_remote_pilot\\final_acceptance_20261011\\target_regression.junit.xml",
+      "junit_sha256": "cac282180bc4147d0b23f962e49e558938c25df514547bea04c58cda6a6b5efe",
+      "log": "runs\\M08_remote_pilot\\final_acceptance_20261011\\target_regression.log",
+      "log_sha256": "13eab3e2c4a6c5ab880081fe83e8159ef9c2cd82e690969fc51a2e59a4e4af9f",
+      "name": "target_regression"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "log": "runs\\M08_remote_pilot\\final_acceptance_20261011\\git_diff_check.log",
+      "log_sha256": "e3b134ba61742b398ef9fcbac7f4c546fa9ea11aa998ad7631b94e4802647bb5",
+      "name": "git_diff_check"
+    }
+  ],
+  "schema": "guandan-marvel-m08-test-results-v1",
+  "totals": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 132
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "baseline_algorithm": "ippo",
+  "claims": {
+    "final_holdout_run": false,
+    "m09_started": false,
+    "model_strength": false
+  },
+  "date": "2026-10-11",
+  "ddp_backend": "nccl",
+  "device_binding": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "game_backend": "cpp",
+  "limitations": [
+    "training deal distribution still requires M09 review for level-rank/tribute coverage",
+    "AMP/compile remain disabled because M08 did not validate them",
+    "M09 must compare IPPO and VRPO at equal completed-game budget"
+  ],
+  "m09_algorithm_comparison_required": [
+    "ippo",
+    "vrpo"
+  ],
+  "model": {
+    "action_layers": 2,
+    "architecture": "v1.3",
+    "decoder_heads": 4,
+    "decoder_layers": 4,
+    "feature_dim": 256,
+    "fuse_layers": 2,
+    "history_dim": 128,
+    "state_layers": 3
+  },
+  "performance": {
+    "comparison_id": "m08-t4x2-baseline-v1",
+    "dual_source_commit": "d6319d2c6f30d04c6a7236eab5b521a361a9487e",
+    "env_throughput_speedup": 1.412880421432866,
+    "game_step_throughput_speedup": 1.40215728708635,
+    "games_throughput_speedup": 1.5165367202939695,
+    "health": {
+      "dual": {
+        "health/action_capacity_overflows": 0.0,
+        "health/horizon_overflows": 0.0,
+        "health/illegal_actions": 0.0,
+        "health/nonfinite_gradients": 0.0,
+        "health/nonfinite_losses": 0.0,
+        "health/truncated_games": 0.0
+      },
+      "single": {
+        "health/action_capacity_overflows": 0.0,
+        "health/horizon_overflows": 0.0,
+        "health/illegal_actions": 0.0,
+        "health/nonfinite_gradients": 0.0,
+        "health/nonfinite_losses": 0.0,
+        "health/truncated_games": 0.0
+      }
+    },
+    "health_ok": true,
+    "measured_completed_games": 8,
+    "passes": true,
+    "remote_verified": true,
+    "scaling_efficiency": 0.7708182367731943,
+    "schema": "guandan-marvel-m08-benchmark-comparison-v1",
+    "session_speedup": 1.5416364735463886,
+    "single_source_commit": "d6319d2c6f30d04c6a7236eab5b521a361a9487e",
+    "speedup_target": 1.5,
+    "training_core_speedup": 1.5165367202939695,
+    "workload_hash": "de4f2671fba5781db49ca7ab0f6ca9d02929295acf79c79221eed6e22a23acba"
+  },
+  "runtime": {
+    "checkpoint_interval": 25,
+    "checkpoint_keep_last": 2,
+    "evaluation_interval": 100,
+    "evaluation_keep_last": 2,
+    "max_wall_seconds": 42000,
+    "telemetry_interval_seconds": 5
+  },
+  "schema": "guandan-marvel-m08-locked-training-config-v1",
+  "training": {
+    "agent_epoch": 4,
+    "agent_merging_beta": 0.0,
+    "amp_enabled": false,
+    "collect_batch_size_global": 4,
+    "collect_batch_size_per_rank": 2,
+    "compile_enabled": false,
+    "critic_aux_epoch": 4,
+    "mini_batches": 2,
+    "replay_buffer_scale": 8,
+    "rollout_batch_size_global": 4,
+    "rollout_batch_size_per_rank": 2,
+    "use_muon": false
+  },
+  "world_size": 2
+}

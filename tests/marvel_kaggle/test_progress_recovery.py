@@ -8,6 +8,7 @@ import pytest
 import guandan_marvel.kaggle.checkpoints as checkpoints
 from guandan_marvel.kaggle.common import atomic_json, canonical_hash, sha256_file
 from guandan_marvel.kaggle.progress import LiveProgressHeartbeat, format_console_summary
+from guandan_marvel.kaggle.runner import _build_output_zip
 from guandan_marvel.kaggle.worker import shared_budget_decision
 
 
@@ -49,6 +50,36 @@ def test_first_iteration_progress_uses_unknown_not_fake_zero(monkeypatch, tmp_pa
     assert progress["env_steps"] is None
     assert progress["eta_seconds"] is None
     assert "games=unknown" in format_console_summary(progress)
+
+
+def test_checkpoint_retention_prunes_old_artifacts_and_updates_index(tmp_path):
+    root = tmp_path / "run"
+    checkpoint_root = root / "checkpoints"
+    evaluation_root = root / "evaluation_checkpoints"
+    checkpoint_root.mkdir(parents=True)
+    evaluation_root.mkdir(parents=True)
+    history = []
+    for iteration in range(1, 5):
+        directory = checkpoint_root / f"iter{iteration:06d}"
+        directory.mkdir()
+        (directory / "manifest.json").write_text(json.dumps({"iteration": iteration}), encoding="utf-8")
+        (directory / f"rank000.pt").write_bytes(f"rank-{iteration}".encode())
+        evaluation = evaluation_root / f"iter{iteration:06d}.pt"
+        evaluation.write_bytes(f"eval-{iteration}".encode())
+        history.append({"iteration": iteration, "checkpoint": directory.relative_to(root).as_posix()})
+    atomic_json(root / "checkpoint_manifest.json", {
+        "schema": checkpoints.CHECKPOINT_MANIFEST_SCHEMA,
+        "latest": history[-1], "history": history,
+    })
+    retention = checkpoints.prune_run_artifacts(
+        root, checkpoint_keep_last=2, evaluation_keep_last=1,
+    )
+    assert retention["deleted_checkpoints"] == ["checkpoints/iter000001", "checkpoints/iter000002"]
+    assert retention["deleted_evaluations"] == ["evaluation_checkpoints/iter000001.pt", "evaluation_checkpoints/iter000002.pt", "evaluation_checkpoints/iter000003.pt"]
+    assert not (root / "checkpoints/iter000001").exists()
+    assert (root / "checkpoints/iter000003").exists()
+    updated = json.loads((root / "checkpoint_manifest.json").read_text(encoding="utf-8"))
+    assert [row["iteration"] for row in updated["history"]] == [3, 4]
 
 
 def test_recovery_bundle_replace_failure_preserves_previous_bundle(monkeypatch, tmp_path):
@@ -105,3 +136,16 @@ def test_worker_publishes_recovery_before_entering_evaluation():
     bundle = source.index("build_recovery_bundle(", index)
     evaluation = source.index("run_smoke_evaluation_isolated(", bundle)
     assert checkpoint < index < bundle < evaluation
+
+
+def test_output_zip_excludes_training_shards_and_nested_recovery(tmp_path):
+    import zipfile
+    run = tmp_path / "run"
+    (run / "checkpoints/iter000001").mkdir(parents=True)
+    (run / "checkpoints/iter000001/rank000.pt").write_bytes(b"large-shard")
+    (run / "guandan-marvel-recovery.zip").write_bytes(b"nested-recovery")
+    (run / "metrics.jsonl").write_text("{}\n", encoding="utf-8")
+    destination = tmp_path / "output.zip"
+    _build_output_zip(run, destination)
+    with zipfile.ZipFile(destination) as archive:
+        assert archive.namelist() == ["metrics.jsonl"]

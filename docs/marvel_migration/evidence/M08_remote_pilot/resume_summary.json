@@ -1,0 +1,155 @@
+{
+  "checkpoint": {
+    "checkpoint": "checkpoints/iter000004",
+    "created_at": "2026-10-10T13:00:13.464549+00:00",
+    "durable": true,
+    "evaluation_checkpoint": "evaluation_checkpoints/iter000004.pt",
+    "evaluation_checkpoint_sha256": "c4a75eeb1475d22032b80b6611e29a7f1b78f007eb8910abecf03a82448e26ac",
+    "evaluation_error": null,
+    "evaluation_status": "complete",
+    "iteration": 4,
+    "manifest_hash": "14c72afe5845846333a18c7a847d96289aa4a6041f41c2cbdcb9617da1da5eb9",
+    "manifest_sha256": "c5d96b6aa0d9327ee2eca02b10c9bc260fb7786e287a551235c15a57daeba66a"
+  },
+  "evaluation": {
+    "base_deals": 1,
+    "candidate": {
+      "algorithm": "ippo",
+      "architecture": "v1.3",
+      "backend": "cpp",
+      "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+      "checkpoint_path": "/kaggle/working/guandan-marvel-output/runs/20261010T125900Z-resume-b3740794/evaluation_checkpoints/iter000004.pt",
+      "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+      "checkpoint_sha256": "c4a75eeb1475d22032b80b6611e29a7f1b78f007eb8910abecf03a82448e26ac",
+      "iteration": 4,
+      "merged_policy": {
+        "beta": 0.0,
+        "frozen_for_evaluation": true,
+        "identity": "current_policy_copy"
+      },
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+      "resolved_config_hash": "b02fd6c55f4c10e95aecfbdbdfed5c9548ff2598ec1fd0b1022d0c74f907afc0",
+      "schema": "guandan-marvel-policy-identity-v1",
+      "source_commit": "386d84ee8732234ccf4e2c129b3c32fc418b8aeb",
+      "source_hash": "4eee636b99885b6570d366d62aa3699df3b174adb8b7b787992f09343a22d3c2",
+      "training_counters": {
+        "iteration": 4
+      },
+      "training_data_provenance_hash": "c8089664fb99aa0a9a48e91d515ef18270d2e04fda55dae99a8d7d21c15a8744",
+      "training_data_provenance_status": "complete"
+    },
+    "candidate_wins": 2,
+    "complete_games": 8,
+    "descriptive_wilson95_high": 0.5907245696898311,
+    "descriptive_wilson95_low": 0.071479212752109,
+    "elapsed_seconds": 20.42933854299997,
+    "final_holdout": false,
+    "formal_selection": false,
+    "games": 8,
+    "generated_at": "2026-10-10T13:00:47.671685+00:00",
+    "illegal_count": 0,
+    "level_ranks": [
+      15
+    ],
+    "opponents": [
+      "random",
+      "rule"
+    ],
+    "promotion_eligible": false,
+    "remote_verified": false,
+    "schema": "guandan-marvel-kaggle-evaluation-summary-v2",
+    "scope": "bounded M07 pipeline evaluation; not formal selection or final holdout",
+    "seat_rotations": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "status": "complete",
+    "strength_claim": false,
+    "truncated_count": 0,
+    "win_rate": 0.25
+  },
+  "progress": {
+    "complete": true,
+    "completed_games": 8,
+    "env_steps": 2474,
+    "env_steps_per_second": 270.5822857527966,
+    "error": null,
+    "eta_seconds": null,
+    "game_steps": 985,
+    "game_steps_per_second": 104.2250235576613,
+    "gpus": [
+      {
+        "index": 0,
+        "memory_total_mib": 15360.0,
+        "memory_used_mib": 2109.0,
+        "name": "Tesla T4",
+        "power_watts": 29.0,
+        "status": "ok",
+        "utilization_percent": 0.0
+      },
+      {
+        "index": 1,
+        "memory_total_mib": 15360.0,
+        "memory_used_mib": 2109.0,
+        "name": "Tesla T4",
+        "power_watts": 39.38,
+        "status": "ok",
+        "utilization_percent": 100.0
+      }
+    ],
+    "heartbeat_at": "2026-10-10T13:00:55.683825+00:00",
+    "iteration": 4,
+    "latest_checkpoint": "checkpoints/iter000004",
+    "latest_evaluation": "evaluation_checkpoints/iter000004.pt",
+    "latest_evaluation_status": "complete",
+    "mode": "resume",
+    "phase": "complete",
+    "ranks": [
+      {
+        "heartbeat_age_seconds": 0.006468079000001126,
+        "heartbeat_at": "2026-10-10T13:00:55.677044+00:00",
+        "iteration": 4,
+        "phase": "complete",
+        "pid": 71,
+        "rank": 0,
+        "status": "alive"
+      },
+      {
+        "heartbeat_age_seconds": 3.0116817549999837,
+        "heartbeat_at": "2026-10-10T13:00:52.671826+00:00",
+        "iteration": 4,
+        "phase": "evaluation",
+        "pid": 72,
+        "rank": 1,
+        "status": "alive"
+      }
+    ],
+    "remote_verified": false,
+    "schema": "guandan-marvel-progress-v2",
+    "session_completed_iterations": 2,
+    "session_elapsed_seconds": 98.17381559599994,
+    "session_start_iteration": 2,
+    "target_iterations": 4
+  },
+  "recovery_manifest_hash": "638682f80fe6821878c86357322b3032832e269e05599004d1f78f3ede4c5e88",
+  "remote": true,
+  "resume_inherited": true,
+  "run": {
+    "exit_code": 0,
+    "finished_at": "2026-10-10T13:01:04.348539+00:00",
+    "kaggle_runtime": true,
+    "local_cpu_test": false,
+    "mode": "resume",
+    "package_ready": true,
+    "remote_verified": false,
+    "run_id": "20261010T125900Z-resume-b3740794",
+    "schema": "guandan-marvel-kaggle-run-result-v1",
+    "status": "complete"
+  },
+  "run_root": "guandan-marvel-output/runs/20261010T125900Z-resume-b3740794",
+  "schema": "guandan-marvel-m08-resume-summary-v1",
+  "source_archive_sha256": "734aefa8ee68eb96c6295a796d5f801b0d1c329428b2922eadf9d904b396c8e2",
+  "source_commit": "386d84ee8732234ccf4e2c129b3c32fc418b8aeb"
+}

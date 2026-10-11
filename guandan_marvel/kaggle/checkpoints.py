@@ -383,6 +383,71 @@ def update_checkpoint_index(
     return atomic_json(path, payload)
 
 
+def prune_run_artifacts(
+    output_root: str | Path,
+    *,
+    checkpoint_keep_last: int,
+    evaluation_keep_last: int,
+) -> dict[str, object]:
+    """Bound checkpoint/evaluation disk usage after a new durable checkpoint is indexed."""
+    root = Path(output_root).resolve()
+    checkpoint_keep_last = int(checkpoint_keep_last)
+    evaluation_keep_last = int(evaluation_keep_last)
+    if checkpoint_keep_last <= 0 or evaluation_keep_last < 0:
+        raise ValueError("checkpoint_keep_last must be positive and evaluation_keep_last non-negative")
+    index_path = root / "checkpoint_manifest.json"
+    if not index_path.is_file():
+        raise FileNotFoundError("checkpoint manifest is required before retention pruning")
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    history = sorted(
+        (dict(row) for row in payload.get("history", [])),
+        key=lambda row: int(row["iteration"]),
+    )
+    retained_history = history[-checkpoint_keep_last:]
+    retained_checkpoint_paths = {str(row["checkpoint"]) for row in retained_history}
+    latest = payload.get("latest")
+    if isinstance(latest, Mapping):
+        retained_checkpoint_paths.add(str(latest["checkpoint"]))
+
+    deleted_checkpoints: list[str] = []
+    checkpoint_root = root / "checkpoints"
+    if checkpoint_root.is_dir():
+        for candidate in sorted(checkpoint_root.iterdir()):
+            if not candidate.is_dir():
+                continue
+            relative = candidate.relative_to(root).as_posix()
+            if relative not in retained_checkpoint_paths:
+                shutil.rmtree(candidate)
+                deleted_checkpoints.append(relative)
+
+    evaluation_root = root / "evaluation_checkpoints"
+    evaluation_files = sorted(
+        (path for path in evaluation_root.glob("iter*.pt") if path.is_file()),
+        key=lambda path: path.name,
+    ) if evaluation_root.is_dir() else []
+    retained_evaluations = set(evaluation_files[-evaluation_keep_last:]) if evaluation_keep_last else set()
+    deleted_evaluations: list[str] = []
+    for candidate in evaluation_files:
+        if candidate not in retained_evaluations:
+            candidate.unlink()
+            deleted_evaluations.append(candidate.relative_to(root).as_posix())
+
+    payload["history"] = retained_history
+    payload["retention"] = {
+        "schema": "guandan-marvel-artifact-retention-v1",
+        "checkpoint_keep_last": checkpoint_keep_last,
+        "evaluation_keep_last": evaluation_keep_last,
+        "deleted_checkpoints": deleted_checkpoints,
+        "deleted_evaluations": deleted_evaluations,
+        "retained_checkpoints": sorted(retained_checkpoint_paths),
+        "retained_evaluations": sorted(path.relative_to(root).as_posix() for path in retained_evaluations),
+        "updated_at": _timestamp(),
+    }
+    atomic_json(index_path, payload)
+    atomic_json(root / "artifact_retention.json", payload["retention"])
+    return dict(payload["retention"])
+
+
 def build_recovery_bundle(
     *,
     run_root: str | Path,
@@ -463,7 +528,7 @@ def build_recovery_bundle(
 __all__ = [
     "CHECKPOINT_MANIFEST_SCHEMA", "DDP_CHECKPOINT_SCHEMA", "DDP_PROVENANCE_SCHEMA",
     "RECOVERY_MANIFEST_SCHEMA", "aggregate_training_provenance", "build_recovery_bundle",
-    "continuation_state_hash", "freeze_distributed_policy", "load_ddp_manifest",
+    "continuation_state_hash", "freeze_distributed_policy", "load_ddp_manifest", "prune_run_artifacts",
     "load_distributed_checkpoint", "load_rank_checkpoint_for_resume",
     "save_distributed_checkpoint", "update_checkpoint_index",
 ]

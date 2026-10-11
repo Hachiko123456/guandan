@@ -1,12 +1,12 @@
 project: guandan-marvel-migration
 version: 0.1.0
-last_updated: 2026-10-10
+last_updated: 2026-10-11
 workspace: D:\project\guandan
 reference_repo: D:\project\doudizhu
 kaggle_delivery_root: D:\project\kaggle_train
 branch: codex/marvel-guandan-migration
 baseline_commit: efe9afe74030ae25f278bdde1e8dba2008d7b37c
-current_stage: M08_remote_pilot
+current_stage: M09_full_training
 
 protocol_targets:
   action: GD-ACTION-0.2-MARVEL
@@ -333,27 +333,35 @@ stages:
     blockers: []
 
   M08_remote_pilot:
-    status: ready
-    accepted: false
-    commit: null
+    status: accepted
+    accepted: true
+    commit: self
     reports:
       - docs/marvel_migration/reports/M08_remote_bootstrap_observability_repair.md
       - docs/marvel_migration/reports/M08_performance_controls.md
+      - docs/marvel_migration/reports/M08_remote_pilot.md
     evidence:
       - docs/marvel_migration/evidence/M08_remote_bootstrap_observability_repair/verification.json
       - docs/marvel_migration/evidence/M08_remote_bootstrap_observability_repair/test_results.json
       - docs/marvel_migration/evidence/M08_performance_controls/verification.json
       - docs/marvel_migration/evidence/M08_performance_controls/local_control_smoke.json
-    note: first real T4x2 attempt exposed a pre-run blank hang; delivery repaired locally and must be rerun, no remote acceptance claimed
+      - docs/marvel_migration/evidence/M08_remote_pilot/verification.json
+      - docs/marvel_migration/evidence/M08_remote_pilot/benchmark_comparison.json
+      - docs/marvel_migration/evidence/M08_remote_pilot/environment.json
+      - docs/marvel_migration/evidence/M08_remote_pilot/pilot_summary.json
+      - docs/marvel_migration/evidence/M08_remote_pilot/resume_summary.json
+      - docs/marvel_migration/evidence/M08_remote_pilot/locked_config.json
+      - docs/marvel_migration/evidence/M08_remote_pilot/artifact_manifest.json
+    locked_config: configs/marvel_m08_locked_config.json
+    note: real Kaggle preflight, pilot, durable recovery/resume and same-workload single/dual controls passed; speedup 1.5165x core / 1.5416x session; model strength not claimed
     blockers: []
 
   M09_full_training:
-    status: blocked
+    status: ready
     accepted: false
     commit: null
     reports: []
-    blockers:
-      - M08_remote_pilot is not accepted
+    blockers: []
 
   M10_belief_search:
     status: blocked

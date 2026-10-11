@@ -113,3 +113,11 @@ def test_benchmark_comparison_requires_matching_workload_and_target() -> None:
     assert result["session_speedup"] == 2.0
     assert result["training_core_speedup"] == 2.0
     assert result["passes"] is True
+
+
+def test_full_profile_has_bounded_checkpoint_and_evaluation_retention() -> None:
+    full = _profiles()["full"]["training"]
+    assert full["checkpoint_keep_last"] == 2
+    assert full["evaluation_keep_last"] == 2
+    assert full["checkpoint_interval"] == 25
+    assert full["evaluation_interval"] == 100

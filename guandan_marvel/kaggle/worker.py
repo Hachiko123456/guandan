@@ -16,6 +16,7 @@ from guandan_marvel.kaggle.checkpoints import (
     freeze_distributed_policy,
     load_ddp_manifest,
     load_rank_checkpoint_for_resume,
+    prune_run_artifacts,
     save_distributed_checkpoint,
     update_checkpoint_index,
 )
@@ -309,6 +310,8 @@ def main(argv: list[str] | None = None) -> int:
     max_wall_seconds = float(controls.get("max_wall_seconds", 0) or 0)
     checkpoint_interval = int(controls["checkpoint_interval"])
     evaluation_interval = int(controls["evaluation_interval"])
+    checkpoint_keep_last = int(controls.get("checkpoint_keep_last", 2))
+    evaluation_keep_last = int(controls.get("evaluation_keep_last", 2))
     latest_checkpoint: Path | None = checkpoint_root
     latest_evaluation: Path | None = None
     latest_metrics: dict[str, object] | None = None
@@ -418,6 +421,11 @@ def main(argv: list[str] | None = None) -> int:
                             run_root, checkpoint_dir=checkpoint_dir, ddp_manifest=ddp_manifest,
                             evaluation_status="pending" if evaluation_due else "not_due",
                         )
+                        retention = prune_run_artifacts(
+                            run_root,
+                            checkpoint_keep_last=checkpoint_keep_last,
+                            evaluation_keep_last=evaluation_keep_last,
+                        )
                         if trainer.iteration in _fault_iterations(faults, "bundle_fail_iterations"):
                             raise RuntimeError(f"injected recovery bundle failure at iteration {trainer.iteration}")
                         bundle = build_recovery_bundle(
@@ -436,6 +444,7 @@ def main(argv: list[str] | None = None) -> int:
                             "status": "complete", "evaluation_due": evaluation_due,
                             "checkpoint": str(checkpoint_dir), "bundle": str(bundle),
                             "ddp_manifest_hash": ddp_manifest["manifest_hash"],
+                            "retention": retention,
                         }
                     except BaseException as error:
                         primary_event = {"status": "failed", "error": f"{type(error).__name__}: {error}"}
@@ -470,6 +479,11 @@ def main(argv: list[str] | None = None) -> int:
                                 evaluation_checkpoint=evaluation_checkpoint,
                                 evaluation_status=str(summary["status"]),
                             )
+                            prune_run_artifacts(
+                                run_root,
+                                checkpoint_keep_last=checkpoint_keep_last,
+                                evaluation_keep_last=evaluation_keep_last,
+                            )
                             build_recovery_bundle(
                                 run_root=run_root,
                                 destination=run_root / "guandan-marvel-recovery.zip",
@@ -495,6 +509,11 @@ def main(argv: list[str] | None = None) -> int:
                                 run_root, checkpoint_dir=checkpoint_dir, ddp_manifest=ddp_manifest,
                                 evaluation_checkpoint=evaluation_checkpoint if evaluation_checkpoint.is_file() else None,
                                 evaluation_status="failed", evaluation_error=message,
+                            )
+                            prune_run_artifacts(
+                                run_root,
+                                checkpoint_keep_last=checkpoint_keep_last,
+                                evaluation_keep_last=evaluation_keep_last,
                             )
                             try:
                                 build_recovery_bundle(

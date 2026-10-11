@@ -1,0 +1,57 @@
+{
+  "evidence_files": [
+    "artifact_manifest.json",
+    "benchmark_comparison.json",
+    "environment.json",
+    "locked_config.json",
+    "pilot_summary.json",
+    "resume_summary.json",
+    "source_manifest.json",
+    "test_results.json",
+    "verification.json"
+  ],
+  "large_artifacts_committed": false,
+  "remote_files": [
+    {
+      "bytes": 37707733,
+      "path": "runs/M08_remote_pilot/remote/pilot_t4x2_20261010/kaggle-results.zip",
+      "sha256": "ceb0c5abe83ff96c83df337a76c4ce404ab7d14c91d58d9a68834a22fa75a33c"
+    },
+    {
+      "bytes": 31119,
+      "path": "runs/M08_remote_pilot/remote/pilot_t4x2_20261010/kaggle-console.log",
+      "sha256": "c2036a9c9269a1ae811eac6b63a5dbb20202055519df0bbe469013e585a04c0a"
+    },
+    {
+      "bytes": 3778551,
+      "path": "runs/M08_remote_pilot/remote/pilot_t4x2_20261010/guandan-marvel-recovery.zip",
+      "sha256": "7f3ab76d77fc2d254ad729a040925cb4dab14634f0a4b1ec8d88dce56ae42750"
+    },
+    {
+      "bytes": 46377301,
+      "path": "runs/M08_remote_pilot/remote/resume_t4x2_20261010/kaggle-results.zip",
+      "sha256": "e9e74c83af22bdf20b7adac5e6a13142395c044cd5962335cf8914a1effc6024"
+    },
+    {
+      "bytes": 29576,
+      "path": "runs/M08_remote_pilot/remote/resume_t4x2_20261010/kaggle-console.log",
+      "sha256": "2bd2739bcb5a52061a603e4b58db869871054576804beddb64eb4ce62bde1cba"
+    },
+    {
+      "bytes": 3788035,
+      "path": "runs/M08_remote_pilot/remote/resume_t4x2_20261010/guandan-marvel-recovery-iter000004.zip",
+      "sha256": "0be00549fd6fc8475505c74a2b225bb8e61646617339f2951ddb895b7dd59b7c"
+    },
+    {
+      "bytes": 29220,
+      "path": "runs/M08_remote_pilot/remote/single_gpu_control_d6319d2_20261011/guandan-marvel-single-benchmark-small.zip",
+      "sha256": "bafcfc602c69f2be1257f4a4a0766f25669db93813a9e6d63214a7b0bc2717b8"
+    },
+    {
+      "bytes": 34169,
+      "path": "runs/M08_remote_pilot/remote/dual_gpu_control_20261011/guandan-marvel-dual-benchmark-small.zip",
+      "sha256": "beef64735ea2934e74413e8b99a26f247b2bd7bbdea31d8d7d4727351fe7a32e"
+    }
+  ],
+  "schema": "guandan-marvel-m08-artifact-manifest-v1"
+}

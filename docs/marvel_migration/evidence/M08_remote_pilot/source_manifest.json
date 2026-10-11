@@ -1,0 +1,91 @@
+{
+  "baseline_commit": "d6319d2c6f30d04c6a7236eab5b521a361a9487e",
+  "files": [
+    {
+      "bytes": 7291,
+      "path": "configs/marvel_kaggle_profiles.json",
+      "sha256": "09974bf4208e1ff1a528835f75133fc58e876885cee3b984f63cfbc39277a692"
+    },
+    {
+      "bytes": 2926,
+      "path": "configs/marvel_m08_locked_config.json",
+      "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+    },
+    {
+      "bytes": 23820,
+      "path": "docs/marvel_migration/STATUS.yaml",
+      "sha256": "028d42b8f67afa363b737eb32ce15350089827e11d306b26be8d28af02890226"
+    },
+    {
+      "bytes": 2093,
+      "path": "docs/marvel_migration/evidence/M08_remote_pilot/artifact_manifest.json",
+      "sha256": "4dc78f4a8c154e3f7adcae368e7ae5d991b4d585e29284e61118e7e14b3c4f5f"
+    },
+    {
+      "bytes": 1308,
+      "path": "docs/marvel_migration/evidence/M08_remote_pilot/benchmark_comparison.json",
+      "sha256": "7a68609370caccfd52d3eb5d5f88034f9f90332b19d969c75a51bd747fb7969e"
+    },
+    {
+      "bytes": 715,
+      "path": "docs/marvel_migration/evidence/M08_remote_pilot/environment.json",
+      "sha256": "b12c1955b80acf6276f8f97f736ffd59a18d4fa705adedfb3aef7f26bddfd722"
+    },
+    {
+      "bytes": 2926,
+      "path": "docs/marvel_migration/evidence/M08_remote_pilot/locked_config.json",
+      "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+    },
+    {
+      "bytes": 7110,
+      "path": "docs/marvel_migration/evidence/M08_remote_pilot/pilot_summary.json",
+      "sha256": "a9c22f7fb7fd969db056aaacfe975d36cf5aae35e37578daedab941780b874e5"
+    },
+    {
+      "bytes": 5430,
+      "path": "docs/marvel_migration/evidence/M08_remote_pilot/resume_summary.json",
+      "sha256": "ab157cc2be374350391d41ab0b1a507d9d3829e82ceb49ba80ba44eaa262e3bd"
+    },
+    {
+      "bytes": 1836,
+      "path": "docs/marvel_migration/evidence/M08_remote_pilot/test_results.json",
+      "sha256": "e44cf5aa704bb061bbaa1829e8199db4c56b2d3824cb68fad456094ef071c61b"
+    },
+    {
+      "bytes": 2451,
+      "path": "docs/marvel_migration/evidence/M08_remote_pilot/verification.json",
+      "sha256": "42cc875f133a2c098ba0093e19b3b80ff6be104ff9adc2b71ba2d7968d9971a6"
+    },
+    {
+      "bytes": 3475,
+      "path": "docs/marvel_migration/reports/M08_remote_pilot.md",
+      "sha256": "657567ab98356e0bf690cb74318aada2072f9110b5878fcc50b9208403d4b060"
+    },
+    {
+      "bytes": 24587,
+      "path": "guandan_marvel/kaggle/checkpoints.py",
+      "sha256": "8fb9a4d1bd4b7bf60204e58c503c8cf3dd25e7c529753c109657db6af790984d"
+    },
+    {
+      "bytes": 22207,
+      "path": "guandan_marvel/kaggle/runner.py",
+      "sha256": "51c663b99fabbc35904ed9f051d30e991c9e416a03170112824f54632acc4520"
+    },
+    {
+      "bytes": 30182,
+      "path": "guandan_marvel/kaggle/worker.py",
+      "sha256": "d77c15dd5d1342c5cacdcb5c6213a7ce65f63fea9dda3ecec768cb1e708824c8"
+    },
+    {
+      "bytes": 5798,
+      "path": "tests/marvel_kaggle/test_benchmark_profiles.py",
+      "sha256": "291656a97663d92e8864074556ecd86cd3419ea725b05b7411bf7e93a8be55d2"
+    },
+    {
+      "bytes": 7077,
+      "path": "tests/marvel_kaggle/test_progress_recovery.py",
+      "sha256": "c4ac258e01fd4aa1a2c9db0bf48ce778694bca57bf3401c50210cb4ac3768926"
+    }
+  ],
+  "schema": "guandan-marvel-m08-source-manifest-v1"
+}

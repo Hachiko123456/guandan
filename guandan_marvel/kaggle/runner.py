@@ -119,8 +119,14 @@ def _build_output_zip(run_root: Path, destination: Path) -> Path:
     try:
         with zipfile.ZipFile(temporary, "w", compression=zipfile.ZIP_DEFLATED, allowZip64=True) as archive:
             for path in sorted(run_root.rglob("*")):
-                if path.is_file() and path.name not in {"guandan-marvel-output.zip"}:
-                    archive.write(path, path.relative_to(run_root).as_posix())
+                if not path.is_file():
+                    continue
+                relative = path.relative_to(run_root)
+                if relative.parts and relative.parts[0] == "checkpoints":
+                    continue
+                if path.name in {"guandan-marvel-output.zip", "guandan-marvel-recovery.zip"}:
+                    continue
+                archive.write(path, relative.as_posix())
         os.replace(temporary, destination)
     finally:
         temporary.unlink(missing_ok=True)
