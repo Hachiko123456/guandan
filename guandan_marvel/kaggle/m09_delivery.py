@@ -380,8 +380,12 @@ def build_m09_delivery(
     with zipfile.ZipFile(output / SOURCE_ARCHIVE_NAME) as archive:
         prefix = "guandan-marvel-source/"
         bootstrap_bytes = archive.read(prefix + "guandan_marvel/kaggle/bootstrap.py")
-        plan_bytes = archive.read(prefix + "configs/marvel_m09_full_plan.json")
-        locked_bytes = archive.read(prefix + "configs/marvel_m08_locked_config.json")
+    # Stage-control inputs preserve the accepted workspace bytes.  Git source ZIP
+    # normalization may use LF while the accepted Windows evidence files use CRLF.
+    plan_bytes = (root / "configs/marvel_m09_full_plan.json").read_bytes()
+    locked_bytes = (root / "configs/marvel_m08_locked_config.json").read_bytes()
+    if sha256_file(root / "configs/marvel_m08_locked_config.json") != validated["locked_config_sha256"]:
+        raise ValueError("workspace M08 locked config changed during delivery build")
     bootstrap_path = output / BOOTSTRAP_NAME
     bootstrap_path.write_bytes(bootstrap_bytes)
     role_rows = []
@@ -510,6 +514,8 @@ def validate_m09_delivery(delivery_root: str | Path) -> dict[str, object]:
             raise ValueError(f"M09 plan identity mismatch: {role}")
         if locked_copy_hash != dataset["m09"]["locked_config"]["sha256"]:
             raise ValueError(f"M08 locked config copy hash mismatch: {role}")
+        if locked_copy_hash != plan_copy["m08_acceptance"]["locked_config_sha256"]:
+            raise ValueError(f"M08 accepted locked-config identity mismatch: {role}")
         plan_hashes.add(plan_copy["plan_hash"])
         locked_hashes.add(locked_copy_hash)
         role_validations.append({"role": role, "mode": dataset["mode"], "valid": True})
