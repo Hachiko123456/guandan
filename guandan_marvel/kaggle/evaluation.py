@@ -9,12 +9,13 @@ import multiprocessing
 from pathlib import Path
 import time
 import traceback
-from typing import Sequence
+from typing import Mapping, Sequence
 
 from guandan.cards import Rank
+from guandan.state import PreviousHandResult
 from guandan_marvel.evaluation.checkpoints import load_v2_policy
 from guandan_marvel.evaluation.host import play_game
-from guandan_marvel.evaluation.manifests import build_deals_manifest, deals_for
+from guandan_marvel.evaluation.manifests import build_deals_manifest, dataset_identity, deals_for
 
 from .common import append_jsonl, atomic_json
 
@@ -83,6 +84,42 @@ def write_empty_champion(output_root: str | Path, *, reason: str) -> Path:
     })
 
 
+
+
+def _previous_result_from_payload(value: Mapping[str, object] | None) -> PreviousHandResult | None:
+    if value is None:
+        return None
+    return PreviousHandResult(
+        tuple(int(item) for item in value["ranking"]),
+        int(value["winner_team"]),
+        str(value["outcome_class"]),
+        bool(value.get("tribute_cancelled", False)),
+    )
+
+
+def build_bounded_selection_manifest(
+    *,
+    base_deals: int,
+    seed_base: int,
+    level_ranks: Sequence[int] | None,
+    leader_seats: Sequence[int] | None,
+    previous_results: Sequence[Mapping[str, object] | None] | None,
+) -> dict[str, object]:
+    resolved_levels = tuple(int(value) for value in (
+        (int(Rank.TWO),) if level_ranks is None else level_ranks
+    ))
+    resolved_leaders = tuple(int(value) for value in ((0,) if leader_seats is None else leader_seats))
+    resolved_previous = tuple(
+        _previous_result_from_payload(value)
+        for value in ((None,) if previous_results is None else previous_results)
+    )
+    return build_deals_manifest(
+        counts={"training": 0, "selection": int(base_deals), "final": 0},
+        bases={"training": max(0, int(seed_base) - 10_000), "selection": int(seed_base), "final": int(seed_base) + 500_000_000},
+        level_ranks=resolved_levels, leader_seats=resolved_leaders, previous_results=resolved_previous,
+    )
+
+
 def run_smoke_evaluation(
     checkpoint: str | Path,
     *,
@@ -92,6 +129,9 @@ def run_smoke_evaluation(
     device: str,
     opponents: Sequence[str] = ("random", "rule"),
     seat_rotations: Sequence[int] = (0, 1, 2, 3),
+    level_ranks: Sequence[int] | None = None,
+    leader_seats: Sequence[int] | None = None,
+    previous_results: Sequence[Mapping[str, object] | None] | None = None,
 ) -> dict[str, object]:
     """Run bounded C++ evaluation in the current process.
 
@@ -101,10 +141,9 @@ def run_smoke_evaluation(
     """
     root = Path(output_root)
     artifact = load_v2_policy(checkpoint, device=device)
-    manifest = build_deals_manifest(
-        counts={"training": 0, "selection": int(base_deals), "final": 0},
-        bases={"training": seed_base - 10_000, "selection": seed_base, "final": seed_base + 10_000},
-        level_ranks=(int(Rank.TWO),), leader_seats=(0,), previous_results=(None,),
+    manifest = build_bounded_selection_manifest(
+        base_deals=base_deals, seed_base=seed_base, level_ranks=level_ranks,
+        leader_seats=leader_seats, previous_results=previous_results,
     )
     resolved_opponents = tuple(str(value) for value in opponents)
     resolved_rotations = tuple(int(value) for value in seat_rotations)
@@ -136,10 +175,13 @@ def run_smoke_evaluation(
     summary = {
         "schema": EVALUATION_SUMMARY_SCHEMA,
         "status": "complete" if len(complete) == len(records) else "incomplete",
-        "scope": "bounded M07 pipeline evaluation; not formal selection or final holdout",
+        "scope": "bounded Kaggle pipeline evaluation; not formal selection or final holdout",
         "candidate": artifact.identity,
         "base_deals": int(base_deals),
-        "level_ranks": [int(Rank.TWO)],
+        "selection_dataset_hash": dataset_identity(manifest, "selection"),
+        "selection_generator_version": manifest["generator_version"],
+        "selection_coverage": manifest["coverage"],
+        "level_ranks": list(manifest["coverage"]["level_ranks"]),
         "seat_rotations": list(resolved_rotations),
         "opponents": list(resolved_opponents),
         "games": len(records),
@@ -159,7 +201,7 @@ def run_smoke_evaluation(
         "generated_at": _timestamp(),
     }
     atomic_json(root / "evaluation_summary.json", summary)
-    write_empty_champion(root, reason="M07 bounded evaluation never promotes a champion")
+    write_empty_champion(root, reason="bounded Kaggle evaluation never promotes a champion")
     return summary
 
 
@@ -174,6 +216,9 @@ def _evaluation_process_main(request_path: str, result_path: str) -> None:
             device=str(request["device"]),
             opponents=tuple(request["opponents"]),
             seat_rotations=tuple(int(value) for value in request["seat_rotations"]),
+            level_ranks=tuple(int(value) for value in request["level_ranks"]),
+            leader_seats=tuple(int(value) for value in request["leader_seats"]),
+            previous_results=tuple(request["previous_results"]),
         )
         atomic_json(result_path, {
             "schema": EVALUATION_PROCESS_RESULT_SCHEMA,
@@ -202,6 +247,9 @@ def run_smoke_evaluation_isolated(
     device: str,
     opponents: Sequence[str] = ("random", "rule"),
     seat_rotations: Sequence[int] = (0, 1, 2, 3),
+    level_ranks: Sequence[int] | None = None,
+    leader_seats: Sequence[int] | None = None,
+    previous_results: Sequence[Mapping[str, object] | None] | None = None,
     timeout_seconds: float = 900.0,
 ) -> dict[str, object]:
     """Run real model loading/evaluation in a spawned process.
@@ -224,6 +272,9 @@ def run_smoke_evaluation_isolated(
         "device": str(device),
         "opponents": [str(value) for value in opponents],
         "seat_rotations": [int(value) for value in seat_rotations],
+        "level_ranks": [int(value) for value in ((int(Rank.TWO),) if level_ranks is None else level_ranks)],
+        "leader_seats": [int(value) for value in ((0,) if leader_seats is None else leader_seats)],
+        "previous_results": [None if value is None else dict(value) for value in ((None,) if previous_results is None else previous_results)],
     })
     process = multiprocessing.get_context("spawn").Process(
         target=_evaluation_process_main,
@@ -252,6 +303,6 @@ def run_smoke_evaluation_isolated(
 
 __all__ = [
     "CHAMPION_MANIFEST_SCHEMA", "EVALUATION_PROCESS_RESULT_SCHEMA", "EVALUATION_SUMMARY_SCHEMA",
-    "run_smoke_evaluation", "run_smoke_evaluation_isolated", "write_empty_champion",
+    "build_bounded_selection_manifest", "run_smoke_evaluation", "run_smoke_evaluation_isolated", "write_empty_champion",
     "write_empty_evaluation", "write_failed_evaluation",
 ]

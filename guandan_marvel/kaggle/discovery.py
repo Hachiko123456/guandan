@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from pathlib import Path
 
+from .budget import validate_completed_game_budget_contract
 from .bootstrap import (
     BOOTSTRAP_NAME, DATASET_MANIFEST_NAME, DATASET_MANIFEST_SCHEMA, DatasetInput,
     RECOVERY_MANIFEST_SCHEMA, RecoveryInput, SOURCE_MANIFEST_SCHEMA, SUPPORTED_MODES,
@@ -45,6 +46,16 @@ def validate_dataset_manifest(payload: Mapping[str, object], *, manifest_path: P
         for key in ("rollout_batch_size", "collect_batch_size"):
             if int(training.get(key, 0)) <= 0 or int(training[key]) % world_size:
                 raise ValueError(f"training.{key} must be positive and divisible by world_size={world_size}")
+        game_budget = profile.get("completed_game_budget")
+        if game_budget is not None:
+            if not isinstance(game_budget, Mapping):
+                raise ValueError("completed_game_budget must be an object")
+            validate_completed_game_budget_contract(
+                game_budget,
+                expected_algorithm=str(profile.get("algorithm", "")),
+                global_collect_batch_size=int(training["collect_batch_size"]),
+                target_iterations=int(training.get("target_iterations", 0)),
+            )
     if mode in {"single_gpu_control", "dual_gpu_control"}:
         benchmark = profile.get("benchmark")
         if not isinstance(benchmark, Mapping) or benchmark.get("schema") != "guandan-marvel-m08-benchmark-contract-v1":
@@ -64,15 +75,30 @@ def validate_dataset_manifest(payload: Mapping[str, object], *, manifest_path: P
             raise ValueError(f"{mode} must disable periodic evaluation")
     if mode == "resume":
         controls = profile.get("resume")
-        if not isinstance(controls, Mapping) or int(controls.get("additional_iterations", 0)) <= 0:
-            raise ValueError("resume profile requires positive resume.additional_iterations")
+        if not isinstance(controls, Mapping):
+            raise ValueError("resume profile requires a resume control object")
+        additional = int(controls.get("additional_iterations", 0) or 0)
+        target = int(controls.get("target_iterations", 0) or 0)
+        if (additional > 0) == (target > 0):
+            raise ValueError("resume must set exactly one of additional_iterations or target_iterations")
         forbidden = sorted(set(controls) - {
-            "additional_iterations", "checkpoint_interval", "evaluation_interval", "max_wall_seconds",
+            "additional_iterations", "target_iterations", "checkpoint_interval", "evaluation_interval",
+            "max_wall_seconds", "checkpoint_keep_last", "evaluation_keep_last",
         })
         if forbidden:
             raise ValueError(f"resume profile contains forbidden semantic overrides: {forbidden}")
         if "training" in profile or "algorithm" in profile:
             raise ValueError("resume profile must inherit algorithm/training semantics from recovery")
+        expected_algorithm = str(profile.get("expected_algorithm", ""))
+        if expected_algorithm and expected_algorithm not in {"ippo", "vrpo"}:
+            raise ValueError("resume expected_algorithm must be ippo or vrpo")
+        game_budget = profile.get("completed_game_budget")
+        if game_budget is not None:
+            if not isinstance(game_budget, Mapping) or not expected_algorithm or target <= 0:
+                raise ValueError("budgeted resume requires expected_algorithm and absolute target_iterations")
+            validate_completed_game_budget_contract(
+                game_budget, expected_algorithm=expected_algorithm, target_iterations=target,
+            )
     recovery = payload.get("recovery")
     if not isinstance(recovery, Mapping):
         raise ValueError("dataset manifest recovery object is required")

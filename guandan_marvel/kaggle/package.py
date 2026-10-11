@@ -31,6 +31,7 @@ DELIVERY_MANIFEST_NAME = "delivery_manifest.json"
 SOURCE_PREFIXES = ("guandan/", "guandan_marvel/", "nanopokerlib/")
 SOURCE_ROOT_FILES = frozenset({
     "setup.py", "pyproject.toml", "MANIFEST.in", "README.md", "configs/marvel_kaggle_profiles.json",
+    "configs/marvel_m08_locked_config.json", "configs/marvel_m09_full_plan.json",
 })
 BLOCKED_PARTS = frozenset({".git", "runs", "logs", "checkpoints", "wandb", "__pycache__", "build"})
 BLOCKED_SUFFIXES = frozenset({".pt", ".pth", ".pyd", ".so", ".dll", ".dylib", ".key", ".pem"})
@@ -115,6 +116,7 @@ def build_source_archive(
     *,
     commit: str | None = "HEAD",
     allow_dirty: bool = False,
+    package_id: str = PACKAGE_ID,
 ) -> dict[str, object]:
     root = Path(repository).resolve()
     destination = Path(destination).resolve()
@@ -133,7 +135,7 @@ def build_source_archive(
     ]
     body = {
         "schema": SOURCE_MANIFEST_SCHEMA,
-        "package_id": PACKAGE_ID,
+        "package_id": str(package_id),
         "git_commit": git_commit,
         "workspace_snapshot": workspace_snapshot,
         "source_root": "guandan-marvel-source",
@@ -490,6 +492,7 @@ def validate_source_archive(path: str | Path) -> dict[str, object]:
         "schema": "guandan-marvel-source-validation-v1",
         "archive": str(archive_path),
         "archive_sha256": sha256_file(archive_path),
+        "package_id": manifest["package_id"],
         "git_commit": manifest["git_commit"],
         "workspace_snapshot": manifest["workspace_snapshot"],
         "file_count": len(manifest["files"]),
@@ -547,6 +550,7 @@ def build_delivery(
         raise ValueError("unsupported Kaggle profiles schema")
     source_build = build_source_archive(
         repository, delivery_root / SOURCE_ARCHIVE_NAME, commit=commit, allow_dirty=allow_dirty,
+        package_id=PACKAGE_ID,
     )
     source_manifest = source_build["source_manifest"]
     atomic_json(delivery_root / SOURCE_MANIFEST_NAME, source_manifest)

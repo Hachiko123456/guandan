@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
+from typing import Mapping
 import shutil
 import subprocess
 import sys
@@ -112,6 +113,29 @@ def _rank0_checkpoint_from_recovery(recovery_root: Path) -> Path:
     payload = load_ddp_manifest(checkpoint_manifest, verify_shards=True)
     row = next(item for item in payload["rank_shards"] if int(item["rank"]) == 0)
     return checkpoint_manifest.parent / str(row["shard"])
+
+
+def _copy_stage_inputs(manifest_path: Path, manifest: Mapping[str, object], run_root: Path) -> str:
+    metadata = manifest.get("m09")
+    if not isinstance(metadata, Mapping):
+        shutil.copy2(manifest_path, run_root / "dataset_manifest.json")
+        return str(manifest.get("mode", "unknown"))
+    role = str(metadata.get("role", ""))
+    if not role or any(character not in "abcdefghijklmnopqrstuvwxyz0123456789_-" for character in role.lower()):
+        raise ValueError("M09 dataset role is missing or unsafe")
+    shutil.copy2(manifest_path, run_root / "dataset_manifest.json")
+    base = manifest_path.parent.resolve()
+    for key, destination_name in (("plan", "marvel_m09_full_plan.json"), ("locked_config", "marvel_m08_locked_config.json")):
+        item = metadata.get(key)
+        if not isinstance(item, Mapping):
+            raise ValueError(f"M09 dataset metadata is missing {key}")
+        source = (base / str(item.get("path", ""))).resolve()
+        if not source.is_relative_to(base) or not source.is_file():
+            raise ValueError(f"M09 {key} path is missing or escapes the Dataset")
+        if sha256_file(source) != str(item.get("sha256", "")):
+            raise ValueError(f"M09 {key} SHA-256 mismatch")
+        shutil.copy2(source, run_root / destination_name)
+    return role
 
 
 def _build_output_zip(run_root: Path, destination: Path) -> Path:
@@ -265,12 +289,19 @@ def main(argv: list[str] | None = None) -> int:
         raise RuntimeError("--local-cpu-test is allowed only for explicit local validation")
     mode = str(manifest["mode"])
     profile = json.loads(json.dumps(manifest["profiles"][mode]))
-    run_id = f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{mode}-{uuid.uuid4().hex[:8]}"
+    declared_role = str((manifest.get("m09") or {}).get("role", mode))
+    if not declared_role or any(
+        character not in "abcdefghijklmnopqrstuvwxyz0123456789_-"
+        for character in declared_role.lower()
+    ):
+        raise ValueError("dataset role is missing or unsafe")
+    run_id = f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{declared_role}-{uuid.uuid4().hex[:8]}"
     output_root = working_root / "guandan-marvel-output"
     run_root = output_root / "runs" / run_id
     run_root.mkdir(parents=True, exist_ok=False)
+    role = _copy_stage_inputs(dataset_path, manifest, run_root)
     console = Console(run_root / "console.log")
-    console.write(f"M07 mode={mode} run_id={run_id} kaggle={kaggle} local_cpu_test={args.local_cpu_test}")
+    console.write(f"Kaggle role={role} mode={mode} run_id={run_id} kaggle={kaggle} local_cpu_test={args.local_cpu_test}")
     os.environ["GUANDAN_MARVEL_SOURCE_ROOT"] = str(source_root)
     os.environ["GUANDAN_MARVEL_SOURCE_COMMIT"] = str(source["git_commit"])
     os.environ["GUANDAN_MARVEL_SOURCE_ARCHIVE_SHA256"] = str(source["archive_sha256"])
@@ -434,14 +465,14 @@ def main(argv: list[str] | None = None) -> int:
             console.write("BENCHMARK_RECOVERY_SKIPPED: benchmark contract disables recovery emission")
         atomic_json(run_root / "run_result.json", {
             "schema": "guandan-marvel-kaggle-run-result-v1",
-            "run_id": run_id, "mode": mode, "status": status, "exit_code": returncode,
+            "run_id": run_id, "role": role, "mode": mode, "status": status, "exit_code": returncode,
             "kaggle_runtime": kaggle, "local_cpu_test": args.local_cpu_test,
             "package_ready": True, "remote_verified": False,
             "finished_at": _timestamp(),
         })
         output_root.mkdir(parents=True, exist_ok=True)
         atomic_json(output_root / "latest_run.json", {
-            "schema": "guandan-marvel-latest-run-v1", "run_id": run_id,
+            "schema": "guandan-marvel-latest-run-v1", "run_id": run_id, "role": role,
             "path": run_root.relative_to(output_root).as_posix(), "status": status,
         })
         try:

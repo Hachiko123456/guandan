@@ -10,7 +10,8 @@ from guandan_marvel.config import (
 from guandan_marvel.training.checkpoints import NON_SEMANTIC_CONFIG_PATHS, ResumeDecision
 
 RESUME_CONTROL_FIELDS = frozenset({
-    "additional_iterations", "checkpoint_interval", "evaluation_interval", "max_wall_seconds",
+    "additional_iterations", "target_iterations", "checkpoint_interval", "evaluation_interval",
+    "max_wall_seconds", "checkpoint_keep_last", "evaluation_keep_last",
 })
 
 
@@ -73,6 +74,7 @@ def build_train_config(
     )
     config.ppo.agent_epoch = int(training.get("agent_epoch", 1))
     config.vrpo.aux_epoch = int(training.get("critic_aux_epoch", 1))
+    config.agent_merging_beta = float(training.get("agent_merging_beta", 0.0))
     config.optimizer.use_muon = bool(training.get("use_muon", False))
     config.compile.enabled = bool(training.get("compile_enabled", False))
     return config
@@ -94,15 +96,21 @@ def build_resume_train_config(
     unknown = sorted(set(controls) - RESUME_CONTROL_FIELDS)
     if unknown:
         raise ValueError(f"resume profile contains forbidden semantic overrides: {unknown}")
-    additional = int(controls.get("additional_iterations", 0))
-    if additional <= 0:
-        raise ValueError("resume.additional_iterations must be positive")
+    additional = int(controls.get("additional_iterations", 0) or 0)
+    target_iteration = int(controls.get("target_iterations", 0) or 0)
+    if (additional > 0) == (target_iteration > 0):
+        raise ValueError("resume must set exactly one of additional_iterations or target_iterations")
     cfg = deserialize_train_config(checkpoint_payload.get("resolved_config"))
     if cfg is None:
         raise ValueError("rank shard resolved_config cannot be decoded")
     algorithm = str(checkpoint_payload.get("algorithm", ""))
     if algorithm not in {"ippo", "vrpo"} or cfg.algo_name != algorithm:
         raise ValueError("rank shard algorithm/config identity mismatch")
+    expected_algorithm = str(profile.get("expected_algorithm", ""))
+    if expected_algorithm and algorithm != expected_algorithm:
+        raise ValueError(
+            f"recovery algorithm {algorithm!r} does not match expected_algorithm={expected_algorithm!r}"
+        )
     runtime_spec = GameSpec.from_game(game)
     if cfg.game.identifier != runtime_spec.identifier or cfg.game.protocol_version != runtime_spec.protocol_version:
         raise ValueError(
@@ -118,7 +126,7 @@ def build_resume_train_config(
     cfg.run_name = f"m07-resume-{algorithm}"
     cfg.logging_dir = str(Path(run_root) / "rank-runtime")
     cfg.resume_from = "validated-ddp-recovery"
-    cfg.total_iterations = checkpoint_iteration + additional
+    cfg.total_iterations = checkpoint_iteration + additional if additional > 0 else target_iteration
     if "checkpoint_interval" in controls:
         cfg.checkpoint_interval = int(controls["checkpoint_interval"])
     if "evaluation_interval" in controls:

@@ -1,0 +1,179 @@
+{
+  "algorithm_pilot": {
+    "algorithms": [
+      "ippo",
+      "vrpo"
+    ],
+    "budget_unit": "completed_games",
+    "checkpoint_replay_buffer": true,
+    "comparison_id": "m09-ippo-vrpo-equal-games-v1",
+    "completed_games_per_algorithm": 400,
+    "environment_rank_seed_stride": 1000003,
+    "expected_iterations": 100,
+    "global_collect_batch_size": 4,
+    "health_must_be_zero": [
+      "health/illegal_actions",
+      "health/truncated_games",
+      "health/nonfinite_losses",
+      "health/nonfinite_gradients",
+      "health/action_capacity_overflows",
+      "health/horizon_overflows"
+    ],
+    "max_sampler_bytes_per_rank": 4294967296,
+    "require_exact_budget_before_selection": true,
+    "training_data_generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+    "training_seed": 470700,
+    "wall_time_semantics": "safety_stop_only"
+  },
+  "claims": {
+    "final_holdout_run": false,
+    "formal_training_complete": false,
+    "m09_accepted": false,
+    "model_strength": false,
+    "remote_ready_after_local_validation": true,
+    "remote_verified": false
+  },
+  "date": "2026-10-11",
+  "delivery": {
+    "dataset_roles": [
+      "preflight",
+      "ippo_pilot",
+      "ippo_resume",
+      "vrpo_pilot",
+      "vrpo_resume"
+    ],
+    "default_recommended_role": "preflight",
+    "final_holdout_generated": false,
+    "fresh_roles": [
+      "ippo_pilot",
+      "vrpo_pilot"
+    ],
+    "main_full_blocker": "requires downloaded IPPO/VRPO remote logs, checkpoints, and a recorded selection decision",
+    "main_full_generated": false,
+    "resume_roles": [
+      "ippo_resume",
+      "vrpo_resume"
+    ]
+  },
+  "forbidden_reuse_package_ids": [
+    "guandan-marvel-t4x2-20261010",
+    "guandan-marvel-t4x2-20261010-r2"
+  ],
+  "m08_acceptance": {
+    "commit": "4ef1937d58fa50027908b0cd7b4d822ee19c1961",
+    "evidence_locked_config_path": "docs/marvel_migration/evidence/M08_remote_pilot/locked_config.json",
+    "evidence_locked_config_sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21",
+    "locked_config_path": "configs/marvel_m08_locked_config.json",
+    "locked_config_sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+  },
+  "package_id": "guandan-marvel-m09-algorithm-pilot-20261011",
+  "plan_hash": "923148386be4a8e2c102b913f26570b020b4e4cbfab14197d08a8f02cd5b93d9",
+  "schema": "guandan-marvel-m09-full-plan-v1",
+  "selection_dataset": {
+    "base_deals": 65,
+    "dataset_hash": "c8d11821a0a9cf8969c304fdbdfaa371c0addbc6883cf20e9617e526b6b5b583",
+    "final_holdout": false,
+    "formal_selection": false,
+    "leader_seats": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "level_ranks": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "opponents": [
+      "random",
+      "rule"
+    ],
+    "previous_results": [
+      null,
+      {
+        "outcome_class": "DOUBLE_DOWN",
+        "ranking": [
+          1,
+          3,
+          2,
+          4
+        ],
+        "tribute_cancelled": false,
+        "winner_team": 0
+      },
+      {
+        "outcome_class": "HEAD_THIRD",
+        "ranking": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "tribute_cancelled": false,
+        "winner_team": 0
+      },
+      {
+        "outcome_class": "HEAD_LAST",
+        "ranking": [
+          1,
+          2,
+          4,
+          3
+        ],
+        "tribute_cancelled": false,
+        "winner_team": 0
+      },
+      {
+        "outcome_class": "HEAD_THIRD",
+        "ranking": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "tribute_cancelled": true,
+        "winner_team": 0
+      }
+    ],
+    "seat_rotations": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "seed_base": 1000000000,
+    "timeout_seconds": 3600
+  },
+  "selection_gate": {
+    "decisive_rule": "select an algorithm only when its paired clustered 95% CI lower bound is above 0.5",
+    "forbid_final_holdout": true,
+    "forbid_training_loss_selection": true,
+    "forbid_wall_time_selection": true,
+    "inconclusive_rule": "compare paired rule-anchor results; if still inconclusive retain the M08 IPPO baseline and record VRPO as not proven better",
+    "preconditions": [
+      "both algorithms complete exactly 400 games",
+      "source/locked-config/comparison/selection identities match",
+      "all configured health counters are zero",
+      "both final frozen checkpoints load successfully"
+    ],
+    "primary_test": "paired four-seat head-to-head on the locked 65-cluster selection dataset"
+  },
+  "stage": "M09_full_training",
+  "training_distribution_review": {
+    "main_full_status": "blocked_pending_post-pilot distribution decision",
+    "pilot_scope": "controlled algorithm comparison reuses the identical M08 Rank.TWO/no-previous-hand training distribution",
+    "reason": "changing training deals before the controlled IPPO/VRPO comparison would confound the algorithm variable",
+    "required_before_main_full": "record whether and how level-rank/tribute coverage is introduced, then freeze a new semantic config"
+  }
+}

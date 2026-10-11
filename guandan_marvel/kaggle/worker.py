@@ -10,7 +10,11 @@ from pathlib import Path
 import time
 from typing import Mapping
 
+from guandan.cards import Rank
 from guandan_marvel.kaggle.bootstrap import validate_recovery_directory
+from guandan_marvel.kaggle.budget import (
+    observe_completed_game_budget, validate_completed_game_budget_contract,
+)
 from guandan_marvel.kaggle.checkpoints import (
     build_recovery_bundle,
     freeze_distributed_policy,
@@ -44,10 +48,8 @@ def _load_json(path: Path) -> dict[str, object]:
     return payload
 
 
-def _aggregate_metrics(context, local: Mapping[str, object]) -> dict[str, object] | None:
+def _aggregate_metrics(context, local: Mapping[str, object]) -> dict[str, object]:
     rows = context.all_gather_object(dict(local))
-    if not context.is_primary:
-        return None
     numeric_keys = sorted({key for row in rows for key, value in row.items() if isinstance(value, (int, float)) and not isinstance(value, bool)})
     sums = {
         "statistics/env_steps_total", "statistics/game_steps_total", "statistics/completed_games_total",
@@ -179,6 +181,45 @@ def _resolve_recovery_checkpoint(recovery_root: Path) -> tuple[Path, dict[str, o
     if payload.get("checkpoint_manifest_hash") != load_ddp_manifest(manifest, verify_shards=True).get("manifest_hash"):
         raise ValueError("recovery/DDP checkpoint manifest identity mismatch")
     return manifest.parent, payload
+
+
+def _completed_game_budget(
+    profile: Mapping[str, object],
+    *,
+    algorithm: str,
+    global_collect_batch_size: int,
+    target_iterations: int,
+) -> dict[str, object] | None:
+    value = profile.get("completed_game_budget")
+    if value is None:
+        return None
+    if not isinstance(value, Mapping):
+        raise ValueError("completed_game_budget must be an object")
+    return validate_completed_game_budget_contract(
+        value, expected_algorithm=algorithm,
+        global_collect_batch_size=global_collect_batch_size,
+        target_iterations=target_iterations,
+    )
+
+
+def _write_budget_observation(
+    run_root: Path,
+    observation: Mapping[str, object],
+    *,
+    status: str,
+    wall_time_stopped: bool = False,
+    error: str | None = None,
+) -> Path:
+    payload = {
+        **dict(observation),
+        "status": str(status),
+        "wall_time_stopped": bool(wall_time_stopped),
+        "error": error,
+        "updated_at": _timestamp(),
+        "remote_verified": False,
+        "strength_claim": False,
+    }
+    return atomic_json(run_root / "completed_game_budget.json", payload)
 
 
 def _primary_outcome(context, primary_event: Mapping[str, object] | None, *, stage: str) -> dict[str, object]:
@@ -336,6 +377,18 @@ def main(argv: list[str] | None = None) -> int:
         target_iterations = int(controls.get("target_iterations", cfg.total_iterations))
     if target_iterations <= trainer.iteration:
         raise ValueError("target iteration must be greater than restored/current iteration")
+    completed_game_budget = _completed_game_budget(
+        profile, algorithm=cfg.algo_name,
+        global_collect_batch_size=cfg.collect_batch_size,
+        target_iterations=target_iterations,
+    )
+    initial_global_completed = (
+        0 if restored_manifest is None
+        else int((restored_manifest.get("global_counters") or {}).get("completed_games_total", -1))
+    )
+    budget_observation = None if completed_game_budget is None else observe_completed_game_budget(
+        completed_game_budget, iteration=trainer.iteration, completed_games=initial_global_completed,
+    )
 
     heartbeat = LiveProgressHeartbeat(
         run_root=run_root, rank_root=rank_root, mode=mode, rank=rank,
@@ -362,6 +415,8 @@ def main(argv: list[str] | None = None) -> int:
         })
         write_empty_champion(run_root, reason="no evaluation has completed")
         write_empty_evaluation(run_root, reason="no evaluation has completed")
+        if budget_observation is not None:
+            _write_budget_observation(run_root, budget_observation, status="running")
     heartbeat.start()
     try:
         while trainer.iteration < target_iterations:
@@ -373,10 +428,18 @@ def main(argv: list[str] | None = None) -> int:
                 "timestamp": _timestamp(),
             })
             aggregated = _aggregate_metrics(context, local_metrics)
+            if completed_game_budget is not None:
+                budget_observation = observe_completed_game_budget(
+                    completed_game_budget,
+                    iteration=trainer.iteration,
+                    completed_games=int(aggregated["statistics/completed_games_total"]),
+                )
             if context.is_primary:
-                latest_metrics = dict(aggregated or {})
+                latest_metrics = dict(aggregated)
                 append_jsonl(run_root / "metrics.jsonl", latest_metrics)
-            heartbeat.update(iteration=trainer.iteration, metrics=latest_metrics if context.is_primary else local_metrics)
+                if budget_observation is not None:
+                    _write_budget_observation(run_root, budget_observation, status="running")
+            heartbeat.update(iteration=trainer.iteration, metrics=aggregated)
 
             rank_delays = faults.get("rank_boundary_delay_seconds", {})
             if isinstance(rank_delays, Mapping):
@@ -471,8 +534,17 @@ def main(argv: list[str] | None = None) -> int:
                                 device=str(trainer.device),
                                 opponents=tuple(evaluation_cfg.get("opponents", ("random", "rule"))),
                                 seat_rotations=tuple(evaluation_cfg.get("seat_rotations", (0, 1, 2, 3))),
+                                level_ranks=tuple(evaluation_cfg.get("level_ranks", (int(Rank.TWO),))),
+                                leader_seats=tuple(evaluation_cfg.get("leader_seats", (0,))),
+                                previous_results=tuple(evaluation_cfg.get("previous_results", (None,))),
                                 timeout_seconds=float(evaluation_cfg.get("timeout_seconds", 900)),
                             )
+                            expected_selection_hash = evaluation_cfg.get("expected_selection_dataset_hash")
+                            if (
+                                expected_selection_hash is not None
+                                and summary.get("selection_dataset_hash") != expected_selection_hash
+                            ):
+                                raise ValueError("evaluation selection dataset identity mismatch")
                             latest_evaluation = evaluation_checkpoint
                             update_checkpoint_index(
                                 run_root, checkpoint_dir=checkpoint_dir, ddp_manifest=ddp_manifest,
@@ -542,6 +614,17 @@ def main(argv: list[str] | None = None) -> int:
                 budget_stopped = True
                 break
         final_phase = "budget_stopped" if budget_stopped else "complete"
+        if completed_game_budget is not None:
+            if budget_observation is None:
+                raise RuntimeError("completed-game budget observation is missing")
+            if not budget_stopped and budget_observation.get("complete") is not True:
+                raise RuntimeError("training ended without completing the exact completed-game budget")
+            if context.is_primary:
+                _write_budget_observation(
+                    run_root, budget_observation,
+                    status="incomplete" if budget_stopped else "complete",
+                    wall_time_stopped=budget_stopped,
+                )
         session_elapsed_seconds = time.perf_counter() - heartbeat.started
         if context.is_primary and final_phase == "complete":
             _write_benchmark_summary(
@@ -562,6 +645,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     except BaseException as error:
         failure_text = f"{type(error).__name__}: {error}"
+        if context.is_primary and budget_observation is not None:
+            _write_budget_observation(
+                run_root, budget_observation, status="failed", error=failure_text,
+            )
         append_jsonl(diagnostic_path, {
             "schema": "guandan-marvel-rank-diagnostic-v1", "event": "failed", "rank": rank,
             "error": failure_text, "timestamp": _timestamp(),

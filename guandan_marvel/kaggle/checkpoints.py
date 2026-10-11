@@ -389,7 +389,7 @@ def prune_run_artifacts(
     checkpoint_keep_last: int,
     evaluation_keep_last: int,
 ) -> dict[str, object]:
-    """Bound checkpoint/evaluation disk usage after a new durable checkpoint is indexed."""
+    """Bound disk usage without deleting paths outside versioned artifact namespaces."""
     root = Path(output_root).resolve()
     checkpoint_keep_last = int(checkpoint_keep_last)
     evaluation_keep_last = int(evaluation_keep_last)
@@ -399,50 +399,97 @@ def prune_run_artifacts(
     if not index_path.is_file():
         raise FileNotFoundError("checkpoint manifest is required before retention pruning")
     payload = json.loads(index_path.read_text(encoding="utf-8"))
+    if payload.get("schema") != CHECKPOINT_MANIFEST_SCHEMA:
+        raise ValueError("checkpoint manifest schema mismatch before retention pruning")
     history = sorted(
         (dict(row) for row in payload.get("history", [])),
         key=lambda row: int(row["iteration"]),
     )
+    if not history:
+        raise ValueError("checkpoint retention requires non-empty durable history")
+
+    checkpoint_root = (root / "checkpoints").resolve()
+    evaluation_root = (root / "evaluation_checkpoints").resolve()
+    for row in history:
+        iteration = int(row["iteration"])
+        expected = f"checkpoints/iter{iteration:06d}"
+        if str(row.get("checkpoint")) != expected:
+            raise ValueError(f"unsafe checkpoint history path: {row.get('checkpoint')!r}")
+        candidate = (root / expected).resolve()
+        if not candidate.is_relative_to(checkpoint_root) or candidate.parent != checkpoint_root:
+            raise ValueError(f"checkpoint history path escapes retention root: {expected}")
+        if candidate.is_symlink() or not (candidate / "manifest.json").is_file():
+            raise ValueError(f"checkpoint history entry is missing or unsafe: {expected}")
+
     retained_history = history[-checkpoint_keep_last:]
     retained_checkpoint_paths = {str(row["checkpoint"]) for row in retained_history}
     latest = payload.get("latest")
-    if isinstance(latest, Mapping):
-        retained_checkpoint_paths.add(str(latest["checkpoint"]))
+    if not isinstance(latest, Mapping):
+        raise ValueError("checkpoint manifest latest entry is required")
+    latest_path = str(latest.get("checkpoint", ""))
+    if latest_path != str(history[-1]["checkpoint"]):
+        raise ValueError("checkpoint manifest latest entry does not match durable history tail")
+    retained_checkpoint_paths.add(latest_path)
 
-    deleted_checkpoints: list[str] = []
-    checkpoint_root = root / "checkpoints"
+    checkpoint_candidates: list[tuple[Path, str]] = []
     if checkpoint_root.is_dir():
         for candidate in sorted(checkpoint_root.iterdir()):
+            if candidate.is_symlink():
+                raise ValueError(f"checkpoint retention refuses symlink: {candidate}")
             if not candidate.is_dir():
-                continue
-            relative = candidate.relative_to(root).as_posix()
-            if relative not in retained_checkpoint_paths:
-                shutil.rmtree(candidate)
-                deleted_checkpoints.append(relative)
+                raise ValueError(f"unexpected file in checkpoint retention root: {candidate}")
+            if not candidate.name.startswith("iter") or len(candidate.name) != 10 or not candidate.name[4:].isdigit():
+                raise ValueError(f"unexpected checkpoint directory name: {candidate.name}")
+            resolved = candidate.resolve()
+            if resolved.parent != checkpoint_root:
+                raise ValueError(f"checkpoint candidate escapes retention root: {candidate}")
+            checkpoint_candidates.append((candidate, candidate.relative_to(root).as_posix()))
 
-    evaluation_root = root / "evaluation_checkpoints"
-    evaluation_files = sorted(
-        (path for path in evaluation_root.glob("iter*.pt") if path.is_file()),
-        key=lambda path: path.name,
-    ) if evaluation_root.is_dir() else []
+    evaluation_files: list[Path] = []
+    if evaluation_root.is_dir():
+        for candidate in sorted(evaluation_root.iterdir(), key=lambda path: path.name):
+            if candidate.is_symlink():
+                raise ValueError(f"evaluation retention refuses symlink: {candidate}")
+            if not candidate.is_file() or not candidate.name.startswith("iter") or not candidate.name.endswith(".pt"):
+                raise ValueError(f"unexpected evaluation artifact: {candidate}")
+            stem = candidate.stem
+            if len(stem) != 10 or not stem[4:].isdigit() or candidate.resolve().parent != evaluation_root:
+                raise ValueError(f"unsafe evaluation artifact: {candidate}")
+            evaluation_files.append(candidate)
     retained_evaluations = set(evaluation_files[-evaluation_keep_last:]) if evaluation_keep_last else set()
-    deleted_evaluations: list[str] = []
-    for candidate in evaluation_files:
-        if candidate not in retained_evaluations:
-            candidate.unlink()
-            deleted_evaluations.append(candidate.relative_to(root).as_posix())
 
+    planned_checkpoint_deletes = [
+        (candidate, relative) for candidate, relative in checkpoint_candidates
+        if relative not in retained_checkpoint_paths
+    ]
+    planned_evaluation_deletes = [candidate for candidate in evaluation_files if candidate not in retained_evaluations]
     payload["history"] = retained_history
     payload["retention"] = {
-        "schema": "guandan-marvel-artifact-retention-v1",
+        "schema": "guandan-marvel-artifact-retention-v2",
         "checkpoint_keep_last": checkpoint_keep_last,
         "evaluation_keep_last": evaluation_keep_last,
-        "deleted_checkpoints": deleted_checkpoints,
-        "deleted_evaluations": deleted_evaluations,
+        "deleted_checkpoints": [],
+        "deleted_evaluations": [],
         "retained_checkpoints": sorted(retained_checkpoint_paths),
         "retained_evaluations": sorted(path.relative_to(root).as_posix() for path in retained_evaluations),
         "updated_at": _timestamp(),
     }
+    # Publish the bounded index before deletion.  A deletion failure can leave harmless
+    # extra files, but can no longer leave the manifest pointing at removed history.
+    atomic_json(index_path, payload)
+
+    deleted_checkpoints: list[str] = []
+    for candidate, relative in planned_checkpoint_deletes:
+        shutil.rmtree(candidate)
+        deleted_checkpoints.append(relative)
+    deleted_evaluations: list[str] = []
+    for candidate in planned_evaluation_deletes:
+        candidate.unlink()
+        deleted_evaluations.append(candidate.relative_to(root).as_posix())
+
+    payload["retention"]["deleted_checkpoints"] = deleted_checkpoints
+    payload["retention"]["deleted_evaluations"] = deleted_evaluations
+    payload["retention"]["updated_at"] = _timestamp()
     atomic_json(index_path, payload)
     atomic_json(root / "artifact_retention.json", payload["retention"])
     return dict(payload["retention"])

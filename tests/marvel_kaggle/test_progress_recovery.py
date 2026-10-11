@@ -80,6 +80,47 @@ def test_checkpoint_retention_prunes_old_artifacts_and_updates_index(tmp_path):
     assert (root / "checkpoints/iter000003").exists()
     updated = json.loads((root / "checkpoint_manifest.json").read_text(encoding="utf-8"))
     assert [row["iteration"] for row in updated["history"]] == [3, 4]
+    assert updated["retention"]["schema"] == "guandan-marvel-artifact-retention-v2"
+
+
+def test_checkpoint_retention_refuses_unknown_paths(tmp_path):
+    root = tmp_path / "run"
+    checkpoint = root / "checkpoints/iter000001"
+    checkpoint.mkdir(parents=True)
+    (checkpoint / "manifest.json").write_text("{}", encoding="utf-8")
+    (root / "checkpoints/user-notes").mkdir()
+    atomic_json(root / "checkpoint_manifest.json", {
+        "schema": checkpoints.CHECKPOINT_MANIFEST_SCHEMA,
+        "latest": {"iteration": 1, "checkpoint": "checkpoints/iter000001"},
+        "history": [{"iteration": 1, "checkpoint": "checkpoints/iter000001"}],
+    })
+    with pytest.raises(ValueError, match="unexpected checkpoint directory"):
+        checkpoints.prune_run_artifacts(
+            root, checkpoint_keep_last=1, evaluation_keep_last=0,
+        )
+    assert (root / "checkpoints/user-notes").is_dir()
+
+
+def test_checkpoint_retention_publishes_safe_index_before_delete_failure(monkeypatch, tmp_path):
+    root = tmp_path / "run"
+    history = []
+    for iteration in range(1, 3):
+        checkpoint = root / "checkpoints" / f"iter{iteration:06d}"
+        checkpoint.mkdir(parents=True)
+        (checkpoint / "manifest.json").write_text("{}", encoding="utf-8")
+        history.append({"iteration": iteration, "checkpoint": checkpoint.relative_to(root).as_posix()})
+    atomic_json(root / "checkpoint_manifest.json", {
+        "schema": checkpoints.CHECKPOINT_MANIFEST_SCHEMA,
+        "latest": history[-1], "history": history,
+    })
+    monkeypatch.setattr(checkpoints.shutil, "rmtree", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("delete failed")))
+    with pytest.raises(OSError, match="delete failed"):
+        checkpoints.prune_run_artifacts(
+            root, checkpoint_keep_last=1, evaluation_keep_last=0,
+        )
+    updated = json.loads((root / "checkpoint_manifest.json").read_text(encoding="utf-8"))
+    assert [row["iteration"] for row in updated["history"]] == [2]
+    assert updated["latest"]["iteration"] == 2
 
 
 def test_recovery_bundle_replace_failure_preserves_previous_bundle(monkeypatch, tmp_path):
