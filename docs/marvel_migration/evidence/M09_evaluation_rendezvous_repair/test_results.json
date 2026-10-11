@@ -1,0 +1,55 @@
+{
+  "commands": [
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle -q",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 49
+      },
+      "exit_code": 0,
+      "junit": "runs\\M09_full_training\\evaluation_rendezvous_repair_20261011\\marvel_kaggle.junit.xml",
+      "junit_sha256": "aafc7d4355514839c1689a0b152d90e75e570a7f4e038b384b5440040d79b56f",
+      "log": "runs\\M09_full_training\\evaluation_rendezvous_repair_20261011\\marvel_kaggle.log",
+      "log_sha256": "aa28a65f97da46d5345c27761223fe398a74384c70d25c79de495addd0454659",
+      "name": "marvel_kaggle"
+    },
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_training tests/marvel_core/test_core.py tests/marvel_evaluation tests/acceptance/test_a00_specification.py -q",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 92
+      },
+      "exit_code": 0,
+      "junit": "runs\\M09_full_training\\evaluation_rendezvous_repair_20261011\\target_regression.junit.xml",
+      "junit_sha256": "71126679e9e1219f3d26ac6ee645f1736c540ddee7ff2234487896163c761a94",
+      "log": "runs\\M09_full_training\\evaluation_rendezvous_repair_20261011\\target_regression.log",
+      "log_sha256": "d4e1a8f2f04483f6489cf07f989dd6b1a0af7ad810c93052bf74b29937294457",
+      "name": "target_regression"
+    },
+    {
+      "command": "python scripts/build_m09_full_delivery.py --safety-check",
+      "exit_code": 0,
+      "log": "runs\\M09_full_training\\evaluation_rendezvous_repair_20261011\\safety_check.json",
+      "log_sha256": "a2cb7772f215166df3532e4ad6320e978b8df94f40c5d3e10f7ac0b5722edff6",
+      "name": "delivery_safety_check"
+    },
+    {
+      "command": "python scripts/build_m09_full_delivery.py --validate D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011-r2",
+      "exit_code": 0,
+      "log": "runs\\M09_full_training\\evaluation_rendezvous_repair_20261011\\delivery_validation.json",
+      "log_sha256": "dfd94290f7063b0fdd99ea7346f99b789aa7fba999c888c6909b027a25ac7856",
+      "name": "delivery_validation"
+    }
+  ],
+  "schema": "guandan-marvel-m09-evaluation-rendezvous-repair-test-results-v1",
+  "totals": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 141
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "delivery_manifest_sha256": "cbf9132f3374e9673f699aa8022ed006ccadcbcf14f021edc36258c8c27c6ffe",
+  "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011-r2",
+  "failed_log": {
+    "bytes": 367593,
+    "path": "runs/M09_full_training/remote/ippo_pilot_failed_20261011/kaggle-console.log",
+    "sha256": "11269638f074aff8cd0535be399605afa9b74f442d3fb2b1a52e910775c61188"
+  },
+  "large_artifacts_committed": false,
+  "old_recovery_received": false,
+  "schema": "guandan-marvel-m09-evaluation-rendezvous-repair-artifact-manifest-v1",
+  "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465"
+}

@@ -1,0 +1,27 @@
+{
+  "base_commit": "f788f3ecd63e1e663ba1d95c83afc92949fd7a7c",
+  "files": [
+    {
+      "bytes": 5627,
+      "path": "configs/marvel_m09_full_plan.json",
+      "sha256": "163fc07b4415bb39253c8639d2a02d0147c2a8993ffdcc9d32465afdc613031b"
+    },
+    {
+      "bytes": 36656,
+      "path": "guandan_marvel/kaggle/worker.py",
+      "sha256": "db0c6ff277d2d21603cf8dbc0792aa25362786c95933443c46ed452ae2fb2769"
+    },
+    {
+      "bytes": 5562,
+      "path": "tests/marvel_kaggle/test_m09_delivery.py",
+      "sha256": "a8c24b8ac9dac3855a7f905f30eab369a365b5322398d7be50b8dcffd3568196"
+    },
+    {
+      "bytes": 10497,
+      "path": "tests/marvel_kaggle/test_progress_recovery.py",
+      "sha256": "d97576a794dbfaa24d25c95980e1c9e0178c9306561b4d249ad4ae545488e34f"
+    }
+  ],
+  "schema": "guandan-marvel-m09-evaluation-rendezvous-repair-source-manifest-v1",
+  "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f"
+}

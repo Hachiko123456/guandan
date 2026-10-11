@@ -1,0 +1,15 @@
+{
+  "change": "rank 0 atomically publishes evaluation_rendezvous_iterNNNNNN.json; non-primary ranks poll shared filesystem with evaluation timeout + 120 seconds; no NCCL collective remains pending during evaluation",
+  "final_barrier_after_rendezvous": true,
+  "malformed_schema_rejected": true,
+  "old_package_forbidden": true,
+  "package_id": "guandan-marvel-m09-algorithm-pilot-20261011-r2",
+  "plan_hash": "5ca94bd3d930b86f99e5bdc329e0405fbaa0023ef64ff47cd5564b457b84f8f7",
+  "rank0_failure_propagated": true,
+  "remote_verified": false,
+  "rendezvous_schema": "guandan-marvel-ddp-evaluation-rendezvous-v1",
+  "schema": "guandan-marvel-m09-evaluation-rendezvous-repair-v1",
+  "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+  "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+  "stale_iteration_rejected": true
+}
