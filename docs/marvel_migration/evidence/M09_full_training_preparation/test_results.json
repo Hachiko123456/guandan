@@ -1,0 +1,77 @@
+{
+  "commands": [
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle -q",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 47
+      },
+      "exit_code": 0,
+      "junit": "runs\\M09_full_training\\local_preparation_20261011\\marvel_kaggle.junit.xml",
+      "junit_sha256": "bc3c712eb91021b63cbae43a7b4db9a4a1b4a2fc0ec82ee3f136b4c862cd072d",
+      "log": "runs\\M09_full_training\\local_preparation_20261011\\marvel_kaggle.log",
+      "log_sha256": "76525a21f635b42bb55c5d0c3ab5ba3b386d69ff579edaf3964f1e8ef5efb0e8",
+      "name": "marvel_kaggle"
+    },
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_training tests/marvel_core/test_core.py tests/marvel_evaluation tests/acceptance/test_a00_specification.py -q",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 92
+      },
+      "exit_code": 0,
+      "junit": "runs\\M09_full_training\\local_preparation_20261011\\target_regression.junit.xml",
+      "junit_sha256": "5c42ccfb920dd52e773c5d78fac4472df4a8b3f243d3ca21fbfe4e3dd5d88846",
+      "log": "runs\\M09_full_training\\local_preparation_20261011\\target_regression.log",
+      "log_sha256": "5038744f40fe4071a0544ee424401ed72ddb9925d1cd41c588102fa917e43f56",
+      "name": "target_regression"
+    },
+    {
+      "command": "python scripts/build_m09_full_delivery.py --safety-check",
+      "exit_code": 0,
+      "log": "runs\\M09_full_training\\local_preparation_20261011\\safety_check_final.json",
+      "log_sha256": "7cd2acb93a1861bee7ba294a916a7faf5063f40489a5489e98805cbd0925813c",
+      "name": "m09_safety_check"
+    },
+    {
+      "command": "python scripts/build_m09_full_delivery.py --output D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011 --commit HEAD",
+      "exit_code": 0,
+      "log": "runs\\M09_full_training\\local_preparation_20261011\\delivery_build_final.json",
+      "log_sha256": "edf379bbc49273af19c9d215826f941ee32992a2b9b1a8ae4b585eb9c74f1788",
+      "name": "m09_delivery_build"
+    },
+    {
+      "command": "python scripts/build_m09_full_delivery.py --validate D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011",
+      "exit_code": 0,
+      "log": "runs\\M09_full_training\\local_preparation_20261011\\delivery_validation_final.json",
+      "log_sha256": "19dfa31834c88b27688274b2da397f370c039b15a4de2aa1e1f127843b012732",
+      "name": "m09_delivery_validate"
+    },
+    {
+      "artifact": "runs\\M09_full_training\\local_budget_smoke_20261011\\run\\completed_game_budget.json",
+      "artifact_sha256": "8b7ccb88cb0412e187fdaf57ef61dd6fefa79fa666e1e20f8cf9c22ad12eff30",
+      "command": "python -m guandan_marvel.kaggle.worker ... --local-cpu-test",
+      "exit_code": 0,
+      "name": "local_budget_smoke"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "log": "runs\\M09_full_training\\local_preparation_20261011\\git_diff_check.log",
+      "log_sha256": "24ee2eab0e1d73f2c69ff98b795e1fb4f8a571743952a733e82b4ff6fa6b48f2",
+      "name": "git_diff_check"
+    }
+  ],
+  "git_diff_check_pending_final_docs": false,
+  "schema": "guandan-marvel-m09-preparation-test-results-v1",
+  "totals": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 139
+  }
+}

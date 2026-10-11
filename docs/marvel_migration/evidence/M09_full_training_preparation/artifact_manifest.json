@@ -1,0 +1,25 @@
+{
+  "delivery_manifest_sha256": "ae878e21a12c015a5ece8d44c5aa7c1994fce8d6dcdd014bcfec75b314837636",
+  "delivery_source_archive_sha256": "ca538e941f8cf671241b982a8ffae83271a04c2ab3503201f3c8b6b67644bec2",
+  "external_delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011",
+  "external_files": [
+    {
+      "bytes": 10943,
+      "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011\\delivery_manifest.json",
+      "sha256": "ae878e21a12c015a5ece8d44c5aa7c1994fce8d6dcdd014bcfec75b314837636"
+    },
+    {
+      "bytes": 14756,
+      "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011\\guandan_marvel_t4x2.ipynb",
+      "sha256": "e57da198869301040fe38787a915686574f728053a75696bea6c8cd86162851a"
+    },
+    {
+      "bytes": 1844,
+      "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011\\README_中文.md",
+      "sha256": "193a0e614a5151c49bef91802f048a57b4a54fbcc5cd7a4cecf4c590aa95a8a9"
+    }
+  ],
+  "large_artifacts_committed": false,
+  "remote_outputs_present": false,
+  "schema": "guandan-marvel-m09-preparation-artifact-manifest-v1"
+}

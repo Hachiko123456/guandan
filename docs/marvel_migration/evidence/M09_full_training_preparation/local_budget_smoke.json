@@ -1,0 +1,43 @@
+{
+  "algorithm": "ippo",
+  "budget": {
+    "algorithm": "ippo",
+    "comparison_id": "m09-local-budget-smoke",
+    "complete": true,
+    "completed_games": 1,
+    "contract_hash": "7417df5260cb0c3c8064fb56fd66a8b6fe04cc9a841adcfa809e1a2de3e6307c",
+    "error": null,
+    "iteration": 1,
+    "remaining_completed_games": 0,
+    "remote_verified": false,
+    "schema": "guandan-marvel-completed-game-budget-observation-v1",
+    "status": "complete",
+    "strength_claim": false,
+    "target_completed_games": 1,
+    "target_iterations": 1,
+    "updated_at": "2026-10-11T05:27:14.212081+00:00",
+    "wall_time_stopped": false
+  },
+  "checkpoint_directories": [
+    "iter000001"
+  ],
+  "command": "python -m guandan_marvel.kaggle.worker --profile runs/M09_full_training/local_budget_smoke_20261011/profile.json --run-root runs/M09_full_training/local_budget_smoke_20261011/run ... --local-cpu-test",
+  "device_semantics": "explicit local CPU validation; not Kaggle evidence",
+  "exit_code": 0,
+  "remote_verified": false,
+  "retention": {
+    "checkpoint_keep_last": 1,
+    "deleted_checkpoints": [],
+    "deleted_evaluations": [],
+    "evaluation_keep_last": 0,
+    "retained_checkpoints": [
+      "checkpoints/iter000001"
+    ],
+    "retained_evaluations": [],
+    "schema": "guandan-marvel-artifact-retention-v2",
+    "updated_at": "2026-10-11T05:27:13.590759+00:00"
+  },
+  "schema": "guandan-marvel-m09-local-budget-smoke-v1",
+  "strength_claim": false,
+  "world_size": 1
+}

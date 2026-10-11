@@ -1,0 +1,35 @@
+{
+  "algorithms": [
+    "ippo",
+    "vrpo"
+  ],
+  "budget_unit": "completed_games",
+  "comparison_id": "m09-ippo-vrpo-equal-games-v1",
+  "completed_games_per_algorithm": 400,
+  "expected_iterations": 100,
+  "final_holdout": false,
+  "formal_selection": false,
+  "global_collect_batch_size": 4,
+  "remote_verified": false,
+  "same_training_distribution": "controlled algorithm comparison reuses the identical M08 Rank.TWO/no-previous-hand training distribution",
+  "same_training_seed": 470700,
+  "schema": "guandan-marvel-m09-algorithm-budget-plan-v1",
+  "selection_base_deals": 65,
+  "selection_dataset_hash": "c8d11821a0a9cf8969c304fdbdfaa371c0addbc6883cf20e9617e526b6b5b583",
+  "selection_gate": {
+    "decisive_rule": "select an algorithm only when its paired clustered 95% CI lower bound is above 0.5",
+    "forbid_final_holdout": true,
+    "forbid_training_loss_selection": true,
+    "forbid_wall_time_selection": true,
+    "inconclusive_rule": "compare paired rule-anchor results; if still inconclusive retain the M08 IPPO baseline and record VRPO as not proven better",
+    "preconditions": [
+      "both algorithms complete exactly 400 games",
+      "source/locked-config/comparison/selection identities match",
+      "all configured health counters are zero",
+      "both final frozen checkpoints load successfully"
+    ],
+    "primary_test": "paired four-seat head-to-head on the locked 65-cluster selection dataset"
+  },
+  "shared_workload_hash": "6f9bd5c6d9d45fa2adab118be0c043181ab77d68e2d6c21572ec00062a3225ff",
+  "wall_time_semantics": "safety_stop_only"
+}

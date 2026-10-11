@@ -1,0 +1,50 @@
+{
+  "datasets": [
+    {
+      "mode": "preflight",
+      "role": "preflight",
+      "valid": true
+    },
+    {
+      "mode": "full",
+      "role": "ippo_pilot",
+      "valid": true
+    },
+    {
+      "mode": "resume",
+      "role": "ippo_resume",
+      "valid": true
+    },
+    {
+      "mode": "full",
+      "role": "vrpo_pilot",
+      "valid": true
+    },
+    {
+      "mode": "resume",
+      "role": "vrpo_resume",
+      "valid": true
+    }
+  ],
+  "delivery_manifest_verified": true,
+  "final_holdout_generated": false,
+  "locked_config_sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21",
+  "m09_accepted": false,
+  "main_full_generated": false,
+  "notebook": {
+    "code_cells": 3,
+    "path": "guandan_marvel_t4x2.ipynb",
+    "placeholders_absent": true,
+    "schema": "guandan-marvel-notebook-validation-v1",
+    "syntax_valid": true,
+    "valid": true
+  },
+  "old_full_dataset_reused": false,
+  "package_id": "guandan-marvel-m09-algorithm-pilot-20261011",
+  "plan_hash": "923148386be4a8e2c102b913f26570b020b4e4cbfab14197d08a8f02cd5b93d9",
+  "remote_verified": false,
+  "schema": "guandan-marvel-m09-delivery-validation-v1",
+  "source_archive_sha256": "ca538e941f8cf671241b982a8ffae83271a04c2ab3503201f3c8b6b67644bec2",
+  "source_commit": "18507bdaa8dd86b25817060d64852a7531cbd8e9",
+  "valid": true
+}

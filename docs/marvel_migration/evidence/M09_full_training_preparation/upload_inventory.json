@@ -1,0 +1,204 @@
+{
+  "conditional_resume_roles": [
+    "ippo_resume",
+    "vrpo_resume"
+  ],
+  "datasets": [
+    {
+      "directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011\\datasets\\preflight",
+      "files": [
+        {
+          "bytes": 670313,
+          "name": "guandan-marvel-source.zip",
+          "sha256": "ca538e941f8cf671241b982a8ffae83271a04c2ab3503201f3c8b6b67644bec2"
+        },
+        {
+          "bytes": 24328,
+          "name": "guandan_marvel_bootstrap.py",
+          "sha256": "c48e2784413d542e4357b9fdfd44622dc028d6be912af8eeb2650eaed76f26ad"
+        },
+        {
+          "bytes": 1959,
+          "name": "guandan_marvel_dataset.json",
+          "sha256": "e541693d33e3843856d0ce541f636da5f1f18caad42d66a3958b81228ad35909"
+        },
+        {
+          "bytes": 2926,
+          "name": "marvel_m08_locked_config.json",
+          "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+        },
+        {
+          "bytes": 5305,
+          "name": "marvel_m09_full_plan.json",
+          "sha256": "6aa66c78d455ee51cf7f705c3f16b94ec2e80627d6e536c175803131790ee285"
+        },
+        {
+          "bytes": 37037,
+          "name": "source_manifest.json",
+          "sha256": "9d2098a83a3dc388d8146239a442fb810789e8e72f64eeac5088fd3980779083"
+        }
+      ],
+      "role": "preflight"
+    },
+    {
+      "directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011\\datasets\\ippo_pilot",
+      "files": [
+        {
+          "bytes": 670313,
+          "name": "guandan-marvel-source.zip",
+          "sha256": "ca538e941f8cf671241b982a8ffae83271a04c2ab3503201f3c8b6b67644bec2"
+        },
+        {
+          "bytes": 24328,
+          "name": "guandan_marvel_bootstrap.py",
+          "sha256": "c48e2784413d542e4357b9fdfd44622dc028d6be912af8eeb2650eaed76f26ad"
+        },
+        {
+          "bytes": 6017,
+          "name": "guandan_marvel_dataset.json",
+          "sha256": "17bc1244487b04917d036d5a5ddbd8dada92f3618d194bf0eb64383e762a8a1d"
+        },
+        {
+          "bytes": 2926,
+          "name": "marvel_m08_locked_config.json",
+          "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+        },
+        {
+          "bytes": 5305,
+          "name": "marvel_m09_full_plan.json",
+          "sha256": "6aa66c78d455ee51cf7f705c3f16b94ec2e80627d6e536c175803131790ee285"
+        },
+        {
+          "bytes": 37037,
+          "name": "source_manifest.json",
+          "sha256": "9d2098a83a3dc388d8146239a442fb810789e8e72f64eeac5088fd3980779083"
+        }
+      ],
+      "role": "ippo_pilot"
+    },
+    {
+      "directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011\\datasets\\ippo_resume",
+      "files": [
+        {
+          "bytes": 670313,
+          "name": "guandan-marvel-source.zip",
+          "sha256": "ca538e941f8cf671241b982a8ffae83271a04c2ab3503201f3c8b6b67644bec2"
+        },
+        {
+          "bytes": 24328,
+          "name": "guandan_marvel_bootstrap.py",
+          "sha256": "c48e2784413d542e4357b9fdfd44622dc028d6be912af8eeb2650eaed76f26ad"
+        },
+        {
+          "bytes": 5185,
+          "name": "guandan_marvel_dataset.json",
+          "sha256": "173da6f4e905f51a4ab84ac01686901dff73f38e479206dd042bb2906fa316ff"
+        },
+        {
+          "bytes": 2926,
+          "name": "marvel_m08_locked_config.json",
+          "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+        },
+        {
+          "bytes": 5305,
+          "name": "marvel_m09_full_plan.json",
+          "sha256": "6aa66c78d455ee51cf7f705c3f16b94ec2e80627d6e536c175803131790ee285"
+        },
+        {
+          "bytes": 37037,
+          "name": "source_manifest.json",
+          "sha256": "9d2098a83a3dc388d8146239a442fb810789e8e72f64eeac5088fd3980779083"
+        }
+      ],
+      "role": "ippo_resume"
+    },
+    {
+      "directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011\\datasets\\vrpo_pilot",
+      "files": [
+        {
+          "bytes": 670313,
+          "name": "guandan-marvel-source.zip",
+          "sha256": "ca538e941f8cf671241b982a8ffae83271a04c2ab3503201f3c8b6b67644bec2"
+        },
+        {
+          "bytes": 24328,
+          "name": "guandan_marvel_bootstrap.py",
+          "sha256": "c48e2784413d542e4357b9fdfd44622dc028d6be912af8eeb2650eaed76f26ad"
+        },
+        {
+          "bytes": 6017,
+          "name": "guandan_marvel_dataset.json",
+          "sha256": "8f17811ce05ea17e5fce0b1c37b494408558db4f789cfc278897ac11f9774212"
+        },
+        {
+          "bytes": 2926,
+          "name": "marvel_m08_locked_config.json",
+          "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+        },
+        {
+          "bytes": 5305,
+          "name": "marvel_m09_full_plan.json",
+          "sha256": "6aa66c78d455ee51cf7f705c3f16b94ec2e80627d6e536c175803131790ee285"
+        },
+        {
+          "bytes": 37037,
+          "name": "source_manifest.json",
+          "sha256": "9d2098a83a3dc388d8146239a442fb810789e8e72f64eeac5088fd3980779083"
+        }
+      ],
+      "role": "vrpo_pilot"
+    },
+    {
+      "directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011\\datasets\\vrpo_resume",
+      "files": [
+        {
+          "bytes": 670313,
+          "name": "guandan-marvel-source.zip",
+          "sha256": "ca538e941f8cf671241b982a8ffae83271a04c2ab3503201f3c8b6b67644bec2"
+        },
+        {
+          "bytes": 24328,
+          "name": "guandan_marvel_bootstrap.py",
+          "sha256": "c48e2784413d542e4357b9fdfd44622dc028d6be912af8eeb2650eaed76f26ad"
+        },
+        {
+          "bytes": 5185,
+          "name": "guandan_marvel_dataset.json",
+          "sha256": "23f3877908b9c67612be85972e6853f995f4c350c2c66934d75bdca55903fb73"
+        },
+        {
+          "bytes": 2926,
+          "name": "marvel_m08_locked_config.json",
+          "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+        },
+        {
+          "bytes": 5305,
+          "name": "marvel_m09_full_plan.json",
+          "sha256": "6aa66c78d455ee51cf7f705c3f16b94ec2e80627d6e536c175803131790ee285"
+        },
+        {
+          "bytes": 37037,
+          "name": "source_manifest.json",
+          "sha256": "9d2098a83a3dc388d8146239a442fb810789e8e72f64eeac5088fd3980779083"
+        }
+      ],
+      "role": "vrpo_resume"
+    }
+  ],
+  "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011",
+  "initial_upload_roles": [
+    "preflight",
+    "ippo_pilot",
+    "vrpo_pilot"
+  ],
+  "instructions": "Create one private Kaggle Dataset per role; upload all six files from that role directory without renaming. Add exactly one role Dataset to a Notebook; resume also adds the matching recovery Dataset.",
+  "notebook": {
+    "bytes": 14756,
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011\\guandan_marvel_t4x2.ipynb",
+    "sha256": "e57da198869301040fe38787a915686574f728053a75696bea6c8cd86162851a"
+  },
+  "old_full_dataset_reused": false,
+  "package_id": "guandan-marvel-m09-algorithm-pilot-20261011",
+  "schema": "guandan-marvel-m09-upload-inventory-v1",
+  "source_commit": "18507bdaa8dd86b25817060d64852a7531cbd8e9"
+}

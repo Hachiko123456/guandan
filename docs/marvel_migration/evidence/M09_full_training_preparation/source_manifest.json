@@ -1,0 +1,72 @@
+{
+  "base_commit": "4ef1937d58fa50027908b0cd7b4d822ee19c1961",
+  "files": [
+    {
+      "bytes": 5305,
+      "path": "configs/marvel_m09_full_plan.json",
+      "sha256": "6aa66c78d455ee51cf7f705c3f16b94ec2e80627d6e536c175803131790ee285"
+    },
+    {
+      "bytes": 6039,
+      "path": "guandan_marvel/kaggle/budget.py",
+      "sha256": "11bd3990964959e40e0e5ab43ae250b7f6be79b07a97bb15e7ec081524fc33da"
+    },
+    {
+      "bytes": 27643,
+      "path": "guandan_marvel/kaggle/checkpoints.py",
+      "sha256": "d05fa1d7ef16c7f4ec813e6f452e31906d80b264b44bc3444f68e25548a7c764"
+    },
+    {
+      "bytes": 7089,
+      "path": "guandan_marvel/kaggle/discovery.py",
+      "sha256": "c1a56ba3ef7a6d4ef61cde78870ca21cc50e2876570b2c0b0f7886b785ada822"
+    },
+    {
+      "bytes": 12767,
+      "path": "guandan_marvel/kaggle/evaluation.py",
+      "sha256": "e335458f8fb749d83dd4e6bb36bf7c97c828975e3ffb08daa0a970f74ff351db"
+    },
+    {
+      "bytes": 30400,
+      "path": "guandan_marvel/kaggle/m09_delivery.py",
+      "sha256": "b3f8e4f163c1b000f084559ac91965c4d1fabdd4d3f1fdc9f516633245fde94a"
+    },
+    {
+      "bytes": 35171,
+      "path": "guandan_marvel/kaggle/package.py",
+      "sha256": "5520b3f1e1377da188c8f107029aacb1de23f004fc56e948c386c42fc6480c79"
+    },
+    {
+      "bytes": 7328,
+      "path": "guandan_marvel/kaggle/profiles.py",
+      "sha256": "7285f6ae17b367499dd4ebec55ddf48cbf6f375448fdd0afc71c28807000b93f"
+    },
+    {
+      "bytes": 23950,
+      "path": "guandan_marvel/kaggle/runner.py",
+      "sha256": "e385a22fd911db8f8a75afd9d7819d1a36dbfea90a2abe34d36123b766f8f599"
+    },
+    {
+      "bytes": 34110,
+      "path": "guandan_marvel/kaggle/worker.py",
+      "sha256": "28306e5574e4a455d2b4597fac12603f6a0a9da232253675edad75fd854a5968"
+    },
+    {
+      "bytes": 1606,
+      "path": "scripts/build_m09_full_delivery.py",
+      "sha256": "3379984444ec4e830ea8ee5b11c7a347e3c5daceace1acb46fadbe3371916021"
+    },
+    {
+      "bytes": 5501,
+      "path": "tests/marvel_kaggle/test_m09_delivery.py",
+      "sha256": "fe63b23ee33d89f3ab059d09b239edc59944254f79c643e20760bf7c49c8bb23"
+    },
+    {
+      "bytes": 9112,
+      "path": "tests/marvel_kaggle/test_progress_recovery.py",
+      "sha256": "e5ff1744672298ede7a8319500e0ba107b50f8d57064d84da13b1d0aaa2fff38"
+    }
+  ],
+  "schema": "guandan-marvel-m09-preparation-source-manifest-v1",
+  "source_commit": "18507bdaa8dd86b25817060d64852a7531cbd8e9"
+}

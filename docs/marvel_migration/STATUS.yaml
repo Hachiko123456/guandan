@@ -335,7 +335,7 @@ stages:
   M08_remote_pilot:
     status: accepted
     accepted: true
-    commit: self
+    commit: 4ef1937d58fa50027908b0cd7b4d822ee19c1961
     reports:
       - docs/marvel_migration/reports/M08_remote_bootstrap_observability_repair.md
       - docs/marvel_migration/reports/M08_performance_controls.md
@@ -357,11 +357,36 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: ready
+    status: awaiting_remote_algorithm_pilots
     accepted: false
     commit: null
-    reports: []
-    blockers: []
+    preparation_commits:
+      - 535780d981fc5b391fcfabe402ce485ba17b3b3b
+      - 18507bdaa8dd86b25817060d64852a7531cbd8e9
+    reports:
+      - docs/marvel_migration/reports/M09_full_training_preparation.md
+    evidence:
+      - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
+      - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
+      - docs/marvel_migration/evidence/M09_full_training_preparation/algorithm_budget_plan.json
+      - docs/marvel_migration/evidence/M09_full_training_preparation/checkpoint_retention.json
+      - docs/marvel_migration/evidence/M09_full_training_preparation/local_budget_smoke.json
+      - docs/marvel_migration/evidence/M09_full_training_preparation/test_results.json
+      - docs/marvel_migration/evidence/M09_full_training_preparation/upload_inventory.json
+      - docs/marvel_migration/evidence/M09_full_training_preparation/source_manifest.json
+      - docs/marvel_migration/evidence/M09_full_training_preparation/artifact_manifest.json
+      - docs/marvel_migration/evidence/M09_full_training_preparation/environment.json
+      - docs/marvel_migration/evidence/M09_full_training_preparation/verification.json
+    delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011
+    delivery_source_commit: 18507bdaa8dd86b25817060d64852a7531cbd8e9
+    package_id: guandan-marvel-m09-algorithm-pilot-20261011
+    note: local safety/retention/equal-completed-game preparation passed; main full training and final holdout are intentionally not generated before remote algorithm selection
+    blockers:
+      - real Kaggle T4x2 preflight log from the fresh M09 package is required
+      - IPPO and VRPO must each complete exactly 400 completed games and return console/output/recovery artifacts
+      - main algorithm selection decision has not been recorded
+      - main long-training deal distribution and Dataset are not frozen
+      - champion history, formal selection, long training, final candidate and one-shot final holdout are incomplete
 
   M10_belief_search:
     status: blocked

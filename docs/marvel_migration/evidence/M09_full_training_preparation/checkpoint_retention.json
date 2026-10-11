@@ -1,0 +1,27 @@
+{
+  "checkpoint_interval": 25,
+  "evaluation_interval": 100,
+  "implementation_schema": "guandan-marvel-artifact-retention-v2",
+  "local_smoke_retention": {
+    "checkpoint_keep_last": 1,
+    "deleted_checkpoints": [],
+    "deleted_evaluations": [],
+    "evaluation_keep_last": 0,
+    "retained_checkpoints": [
+      "checkpoints/iter000001"
+    ],
+    "retained_evaluations": [],
+    "schema": "guandan-marvel-artifact-retention-v2",
+    "updated_at": "2026-10-11T05:27:13.590759+00:00"
+  },
+  "manifest_published_before_delete": true,
+  "output_zip_excludes_nested_recovery": true,
+  "output_zip_excludes_training_shards": true,
+  "profile_checkpoint_keep_last": 2,
+  "profile_evaluation_keep_last": 2,
+  "remote_verified": false,
+  "safe_namespace_validation": true,
+  "schema": "guandan-marvel-m09-checkpoint-retention-verification-v1",
+  "symlink_rejection": true,
+  "unknown_path_rejection": true
+}

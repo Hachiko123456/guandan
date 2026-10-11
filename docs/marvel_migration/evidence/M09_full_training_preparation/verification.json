@@ -1,0 +1,31 @@
+{
+  "accepted": false,
+  "date": "2026-10-11",
+  "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011",
+  "formal_training_complete": false,
+  "hard_gates": {
+    "algorithm_selected": false,
+    "checkpoint_retention_bounded": true,
+    "final_holdout_absent": true,
+    "final_holdout_complete": false,
+    "fresh_package_id": true,
+    "ippo_vrpo_equal_completed_game_budget": true,
+    "local_delivery_validation": true,
+    "m08_commit_verified": true,
+    "m08_locked_config_verified": true,
+    "main_long_training_complete": false,
+    "old_full_dataset_reused": false,
+    "remote_kaggle_logs_received": false,
+    "resume_algorithm_bound": true,
+    "shared_selection_dataset": true,
+    "shared_training_seed_and_distribution": true
+  },
+  "m09_accepted": false,
+  "model_strength": false,
+  "next_action": "user uploads/runs preflight, IPPO pilot, and VRPO pilot and returns console/output/recovery artifacts",
+  "package_id": "guandan-marvel-m09-algorithm-pilot-20261011",
+  "remote_verified": false,
+  "schema": "guandan-marvel-m09-preparation-verification-v1",
+  "source_commit": "18507bdaa8dd86b25817060d64852a7531cbd8e9",
+  "status": "awaiting_remote_algorithm_pilots"
+}

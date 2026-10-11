@@ -1,0 +1,10 @@
+{
+  "branch": "codex/marvel-guandan-migration",
+  "date": "2026-10-11",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.0",
+  "remote_kaggle": false,
+  "schema": "guandan-marvel-m09-preparation-environment-v1",
+  "source_commit": "18507bdaa8dd86b25817060d64852a7531cbd8e9",
+  "timezone": "Asia/Shanghai"
+}
