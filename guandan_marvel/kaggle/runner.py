@@ -406,19 +406,26 @@ def main(argv: list[str] | None = None) -> int:
                 native_extension = candidate if candidate.is_file() else None
             except Exception:
                 pass
-        try:
-            build_recovery_bundle(
-                run_root=run_root,
-                destination=run_root / "guandan-marvel-recovery.zip",
-                source_commit=str(source["git_commit"]),
-                source_archive_sha256=str(source["archive_sha256"]),
-                source_content_manifest_hash=str(source["content_manifest_hash"]),
-                package_id=str(manifest["package_id"]),
-                status=status,
-                native_extension=native_extension,
-            )
-        except Exception as error:
-            console.write(f"RECOVERY_BUNDLE_ERROR: {type(error).__name__}: {error}")
+        benchmark_contract = profile.get("benchmark")
+        emit_recovery = not isinstance(benchmark_contract, dict) or bool(
+            benchmark_contract.get("emit_recovery", True)
+        )
+        if emit_recovery:
+            try:
+                build_recovery_bundle(
+                    run_root=run_root,
+                    destination=run_root / "guandan-marvel-recovery.zip",
+                    source_commit=str(source["git_commit"]),
+                    source_archive_sha256=str(source["archive_sha256"]),
+                    source_content_manifest_hash=str(source["content_manifest_hash"]),
+                    package_id=str(manifest["package_id"]),
+                    status=status,
+                    native_extension=native_extension,
+                )
+            except Exception as error:
+                console.write(f"RECOVERY_BUNDLE_ERROR: {type(error).__name__}: {error}")
+        else:
+            console.write("BENCHMARK_RECOVERY_SKIPPED: benchmark contract disables recovery emission")
         atomic_json(run_root / "run_result.json", {
             "schema": "guandan-marvel-kaggle-run-result-v1",
             "run_id": run_id, "mode": mode, "status": status, "exit_code": returncode,

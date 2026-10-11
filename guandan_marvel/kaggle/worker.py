@@ -393,7 +393,15 @@ def main(argv: list[str] | None = None) -> int:
                 "rank": rank, "iteration": trainer.iteration, "votes": budget_votes,
                 "decision": budget_reached, "timestamp": _timestamp(),
             })
-            checkpoint_due = trainer.iteration % checkpoint_interval == 0 or trainer.iteration == target_iterations or budget_reached
+            benchmark_contract = profile.get("benchmark")
+            persist_checkpoint = not isinstance(benchmark_contract, Mapping) or bool(
+                benchmark_contract.get("persist_checkpoint", True)
+            )
+            checkpoint_due = persist_checkpoint and (
+                trainer.iteration % checkpoint_interval == 0
+                or trainer.iteration == target_iterations
+                or budget_reached
+            )
             if checkpoint_due:
                 heartbeat.set_phase("checkpoint")
                 checkpoint_dir = run_root / "checkpoints" / f"iter{trainer.iteration:06d}"

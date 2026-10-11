@@ -42,3 +42,9 @@
 ## 远端执行要求
 
 用户必须在相同 Kaggle T4×2 环境分别运行 single 和 dual Dataset，下载 output/log。M08 只有在两份 `benchmark_summary.json` 身份一致、健康指标为 0 且 speedup 门槛审查完成后才能 accepted。不得开始 full/M09。
+
+## 远端双卡首次运行缺陷与补修
+
+真实 single control 运行完成后发现正式 checkpoint 约 1.26 GiB。首次 dual control 仍按旧 benchmark contract 在末次迭代保存两 rank checkpoint，并在 run root、recovery、output ZIP 和 Kaggle Results 中重复压缩，导致训练完成后长时间 CPU 打包、Logs 页面无新输出且 Output 仍显示 0 B。性能对照已经有独立 pilot/resume 恢复证据，不需要再次保存训练 checkpoint。
+
+补修后两个 benchmark contract 均声明 `persist_checkpoint=false`、`emit_recovery=false`；worker 不进入 checkpoint boundary，runner 不生成 recovery，仍生成 benchmark summary、metrics、telemetry、progress 和 output ZIP。Local single/dual reduced smoke 真实验证没有 `checkpoints/` 或 recovery ZIP，并正常结束。旧性能 Dataset/Notebook 不得继续重跑。

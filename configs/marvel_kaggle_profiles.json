@@ -171,7 +171,9 @@
         "measured_iterations": 2,
         "workload_hash": "de4f2671fba5781db49ca7ab0f6ca9d02929295acf79c79221eed6e22a23acba",
         "speedup_target": 1.5,
-        "same_t4x2_environment_required": true
+        "same_t4x2_environment_required": true,
+        "persist_checkpoint": false,
+        "emit_recovery": false
       },
       "telemetry_interval_seconds": 1,
       "heartbeat_interval_seconds": 2
@@ -224,7 +226,9 @@
         "measured_iterations": 2,
         "workload_hash": "de4f2671fba5781db49ca7ab0f6ca9d02929295acf79c79221eed6e22a23acba",
         "speedup_target": 1.5,
-        "same_t4x2_environment_required": true
+        "same_t4x2_environment_required": true,
+        "persist_checkpoint": false,
+        "emit_recovery": false
       },
       "telemetry_interval_seconds": 1,
       "heartbeat_interval_seconds": 2

@@ -32,6 +32,10 @@ def test_single_and_dual_controls_share_one_global_workload_contract() -> None:
     assert single["training"]["target_iterations"] == 3
     assert single["training"]["evaluation_interval"] == 0
     assert single["training"]["checkpoint_interval"] == 3
+    assert single["benchmark"]["persist_checkpoint"] is False
+    assert dual["benchmark"]["persist_checkpoint"] is False
+    assert single["benchmark"]["emit_recovery"] is False
+    assert dual["benchmark"]["emit_recovery"] is False
 
 
 def test_control_configs_partition_the_same_initial_environment_stream(tmp_path: Path) -> None:

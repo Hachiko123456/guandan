@@ -1,4 +1,9 @@
 {
+  "checkpoint_suppression_repair": {
+    "emit_recovery": false,
+    "local_smoke_passed": true,
+    "persist_checkpoint": false
+  },
   "comparison_id": "m08-t4x2-baseline-v1",
   "date": "2026-10-10",
   "dual_mode": "dual_gpu_control",
@@ -6,6 +11,7 @@
   "local_control_smoke_passed": true,
   "m08_accepted": false,
   "measured_iterations": 2,
+  "old_performance_delivery_must_not_be_reused": true,
   "remote_runs_required": [
     "single_gpu_control",
     "dual_gpu_control"
