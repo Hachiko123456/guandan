@@ -1,0 +1,96 @@
+{
+  "bootstrap": {
+    "elapsed_seconds": 53.479348327000025,
+    "native_build_seconds": 34.4,
+    "native_import_complete_seconds": 43.8,
+    "runner_complete_seconds": 53.5,
+    "stage": "runner",
+    "status": "complete"
+  },
+  "checkpoint_created": false,
+  "client_timestamp": "2026-10-11 14:41:06+08:00",
+  "completed_games": 0,
+  "date": "2026-10-11",
+  "environment": {
+    "cpu_count_logical": 4,
+    "cpu_count_physical": 2,
+    "cuda_available": true,
+    "cuda_device_count": 2,
+    "cuda_runtime": "12.8",
+    "gpus": [
+      {
+        "index": 0,
+        "memory_total_mib": 15360.0,
+        "memory_used_mib": 3.0,
+        "name": "Tesla T4",
+        "power_watts": 11.02,
+        "status": "ok",
+        "utilization_percent": 0.0
+      },
+      {
+        "index": 1,
+        "memory_total_mib": 15360.0,
+        "memory_used_mib": 3.0,
+        "name": "Tesla T4",
+        "power_watts": 10.23,
+        "status": "ok",
+        "utilization_percent": 0.0
+      }
+    ],
+    "platform": "Linux-6.18.48+-x86_64-with-glibc2.39",
+    "python": "3.13.15",
+    "ram_total_bytes": 33658318848,
+    "schema": "guandan-marvel-runtime-environment-v1",
+    "timestamp": "2026-10-11T06:41:06.588790+00:00",
+    "torch": "2.11.0+cu128"
+  },
+  "evaluation_run": false,
+  "exit_code": 0,
+  "kaggle_runtime": true,
+  "local_cpu_test": false,
+  "locked_config_sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21",
+  "mode": "preflight",
+  "native": {
+    "backend": "cpp",
+    "extension_sha256": "5b9a1fd71361c27cdecafe8d6612165e8cfbdddd948b47679cfb6956f6e17a83",
+    "source_matches_binary": true
+  },
+  "package_id": "guandan-marvel-m09-algorithm-pilot-20261011",
+  "plan_hash": "923148386be4a8e2c102b913f26570b020b4e4cbfab14197d08a8f02cd5b93d9",
+  "preflight_status": "passed",
+  "progress": {
+    "complete": true,
+    "completed_games": 0,
+    "env_steps": 0,
+    "game_steps": 0,
+    "heartbeat_at": "2026-10-11T06:41:06.787964+00:00",
+    "iteration": 0,
+    "latest_checkpoint": null,
+    "latest_evaluation": null,
+    "phase": "preflight_complete",
+    "remote_preflight_passed": true,
+    "remote_verified": false,
+    "schema": "guandan-marvel-progress-v1"
+  },
+  "remote_preflight_passed": true,
+  "remote_verified_scope": "preflight only",
+  "role": "preflight",
+  "run_id": "20261011T064106Z-preflight-88b7e7e6",
+  "schema": "guandan-marvel-m09-remote-preflight-summary-v1",
+  "source": {
+    "archive": "guandan-marvel-source.zip",
+    "archive_sha256": "ca538e941f8cf671241b982a8ffae83271a04c2ab3503201f3c8b6b67644bec2",
+    "content_manifest_hash": "f74b0991eadb99dd68a72ad78e2ef9151de5929601bed8ee386157eb9d6a3851",
+    "git_commit": "18507bdaa8dd86b25817060d64852a7531cbd8e9",
+    "manifest": "source_manifest.json",
+    "manifest_sha256": "9d2098a83a3dc388d8146239a442fb810789e8e72f64eeac5088fd3980779083"
+  },
+  "source_archive_sha256_verified": false,
+  "source_content_manifest_verified": true,
+  "source_input_kind": "directory",
+  "source_workspace_snapshot": false,
+  "started_or_run_timestamp_utc": "2026-10-11T06:41:06Z",
+  "status": "complete",
+  "strength_claim": false,
+  "training_started": false
+}

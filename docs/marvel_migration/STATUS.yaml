@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: awaiting_remote_algorithm_pilots
+    status: remote_preflight_passed_awaiting_ippo_pilot
     accepted: false
     commit: null
     preparation_commits:
@@ -365,6 +365,7 @@ stages:
       - 18507bdaa8dd86b25817060d64852a7531cbd8e9
     reports:
       - docs/marvel_migration/reports/M09_full_training_preparation.md
+      - docs/marvel_migration/reports/M09_remote_preflight.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -377,12 +378,18 @@ stages:
       - docs/marvel_migration/evidence/M09_full_training_preparation/artifact_manifest.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/environment.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/verification.json
+      - docs/marvel_migration/evidence/M09_remote_preflight/preflight_summary.json
+      - docs/marvel_migration/evidence/M09_remote_preflight/environment.json
+      - docs/marvel_migration/evidence/M09_remote_preflight/source_identity.json
+      - docs/marvel_migration/evidence/M09_remote_preflight/artifact_manifest.json
+      - docs/marvel_migration/evidence/M09_remote_preflight/test_results.json
+      - docs/marvel_migration/evidence/M09_remote_preflight/verification.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011
     delivery_source_commit: 18507bdaa8dd86b25817060d64852a7531cbd8e9
     package_id: guandan-marvel-m09-algorithm-pilot-20261011
-    note: local safety/retention/equal-completed-game preparation passed; main full training and final holdout are intentionally not generated before remote algorithm selection
+    remote_preflight_run: 20261011T064106Z-preflight-88b7e7e6
+    note: fresh-package real Kaggle T4x2 preflight passed; equal-budget IPPO/VRPO pilots, main full training and final holdout remain incomplete
     blockers:
-      - real Kaggle T4x2 preflight log from the fresh M09 package is required
       - IPPO and VRPO must each complete exactly 400 completed games and return console/output/recovery artifacts
       - main algorithm selection decision has not been recorded
       - main long-training deal distribution and Dataset are not frozen

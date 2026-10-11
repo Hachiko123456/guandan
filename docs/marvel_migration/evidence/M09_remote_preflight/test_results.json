@@ -1,0 +1,36 @@
+{
+  "commands": [
+    {
+      "file_count": 303,
+      "name": "outer_zip_crc_and_path_safety",
+      "result": "passed",
+      "zip_sha256": "189966db0d67f2ecb88cea209cb00e4360b4f83bc0554ba531a7e85b5fcb2907"
+    },
+    {
+      "entry_count": 16,
+      "mismatches": 0,
+      "name": "nested_output_zip_crc_and_content_match",
+      "result": "passed",
+      "zip_sha256": "a07e0f3dbf7e7b191626b9d9b3db505ed6cffe03b4d36b6f67245c9196dea2f7"
+    },
+    {
+      "declared_files": 187,
+      "mismatches": 0,
+      "name": "source_manifest_content_verification",
+      "result": "passed"
+    },
+    {
+      "exit_code": 0,
+      "name": "remote_json_identity_review",
+      "result": "passed",
+      "run_id": "20261011T064106Z-preflight-88b7e7e6"
+    },
+    {
+      "name": "log_fatal_error_scan",
+      "note": "only command text containing timeout and non-fatal nbconvert SyntaxWarning lines were present",
+      "result": "passed"
+    }
+  ],
+  "failures": 0,
+  "schema": "guandan-marvel-m09-remote-preflight-test-results-v1"
+}

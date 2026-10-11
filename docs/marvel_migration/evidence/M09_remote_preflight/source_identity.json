@@ -1,0 +1,15 @@
+{
+  "declared_source_files": 187,
+  "declared_source_mismatches": 0,
+  "local_commit_exists": true,
+  "locked_config_sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21",
+  "package_id": "guandan-marvel-m09-algorithm-pilot-20261011",
+  "plan_file_sha256": "6aa66c78d455ee51cf7f705c3f16b94ec2e80627d6e536c175803131790ee285",
+  "plan_hash": "923148386be4a8e2c102b913f26570b020b4e4cbfab14197d08a8f02cd5b93d9",
+  "schema": "guandan-marvel-m09-remote-preflight-source-identity-v1",
+  "source_archive_sha256": "ca538e941f8cf671241b982a8ffae83271a04c2ab3503201f3c8b6b67644bec2",
+  "source_commit": "18507bdaa8dd86b25817060d64852a7531cbd8e9",
+  "source_manifest_hash": "f74b0991eadb99dd68a72ad78e2ef9151de5929601bed8ee386157eb9d6a3851",
+  "source_manifest_sha256": "9d2098a83a3dc388d8146239a442fb810789e8e72f64eeac5088fd3980779083",
+  "workspace_snapshot": false
+}

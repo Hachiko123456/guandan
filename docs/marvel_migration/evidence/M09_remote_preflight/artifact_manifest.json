@@ -1,0 +1,25 @@
+{
+  "artifacts": [
+    {
+      "bytes": 2725760,
+      "path": "runs/M09_full_training/remote/preflight_20261011T064106Z/downloaded/results.zip",
+      "sha256": "189966db0d67f2ecb88cea209cb00e4360b4f83bc0554ba531a7e85b5fcb2907"
+    },
+    {
+      "bytes": 9798,
+      "path": "runs/M09_full_training/remote/preflight_20261011T064106Z/downloaded/kaggle-console.log",
+      "sha256": "ffc95898d1644bf96e479851786dc75da18e27a1e78c194d8aec414d2f22beff"
+    },
+    {
+      "bytes": 19470,
+      "path": "runs/M09_full_training/remote/preflight_20261011T064106Z/extracted/guandan-marvel-output/guandan-marvel-output.zip",
+      "sha256": "a07e0f3dbf7e7b191626b9d9b3db505ed6cffe03b4d36b6f67245c9196dea2f7"
+    }
+  ],
+  "large_artifacts_committed": false,
+  "nested_output_entries": 16,
+  "nested_output_hash_mismatches": 0,
+  "outer_zip_crc_ok": true,
+  "schema": "guandan-marvel-m09-remote-preflight-artifact-manifest-v1",
+  "unsafe_zip_paths": 0
+}
