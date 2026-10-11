@@ -1,13 +1,30 @@
 {
   "delivery_manifest_sha256": "cbf9132f3374e9673f699aa8022ed006ccadcbcf14f021edc36258c8c27c6ffe",
   "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-pilot-20261011-r2",
+  "downloaded_artifacts": [
+    {
+      "bytes": 7974552,
+      "path": "runs/M09_full_training/remote/ippo_pilot_failed_20261011/downloaded/guandan-marvel-output.zip",
+      "sha256": "d194edca59ad3138b6ab88d44c85d583c944009cf5e403138ae7e58d7b48765a"
+    },
+    {
+      "bytes": 61472715,
+      "path": "runs/M09_full_training/remote/ippo_pilot_failed_20261011/downloaded/guandan-marvel-recovery.zip",
+      "sha256": "e5bab2343cc13f7c33c8de040535332c7306b2406fecc392f6cef60796b32e70"
+    },
+    {
+      "bytes": 8316529,
+      "path": "runs/M09_full_training/remote/ippo_pilot_failed_20261011/extracted-output/evaluation_checkpoints/iter000100.pt",
+      "sha256": "44b8a41371965279c7ce8f3e592162689e9a1b32cb4a07147f2a8ea58ff89696"
+    }
+  ],
   "failed_log": {
     "bytes": 367593,
     "path": "runs/M09_full_training/remote/ippo_pilot_failed_20261011/kaggle-console.log",
     "sha256": "11269638f074aff8cd0535be399605afa9b74f442d3fb2b1a52e910775c61188"
   },
   "large_artifacts_committed": false,
-  "old_recovery_received": false,
+  "old_recovery_received": true,
   "schema": "guandan-marvel-m09-evaluation-rendezvous-repair-artifact-manifest-v1",
   "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465"
 }

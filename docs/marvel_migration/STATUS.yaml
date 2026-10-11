@@ -393,15 +393,16 @@ stages:
       - docs/marvel_migration/evidence/M09_evaluation_rendezvous_repair/source_manifest.json
       - docs/marvel_migration/evidence/M09_evaluation_rendezvous_repair/artifact_manifest.json
       - docs/marvel_migration/evidence/M09_evaluation_rendezvous_repair/verification.json
+      - docs/marvel_migration/evidence/M09_evaluation_rendezvous_repair/artifact_load_verification.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
     remote_preflight_run: 20261011T064106Z-preflight-88b7e7e6
     failed_ippo_run: 20261011T065938Z-ippo_pilot-a62bd81e
-    note: old-package IPPO reached 400 games then failed because rank 1 held an NCCL all-gather during rank-0 long evaluation; filesystem rendezvous repair and r2 delivery are locally verified
+    note: old-package IPPO reached 400 games; downloaded recovery/DDP shards and evaluation-only iter100 checkpoint passed integrity checks, but evaluation failed due the NCCL rendezvous bug; r2 repair remains awaiting remote verification
     blockers:
-      - download and return the failed session output/recovery artifacts if still available; the observed iter100 checkpoint is not yet locally verified
-      - the r2 package must pass a fresh real Kaggle T4x2 preflight
+      - the verified old-source iter100 checkpoint still needs a dedicated salvage evaluation; it must not be cross-resumed into r2
+      - the r2 package must pass a fresh real Kaggle T4x2 preflight before any r2 pilot
       - IPPO and VRPO must each complete exactly 400 completed games and return console/output/recovery artifacts
       - main algorithm selection decision has not been recorded
       - main long-training deal distribution and Dataset are not frozen

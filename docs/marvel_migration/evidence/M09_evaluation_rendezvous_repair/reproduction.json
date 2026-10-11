@@ -5,6 +5,9 @@
     "sha256": "11269638f074aff8cd0535be399605afa9b74f442d3fb2b1a52e910775c61188"
   },
   "date": "2026-10-11",
+  "durable_checkpoint_verified": true,
+  "evaluation_checkpoint_present": true,
+  "evaluation_checkpoint_sha256": "44b8a41371965279c7ce8f3e592162689e9a1b32cb4a07147f2a8ea58ff89696",
   "evaluation_complete": false,
   "failure_collective": "ALLGATHER",
   "failure_phase": "evaluation",
@@ -19,16 +22,18 @@
     "target_completed_games": 400,
     "target_iterations": 100
   },
+  "output_sha256": "d194edca59ad3138b6ab88d44c85d583c944009cf5e403138ae7e58d7b48765a",
   "package_id": "guandan-marvel-m09-algorithm-pilot-20261011",
   "pilot_accepted": false,
   "rank0_last_enqueued": 3633,
   "rank1_last_enqueued": 3634,
   "rank1_worker_line": 605,
-  "recovery_downloaded": false,
+  "recovery_downloaded": true,
+  "recovery_sha256": "e5bab2343cc13f7c33c8de040535332c7306b2406fecc392f6cef60796b32e70",
   "role": "ippo_pilot",
   "root_cause": "rank 1 entered all_gather_object while rank 0 synchronously evaluated 520 games; evaluation exceeded the default 600-second NCCL watchdog",
   "run_id": "20261011T065938Z-ippo_pilot-a62bd81e",
   "schema": "guandan-marvel-m09-evaluation-rendezvous-reproduction-v1",
   "source_commit": "18507bdaa8dd86b25817060d64852a7531cbd8e9",
-  "training_checkpoint_downloaded": false
+  "training_checkpoint_downloaded": true
 }

@@ -2,14 +2,18 @@
   "accepted": false,
   "date": "2026-10-11",
   "hard_gates": {
-    "checkpoint_or_recovery_downloaded": false,
+    "checkpoint_or_recovery_downloaded": true,
+    "ddp_checkpoint_manifest_and_shards_valid": true,
     "durable_checkpoint_path_observed": true,
+    "evaluation_checkpoint_present": true,
+    "evaluation_checkpoint_remote_backend_load_pending": true,
     "failure_reproduced_from_log": true,
     "filesystem_rendezvous_implemented": true,
     "pending_eval_allgather_removed": true,
     "r2_delivery_valid": true,
     "r2_ippo_pilot_complete": false,
     "r2_remote_preflight_passed": false,
+    "recovery_manifest_and_all_file_hashes_valid": true,
     "root_cause_is_long_evaluation_collective_wait": true,
     "scoped_tests_passed": true,
     "target_regression_passed": true,
@@ -17,7 +21,7 @@
   },
   "m09_accepted": false,
   "model_strength": false,
-  "next_action": "download old failed-session recovery/output if available; in all cases run r2 preflight before any new pilot",
+  "next_action": "use the verified old-source recovery/evaluation checkpoint for a dedicated salvage evaluation, or run r2 after r2 preflight; do not cross-resume old recovery into r2",
   "schema": "guandan-marvel-m09-evaluation-rendezvous-repair-verification-v1",
   "status": "remote_repair_ready"
 }

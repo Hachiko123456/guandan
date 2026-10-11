@@ -1,0 +1,39 @@
+{
+  "ddp": {
+    "algorithm": "ippo",
+    "complete": true,
+    "durable_updates": 100,
+    "global_counters": {
+      "completed_games_total": 400,
+      "total_env_steps": 122426,
+      "total_game_steps": 47893
+    },
+    "iteration": 100,
+    "manifest_hash": "ecdea4d6b8d1a049f8d3d0979e567df3d65ac2540e23bfceb43ef6d5cca46169",
+    "schema": "guandan-marvel-ddp-checkpoint-v2",
+    "source_commit": "18507bdaa8dd86b25817060d64852a7531cbd8e9",
+    "world_size": 2
+  },
+  "ddp_manifest_and_shards_valid": true,
+  "evaluation_checkpoint": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "bytes": 8316529,
+    "iteration": 100,
+    "path": "evaluation_checkpoints/iter000100.pt",
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "schema": "guandan-marvel-evaluation-checkpoint-v1",
+    "sha256": "44b8a41371965279c7ce8f3e592162689e9a1b32cb4a07147f2a8ea58ff89696",
+    "training_provenance_complete": true,
+    "training_resume_allowed": false
+  },
+  "local_policy_load": {
+    "reason": "Linux Kaggle C++ binary identity differs from the local Windows extension; checkpoint structure was inspected without relabeling compatibility",
+    "status": "expected_backend_identity_mismatch"
+  },
+  "output_zip_sha256": "d194edca59ad3138b6ab88d44c85d583c944009cf5e403138ae7e58d7b48765a",
+  "recovery_manifest_valid": true,
+  "recovery_zip_sha256": "e5bab2343cc13f7c33c8de040535332c7306b2406fecc392f6cef60796b32e70",
+  "schema": "guandan-marvel-m09-ippo-artifact-load-verification-v1",
+  "strength_claim": false
+}

@@ -17,7 +17,7 @@
 - SHA-256：`11269638f074aff8cd0535be399605afa9b74f442d3fb2b1a52e910775c61188`；
 - 归档：`runs/M09_full_training/remote/ippo_pilot_failed_20261011/kaggle-console.log`。
 
-本次仅收到 console log，未收到该失败会话的 output/recovery ZIP，因此日志中出现的 checkpoint 仍未完成下载后 hash/load 审查。
+初次审查时仅收到 console log；随后用户补充返回 output/recovery ZIP，下载后完整性结果见下文。
 
 ## 失败前实际完成量
 
@@ -113,6 +113,28 @@ NCCL 状态：rank 1 last enqueued 3634 / completed 3633；rank 0 last enqueued/
 
 使用 r2 重新运行。由于 source commit 已变化，必须先运行 r2 preflight，再运行 r2 IPPO pilot。旧 `ippo_pilot` Dataset 不得继续使用。
 
+## 补充产物审查
+
+随后收到：
+
+- `guandan-marvel-output.zip`：7,974,552 bytes，SHA-256 `d194edca59ad3138b6ab88d44c85d583c944009cf5e403138ae7e58d7b48765a`；
+- `guandan-marvel-recovery.zip`：61,472,715 bytes，SHA-256 `e5bab2343cc13f7c33c8de040535332c7306b2406fecc392f6cef60796b32e70`。
+
+两份 ZIP CRC 与路径安全检查通过。Recovery manifest 的 14 个文件大小/hash 全部通过；DDP checkpoint v2 的两 rank shards、manifest hash、world size 2、algorithm IPPO、iteration/durable updates 100、global completed games 400 均通过。
+
+Output 中存在冻结模型：
+
+- `evaluation_checkpoints/iter000100.pt`；
+- bytes：8,316,529；
+- SHA-256：`44b8a41371965279c7ce8f3e592162689e9a1b32cb4a07147f2a8ea58ff89696`；
+- schema：`guandan-marvel-evaluation-checkpoint-v1`；
+- algorithm/architecture：IPPO / v1.3；
+- iteration：100；
+- training provenance：complete；
+- `training_resume_allowed=false`。
+
+本地 Windows loader 按设计拒绝将 Kaggle Linux C++ binary identity 重标为本地兼容，因此报告 `checkpoint C++ backend/build identity mismatch`；这不是 checkpoint 损坏。后续应在恢复的 Kaggle binary/source identity 下运行 salvage evaluation，或将该 checkpoint 作为明确的 evaluation-only Demo artifact 做专用部署适配。
+
 ## 结论
 
-本次失败是可复现的 post-training evaluation orchestration 缺陷。训练日志已达到计划 400 games，但因 checkpoint/recovery 尚未下载且 evaluation 未完成，IPPO pilot 保持 incomplete。补修已本地验证并生成 r2 交付；仍需真实 r2 Kaggle preflight/pilot 证据。
+本次失败是可复现的 post-training evaluation orchestration 缺陷。训练日志已达到计划 400 games，checkpoint/recovery 已下载并通过完整性校验；但正式 evaluation 未完成，因此 IPPO pilot 仍保持 incomplete。补修已本地验证并生成 r2 交付；仍需真实 r2 Kaggle preflight/pilot 证据。
