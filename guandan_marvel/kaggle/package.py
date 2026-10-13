@@ -60,12 +60,20 @@ def _source_snapshot(root: Path, *, commit: str | None, allow_dirty: bool) -> tu
     head = _git(root, "rev-parse", "HEAD")
     if len(head) != 40:
         raise ValueError("source export requires a full Git commit")
-    status = _git(root, "status", "--porcelain")
-    if status and not allow_dirty:
-        raise ValueError("source export requires a clean worktree unless --allow-dirty is explicit")
+    changed = set(filter(None, _git(root, "diff", "--name-only", "-z", "HEAD", binary=True).decode("utf-8").split("\0")))
+    untracked = set(filter(None, _git(root, "ls-files", "--others", "--exclude-standard", "-z", binary=True).decode("utf-8").split("\0")))
+    selected_dirty = sorted(
+        name.replace("\\", "/") for name in changed | untracked
+        if _selected(name.replace("\\", "/"))
+    )
+    if selected_dirty and not allow_dirty:
+        raise ValueError(
+            "source export has selected dirty files; commit them or use --allow-dirty explicitly: "
+            f"{selected_dirty}"
+        )
     if commit is not None and commit != "HEAD":
         head = _git(root, "rev-parse", commit)
-    workspace_snapshot = bool(status and allow_dirty and commit in {None, "HEAD"})
+    workspace_snapshot = bool(selected_dirty and allow_dirty and commit in {None, "HEAD"})
     data: dict[str, bytes] = {}
     if workspace_snapshot:
         names = _git(root, "ls-files", "--cached", "--others", "--exclude-standard", "-z", binary=True).decode("utf-8").split("\0")
