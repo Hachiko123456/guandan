@@ -1,0 +1,168 @@
+{
+  "artifact_consistency": {
+    "champion_manifest.json": {
+      "match": true,
+      "output_sha256": "ef690085fa4dd52a848a2768b2cc50a88a33bfdaa31ca92055b189f1de56bed2",
+      "recovery_sha256": "ef690085fa4dd52a848a2768b2cc50a88a33bfdaa31ca92055b189f1de56bed2"
+    },
+    "checkpoint_manifest.json": {
+      "match": true,
+      "output_sha256": "9ff47bde025f960bfd79e489681d0f2561e1c84cbcb602a5ea73897628fc8499",
+      "recovery_sha256": "9ff47bde025f960bfd79e489681d0f2561e1c84cbcb602a5ea73897628fc8499"
+    },
+    "evaluation_summary.json": {
+      "match": true,
+      "output_sha256": "1547093b2b044989a629d94917c5197a2743b64fe92fb773f3c1966422228c65",
+      "recovery_sha256": "1547093b2b044989a629d94917c5197a2743b64fe92fb773f3c1966422228c65"
+    },
+    "progress.json": {
+      "match": true,
+      "output_sha256": "639fd0ce5b21f74d0b89fe1603ae74b532c4fe05c9235c5a0c9a9d7405eacb37",
+      "recovery_sha256": "639fd0ce5b21f74d0b89fe1603ae74b532c4fe05c9235c5a0c9a9d7405eacb37"
+    },
+    "resolved_config.json": {
+      "match": true,
+      "output_sha256": "f472590e46e5aca4cebf228bb30675bf3da50cfc3bda9e1f233aabce51ae1bda",
+      "recovery_sha256": "f472590e46e5aca4cebf228bb30675bf3da50cfc3bda9e1f233aabce51ae1bda"
+    },
+    "runtime_environment.json": {
+      "match": true,
+      "output_sha256": "de850ae0c090b5768953d97fab7a443e0b96e83caf1c503531d165c0a477a2c0",
+      "recovery_sha256": "de850ae0c090b5768953d97fab7a443e0b96e83caf1c503531d165c0a477a2c0"
+    },
+    "source_manifest.json": {
+      "match": true,
+      "output_sha256": "66918fd6badca38fd4d2427e957db96f6d33509f682c716436b812446196851a",
+      "recovery_sha256": "66918fd6badca38fd4d2427e957db96f6d33509f682c716436b812446196851a"
+    }
+  },
+  "ddp": {
+    "algorithm": "vrpo",
+    "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+    "complete": true,
+    "durable_updates": 100,
+    "global_counters": {
+      "completed_games_total": 400,
+      "total_env_steps": 123252,
+      "total_game_steps": 48709
+    },
+    "iteration": 100,
+    "manifest_hash": "8c8986893a4298bb0bbbdfba75debfbf445f37343cf6095f501b4ede1eadf294",
+    "rank_resolved_config_hashes": [
+      "a0d5bfe1f9409f65844ed5463c3a0851b4ce659b1993d452f27598ea0d334325",
+      "ac99316e5d4b20ce3588f81a98265ec3dfcc83e93bdf4e04159a17777c0ee43b"
+    ],
+    "schema": "guandan-marvel-ddp-checkpoint-v2",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "world_size": 2
+  },
+  "ddp_valid": true,
+  "rank_shards": [
+    {
+      "agent_merged_state_hash": "20708a64ad98a70ce4fae3053665ad055d700de7c08f86589bd6628ebd004546",
+      "agent_resume_state_hash": "20708a64ad98a70ce4fae3053665ad055d700de7c08f86589bd6628ebd004546",
+      "continuation_state_hash": "5b0f13c0bdbf0bc6c1b173bf303bca8eb225a768ee294a49797ae7b6acaecd57",
+      "critic_state_hash": "5960665c4e6eca061a74bf3b383151783f83b43fc16b606fec8a553f979a6e8b",
+      "rank": 0,
+      "shard": "rank000.pt",
+      "shard_sha256": "e0b82aa37658b94149866d5cbe99e88934de11a20bd7d8f002625ab58c4a4ff7"
+    },
+    {
+      "agent_merged_state_hash": "20708a64ad98a70ce4fae3053665ad055d700de7c08f86589bd6628ebd004546",
+      "agent_resume_state_hash": "20708a64ad98a70ce4fae3053665ad055d700de7c08f86589bd6628ebd004546",
+      "continuation_state_hash": "c21674986c911a726b8b5aead5dd9a64c8412624e1e88363c29fc33a130fc073",
+      "critic_state_hash": "5960665c4e6eca061a74bf3b383151783f83b43fc16b606fec8a553f979a6e8b",
+      "rank": 1,
+      "shard": "rank001.pt",
+      "shard_sha256": "674bbbfc9ba258ece93806821b0990aab181e262b585540530a958375ebfa3fd"
+    }
+  ],
+  "recovery_manifest": {
+    "checkpoint": "checkpoint/manifest.json",
+    "checkpoint_manifest_hash": "8c8986893a4298bb0bbbdfba75debfbf445f37343cf6095f501b4ede1eadf294",
+    "created_at": "2026-10-13T07:42:41.146925+00:00",
+    "files": [
+      {
+        "bytes": 67721,
+        "path": "checkpoint/manifest.json",
+        "sha256": "e2ad1021e1a415f245cf7be3fb72b58536a5fcf5d8e509d66266e9458fe79539"
+      },
+      {
+        "bytes": 2143971723,
+        "path": "checkpoint/rank000.pt",
+        "sha256": "e0b82aa37658b94149866d5cbe99e88934de11a20bd7d8f002625ab58c4a4ff7"
+      },
+      {
+        "bytes": 16988,
+        "path": "checkpoint/rank000.summary.json",
+        "sha256": "74fa09ac1a20b7c09a3f4c0396c0dac009b090d03b25671c10d3b4b8a725860d"
+      },
+      {
+        "bytes": 2143978443,
+        "path": "checkpoint/rank001.pt",
+        "sha256": "674bbbfc9ba258ece93806821b0990aab181e262b585540530a958375ebfa3fd"
+      },
+      {
+        "bytes": 16989,
+        "path": "checkpoint/rank001.summary.json",
+        "sha256": "728691e284b2780a3ec9fe94be5166a04c881414bd743c5d5a2447af5c14549a"
+      },
+      {
+        "bytes": 2213,
+        "path": "artifacts/checkpoint_manifest.json",
+        "sha256": "9ff47bde025f960bfd79e489681d0f2561e1c84cbcb602a5ea73897628fc8499"
+      },
+      {
+        "bytes": 272,
+        "path": "artifacts/champion_manifest.json",
+        "sha256": "ef690085fa4dd52a848a2768b2cc50a88a33bfdaa31ca92055b189f1de56bed2"
+      },
+      {
+        "bytes": 2680,
+        "path": "artifacts/evaluation_summary.json",
+        "sha256": "1547093b2b044989a629d94917c5197a2743b64fe92fb773f3c1966422228c65"
+      },
+      {
+        "bytes": 7435,
+        "path": "artifacts/resolved_config.json",
+        "sha256": "f472590e46e5aca4cebf228bb30675bf3da50cfc3bda9e1f233aabce51ae1bda"
+      },
+      {
+        "bytes": 802,
+        "path": "artifacts/runtime_environment.json",
+        "sha256": "de850ae0c090b5768953d97fab7a443e0b96e83caf1c503531d165c0a477a2c0"
+      },
+      {
+        "bytes": 37040,
+        "path": "artifacts/source_manifest.json",
+        "sha256": "66918fd6badca38fd4d2427e957db96f6d33509f682c716436b812446196851a"
+      },
+      {
+        "bytes": 1629,
+        "path": "artifacts/progress.json",
+        "sha256": "639fd0ce5b21f74d0b89fe1603ae74b532c4fe05c9235c5a0c9a9d7405eacb37"
+      },
+      {
+        "bytes": 1041744,
+        "path": "runtime/_guandan_cpp.cpython-313-x86_64-linux-gnu.so",
+        "sha256": "5b9a1fd71361c27cdecafe8d6612165e8cfbdddd948b47679cfb6956f6e17a83"
+      }
+    ],
+    "iteration": 100,
+    "manifest_hash": "34793a12ae86b52550bb79a2f05450679c9ebb87acfc5bb84337880a042a9b23",
+    "package_id": "guandan-marvel-m09-algorithm-pilot-20261011-r2",
+    "remote_verified": false,
+    "runtime_binary": {
+      "archive_path": "runtime/_guandan_cpp.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 1041744,
+      "restore_relative_path": "nanopokerlib/_guandan_cpp.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "5b9a1fd71361c27cdecafe8d6612165e8cfbdddd948b47679cfb6956f6e17a83"
+    },
+    "schema": "guandan-marvel-recovery-manifest-v3",
+    "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_content_manifest_hash": "fd8853e379b3bb2a6eefc00474bda9c200aa49139bcbea841a4ffa7c105e6fca",
+    "status": "complete"
+  },
+  "recovery_valid": true
+}

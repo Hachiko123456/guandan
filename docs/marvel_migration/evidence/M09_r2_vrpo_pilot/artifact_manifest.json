@@ -1,0 +1,29 @@
+{
+  "artifacts": [
+    {
+      "bytes": 8067375,
+      "path": "runs/M09_full_training/remote/r2_vrpo_pilot_20261013T062752Z/downloaded/guandan-marvel-output.zip",
+      "sha256": "a3d2d64fd7b6d55a05e2a6948feae52c7c1911930dda4252d730172af3498a5a"
+    },
+    {
+      "bytes": 250423749,
+      "path": "runs/M09_full_training/remote/r2_vrpo_pilot_20261013T062752Z/downloaded/guandan-marvel-recovery.zip",
+      "sha256": "6a710339ff2edf138eb7ce17c9573e559c64a317e6eb183194d847618bb6dee5"
+    },
+    {
+      "bytes": 211,
+      "path": "runs/M09_full_training/remote/r2_vrpo_pilot_20261013T062752Z/downloaded/latest_run.json",
+      "sha256": "8beee26251ddfa34bf602f38e197d5f26d10327e988bbf4449bb358361261492"
+    },
+    {
+      "bytes": 8314923,
+      "path": "runs/M09_full_training/remote/r2_vrpo_pilot_20261013T062752Z/extracted-output/evaluation_checkpoints/iter000100.pt",
+      "sha256": "db8aa71f22ec88091acb189e6c57df2ac9ac0c1d18e3a931f4d7a1ec2cca9853"
+    }
+  ],
+  "large_artifacts_committed": false,
+  "output_zip_crc_ok": true,
+  "recovery_zip_crc_ok": true,
+  "schema": "guandan-marvel-m09-r2-vrpo-artifact-manifest-v1",
+  "unsafe_paths": 0
+}

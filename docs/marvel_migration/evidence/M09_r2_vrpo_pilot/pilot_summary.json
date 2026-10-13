@@ -1,0 +1,92 @@
+{
+  "algorithm": "vrpo",
+  "budget": {
+    "algorithm": "vrpo",
+    "comparison_id": "m09-ippo-vrpo-equal-games-v1",
+    "complete": true,
+    "completed_games": 400,
+    "contract_hash": "9a44c51be278baeb55da787619eb29e03008b0bcad1a873ed6af07ca531af0fd",
+    "error": null,
+    "iteration": 100,
+    "remaining_completed_games": 0,
+    "remote_verified": false,
+    "schema": "guandan-marvel-completed-game-budget-observation-v1",
+    "status": "complete",
+    "strength_claim": false,
+    "target_completed_games": 400,
+    "target_iterations": 100,
+    "updated_at": "2026-10-13T07:42:38.904989+00:00",
+    "wall_time_stopped": false
+  },
+  "checkpoint": {
+    "evaluation_checkpoint": "evaluation_checkpoints/iter000100.pt",
+    "evaluation_checkpoint_sha256": "db8aa71f22ec88091acb189e6c57df2ac9ac0c1d18e3a931f4d7a1ec2cca9853",
+    "manifest_hash": "8c8986893a4298bb0bbbdfba75debfbf445f37343cf6095f501b4ede1eadf294",
+    "recovery_manifest_hash": "34793a12ae86b52550bb79a2f05450679c9ebb87acfc5bb84337880a042a9b23"
+  },
+  "counters": {
+    "completed_games_total": 400,
+    "total_env_steps": 123252,
+    "total_game_steps": 48709
+  },
+  "date": "2026-10-13",
+  "durable_updates": 100,
+  "evaluation": {
+    "by_opponent": {
+      "random": {
+        "games": 260,
+        "illegal_count": 0,
+        "truncated_count": 0,
+        "win_rate": 0.7038461538461539,
+        "wins": 183
+      },
+      "rule": {
+        "games": 260,
+        "illegal_count": 0,
+        "truncated_count": 0,
+        "win_rate": 0.46923076923076923,
+        "wins": 122
+      }
+    },
+    "candidate_wins": 305,
+    "complete_games": 520,
+    "descriptive_wilson95_high": 0.6280796344847107,
+    "descriptive_wilson95_low": 0.5437280727605575,
+    "elapsed_seconds": 1609.6503806199999,
+    "final_holdout": false,
+    "formal_selection": false,
+    "games": 520,
+    "illegal_count": 0,
+    "selection_dataset_hash": "c8d11821a0a9cf8969c304fdbdfaa371c0addbc6883cf20e9617e526b6b5b583",
+    "status": "complete",
+    "truncated_count": 0,
+    "win_rate": 0.5865384615384616
+  },
+  "health_max": {
+    "health/action_capacity_overflows": 0.0,
+    "health/horizon_overflows": 0.0,
+    "health/illegal_actions": 0.0,
+    "health/nonfinite_gradients": 0.0,
+    "health/nonfinite_losses": 0.0,
+    "health/truncated_games": 0.0
+  },
+  "iteration": 100,
+  "m09_stage_accepted": false,
+  "package_id": "guandan-marvel-m09-algorithm-pilot-20261011-r2",
+  "rendezvous": {
+    "event": {
+      "evaluation_checkpoint": "/kaggle/working/guandan-marvel-output/runs/20261013T062752Z-vrpo_pilot-7a0dab10/evaluation_checkpoints/iter000100.pt",
+      "evaluation_status": "complete",
+      "status": "complete"
+    },
+    "iteration": 100,
+    "published_at": "2026-10-13T07:42:37.987281+00:00",
+    "schema": "guandan-marvel-ddp-evaluation-rendezvous-v1"
+  },
+  "run_id": "20261013T062752Z-vrpo_pilot-7a0dab10",
+  "schema": "guandan-marvel-m09-r2-vrpo-pilot-summary-v1",
+  "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+  "status": "accepted_as_controlled_algorithm_pilot",
+  "strength_claim": false,
+  "world_size": 2
+}

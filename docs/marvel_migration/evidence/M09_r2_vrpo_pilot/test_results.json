@@ -1,0 +1,47 @@
+{
+  "checks": [
+    {
+      "entries": 29,
+      "name": "output_zip_crc_and_path_safety",
+      "status": "passed"
+    },
+    {
+      "entries": 14,
+      "name": "recovery_zip_crc_and_path_safety",
+      "status": "passed"
+    },
+    {
+      "name": "recovery_manifest_all_file_hashes",
+      "status": "passed"
+    },
+    {
+      "name": "ddp_manifest_and_rank_shards",
+      "status": "passed",
+      "world_size": 2
+    },
+    {
+      "name": "actor_critic_cross_rank_identity",
+      "status": "passed"
+    },
+    {
+      "compared_files": 7,
+      "name": "output_recovery_artifact_consistency",
+      "status": "passed"
+    },
+    {
+      "name": "metrics_iteration_coverage",
+      "rows": 100,
+      "status": "passed"
+    },
+    {
+      "deals": 65,
+      "games": 520,
+      "name": "evaluation_matrix_coverage",
+      "opponents": 2,
+      "seat_rotations": 4,
+      "status": "passed"
+    }
+  ],
+  "failures": 0,
+  "schema": "guandan-marvel-m09-r2-vrpo-pilot-test-results-v1"
+}

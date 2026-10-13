@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: r2_ippo_pilot_passed_awaiting_vrpo_pilot
+    status: r2_both_pilots_passed_awaiting_head_to_head_selection
     accepted: false
     commit: null
     preparation_commits:
@@ -370,6 +370,7 @@ stages:
       - docs/marvel_migration/reports/M09_ippo_evaluation_timeout_repair.md
       - docs/marvel_migration/reports/M09_r2_remote_preflight.md
       - docs/marvel_migration/reports/M09_r2_ippo_pilot.md
+      - docs/marvel_migration/reports/M09_r2_vrpo_pilot.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -406,6 +407,11 @@ stages:
       - docs/marvel_migration/evidence/M09_r2_ippo_pilot/artifact_manifest.json
       - docs/marvel_migration/evidence/M09_r2_ippo_pilot/test_results.json
       - docs/marvel_migration/evidence/M09_r2_ippo_pilot/verification.json
+      - docs/marvel_migration/evidence/M09_r2_vrpo_pilot/pilot_summary.json
+      - docs/marvel_migration/evidence/M09_r2_vrpo_pilot/recovery_verification.json
+      - docs/marvel_migration/evidence/M09_r2_vrpo_pilot/artifact_manifest.json
+      - docs/marvel_migration/evidence/M09_r2_vrpo_pilot/test_results.json
+      - docs/marvel_migration/evidence/M09_r2_vrpo_pilot/verification.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -414,10 +420,12 @@ stages:
     r2_remote_preflight_run: 20261013T050124Z-preflight-cc1d459b
     r2_ippo_pilot_run: 20261013T051332Z-ippo_pilot-09b28e94
     r2_ippo_evaluation_checkpoint_sha256: b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c
-    note: r2 IPPO completed 400 games, durable two-rank recovery and 520-game bounded evaluation with zero health failures; VRPO remains required before algorithm selection
+    r2_vrpo_pilot_run: 20261013T062752Z-vrpo_pilot-7a0dab10
+    r2_vrpo_evaluation_checkpoint_sha256: db8aa71f22ec88091acb189e6c57df2ac9ac0c1d18e3a931f4d7a1ec2cca9853
+    note: both r2 algorithms completed equal 400-game budgets, durable recoveries and 520-game shared anchor evaluations with zero health failures; direct paired head-to-head is still required
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
-      - VRPO must complete exactly 400 completed games and return console/output/recovery artifacts
+      - locked paired IPPO-vs-VRPO direct head-to-head selection has not run
       - main algorithm selection decision has not been recorded
       - main long-training deal distribution and Dataset are not frozen
       - champion history, formal selection, long training, final candidate and one-shot final holdout are incomplete
