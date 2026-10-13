@@ -1,0 +1,38 @@
+{
+  "initial_recovery_sha256": "8b05b05f0d2f3715f2fb9701cbc4450a43d156a7cf2387eb916c2e9958c8b067",
+  "main_plan_hash": "96f324f43ab391c3912a9284fd1dc862424b4c19d63ae9b375a0c15627095f88",
+  "notebook": {
+    "code_cells": 3,
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-main-ippo-segmented-20261013\\guandan_marvel_m09_main_training.ipynb",
+    "placeholders_absent": true,
+    "schema": "guandan-marvel-notebook-validation-v1",
+    "syntax_valid": true,
+    "valid": true
+  },
+  "remote_verified": false,
+  "schema": "guandan-marvel-m09-main-ippo-delivery-validation-v1",
+  "segments": [
+    {
+      "segment": "segment0500",
+      "target_completed_games": 2000,
+      "target_iteration": 500
+    },
+    {
+      "segment": "segment1000",
+      "target_completed_games": 4000,
+      "target_iteration": 1000
+    },
+    {
+      "segment": "segment1500",
+      "target_completed_games": 6000,
+      "target_iteration": 1500
+    },
+    {
+      "segment": "segment2000",
+      "target_completed_games": 8000,
+      "target_iteration": 2000
+    }
+  ],
+  "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+  "valid": true
+}

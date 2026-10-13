@@ -1,0 +1,22 @@
+{
+  "acceptance_consequence": "if broad formal evaluations do not meet rule/legacy gates, M09 remains incomplete and a separately versioned scheduler migration is required",
+  "decision": "retain_m08_locked_distribution_for_m09_direct_policy_baseline",
+  "exact_resume_preserved": true,
+  "generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+  "known_limit": "main training does not directly sample all 13 level ranks or tribute contexts; independent selection/final evaluation retains broad coverage and may prevent E2/E3 acceptance",
+  "level_rank": "Rank.TWO",
+  "previous_result": null,
+  "reason": "preserves exact resume and the controlled pilot semantic contract; dynamic multi-context training requires a separately verified native scheduler and is not introduced silently during M09",
+  "schema": "guandan-marvel-m09-training-distribution-decision-v1",
+  "selection_dataset_broad_coverage": {
+    "leader_seats": 4,
+    "level_ranks": 13,
+    "tribute_modes": [
+      "none",
+      "double_down",
+      "head_third",
+      "head_last",
+      "cancelled"
+    ]
+  }
+}

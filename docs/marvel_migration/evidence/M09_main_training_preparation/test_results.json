@@ -1,0 +1,39 @@
+{
+  "commands": [
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle -q",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 55
+    },
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_training tests/marvel_core/test_core.py tests/marvel_evaluation tests/acceptance/test_a00_specification.py -q",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 92
+    },
+    {
+      "command": "python scripts/build_m09_main_training_delivery.py --output ...",
+      "exit_code": 0,
+      "log": "runs\\M09_full_training\\main_training_preparation_20261013\\delivery_build.json",
+      "log_sha256": "bed9dcd1cbe9bb8e9bb4bb3a9bc299bfdb4ccac57f582c3807ab39d33751b9da"
+    },
+    {
+      "command": "python scripts/build_m09_main_training_delivery.py --validate D:\\project\\kaggle_train\\guandan-marvel-m09-main-ippo-segmented-20261013",
+      "exit_code": 0,
+      "log": "runs\\M09_full_training\\main_training_preparation_20261013\\delivery_validation.json",
+      "log_sha256": "6e278678828d38cc59616cfc87e8b6d6c538b5b2e6c1e8edf4b1713cd7a6b31b"
+    }
+  ],
+  "schema": "guandan-marvel-m09-main-training-preparation-test-results-v1",
+  "totals": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 147
+  }
+}

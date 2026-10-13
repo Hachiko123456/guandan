@@ -1,0 +1,12 @@
+{
+  "delivery_manifest": {
+    "bytes": 7779,
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-main-ippo-segmented-20261013\\delivery_manifest.json",
+    "sha256": "a5052f8922f7f7849c5e41bd9b195bb4f81392aa7d5b019428f3f62b3b910105"
+  },
+  "initial_recovery_sha256": "8b05b05f0d2f3715f2fb9701cbc4450a43d156a7cf2387eb916c2e9958c8b067",
+  "large_artifacts_committed": false,
+  "remote_outputs_present": false,
+  "schema": "guandan-marvel-m09-main-training-preparation-artifact-manifest-v1",
+  "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465"
+}

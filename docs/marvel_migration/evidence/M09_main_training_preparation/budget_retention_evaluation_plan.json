@@ -1,0 +1,41 @@
+{
+  "checkpoint_interval": 25,
+  "checkpoint_keep_last": 2,
+  "evaluation_keep_last": 2,
+  "final_holdout_generated": false,
+  "initial_champion_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+  "mandatory_evaluation_after_each_segment": true,
+  "max_wall_seconds_per_segment": 15000,
+  "promotion_policy": {
+    "ci95_low_threshold": 0.52,
+    "min_clusters": 32,
+    "mode": "formal",
+    "random_min_win_rate": 0.7,
+    "rule_min_win_rate": 0.4,
+    "schema": "guandan-marvel-promotion-policy-v2"
+  },
+  "schema": "guandan-marvel-m09-main-budget-retention-evaluation-plan-v1",
+  "segments": [
+    {
+      "id": "segment0500",
+      "target_completed_games": 2000,
+      "target_iteration": 500
+    },
+    {
+      "id": "segment1000",
+      "target_completed_games": 4000,
+      "target_iteration": 1000
+    },
+    {
+      "id": "segment1500",
+      "target_completed_games": 6000,
+      "target_iteration": 1500
+    },
+    {
+      "id": "segment2000",
+      "target_completed_games": 8000,
+      "target_iteration": 2000
+    }
+  ],
+  "training_evaluation_interval": 0
+}

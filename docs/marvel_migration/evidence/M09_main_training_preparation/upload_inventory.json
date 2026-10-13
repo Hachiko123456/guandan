@@ -1,0 +1,167 @@
+{
+  "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-main-ippo-segmented-20261013",
+  "initial_upload_segment": "segment0500",
+  "instructions": "Only upload/run segment0500 now. Later segments require the previous segment recovery and explicit review authorization.",
+  "later_segments": [
+    "segment1000",
+    "segment1500",
+    "segment2000"
+  ],
+  "notebook": {
+    "bytes": 14756,
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-main-ippo-segmented-20261013\\guandan_marvel_m09_main_training.ipynb",
+    "sha256": "e57da198869301040fe38787a915686574f728053a75696bea6c8cd86162851a"
+  },
+  "schema": "guandan-marvel-m09-main-training-upload-inventory-v1",
+  "segments": [
+    {
+      "directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-main-ippo-segmented-20261013\\datasets\\segment0500",
+      "files": [
+        {
+          "bytes": 61472597,
+          "name": "guandan-marvel-recovery.zip",
+          "sha256": "8b05b05f0d2f3715f2fb9701cbc4450a43d156a7cf2387eb916c2e9958c8b067"
+        },
+        {
+          "bytes": 670997,
+          "name": "guandan-marvel-source.zip",
+          "sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465"
+        },
+        {
+          "bytes": 24328,
+          "name": "guandan_marvel_bootstrap.py",
+          "sha256": "c48e2784413d542e4357b9fdfd44622dc028d6be912af8eeb2650eaed76f26ad"
+        },
+        {
+          "bytes": 4098,
+          "name": "guandan_marvel_dataset.json",
+          "sha256": "cd7dcc340fa31cae6f75ca9654cd1bfbae16a138a96a2088efb92da3f0293f25"
+        },
+        {
+          "bytes": 2926,
+          "name": "marvel_m08_locked_config.json",
+          "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+        },
+        {
+          "bytes": 4869,
+          "name": "marvel_m09_main_training_plan.json",
+          "sha256": "04e4e9ee332481829b9d2d8c6fe510f3fdc4d444c44ad7ba5ee5dd30fa426c22"
+        },
+        {
+          "bytes": 37040,
+          "name": "source_manifest.json",
+          "sha256": "66918fd6badca38fd4d2427e957db96f6d33509f682c716436b812446196851a"
+        }
+      ],
+      "segment": "segment0500"
+    },
+    {
+      "directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-main-ippo-segmented-20261013\\datasets\\segment1000",
+      "files": [
+        {
+          "bytes": 670997,
+          "name": "guandan-marvel-source.zip",
+          "sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465"
+        },
+        {
+          "bytes": 24328,
+          "name": "guandan_marvel_bootstrap.py",
+          "sha256": "c48e2784413d542e4357b9fdfd44622dc028d6be912af8eeb2650eaed76f26ad"
+        },
+        {
+          "bytes": 4101,
+          "name": "guandan_marvel_dataset.json",
+          "sha256": "09cd3f352945c42eabc72e28a8fe04b862d929ab2f432f459198598d4c44dba2"
+        },
+        {
+          "bytes": 2926,
+          "name": "marvel_m08_locked_config.json",
+          "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+        },
+        {
+          "bytes": 4869,
+          "name": "marvel_m09_main_training_plan.json",
+          "sha256": "04e4e9ee332481829b9d2d8c6fe510f3fdc4d444c44ad7ba5ee5dd30fa426c22"
+        },
+        {
+          "bytes": 37040,
+          "name": "source_manifest.json",
+          "sha256": "66918fd6badca38fd4d2427e957db96f6d33509f682c716436b812446196851a"
+        }
+      ],
+      "segment": "segment1000"
+    },
+    {
+      "directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-main-ippo-segmented-20261013\\datasets\\segment1500",
+      "files": [
+        {
+          "bytes": 670997,
+          "name": "guandan-marvel-source.zip",
+          "sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465"
+        },
+        {
+          "bytes": 24328,
+          "name": "guandan_marvel_bootstrap.py",
+          "sha256": "c48e2784413d542e4357b9fdfd44622dc028d6be912af8eeb2650eaed76f26ad"
+        },
+        {
+          "bytes": 4101,
+          "name": "guandan_marvel_dataset.json",
+          "sha256": "e6c8d59d534b1cc130b36a49fa25f1a798c6608b09311b79f6983c35b1d0d5d6"
+        },
+        {
+          "bytes": 2926,
+          "name": "marvel_m08_locked_config.json",
+          "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+        },
+        {
+          "bytes": 4869,
+          "name": "marvel_m09_main_training_plan.json",
+          "sha256": "04e4e9ee332481829b9d2d8c6fe510f3fdc4d444c44ad7ba5ee5dd30fa426c22"
+        },
+        {
+          "bytes": 37040,
+          "name": "source_manifest.json",
+          "sha256": "66918fd6badca38fd4d2427e957db96f6d33509f682c716436b812446196851a"
+        }
+      ],
+      "segment": "segment1500"
+    },
+    {
+      "directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-main-ippo-segmented-20261013\\datasets\\segment2000",
+      "files": [
+        {
+          "bytes": 670997,
+          "name": "guandan-marvel-source.zip",
+          "sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465"
+        },
+        {
+          "bytes": 24328,
+          "name": "guandan_marvel_bootstrap.py",
+          "sha256": "c48e2784413d542e4357b9fdfd44622dc028d6be912af8eeb2650eaed76f26ad"
+        },
+        {
+          "bytes": 4101,
+          "name": "guandan_marvel_dataset.json",
+          "sha256": "fa859384a02f25d87248e2b9183807ca7f6c5aa3aad418160caa44594f671a30"
+        },
+        {
+          "bytes": 2926,
+          "name": "marvel_m08_locked_config.json",
+          "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+        },
+        {
+          "bytes": 4869,
+          "name": "marvel_m09_main_training_plan.json",
+          "sha256": "04e4e9ee332481829b9d2d8c6fe510f3fdc4d444c44ad7ba5ee5dd30fa426c22"
+        },
+        {
+          "bytes": 37040,
+          "name": "source_manifest.json",
+          "sha256": "66918fd6badca38fd4d2427e957db96f6d33509f682c716436b812446196851a"
+        }
+      ],
+      "segment": "segment2000"
+    }
+  ]
+}

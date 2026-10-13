@@ -1,0 +1,27 @@
+{
+  "base_commit": "9708ce7",
+  "files": [
+    {
+      "bytes": 4869,
+      "path": "configs/marvel_m09_main_training_plan.json",
+      "sha256": "04e4e9ee332481829b9d2d8c6fe510f3fdc4d444c44ad7ba5ee5dd30fa426c22"
+    },
+    {
+      "bytes": 11243,
+      "path": "guandan_marvel/kaggle/m09_main_delivery.py",
+      "sha256": "d4a22ef33ddc20b7e5414192d89fdb541ad8ee484b5d28dc3d443de8b7def733"
+    },
+    {
+      "bytes": 1097,
+      "path": "scripts/build_m09_main_training_delivery.py",
+      "sha256": "56eac4969d7a05ba8148b449641738f027183f6d844f21935ed71ea17392e781"
+    },
+    {
+      "bytes": 1940,
+      "path": "tests/marvel_kaggle/test_m09_main_delivery.py",
+      "sha256": "f42a93ab9503af27b614ac1aa2814ff9b0872fdb1bc9a1c9ef136575ea626f7f"
+    }
+  ],
+  "schema": "guandan-marvel-m09-main-training-preparation-source-manifest-v1",
+  "source_commit": "a6416784a716be1c134e88993ddf9ad2a35c3799"
+}

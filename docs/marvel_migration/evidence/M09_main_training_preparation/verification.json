@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "date": "2026-10-13",
+  "hard_gates": {
+    "checkpoint_retention_bounded": true,
+    "delivery_validation_passed": true,
+    "exact_resume_from_r2_ippo_iter100": true,
+    "final_holdout_absent": true,
+    "ippo_selected": true,
+    "mandatory_external_evaluation_after_each_segment": true,
+    "segment0500_remote_complete": false,
+    "segment_targets_absolute_and_monotonic": true,
+    "selection_decision_hash_bound": true,
+    "source_identity_unchanged": true,
+    "training_distribution_review_recorded": true,
+    "training_process_long_evaluation_disabled": true
+  },
+  "m09_accepted": false,
+  "main_training_complete": false,
+  "model_strength": false,
+  "next_action": "upload/run segment0500 only and return console/output/recovery; do not run segment1000 before formal evaluation review",
+  "schema": "guandan-marvel-m09-main-training-preparation-verification-v1",
+  "status": "remote_ready_segment0500_only"
+}
