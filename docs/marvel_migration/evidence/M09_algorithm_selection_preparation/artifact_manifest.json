@@ -1,0 +1,13 @@
+{
+  "delivery_manifest": {
+    "bytes": 3720,
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-selection-20261013\\delivery_manifest.json",
+    "sha256": "1d7dd1b1c51d3048fd438b43a596df4d2ad8019037d5b6111df536167df0575b"
+  },
+  "ippo_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+  "large_artifacts_committed": false,
+  "remote_outputs_present": false,
+  "schema": "guandan-marvel-m09-algorithm-selection-preparation-artifact-manifest-v1",
+  "source_archive_sha256": "b73472491de67cf47fd9fb294467f7a86eb370775ea5b2e136da8b9c5c2a835f",
+  "vrpo_checkpoint_sha256": "db8aa71f22ec88091acb189e6c57df2ac9ac0c1d18e3a931f4d7a1ec2cca9853"
+}

@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "date": "2026-10-13",
+  "hard_gates": {
+    "algorithm_selected": false,
+    "both_checkpoint_hashes_bound": true,
+    "champion_promotion_absent": true,
+    "delivery_validation_passed": true,
+    "direct_head_to_head_plan_locked": true,
+    "final_holdout_absent": true,
+    "ippo_pilot_verified": true,
+    "paired_rule_anchors_exact_coverage": true,
+    "remote_head_to_head_complete": false,
+    "same_400_game_budget": true,
+    "shared_selection_dataset_identity": true,
+    "shared_workload_identity": true,
+    "vrpo_pilot_verified": true
+  },
+  "m09_accepted": false,
+  "next_action": "upload and run the algorithm-selection Dataset/Notebook on Kaggle T4x2 and return selection ZIP plus console log",
+  "schema": "guandan-marvel-m09-algorithm-selection-preparation-verification-v1",
+  "status": "remote_ready",
+  "strength_claim": false
+}

@@ -1,0 +1,68 @@
+{
+  "dataset_directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-selection-20261013\\dataset",
+  "dataset_files": [
+    {
+      "bytes": 681018,
+      "name": "guandan-marvel-source.zip",
+      "sha256": "b73472491de67cf47fd9fb294467f7a86eb370775ea5b2e136da8b9c5c2a835f"
+    },
+    {
+      "bytes": 24328,
+      "name": "guandan_marvel_bootstrap.py",
+      "sha256": "c48e2784413d542e4357b9fdfd44622dc028d6be912af8eeb2650eaed76f26ad"
+    },
+    {
+      "bytes": 1579,
+      "name": "guandan_marvel_dataset.json",
+      "sha256": "8d24f4ab510c15c8bb27c9a000bd2c8b92d5f564bba3edf6f44f6ec0da7d56d5"
+    },
+    {
+      "bytes": 639029,
+      "name": "ippo_evaluation_games.jsonl",
+      "sha256": "938c80ea17dab7eb46c17a3f401692329cd0d2e2b93b37012139e717e3929cf6"
+    },
+    {
+      "bytes": 8316529,
+      "name": "ippo_iter000100.pt",
+      "sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c"
+    },
+    {
+      "bytes": 4485,
+      "name": "m09_algorithm_selection.json",
+      "sha256": "62ca5df7b88697fba40af2e3cb906174c51a1a28d0d876157c88c79f6507cbac"
+    },
+    {
+      "bytes": 2926,
+      "name": "marvel_m08_locked_config.json",
+      "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+    },
+    {
+      "bytes": 5627,
+      "name": "marvel_m09_full_plan.json",
+      "sha256": "163fc07b4415bb39253c8639d2a02d0147c2a8993ffdcc9d32465afdc613031b"
+    },
+    {
+      "bytes": 37448,
+      "name": "source_manifest.json",
+      "sha256": "a1e69823c2f85815758fa7d04c9a5d7dbccb3c612fb9dbb354b83f4cfeaf83c4"
+    },
+    {
+      "bytes": 639060,
+      "name": "vrpo_evaluation_games.jsonl",
+      "sha256": "a3e339eef0d14fc664c9962c691071e987ecdc68e0b57f4c57e72ee7973a5a68"
+    },
+    {
+      "bytes": 8314923,
+      "name": "vrpo_iter000100.pt",
+      "sha256": "db8aa71f22ec88091acb189e6c57df2ac9ac0c1d18e3a931f4d7a1ec2cca9853"
+    }
+  ],
+  "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-selection-20261013",
+  "instructions": "Create one private Kaggle Dataset from all files in dataset; add only it to the selection notebook; use T4x2 and Run All.",
+  "notebook": {
+    "bytes": 15529,
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-selection-20261013\\guandan_marvel_m09_algorithm_selection.ipynb",
+    "sha256": "115fa07f71631fb0e63f64e4262666ee8b087590779f8815462f71b274ba1280"
+  },
+  "schema": "guandan-marvel-m09-algorithm-selection-upload-inventory-v1"
+}

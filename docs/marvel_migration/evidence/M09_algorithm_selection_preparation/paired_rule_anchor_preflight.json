@@ -1,0 +1,9 @@
+{
+  "ci95_high": 0.5369844165333424,
+  "ci95_low": -0.5062151857641116,
+  "clusters": 65,
+  "mean_difference_vrpo_minus_ippo": 0.015384615384615385,
+  "method": "paired-deal-mean bounded-empirical-Bernstein-95 via [-1,1] to [0,1] transform",
+  "paired_rows": 260,
+  "schema": "guandan-marvel-paired-cluster-difference-v1"
+}

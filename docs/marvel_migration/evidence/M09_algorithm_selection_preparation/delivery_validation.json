@@ -1,0 +1,14 @@
+{
+  "ippo_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+  "notebook_syntax_valid": true,
+  "package_id": "guandan-marvel-m09-algorithm-selection-20261013",
+  "remote_verified": false,
+  "schema": "guandan-marvel-m09-algorithm-selection-delivery-validation-v1",
+  "selection_dataset_hash": "c8d11821a0a9cf8969c304fdbdfaa371c0addbc6883cf20e9617e526b6b5b583",
+  "selection_manifest_hash": "120b53ea104373fc0f0f26a146c005bc16e31a2dbc8992580d427d4cbd8a5811",
+  "source_archive_sha256": "b73472491de67cf47fd9fb294467f7a86eb370775ea5b2e136da8b9c5c2a835f",
+  "source_commit": "adfbbdbfb12c8d096f228af4661f10afdee458a4",
+  "valid": true,
+  "vrpo_checkpoint_sha256": "db8aa71f22ec88091acb189e6c57df2ac9ac0c1d18e3a931f4d7a1ec2cca9853",
+  "workspace_snapshot": false
+}

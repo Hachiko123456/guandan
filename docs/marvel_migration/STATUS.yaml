@@ -357,13 +357,14 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: r2_both_pilots_passed_awaiting_head_to_head_selection
+    status: head_to_head_selection_delivery_ready
     accepted: false
     commit: null
     preparation_commits:
       - 535780d981fc5b391fcfabe402ce485ba17b3b3b
       - 18507bdaa8dd86b25817060d64852a7531cbd8e9
       - e5c82e7c27fb366800e9722c9e8e4720df7db01f
+      - adfbbdbfb12c8d096f228af4661f10afdee458a4
     reports:
       - docs/marvel_migration/reports/M09_full_training_preparation.md
       - docs/marvel_migration/reports/M09_remote_preflight.md
@@ -371,6 +372,7 @@ stages:
       - docs/marvel_migration/reports/M09_r2_remote_preflight.md
       - docs/marvel_migration/reports/M09_r2_ippo_pilot.md
       - docs/marvel_migration/reports/M09_r2_vrpo_pilot.md
+      - docs/marvel_migration/reports/M09_algorithm_selection_preparation.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -412,6 +414,14 @@ stages:
       - docs/marvel_migration/evidence/M09_r2_vrpo_pilot/artifact_manifest.json
       - docs/marvel_migration/evidence/M09_r2_vrpo_pilot/test_results.json
       - docs/marvel_migration/evidence/M09_r2_vrpo_pilot/verification.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection_preparation/delivery_validation.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection_preparation/selection_manifest.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection_preparation/paired_rule_anchor_preflight.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection_preparation/upload_inventory.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection_preparation/artifact_manifest.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection_preparation/test_results.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection_preparation/source_manifest.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection_preparation/verification.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -422,10 +432,12 @@ stages:
     r2_ippo_evaluation_checkpoint_sha256: b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c
     r2_vrpo_pilot_run: 20261013T062752Z-vrpo_pilot-7a0dab10
     r2_vrpo_evaluation_checkpoint_sha256: db8aa71f22ec88091acb189e6c57df2ac9ac0c1d18e3a931f4d7a1ec2cca9853
-    note: both r2 algorithms completed equal 400-game budgets, durable recoveries and 520-game shared anchor evaluations with zero health failures; direct paired head-to-head is still required
+    algorithm_selection_delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-selection-20261013
+    algorithm_selection_source_commit: adfbbdbfb12c8d096f228af4661f10afdee458a4
+    note: both r2 pilots passed and a hash-bound paired head-to-head Kaggle delivery is ready; no main algorithm has been selected yet
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
-      - locked paired IPPO-vs-VRPO direct head-to-head selection has not run
+      - remote locked paired IPPO-vs-VRPO direct head-to-head selection has not run
       - main algorithm selection decision has not been recorded
       - main long-training deal distribution and Dataset are not frozen
       - champion history, formal selection, long training, final candidate and one-shot final holdout are incomplete

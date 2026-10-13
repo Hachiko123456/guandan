@@ -1,0 +1,32 @@
+{
+  "base_commit": "cb77fbd",
+  "files": [
+    {
+      "bytes": 14661,
+      "path": "guandan_marvel/kaggle/algorithm_compare.py",
+      "sha256": "2ac2da13443301e600d65764818fd197adc04b59446fbc08298fe8a11964c7a1"
+    },
+    {
+      "bytes": 18130,
+      "path": "guandan_marvel/kaggle/m09_selection_delivery.py",
+      "sha256": "f83e1ea4231a530691a87236699785cb00d73b0f9f0570ab8a67130bb04499f2"
+    },
+    {
+      "bytes": 35611,
+      "path": "guandan_marvel/kaggle/package.py",
+      "sha256": "4e28402d25f911a1884553a9e63f9da7fb16a440882162e6dc0602d89b4cad9d"
+    },
+    {
+      "bytes": 1573,
+      "path": "scripts/build_m09_algorithm_selection_delivery.py",
+      "sha256": "3d76045253484ae4c273aec35bfef7068f0fc491b55fa1f50f5e790896517c05"
+    },
+    {
+      "bytes": 3591,
+      "path": "tests/marvel_kaggle/test_m09_algorithm_selection.py",
+      "sha256": "44599bd2b7c682430451bdd4b1b763d425fe3f48f532ac44b6c33f8c3654420c"
+    }
+  ],
+  "schema": "guandan-marvel-m09-algorithm-selection-source-manifest-v1",
+  "source_commit": "adfbbdbfb12c8d096f228af4661f10afdee458a4"
+}

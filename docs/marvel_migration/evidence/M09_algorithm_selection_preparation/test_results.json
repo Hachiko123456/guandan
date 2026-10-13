@@ -1,0 +1,39 @@
+{
+  "commands": [
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle -q",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 53
+    },
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_training tests/marvel_core/test_core.py tests/marvel_evaluation tests/acceptance/test_a00_specification.py -q",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 92
+    },
+    {
+      "command": "python scripts/build_m09_algorithm_selection_delivery.py --output ... --ippo-output ... --vrpo-output ... --commit HEAD",
+      "exit_code": 0,
+      "log": "runs\\M09_full_training\\algorithm_selection_preparation_20261013\\delivery_build.json",
+      "log_sha256": "8b681ab2c42b878fa66984b5b50afb04c170d65a1a1ab2371c91e584e969ed69"
+    },
+    {
+      "command": "python scripts/build_m09_algorithm_selection_delivery.py --validate D:\\project\\kaggle_train\\guandan-marvel-m09-algorithm-selection-20261013",
+      "exit_code": 0,
+      "log": "runs\\M09_full_training\\algorithm_selection_preparation_20261013\\delivery_validation.json",
+      "log_sha256": "0089d09430a49dbf285e4dbe3af228a3c008101748d419b4dc1d59bb84d5bf70"
+    }
+  ],
+  "schema": "guandan-marvel-m09-algorithm-selection-preparation-test-results-v1",
+  "totals": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 145
+  }
+}
