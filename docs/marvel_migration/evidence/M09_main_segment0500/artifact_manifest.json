@@ -1,0 +1,23 @@
+{
+  "artifacts": [
+    {
+      "bytes": 895401,
+      "path": "runs/M09_full_training/remote/r2_main_segment0500_20261013T135603Z/downloaded/guandan-marvel-output.zip",
+      "sha256": "40a3abef3e67d56a86bd19b5dfc37bde76f7e7ef902e57bdc9f02a065fdf6515"
+    },
+    {
+      "bytes": 61903395,
+      "path": "runs/M09_full_training/remote/r2_main_segment0500_20261013T135603Z/downloaded/guandan-marvel-recovery.zip",
+      "sha256": "2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44"
+    },
+    {
+      "bytes": 884570,
+      "path": "runs/M09_full_training/remote/r2_main_segment0500_20261013T135603Z/downloaded/kaggle-console.log",
+      "sha256": "3620f66f0f173f61fe8db34eddea3d1a221e5466f9a4c4fae35aa0319b232d36"
+    }
+  ],
+  "large_artifacts_committed": false,
+  "output_zip_crc_ok": true,
+  "recovery_zip_crc_ok": true,
+  "schema": "guandan-marvel-m09-main-segment0500-artifact-manifest-v1"
+}

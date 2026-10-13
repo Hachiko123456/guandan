@@ -1,0 +1,28 @@
+{
+  "accepted": false,
+  "date": "2026-10-13",
+  "hard_gates": {
+    "400_contiguous_new_iterations": true,
+    "actor_hashes_match_across_ranks": true,
+    "budget_complete": true,
+    "champion_decision_complete": false,
+    "cumulative_completed_games2000": true,
+    "exact_resume_from_iter100": true,
+    "formal_evaluation_complete": false,
+    "iteration500_complete": true,
+    "real_kaggle_t4x2": true,
+    "recovery_manifest_hashes_valid": true,
+    "retention_bounded": true,
+    "segment1000_authorized": false,
+    "two_rank_checkpoint_valid": true,
+    "zero_illegal": true,
+    "zero_nonfinite": true,
+    "zero_truncation": true
+  },
+  "m09_accepted": false,
+  "main_training_complete": false,
+  "model_strength": false,
+  "next_action": "prepare and run the mandatory standalone formal selection/champion evaluation for iteration500; do not start segment1000",
+  "schema": "guandan-marvel-m09-main-segment0500-verification-v1",
+  "status": "training_passed_evaluation_pending"
+}

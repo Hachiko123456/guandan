@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: main_ippo_segment0500_delivery_ready
+    status: main_ippo_iter500_training_passed_awaiting_formal_evaluation
     accepted: false
     commit: null
     preparation_commits:
@@ -376,6 +376,7 @@ stages:
       - docs/marvel_migration/reports/M09_algorithm_selection_preparation.md
       - docs/marvel_migration/reports/M09_algorithm_selection.md
       - docs/marvel_migration/reports/M09_main_training_preparation.md
+      - docs/marvel_migration/reports/M09_main_segment0500.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -441,6 +442,11 @@ stages:
       - docs/marvel_migration/evidence/M09_main_training_preparation/test_results.json
       - docs/marvel_migration/evidence/M09_main_training_preparation/source_manifest.json
       - docs/marvel_migration/evidence/M09_main_training_preparation/verification.json
+      - docs/marvel_migration/evidence/M09_main_segment0500/segment_summary.json
+      - docs/marvel_migration/evidence/M09_main_segment0500/recovery_verification.json
+      - docs/marvel_migration/evidence/M09_main_segment0500/artifact_manifest.json
+      - docs/marvel_migration/evidence/M09_main_segment0500/test_results.json
+      - docs/marvel_migration/evidence/M09_main_segment0500/verification.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -459,11 +465,15 @@ stages:
     main_training_plan_hash: 96f324f43ab391c3912a9284fd1dc862424b4c19d63ae9b375a0c15627095f88
     main_training_delivery_root: D:\project\kaggle_train\guandan-marvel-m09-main-ippo-segmented-20261013
     main_training_distribution: retain exact M08 Rank.TWO/no-previous-result stream; broad-context gates remain blocking and may require a separate scheduler migration
-    note: IPPO segmented exact-resume main training is ready; only segment0500 is authorized before the mandatory formal evaluation/champion boundary
+    main_segment0500_run: 20261013T135603Z-main_ippo_segment0500-dc3dfe4e
+    main_iteration: 500
+    main_completed_games: 2000
+    main_iter500_recovery_sha256: 2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44
+    note: exact-resume IPPO training reached iteration500/2000 games with zero health failures and complete recovery; mandatory formal evaluation/champion review is pending
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
-      - segment0500 has not run on real Kaggle T4x2
       - formal selection/champion evaluation after segment0500 has not run
+      - segment1000 is not authorized until the iteration500 evaluation and promotion decision are accepted
       - main long-training deal distribution and Dataset are not frozen
       - champion history, formal selection, long training, final candidate and one-shot final holdout are incomplete
 

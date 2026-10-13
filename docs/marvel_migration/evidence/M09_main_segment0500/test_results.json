@@ -1,0 +1,48 @@
+{
+  "checks": [
+    {
+      "name": "output_zip_crc",
+      "status": "passed"
+    },
+    {
+      "name": "recovery_zip_crc",
+      "status": "passed"
+    },
+    {
+      "name": "recovery_manifest_all_hashes",
+      "status": "passed"
+    },
+    {
+      "name": "ddp_rank_shards",
+      "status": "passed"
+    },
+    {
+      "name": "metrics_continuation_101_to_500",
+      "rows": 400,
+      "status": "passed"
+    },
+    {
+      "maxima": {
+        "health/action_capacity_overflows": 0.0,
+        "health/horizon_overflows": 0.0,
+        "health/illegal_actions": 0.0,
+        "health/nonfinite_gradients": 0.0,
+        "health/nonfinite_losses": 0.0,
+        "health/truncated_games": 0.0
+      },
+      "name": "health_metrics",
+      "status": "passed"
+    },
+    {
+      "files": 7,
+      "name": "output_recovery_artifact_consistency",
+      "status": "passed"
+    },
+    {
+      "name": "fatal_log_scan",
+      "status": "passed"
+    }
+  ],
+  "failures": 0,
+  "schema": "guandan-marvel-m09-main-segment0500-test-results-v1"
+}

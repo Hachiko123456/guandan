@@ -1,0 +1,37 @@
+{
+  "ddp": {
+    "algorithm": "ippo",
+    "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+    "complete": true,
+    "durable_updates": 500,
+    "global_counters": {
+      "completed_games_total": 2000,
+      "total_env_steps": 599154,
+      "total_game_steps": 229509
+    },
+    "iteration": 500,
+    "manifest_hash": "1cb0b58c9027d2bae096aa6f4d23d5c007812b444d1f3abe9f1f44df7b51219b",
+    "world_size": 2
+  },
+  "ddp_valid": true,
+  "rank_shards": [
+    {
+      "agent_merged_state_hash": "fa85885e0fe5f2332094e358f4ffad0ff5b69875d9307ed9e68a17a7209ea5b0",
+      "agent_resume_state_hash": "fa85885e0fe5f2332094e358f4ffad0ff5b69875d9307ed9e68a17a7209ea5b0",
+      "continuation_state_hash": "03e70059e6dbbb65bf6cb19ed152ea9afc8decf687cbdedf14034f76c460f23d",
+      "critic_state_hash": null,
+      "rank": 0,
+      "shard_sha256": "4b6f6509955ec6251745161308a225e2c121a95ef5f4f2c396018098667dd74a"
+    },
+    {
+      "agent_merged_state_hash": "fa85885e0fe5f2332094e358f4ffad0ff5b69875d9307ed9e68a17a7209ea5b0",
+      "agent_resume_state_hash": "fa85885e0fe5f2332094e358f4ffad0ff5b69875d9307ed9e68a17a7209ea5b0",
+      "continuation_state_hash": "0c132edc3b26cf126771e316efaccd4ffa18e260470aece71ea02d1bf72b14b1",
+      "critic_state_hash": null,
+      "rank": 1,
+      "shard_sha256": "e829fba71ad27d420e868c8bcfed8df8cb6932d40f98b76b7fcc3881c10065e7"
+    }
+  ],
+  "recovery_manifest_hash": "44fac17966a9738ed6078b4feadcb957bc0afb23f8294b72b103cbb53cdb44f2",
+  "recovery_valid": true
+}

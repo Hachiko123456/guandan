@@ -1,0 +1,112 @@
+{
+  "algorithm": "ippo",
+  "budget": {
+    "algorithm": "ippo",
+    "comparison_id": "m09-main-ippo-cumulative-v1",
+    "complete": true,
+    "completed_games": 2000,
+    "contract_hash": "893001c6ef011a1465beb84078ea410d561fe9c184935eed74087d0bd449db83",
+    "error": null,
+    "iteration": 500,
+    "remaining_completed_games": 0,
+    "remote_verified": false,
+    "schema": "guandan-marvel-completed-game-budget-observation-v1",
+    "status": "complete",
+    "strength_claim": false,
+    "target_completed_games": 2000,
+    "target_iterations": 500,
+    "updated_at": "2026-10-13T15:16:22.377580+00:00",
+    "wall_time_stopped": false
+  },
+  "champion_promotion_run": false,
+  "checkpoint_manifest": {
+    "history": [
+      {
+        "checkpoint": "checkpoints/iter000475",
+        "created_at": "2026-10-13T15:11:07.278611+00:00",
+        "durable": true,
+        "evaluation_checkpoint": null,
+        "evaluation_checkpoint_sha256": null,
+        "evaluation_error": null,
+        "evaluation_status": "not_due",
+        "iteration": 475,
+        "manifest_hash": "f18f2c805be1695a2af3b4fad0fb803dd4269122ca56c78ded9c11badf9bc05d",
+        "manifest_sha256": "82be6f97a350c6ad6224ef78bd9fc331e9a52129141c961fb1412eb03b254f72"
+      },
+      {
+        "checkpoint": "checkpoints/iter000500",
+        "created_at": "2026-10-13T15:16:03.682316+00:00",
+        "durable": true,
+        "evaluation_checkpoint": null,
+        "evaluation_checkpoint_sha256": null,
+        "evaluation_error": null,
+        "evaluation_status": "not_due",
+        "iteration": 500,
+        "manifest_hash": "1cb0b58c9027d2bae096aa6f4d23d5c007812b444d1f3abe9f1f44df7b51219b",
+        "manifest_sha256": "4a499dd07f2c524c7e27787d8e9df5f12dad0bb4b4571b8d218fd8b52b995755"
+      }
+    ],
+    "incomplete_checkpoint_count": 0,
+    "latest": {
+      "checkpoint": "checkpoints/iter000500",
+      "created_at": "2026-10-13T15:16:03.682316+00:00",
+      "durable": true,
+      "evaluation_checkpoint": null,
+      "evaluation_checkpoint_sha256": null,
+      "evaluation_error": null,
+      "evaluation_status": "not_due",
+      "iteration": 500,
+      "manifest_hash": "1cb0b58c9027d2bae096aa6f4d23d5c007812b444d1f3abe9f1f44df7b51219b",
+      "manifest_sha256": "4a499dd07f2c524c7e27787d8e9df5f12dad0bb4b4571b8d218fd8b52b995755"
+    },
+    "retention": {
+      "checkpoint_keep_last": 2,
+      "deleted_checkpoints": [
+        "checkpoints/iter000450"
+      ],
+      "deleted_evaluations": [],
+      "evaluation_keep_last": 2,
+      "retained_checkpoints": [
+        "checkpoints/iter000475",
+        "checkpoints/iter000500"
+      ],
+      "retained_evaluations": [],
+      "schema": "guandan-marvel-artifact-retention-v2",
+      "updated_at": "2026-10-13T15:16:07.003247+00:00"
+    },
+    "schema": "guandan-marvel-checkpoint-manifest-v2"
+  },
+  "completed_games": 2000,
+  "date": "2026-10-13",
+  "env_steps": 599154,
+  "formal_evaluation_run": false,
+  "game_steps": 229509,
+  "health_max": {
+    "health/action_capacity_overflows": 0.0,
+    "health/horizon_overflows": 0.0,
+    "health/illegal_actions": 0.0,
+    "health/nonfinite_gradients": 0.0,
+    "health/nonfinite_losses": 0.0,
+    "health/truncated_games": 0.0
+  },
+  "iteration": 500,
+  "metrics_iteration_range": [
+    101,
+    500
+  ],
+  "metrics_rows": 400,
+  "recovery": {
+    "checkpoint_manifest_hash": "1cb0b58c9027d2bae096aa6f4d23d5c007812b444d1f3abe9f1f44df7b51219b",
+    "manifest_hash": "44fac17966a9738ed6078b4feadcb957bc0afb23f8294b72b103cbb53cdb44f2",
+    "sha256": "2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44",
+    "status": "complete"
+  },
+  "resume_from_iteration": 100,
+  "run_id": "20261013T135603Z-main_ippo_segment0500-dc3dfe4e",
+  "schema": "guandan-marvel-m09-main-segment-summary-v1",
+  "segment": "segment0500",
+  "session_elapsed_seconds": 4795.407387847999,
+  "session_iterations": 400,
+  "status": "training_complete_awaiting_formal_evaluation",
+  "strength_claim": false
+}
