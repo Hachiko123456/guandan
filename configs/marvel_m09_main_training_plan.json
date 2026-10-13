@@ -1,0 +1,135 @@
+{
+  "champion_plan": {
+    "champion_history": "immutable generation checkpoints; never overwrite",
+    "evaluation_interval_iterations": 500,
+    "initial_champion_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+    "legacy_checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+    "matrix": [
+      "current_champion",
+      "rule",
+      "random",
+      "legacy_v1",
+      "opponent_pool_sample"
+    ],
+    "opponent_pool": "current champion plus promoted historical champions, rule and legacy anchors",
+    "promotion_policy": {
+      "ci95_low_threshold": 0.52,
+      "min_clusters": 32,
+      "mode": "formal",
+      "random_min_win_rate": 0.7,
+      "rule_min_win_rate": 0.4,
+      "schema": "guandan-marvel-promotion-policy-v2"
+    },
+    "seat_rotations": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "selection_clusters": 32
+  },
+  "claims": {
+    "final_holdout_run": false,
+    "m09_accepted": false,
+    "main_training_complete": false,
+    "main_training_delivery_ready": false,
+    "model_strength": false
+  },
+  "date": "2026-10-13",
+  "final_candidate_plan": {
+    "final_holdout_generated": false,
+    "final_holdout_one_shot": true,
+    "lock_after_iteration": 2000,
+    "lock_before_final_holdout": true
+  },
+  "initial_resume": {
+    "algorithm": "ippo",
+    "checkpoint_manifest_hash": "8b0cd55ace5214695c563b9faedfb21c1f7fd817d6da7840229c8cadba8655d9",
+    "classification": "exact_resume",
+    "completed_games": 400,
+    "iteration": 100,
+    "recovery_zip_sha256": "8b05b05f0d2f3715f2fb9701cbc4450a43d156a7cf2387eb916c2e9958c8b067",
+    "world_size": 2
+  },
+  "plan_hash": "96f324f43ab391c3912a9284fd1dc862424b4c19d63ae9b375a0c15627095f88",
+  "schema": "guandan-marvel-m09-main-training-plan-v1",
+  "segment_protocol": {
+    "incomplete_session": "resume from the latest same-source durable recovery to the same absolute target iteration",
+    "reason": "formal evaluation/champion runs are separated from DDP training so no long single-rank evaluation holds distributed resources",
+    "sequence": [
+      "train to segment boundary",
+      "download and verify output/recovery",
+      "run mandatory formal selection/champion evaluation",
+      "record promotion/pool state",
+      "only then start next segment"
+    ],
+    "training_evaluation_interval": 0
+  },
+  "segments": [
+    {
+      "id": "segment0500",
+      "target_completed_games": 2000,
+      "target_iteration": 500
+    },
+    {
+      "id": "segment1000",
+      "target_completed_games": 4000,
+      "target_iteration": 1000
+    },
+    {
+      "id": "segment1500",
+      "target_completed_games": 6000,
+      "target_iteration": 1500
+    },
+    {
+      "id": "segment2000",
+      "target_completed_games": 8000,
+      "target_iteration": 2000
+    }
+  ],
+  "selected_algorithm": "ippo",
+  "selection_decision_hash": "f12421fd57b85fe3067974953382f59719da2fda4edbd2b35a2faa7dbda791bf",
+  "selection_status": "retain_ippo_inconclusive",
+  "source_identity": {
+    "package_id": "guandan-marvel-m09-algorithm-pilot-20261011-r2",
+    "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_content_manifest_hash": "fd8853e379b3bb2a6eefc00474bda9c200aa49139bcbea841a4ffa7c105e6fca"
+  },
+  "stage": "M09_full_training",
+  "training": {
+    "agent_epoch": 4,
+    "agent_merging_beta": 0.0,
+    "amp_enabled": false,
+    "checkpoint_interval": 25,
+    "checkpoint_keep_last": 2,
+    "collect_batch_size_global": 4,
+    "compile_enabled": false,
+    "ddp_backend": "nccl",
+    "evaluation_keep_last": 2,
+    "max_wall_seconds_per_segment": 15000,
+    "mini_batches": 2,
+    "model": {
+      "action_layers": 2,
+      "architecture": "v1.3",
+      "decoder_heads": 4,
+      "decoder_layers": 4,
+      "feature_dim": 256,
+      "fuse_layers": 2,
+      "history_dim": 128,
+      "state_layers": 3
+    },
+    "replay_buffer_scale": 8,
+    "rollout_batch_size_global": 4,
+    "use_muon": false,
+    "world_size": 2
+  },
+  "training_distribution": {
+    "decision": "retain_m08_locked_distribution_for_m09_direct_policy_baseline",
+    "generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+    "known_limit": "main training does not directly sample all 13 level ranks or tribute contexts; independent selection/final evaluation retains broad coverage and may prevent E2/E3 acceptance",
+    "level_rank": "Rank.TWO",
+    "previous_result": null,
+    "reason": "preserves exact resume and the controlled pilot semantic contract; dynamic multi-context training requires a separately verified native scheduler and is not introduced silently during M09"
+  }
+}
