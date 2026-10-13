@@ -1,0 +1,34 @@
+{
+  "checks": [
+    {
+      "file_count": 303,
+      "name": "outer_zip_crc_and_path_safety",
+      "status": "passed"
+    },
+    {
+      "file_count": 16,
+      "mismatches": 0,
+      "name": "nested_output_zip_crc_and_content_match",
+      "status": "passed"
+    },
+    {
+      "declared_files": 187,
+      "mismatches": 0,
+      "name": "source_manifest_content_verification",
+      "status": "passed"
+    },
+    {
+      "fatal_matches": 0,
+      "name": "log_fatal_error_scan",
+      "status": "passed"
+    },
+    {
+      "exit_code": 0,
+      "name": "remote_identity_review",
+      "run_id": "20261013T050124Z-preflight-cc1d459b",
+      "status": "passed"
+    }
+  ],
+  "failures": 0,
+  "schema": "guandan-marvel-m09-r2-remote-preflight-test-results-v1"
+}

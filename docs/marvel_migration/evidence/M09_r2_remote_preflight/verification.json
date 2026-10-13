@@ -1,0 +1,31 @@
+{
+  "accepted": false,
+  "date": "2026-10-13",
+  "formal_training_complete": false,
+  "hard_gates": {
+    "algorithm_selected": false,
+    "cpp_build_complete": true,
+    "cpp_import_complete": true,
+    "cpp_source_matches_binary": true,
+    "cuda_available": true,
+    "fatal_error_absent": true,
+    "locked_config_match": true,
+    "nccl_available": true,
+    "output_integrity": true,
+    "plan_match": true,
+    "r2_ippo_pilot_complete": false,
+    "r2_package_identity": true,
+    "r2_vrpo_pilot_complete": false,
+    "real_kaggle_runtime": true,
+    "runner_exit_zero": true,
+    "source_commit_match": true,
+    "source_content_files_match": true,
+    "torchrun_available": true,
+    "two_tesla_t4": true
+  },
+  "m09_accepted": false,
+  "model_strength": false,
+  "next_action": "run the r2 ippo_pilot Dataset on Kaggle T4x2 and return console/output/recovery artifacts",
+  "schema": "guandan-marvel-m09-r2-remote-preflight-verification-v1",
+  "status": "passed"
+}

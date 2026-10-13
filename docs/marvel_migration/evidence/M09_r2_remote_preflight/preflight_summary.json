@@ -1,0 +1,77 @@
+{
+  "bootstrap": {
+    "elapsed_seconds": 46.674772335,
+    "message": "process completed exit=0",
+    "mode": "preflight",
+    "pid": 23,
+    "process_elapsed_seconds": 8.389238385999988,
+    "schema": "guandan-marvel-bootstrap-progress-v1",
+    "stage": "runner",
+    "status": "complete"
+  },
+  "date": "2026-10-13",
+  "environment": {
+    "cpu_count_logical": 4,
+    "cpu_count_physical": 2,
+    "cuda_available": true,
+    "cuda_device_count": 2,
+    "cuda_runtime": "12.8",
+    "gpus": [
+      {
+        "index": 0,
+        "memory_total_mib": 15360.0,
+        "memory_used_mib": 3.0,
+        "name": "Tesla T4",
+        "power_watts": 10.75,
+        "status": "ok",
+        "utilization_percent": 0.0
+      },
+      {
+        "index": 1,
+        "memory_total_mib": 15360.0,
+        "memory_used_mib": 3.0,
+        "name": "Tesla T4",
+        "power_watts": 10.46,
+        "status": "ok",
+        "utilization_percent": 0.0
+      }
+    ],
+    "platform": "Linux-6.18.48+-x86_64-with-glibc2.39",
+    "python": "3.13.15",
+    "ram_total_bytes": 33658318848,
+    "schema": "guandan-marvel-runtime-environment-v1",
+    "timestamp": "2026-10-13T05:01:24.795740+00:00",
+    "torch": "2.11.0+cu128"
+  },
+  "exit_code": 0,
+  "kaggle_runtime": true,
+  "locked_config_sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21",
+  "mode": "preflight",
+  "package_id": "guandan-marvel-m09-algorithm-pilot-20261011-r2",
+  "plan_hash": "5ca94bd3d930b86f99e5bdc329e0405fbaa0023ef64ff47cd5564b457b84f8f7",
+  "progress": {
+    "complete": true,
+    "completed_games": 0,
+    "env_steps": 0,
+    "game_steps": 0,
+    "heartbeat_at": "2026-10-13T05:01:24.989613+00:00",
+    "iteration": 0,
+    "latest_checkpoint": null,
+    "latest_evaluation": null,
+    "phase": "preflight_complete",
+    "remote_preflight_passed": true,
+    "remote_verified": false,
+    "schema": "guandan-marvel-progress-v1"
+  },
+  "remote_preflight_passed": true,
+  "remote_verified_scope": "r2 preflight only",
+  "role": "preflight",
+  "run_id": "20261013T050124Z-preflight-cc1d459b",
+  "schema": "guandan-marvel-m09-r2-remote-preflight-summary-v1",
+  "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+  "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+  "source_content_manifest_hash": "fd8853e379b3bb2a6eefc00474bda9c200aa49139bcbea841a4ffa7c105e6fca",
+  "status": "complete",
+  "strength_claim": false,
+  "training_started": false
+}
