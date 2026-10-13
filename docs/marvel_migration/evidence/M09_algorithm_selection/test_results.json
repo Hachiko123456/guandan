@@ -1,0 +1,75 @@
+{
+  "checks": [
+    {
+      "name": "manifest_hash_valid",
+      "status": "passed",
+      "value": true
+    },
+    {
+      "name": "decision_hash_valid",
+      "status": "passed",
+      "value": true
+    },
+    {
+      "name": "summary_decision_exact",
+      "status": "passed",
+      "value": true
+    },
+    {
+      "name": "rows",
+      "status": "passed",
+      "value": 260
+    },
+    {
+      "name": "unique_matrix_keys",
+      "status": "passed",
+      "value": 260
+    },
+    {
+      "name": "clusters",
+      "status": "passed",
+      "value": 65
+    },
+    {
+      "name": "four_rotations_each",
+      "status": "passed",
+      "value": true
+    },
+    {
+      "name": "candidate_wins",
+      "status": "passed",
+      "value": 116
+    },
+    {
+      "name": "illegal_count",
+      "status": "observed",
+      "value": 0
+    },
+    {
+      "name": "truncated_count",
+      "status": "observed",
+      "value": 0
+    },
+    {
+      "name": "recomputed_ci_matches",
+      "status": "passed",
+      "value": true
+    },
+    {
+      "name": "candidate_hashes",
+      "status": "passed",
+      "value": [
+        "db8aa71f22ec88091acb189e6c57df2ac9ac0c1d18e3a931f4d7a1ec2cca9853"
+      ]
+    },
+    {
+      "name": "opponent_hashes",
+      "status": "passed",
+      "value": [
+        "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c"
+      ]
+    }
+  ],
+  "failures": 0,
+  "schema": "guandan-marvel-m09-algorithm-selection-test-results-v1"
+}

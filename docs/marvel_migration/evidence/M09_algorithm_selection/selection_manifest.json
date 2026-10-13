@@ -1,0 +1,146 @@
+{
+  "algorithms": {
+    "ippo": {
+      "algorithm": "ippo",
+      "architecture": "v1.3",
+      "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+      "bytes": 8316529,
+      "iteration": 100,
+      "path": "ippo_iter000100.pt",
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+      "resolved_config_hash": "5ae777a870653a877cbef0bdb2876b709f85eea8d1ea9d2ef46094b8df444afc",
+      "schema": "guandan-marvel-evaluation-checkpoint-v1",
+      "sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+      "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+      "training_data_provenance_hash": "b77207cb951112344465353f61f086540da9b0fce6a69f16d058704acc18c369"
+    },
+    "vrpo": {
+      "algorithm": "vrpo",
+      "architecture": "v1.3",
+      "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+      "bytes": 8314923,
+      "iteration": 100,
+      "path": "vrpo_iter000100.pt",
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+      "resolved_config_hash": "a0d5bfe1f9409f65844ed5463c3a0851b4ce659b1993d452f27598ea0d334325",
+      "schema": "guandan-marvel-evaluation-checkpoint-v1",
+      "sha256": "db8aa71f22ec88091acb189e6c57df2ac9ac0c1d18e3a931f4d7a1ec2cca9853",
+      "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+      "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+      "training_data_provenance_hash": "f4c1fcc9019dc967eb5581f4c5d37585bd3bd1f44f4eb6824e286eceef7d9b82"
+    }
+  },
+  "claims": {
+    "final_holdout": false,
+    "formal_champion_promotion": false,
+    "strength_claim": false
+  },
+  "comparison_id": "m09-ippo-vrpo-equal-games-v1",
+  "created_at": "2026-10-13T09:15:29.011275+00:00",
+  "gate": {
+    "champion_promotion": false,
+    "direct_candidate": "vrpo",
+    "direct_opponent": "ippo",
+    "direct_rule": "select VRPO if direct clustered CI low > 0.5; select IPPO if direct clustered CI high < 0.5",
+    "final_fallback": "retain the locked M08 IPPO baseline when both intervals are inconclusive",
+    "final_holdout_forbidden": true,
+    "paired_rule_fallback": "if direct is inconclusive, compare paired per-deal rule-anchor difference VRPO-IPPO"
+  },
+  "manifest_hash": "120b53ea104373fc0f0f26a146c005bc16e31a2dbc8992580d427d4cbd8a5811",
+  "package_id": "guandan-marvel-m09-algorithm-selection-20261013",
+  "plan_hash": "5ca94bd3d930b86f99e5bdc329e0405fbaa0023ef64ff47cd5564b457b84f8f7",
+  "rule_anchors": {
+    "ippo": {
+      "bytes": 639029,
+      "path": "ippo_evaluation_games.jsonl",
+      "sha256": "938c80ea17dab7eb46c17a3f401692329cd0d2e2b93b37012139e717e3929cf6"
+    },
+    "vrpo": {
+      "bytes": 639060,
+      "path": "vrpo_evaluation_games.jsonl",
+      "sha256": "a3e339eef0d14fc664c9962c691071e987ecdc68e0b57f4c57e72ee7973a5a68"
+    }
+  },
+  "schema": "guandan-marvel-m09-algorithm-selection-manifest-v1",
+  "selection_dataset": {
+    "base_deals": 65,
+    "dataset_hash": "c8d11821a0a9cf8969c304fdbdfaa371c0addbc6883cf20e9617e526b6b5b583",
+    "leader_seats": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "level_ranks": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "previous_results": [
+      null,
+      {
+        "outcome_class": "DOUBLE_DOWN",
+        "ranking": [
+          1,
+          3,
+          2,
+          4
+        ],
+        "tribute_cancelled": false,
+        "winner_team": 0
+      },
+      {
+        "outcome_class": "HEAD_THIRD",
+        "ranking": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "tribute_cancelled": false,
+        "winner_team": 0
+      },
+      {
+        "outcome_class": "HEAD_LAST",
+        "ranking": [
+          1,
+          2,
+          4,
+          3
+        ],
+        "tribute_cancelled": false,
+        "winner_team": 0
+      },
+      {
+        "outcome_class": "HEAD_THIRD",
+        "ranking": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "tribute_cancelled": true,
+        "winner_team": 0
+      }
+    ],
+    "seat_rotations": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "seed_base": 1000000000
+  },
+  "shared_workload_hash": "6f9bd5c6d9d45fa2adab118be0c043181ab77d68e2d6c21572ec00062a3225ff"
+}

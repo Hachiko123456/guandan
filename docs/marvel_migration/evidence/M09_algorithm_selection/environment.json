@@ -1,0 +1,33 @@
+{
+  "cpu_count_logical": 4,
+  "cpu_count_physical": 2,
+  "cuda_available": true,
+  "cuda_device_count": 2,
+  "cuda_runtime": "12.8",
+  "gpus": [
+    {
+      "index": 0,
+      "memory_total_mib": 15360.0,
+      "memory_used_mib": 3.0,
+      "name": "Tesla T4",
+      "power_watts": 10.23,
+      "status": "ok",
+      "utilization_percent": 0.0
+    },
+    {
+      "index": 1,
+      "memory_total_mib": 15360.0,
+      "memory_used_mib": 3.0,
+      "name": "Tesla T4",
+      "power_watts": 12.31,
+      "status": "ok",
+      "utilization_percent": 0.0
+    }
+  ],
+  "platform": "Linux-6.18.48+-x86_64-with-glibc2.39",
+  "python": "3.13.15",
+  "ram_total_bytes": 33658306560,
+  "schema": "guandan-marvel-runtime-environment-v1",
+  "timestamp": "2026-10-13T10:19:13.287651+00:00",
+  "torch": "2.11.0+cu128"
+}

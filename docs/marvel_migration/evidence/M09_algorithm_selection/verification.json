@@ -1,0 +1,33 @@
+{
+  "accepted": true,
+  "champion_promotion_performed": false,
+  "checks": {
+    "candidate_hashes": [
+      "db8aa71f22ec88091acb189e6c57df2ac9ac0c1d18e3a931f4d7a1ec2cca9853"
+    ],
+    "candidate_wins": 116,
+    "clusters": 65,
+    "decision_hash_valid": true,
+    "four_rotations_each": true,
+    "illegal_count": 0,
+    "manifest_hash_valid": true,
+    "opponent_hashes": [
+      "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c"
+    ],
+    "recomputed_ci_matches": true,
+    "rows": 260,
+    "summary_decision_exact": true,
+    "truncated_count": 0,
+    "unique_matrix_keys": 260
+  },
+  "date": "2026-10-13",
+  "decision_hash": "f12421fd57b85fe3067974953382f59719da2fda4edbd2b35a2faa7dbda791bf",
+  "final_holdout_used": false,
+  "m09_stage_accepted": false,
+  "next_action": "freeze the selected IPPO main-training semantic config and prepare the recoverable long-training/champion delivery",
+  "schema": "guandan-marvel-m09-algorithm-selection-verification-v1",
+  "selected_algorithm": "ippo",
+  "selection_status": "retain_ippo_inconclusive",
+  "status": "passed",
+  "strength_claim": false
+}

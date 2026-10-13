@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: head_to_head_selection_delivery_ready
+    status: main_algorithm_ippo_selected_awaiting_long_training_freeze
     accepted: false
     commit: null
     preparation_commits:
@@ -373,6 +373,7 @@ stages:
       - docs/marvel_migration/reports/M09_r2_ippo_pilot.md
       - docs/marvel_migration/reports/M09_r2_vrpo_pilot.md
       - docs/marvel_migration/reports/M09_algorithm_selection_preparation.md
+      - docs/marvel_migration/reports/M09_algorithm_selection.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -422,6 +423,13 @@ stages:
       - docs/marvel_migration/evidence/M09_algorithm_selection_preparation/test_results.json
       - docs/marvel_migration/evidence/M09_algorithm_selection_preparation/source_manifest.json
       - docs/marvel_migration/evidence/M09_algorithm_selection_preparation/verification.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection/selection_summary.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection/selection_decision.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection/selection_manifest.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection/environment.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection/verification.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection/artifact_manifest.json
+      - docs/marvel_migration/evidence/M09_algorithm_selection/test_results.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -434,11 +442,13 @@ stages:
     r2_vrpo_evaluation_checkpoint_sha256: db8aa71f22ec88091acb189e6c57df2ac9ac0c1d18e3a931f4d7a1ec2cca9853
     algorithm_selection_delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-selection-20261013
     algorithm_selection_source_commit: adfbbdbfb12c8d096f228af4661f10afdee458a4
-    note: both r2 pilots passed and a hash-bound paired head-to-head Kaggle delivery is ready; no main algorithm has been selected yet
+    algorithm_selection_decision_hash: f12421fd57b85fe3067974953382f59719da2fda4edbd2b35a2faa7dbda791bf
+    selected_main_algorithm: ippo
+    selection_semantics: direct and paired rule-anchor intervals were inconclusive; retain the locked IPPO baseline, not a claim of significant superiority
+    note: both r2 pilots and paired selection are complete; IPPO is selected for main training under the predeclared inconclusive fallback
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
-      - remote locked paired IPPO-vs-VRPO direct head-to-head selection has not run
-      - main algorithm selection decision has not been recorded
+      - main long-training level-rank/tribute distribution and semantic config are not frozen
       - main long-training deal distribution and Dataset are not frozen
       - champion history, formal selection, long training, final candidate and one-shot final holdout are incomplete
 

@@ -1,0 +1,19 @@
+{
+  "artifacts": [
+    {
+      "bytes": 28252,
+      "path": "runs/M09_full_training/remote/algorithm_selection_20261013T1019Z/downloaded/guandan-marvel-algorithm-selection.zip",
+      "sha256": "65daedee28476f160448dba7b7e5a7915f5bacdf7a59aa479b1d42714b3c0aff"
+    },
+    {
+      "bytes": 98599,
+      "path": "runs/M09_full_training/remote/algorithm_selection_20261013T1019Z/downloaded/kaggle-console.log",
+      "sha256": "f82015b7c3d52c6fb0e6f0e52cca0a0067932a1fa0a6febe9d47dd61c102092a"
+    }
+  ],
+  "large_artifacts_committed": false,
+  "schema": "guandan-marvel-m09-algorithm-selection-artifact-manifest-v1",
+  "unsafe_paths": 0,
+  "zip_crc_ok": true,
+  "zip_entries": 5
+}
