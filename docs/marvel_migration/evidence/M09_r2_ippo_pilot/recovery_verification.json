@@ -1,0 +1,168 @@
+{
+  "artifact_consistency": {
+    "champion_manifest.json": {
+      "match": true,
+      "output_sha256": "070898a7fed0531de2394db325c6c35860d72af9a7447ccb16aa977c6e1dd927",
+      "recovery_sha256": "070898a7fed0531de2394db325c6c35860d72af9a7447ccb16aa977c6e1dd927"
+    },
+    "checkpoint_manifest.json": {
+      "match": true,
+      "output_sha256": "ef63e714517b73d35a9614999818dced004d425a62a32f6b58f8fe646c62bfb1",
+      "recovery_sha256": "ef63e714517b73d35a9614999818dced004d425a62a32f6b58f8fe646c62bfb1"
+    },
+    "evaluation_summary.json": {
+      "match": true,
+      "output_sha256": "46c7c8170574eae2972f910abc0411c1508c46beacaf535525515a47d0f5df06",
+      "recovery_sha256": "46c7c8170574eae2972f910abc0411c1508c46beacaf535525515a47d0f5df06"
+    },
+    "progress.json": {
+      "match": true,
+      "output_sha256": "3f9ff6aacd708cbc4f888df23e614eb05dbf93a919de2ed93e6331e5c0ca6768",
+      "recovery_sha256": "3f9ff6aacd708cbc4f888df23e614eb05dbf93a919de2ed93e6331e5c0ca6768"
+    },
+    "resolved_config.json": {
+      "match": true,
+      "output_sha256": "41e413e625f46d7dcdf2beb5412ff0fb6cb739ccbe40f358b0169b43ceef334b",
+      "recovery_sha256": "41e413e625f46d7dcdf2beb5412ff0fb6cb739ccbe40f358b0169b43ceef334b"
+    },
+    "runtime_environment.json": {
+      "match": true,
+      "output_sha256": "be69958db53a14421a8b7287a51027748a1e2e2618e9ecf20dd6eb9eb643b162",
+      "recovery_sha256": "be69958db53a14421a8b7287a51027748a1e2e2618e9ecf20dd6eb9eb643b162"
+    },
+    "source_manifest.json": {
+      "match": true,
+      "output_sha256": "66918fd6badca38fd4d2427e957db96f6d33509f682c716436b812446196851a",
+      "recovery_sha256": "66918fd6badca38fd4d2427e957db96f6d33509f682c716436b812446196851a"
+    }
+  },
+  "ddp": {
+    "algorithm": "ippo",
+    "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+    "complete": true,
+    "durable_updates": 100,
+    "global_counters": {
+      "completed_games_total": 400,
+      "total_env_steps": 122426,
+      "total_game_steps": 47893
+    },
+    "iteration": 100,
+    "manifest_hash": "8b0cd55ace5214695c563b9faedfb21c1f7fd817d6da7840229c8cadba8655d9",
+    "rank_resolved_config_hashes": [
+      "5ae777a870653a877cbef0bdb2876b709f85eea8d1ea9d2ef46094b8df444afc",
+      "f9038a0eae0f992976f509f13be823904b397a672037bd981b3ba2cdf7aaacbb"
+    ],
+    "schema": "guandan-marvel-ddp-checkpoint-v2",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "world_size": 2
+  },
+  "ddp_valid": true,
+  "rank_shards": [
+    {
+      "continuation_state_hash": "9ef74659235c9527fcb9f0789451d219eb2c1e016504767bdd012f0427717121",
+      "critic_state_hash": null,
+      "merged_state_hash": null,
+      "rank": 0,
+      "resume_state_hash": null,
+      "shard": "rank000.pt",
+      "shard_sha256": "759d972b80ab8fc871601e593487c2ff7dff620bcbce2ea4fbac400abd53479a"
+    },
+    {
+      "continuation_state_hash": "dee42e6a21573965b89686dcdf2c2278ffd357d25fda6ca96622045815f756eb",
+      "critic_state_hash": null,
+      "merged_state_hash": null,
+      "rank": 1,
+      "resume_state_hash": null,
+      "shard": "rank001.pt",
+      "shard_sha256": "75e31102b80976fb92c70332d9cb3529fe92812c42ce611284f49e03431df126"
+    }
+  ],
+  "recovery_manifest": {
+    "checkpoint": "checkpoint/manifest.json",
+    "checkpoint_manifest_hash": "8b0cd55ace5214695c563b9faedfb21c1f7fd817d6da7840229c8cadba8655d9",
+    "created_at": "2026-10-13T06:00:21.079410+00:00",
+    "files": [
+      {
+        "bytes": 67529,
+        "path": "checkpoint/manifest.json",
+        "sha256": "e821f9a09c265fdb25eabdc567fc892a8e77b940479118813749fab1d5d7d650"
+      },
+      {
+        "bytes": 581490228,
+        "path": "checkpoint/rank000.pt",
+        "sha256": "759d972b80ab8fc871601e593487c2ff7dff620bcbce2ea4fbac400abd53479a"
+      },
+      {
+        "bytes": 16896,
+        "path": "checkpoint/rank000.summary.json",
+        "sha256": "65425ba0a71545a268de9922821474f65935daa4a6388bb261fc96f890ff8308"
+      },
+      {
+        "bytes": 581494708,
+        "path": "checkpoint/rank001.pt",
+        "sha256": "75e31102b80976fb92c70332d9cb3529fe92812c42ce611284f49e03431df126"
+      },
+      {
+        "bytes": 16897,
+        "path": "checkpoint/rank001.summary.json",
+        "sha256": "96a97522a994a2ac118c9b967455f4ee2f17071120f0074f56aba007ac4f0836"
+      },
+      {
+        "bytes": 2213,
+        "path": "artifacts/checkpoint_manifest.json",
+        "sha256": "ef63e714517b73d35a9614999818dced004d425a62a32f6b58f8fe646c62bfb1"
+      },
+      {
+        "bytes": 272,
+        "path": "artifacts/champion_manifest.json",
+        "sha256": "070898a7fed0531de2394db325c6c35860d72af9a7447ccb16aa977c6e1dd927"
+      },
+      {
+        "bytes": 2680,
+        "path": "artifacts/evaluation_summary.json",
+        "sha256": "46c7c8170574eae2972f910abc0411c1508c46beacaf535525515a47d0f5df06"
+      },
+      {
+        "bytes": 7435,
+        "path": "artifacts/resolved_config.json",
+        "sha256": "41e413e625f46d7dcdf2beb5412ff0fb6cb739ccbe40f358b0169b43ceef334b"
+      },
+      {
+        "bytes": 802,
+        "path": "artifacts/runtime_environment.json",
+        "sha256": "be69958db53a14421a8b7287a51027748a1e2e2618e9ecf20dd6eb9eb643b162"
+      },
+      {
+        "bytes": 37040,
+        "path": "artifacts/source_manifest.json",
+        "sha256": "66918fd6badca38fd4d2427e957db96f6d33509f682c716436b812446196851a"
+      },
+      {
+        "bytes": 1627,
+        "path": "artifacts/progress.json",
+        "sha256": "3f9ff6aacd708cbc4f888df23e614eb05dbf93a919de2ed93e6331e5c0ca6768"
+      },
+      {
+        "bytes": 1041744,
+        "path": "runtime/_guandan_cpp.cpython-313-x86_64-linux-gnu.so",
+        "sha256": "5b9a1fd71361c27cdecafe8d6612165e8cfbdddd948b47679cfb6956f6e17a83"
+      }
+    ],
+    "iteration": 100,
+    "manifest_hash": "b5ead3dcf6c3ea999ca7beec6b81e703cbd706a8442ea82da3e868eb3e5a6d6e",
+    "package_id": "guandan-marvel-m09-algorithm-pilot-20261011-r2",
+    "remote_verified": false,
+    "runtime_binary": {
+      "archive_path": "runtime/_guandan_cpp.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 1041744,
+      "restore_relative_path": "nanopokerlib/_guandan_cpp.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "5b9a1fd71361c27cdecafe8d6612165e8cfbdddd948b47679cfb6956f6e17a83"
+    },
+    "schema": "guandan-marvel-recovery-manifest-v3",
+    "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_content_manifest_hash": "fd8853e379b3bb2a6eefc00474bda9c200aa49139bcbea841a4ffa7c105e6fca",
+    "status": "complete"
+  },
+  "recovery_valid": true
+}

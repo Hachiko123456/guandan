@@ -1,0 +1,29 @@
+{
+  "artifacts": [
+    {
+      "bytes": 8016773,
+      "path": "runs/M09_full_training/remote/r2_ippo_pilot_20261013T051332Z/downloaded/guandan-marvel-output.zip",
+      "sha256": "e1ce14c3e49c3faac1efacb03ef4f77cd3d918acfda870bc87ec40bda54ceaf2"
+    },
+    {
+      "bytes": 61472597,
+      "path": "runs/M09_full_training/remote/r2_ippo_pilot_20261013T051332Z/downloaded/guandan-marvel-recovery.zip",
+      "sha256": "8b05b05f0d2f3715f2fb9701cbc4450a43d156a7cf2387eb916c2e9958c8b067"
+    },
+    {
+      "bytes": 516948,
+      "path": "runs/M09_full_training/remote/r2_ippo_pilot_20261013T051332Z/downloaded/kaggle-console.log",
+      "sha256": "d9315f1321f038f01aa7c4ed103e6c974f4ccaf284a0c30d43b9b538ecc7cde8"
+    },
+    {
+      "bytes": 8316529,
+      "path": "runs/M09_full_training/remote/r2_ippo_pilot_20261013T051332Z/extracted-output/evaluation_checkpoints/iter000100.pt",
+      "sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c"
+    }
+  ],
+  "large_artifacts_committed": false,
+  "output_zip_crc_ok": true,
+  "recovery_zip_crc_ok": true,
+  "schema": "guandan-marvel-m09-r2-ippo-artifact-manifest-v1",
+  "unsafe_paths": 0
+}

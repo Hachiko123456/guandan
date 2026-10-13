@@ -1,0 +1,32 @@
+{
+  "accepted_as_controlled_algorithm_pilot": true,
+  "date": "2026-10-13",
+  "hard_gates": {
+    "algorithm_selected": false,
+    "durable_checkpoint_complete": true,
+    "evaluation_checkpoint_frozen": true,
+    "evaluation_matrix_520_complete": true,
+    "evaluation_rendezvous_complete": true,
+    "exact_completed_game_budget_400": true,
+    "final_holdout_absent": true,
+    "formal_selection_absent": true,
+    "iterations_100": true,
+    "nccl_ddp_one_model": true,
+    "r2_package_identity": true,
+    "real_kaggle_t4x2": true,
+    "recovery_manifest_hashes_valid": true,
+    "selection_dataset_identity_match": true,
+    "two_rank_shards_valid": true,
+    "vrpo_pilot_complete": false,
+    "zero_capacity_overflow": true,
+    "zero_horizon_overflow": true,
+    "zero_illegal": true,
+    "zero_nonfinite": true,
+    "zero_truncation": true
+  },
+  "m09_stage_accepted": false,
+  "next_action": "run r2 vrpo_pilot with the same 400 completed-game budget and return console/output/recovery artifacts",
+  "schema": "guandan-marvel-m09-r2-ippo-pilot-verification-v1",
+  "status": "passed",
+  "strength_claim": false
+}
