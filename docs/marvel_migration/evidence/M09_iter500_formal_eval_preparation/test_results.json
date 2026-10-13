@@ -1,0 +1,22 @@
+{
+  "commands": [
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle -q",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 57
+    },
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle/test_m09_formal_eval_control.py -q",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 2
+    }
+  ],
+  "failures": 0,
+  "schema": "guandan-marvel-m09-iter500-formal-eval-preparation-test-results-v1"
+}

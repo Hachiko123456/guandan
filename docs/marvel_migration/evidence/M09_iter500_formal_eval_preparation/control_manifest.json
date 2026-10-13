@@ -1,0 +1,26 @@
+{
+  "claims": {
+    "final_holdout": false,
+    "m09_accepted": false,
+    "strength_claim": false
+  },
+  "created_at": "2026-10-14",
+  "expected": {
+    "candidate_checkpoint_manifest_hash": "1cb0b58c9027d2bae096aa6f4d23d5c007812b444d1f3abe9f1f44df7b51219b",
+    "candidate_iteration": 500,
+    "initial_champion_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+    "runtime_binary_sha256": "5b9a1fd71361c27cdecafe8d6612165e8cfbdddd948b47679cfb6956f6e17a83",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_manifest_hash": "fd8853e379b3bb2a6eefc00474bda9c200aa49139bcbea841a4ffa7c105e6fca"
+  },
+  "legacy_checkpoint": {
+    "path": "legacy_v1_anchor.pt",
+    "sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d"
+  },
+  "manifest_hash": "75bd050d935d69bcb8ace7107c3c2088c3bdb806888d2a1f2513ef5b77d94800",
+  "schema": "guandan-marvel-m09-formal-eval-control-v1",
+  "script": {
+    "path": "m09_kaggle_formal_eval.py",
+    "sha256": "b6f6d7378441582f1ac37acba41f7077fb4d857f75ffc0a34134dc3e69c25408"
+  }
+}

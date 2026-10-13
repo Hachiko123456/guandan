@@ -1,0 +1,32 @@
+{
+  "control_dataset_directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-iter0500-formal-eval-20261014\\dataset",
+  "control_files": [
+    {
+      "bytes": 100909,
+      "name": "legacy_v1_anchor.pt",
+      "sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d"
+    },
+    {
+      "bytes": 1111,
+      "name": "m09_formal_eval_control.json",
+      "sha256": "395109b7d9be9e8ff6a0cc3d439055630f2029d740551532f232b4134d0062e8"
+    },
+    {
+      "bytes": 8978,
+      "name": "m09_kaggle_formal_eval.py",
+      "sha256": "b6f6d7378441582f1ac37acba41f7077fb4d857f75ffc0a34134dc3e69c25408"
+    }
+  ],
+  "kaggle_inputs": [
+    "this small control Dataset (upload once)",
+    "segment0500 Notebook Output",
+    "r2 IPPO Pilot Notebook Output"
+  ],
+  "large_training_files_reupload_required": false,
+  "notebook": {
+    "bytes": 2464,
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-iter0500-formal-eval-20261014\\guandan_marvel_m09_iter0500_formal_eval.ipynb",
+    "sha256": "73d676b828909c5ade0c7793a8d68c50823b10915b3e3545589e96b84517bb36"
+  },
+  "schema": "guandan-marvel-m09-iter500-formal-eval-upload-inventory-v1"
+}

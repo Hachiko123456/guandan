@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: main_ippo_iter500_training_passed_awaiting_formal_evaluation
+    status: iter500_formal_evaluation_delivery_ready
     accepted: false
     commit: null
     preparation_commits:
@@ -377,6 +377,7 @@ stages:
       - docs/marvel_migration/reports/M09_algorithm_selection.md
       - docs/marvel_migration/reports/M09_main_training_preparation.md
       - docs/marvel_migration/reports/M09_main_segment0500.md
+      - docs/marvel_migration/reports/M09_iter500_formal_eval_preparation.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -447,6 +448,10 @@ stages:
       - docs/marvel_migration/evidence/M09_main_segment0500/artifact_manifest.json
       - docs/marvel_migration/evidence/M09_main_segment0500/test_results.json
       - docs/marvel_migration/evidence/M09_main_segment0500/verification.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval_preparation/control_manifest.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval_preparation/upload_inventory.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval_preparation/verification.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval_preparation/test_results.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -469,7 +474,8 @@ stages:
     main_iteration: 500
     main_completed_games: 2000
     main_iter500_recovery_sha256: 2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44
-    note: exact-resume IPPO training reached iteration500/2000 games with zero health failures and complete recovery; mandatory formal evaluation/champion review is pending
+    iter500_formal_eval_control_root: D:\project\kaggle_train\guandan-marvel-m09-iter0500-formal-eval-20261014
+    note: exact-resume IPPO reached iter500/2000 games; a small reusable control Dataset and notebook-output chaining evaluation delivery are ready, without re-uploading source/recovery/checkpoints
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
       - formal selection/champion evaluation after segment0500 has not run
