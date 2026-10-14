@@ -27,6 +27,7 @@ CONTINUATION_ARCHIVE_NAME = "guandan-marvel-continuation.zip"
 CONTINUATION_MANIFEST_NAME = "unified_continuation.json"
 PIPELINE_STATE_NAME = "pipeline_state.json"
 TRAINING_COMMIT_NAME = "training_commit.json"
+AUTO_CONTINUATION_SCHEMA = "guandan-marvel-m09-auto-continuation-v1"
 
 PIPELINE_PHASES = (
     "DISCOVER_INPUTS",
@@ -76,6 +77,84 @@ DEFAULT_SEGMENT_SCHEDULE = (
     SegmentTarget("segment1500", 1_500, 6_000),
     SegmentTarget("segment2000", 2_000, 8_000),
 )
+
+
+
+
+@dataclass(frozen=True, slots=True)
+class AutoContinuationConfig:
+    """Versioned optional multi-segment policy; disabled is the safe default."""
+
+    schema: str = AUTO_CONTINUATION_SCHEMA
+    enabled: bool = False
+    max_segments_per_run: int = 1
+    final_holdout_allowed: bool = False
+
+    @classmethod
+    def from_mapping(cls, value: Mapping[str, object] | None) -> "AutoContinuationConfig":
+        if value is None:
+            return cls()
+        if value.get("schema") != AUTO_CONTINUATION_SCHEMA:
+            raise ValueError("unsupported auto-continuation schema")
+        result = cls(
+            enabled=bool(value.get("enabled", False)),
+            max_segments_per_run=int(value.get("max_segments_per_run", 1)),
+            final_holdout_allowed=bool(value.get("final_holdout_allowed", False)),
+        )
+        if result.max_segments_per_run <= 0:
+            raise ValueError("auto-continuation max_segments_per_run must be positive")
+        if result.final_holdout_allowed:
+            raise ValueError("M09 unified auto-continuation may never authorize final holdout")
+        return result
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "schema": self.schema,
+            "enabled": self.enabled,
+            "max_segments_per_run": self.max_segments_per_run,
+            "final_holdout_allowed": False,
+        }
+
+
+def continuation_gate(
+    *,
+    config: AutoContinuationConfig,
+    segments_completed_this_run: int,
+    evaluation: Mapping[str, object],
+    promotion: Mapping[str, object],
+    health: Mapping[str, object],
+    floors: Mapping[str, object],
+) -> dict[str, object]:
+    reasons: list[str] = []
+    manual_review = False
+    if not config.enabled:
+        reasons.append("automatic continuation is disabled")
+    if segments_completed_this_run >= config.max_segments_per_run:
+        reasons.append("per-run automatic segment limit reached")
+    if evaluation.get("complete") is not True or not evaluation.get("identity_verified", True):
+        reasons.append("formal evaluation is incomplete or identity verification failed")
+    health_failures = {key: value for key, value in health.items() if int(value) != 0}
+    if health_failures:
+        reasons.append(f"evaluation health failures: {health_failures}")
+    floor_failures = [name for name, passed in floors.items() if passed is not True]
+    if floor_failures:
+        manual_review = True
+        reasons.append(f"rule/random hard floors require manual review: {floor_failures}")
+    status = str(promotion.get("status", ""))
+    if status not in {"promote", "inconclusive"}:
+        reasons.append(f"promotion status blocks continuation: {status or 'missing'}")
+    if promotion.get("promote") is True and status != "promote":
+        reasons.append("promotion decision is internally inconsistent")
+    allowed = not reasons
+    return {
+        "schema": "guandan-marvel-m09-continuation-gate-v1",
+        "allowed": allowed,
+        "manual_review": manual_review,
+        "promotion_status": status,
+        "retain_existing_champion": status == "inconclusive",
+        "reasons": reasons,
+        "final_holdout_allowed": False,
+    }
 
 
 @dataclass(frozen=True, slots=True)
@@ -569,10 +648,10 @@ class UnifiedSegmentPipeline:
 
 
 __all__ = [
-    "CONTINUATION_ARCHIVE_NAME", "CONTINUATION_MANIFEST_NAME", "CONTINUATION_SCHEMA",
+    "AUTO_CONTINUATION_SCHEMA", "AutoContinuationConfig", "CONTINUATION_ARCHIVE_NAME", "CONTINUATION_MANIFEST_NAME", "CONTINUATION_SCHEMA",
     "DEFAULT_SEGMENT_SCHEDULE", "FAILURE_PHASES", "PIPELINE_PHASES", "PIPELINE_STATE_NAME",
     "PIPELINE_STATE_SCHEMA", "PipelineHooks", "PipelineStateStore", "SegmentTarget",
     "TRAINING_COMMIT_NAME", "TRAINING_COMMIT_SCHEMA", "TrainingArtifacts", "UnifiedSegmentPipeline",
-    "commit_training_artifacts", "create_continuation_bundle", "discover_previous_continuation",
+    "commit_training_artifacts", "continuation_gate", "create_continuation_bundle", "discover_previous_continuation",
     "load_training_commit", "read_recovery_progress", "select_next_segment", "validate_recovery_archive",
 ]
