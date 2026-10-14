@@ -1,0 +1,26 @@
+{
+  "artifact_preflight": "passed",
+  "delivery_control_manifest_hash": "fcb518a1ef8d51928db65585ab0bff32d9e18c56366057255d948cf2406db8e4",
+  "delivery_manifest_hash": "d07ebb2327678b38eb77b8b1085f8d585fe4f0b72fc0b3d584b5f1034b0f650b",
+  "final_holdout_generated": false,
+  "fix": [
+    "immediate unified_bootstrap_stage startup event",
+    "10-second bootstrap heartbeat with current stage",
+    "stage events for dataset/control/source/overlay/recovery/native/pipeline",
+    "reuse validated read-only auto-unpacked recovery directory instead of copying it"
+  ],
+  "hash": "ebc4983afc903a99d82e34e39abe808ff8ede8d4e36f127c57a74a7a7881be45",
+  "observed_symptom": "saved-version Logs could remain blank for hundreds of seconds before native-import",
+  "root_cause": [
+    "Notebook emitted no startup/stage logs before native import",
+    "auto-unpacked recovery directory was recursively copied to /kaggle/working even though resume is read-only; the uncompressed checkpoint tree is over 1 GiB"
+  ],
+  "schema": "guandan-marvel-m09-unified-bootstrap-observability-repair-v1",
+  "status": "fixed_and_artifact_preflight_passed",
+  "upload_zip": {
+    "bytes": 69293512,
+    "entries": 20,
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\guandan-marvel-m09-unified-dataset-upload-v7.zip",
+    "sha256": "8025d3ee194a85778b548fda3a79f2b59318e1d5a481c541846c0e0196124cb6"
+  }
+}

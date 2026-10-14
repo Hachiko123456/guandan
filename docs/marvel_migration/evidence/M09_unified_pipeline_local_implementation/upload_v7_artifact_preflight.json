@@ -1,0 +1,27 @@
+{
+  "acceptance_profile_materialized": true,
+  "control_manifest_hash": "fcb518a1ef8d51928db65585ab0bff32d9e18c56366057255d948cf2406db8e4",
+  "final_holdout_generated": false,
+  "hash": "e78bf79314af4847ae48243da3ebdcd0befaf0c7fc66f2ae057d65a81975b1f6",
+  "outer_control_files_verified": 14,
+  "packaged_provenance_current": true,
+  "real_cpp_deal_hash_checks": [
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb"
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "725ac906e65984521a40b02b51ab4828f5829a07e261f6287f093c4967a02587"
+    }
+  ],
+  "runtime_dataset_source_kind": "directory",
+  "schema": "guandan-marvel-m09-unified-upload-artifact-preflight-v1",
+  "selected_recovery_iteration": 500,
+  "simulated_kaggle_source_kind": "directory",
+  "status": "passed",
+  "upload_zip": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\guandan-marvel-m09-unified-dataset-upload-v7.zip",
+  "upload_zip_sha256": "8025d3ee194a85778b548fda3a79f2b59318e1d5a481c541846c0e0196124cb6"
+}

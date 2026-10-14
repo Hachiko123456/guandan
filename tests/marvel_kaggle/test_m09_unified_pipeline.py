@@ -315,6 +315,9 @@ def test_unified_dataset_notebook_delivery_validation(tmp_path, monkeypatch):
     assert validation["production_enabled"] is False
     assert validation["auto_continuation_enabled"] is False
     assert validation["final_holdout_generated"] is False
+    notebook_text = (output / delivery.UNIFIED_NOTEBOOK_NAME).read_text(encoding="utf-8")
+    assert "unified_bootstrap_heartbeat" in notebook_text
+    assert "copy_directory=False" in notebook_text
     assert (output / "dataset/control_overlay/guandan_marvel/evaluation/provenance.py").read_bytes() == (repo_root / "guandan_marvel/evaluation/provenance.py").read_bytes()
     assert not list(output.rglob("*final_holdout*"))
     shutil.rmtree(output.parent)
@@ -335,6 +338,9 @@ def test_latest_recovery_prefers_previous_output_over_static_seed(tmp_path):
     assert int(selected.manifest["iteration"]) == 1000
     root = materialize_recovery_candidate(selected, tmp_path / "materialized")
     assert json.loads((root / "recovery_manifest.json").read_text())["iteration"] == 1000
+    directory_candidate = type(selected)("directory", root, json.loads((root / "recovery_manifest.json").read_text()), None)
+    reused = materialize_recovery_candidate(directory_candidate, tmp_path / "unused", copy_directory=False)
+    assert reused == root.resolve() and not (tmp_path / "unused").exists()
 
 
 def test_retry_with_target_recovery_uses_pending_segment_and_skips_training(tmp_path):

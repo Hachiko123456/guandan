@@ -36,10 +36,22 @@ def _overlay_init() -> str:
 
 
 NOTEBOOK_BOOTSTRAP = r'''from pathlib import Path
-import hashlib, importlib.util, json, os, shutil, subprocess, sys, time, traceback, zipfile
+import hashlib, importlib.util, json, os, shutil, subprocess, sys, threading, time, traceback, zipfile
 from IPython.display import FileLink, display
 INPUT_ROOT=Path('/kaggle/input'); WORKING_ROOT=Path('/kaggle/working')
 PIPELINE_EXIT=1; PIPELINE_ERROR=None
+BOOTSTRAP_STARTED=time.monotonic(); BOOTSTRAP_STAGE={'name':'startup'}; BOOTSTRAP_STOP=threading.Event()
+
+def stage(name, **extra):
+    BOOTSTRAP_STAGE['name']=name
+    print(json.dumps({'event':'unified_bootstrap_stage','stage':name,'elapsed_seconds':round(time.monotonic()-BOOTSTRAP_STARTED,3),**extra},sort_keys=True,ensure_ascii=False),flush=True)
+
+def bootstrap_heartbeat():
+    while not BOOTSTRAP_STOP.wait(10.0):
+        print(json.dumps({'event':'unified_bootstrap_heartbeat','stage':BOOTSTRAP_STAGE['name'],'elapsed_seconds':round(time.monotonic()-BOOTSTRAP_STARTED,3)},sort_keys=True),flush=True)
+
+stage('startup')
+BOOTSTRAP_THREAD=threading.Thread(target=bootstrap_heartbeat,name='unified-bootstrap-heartbeat',daemon=True); BOOTSTRAP_THREAD.start()
 
 def sha(path):
     h=hashlib.sha256()
@@ -57,6 +69,7 @@ def stream(command, *, cwd, env, label):
     code=process.wait(); print(f'[{label}] exit={code}',flush=True); return code
 
 try:
+    stage('dataset_discovery')
     manifests=sorted(INPUT_ROOT.rglob('guandan_marvel_dataset.json'))
     controls=sorted(INPUT_ROOT.rglob('m09_unified_control.json'))
     if len(manifests)!=1 or len(controls)!=1:
@@ -65,6 +78,7 @@ try:
     if CONTROL.get('schema')!='guandan-marvel-m09-unified-control-v1' or CONTROL.get('manifest_hash')!=canonical({k:v for k,v in CONTROL.items() if k!='manifest_hash'}):
         raise RuntimeError('Unified control manifest identity mismatch')
     base=CONTROL_PATH.parent.resolve()
+    stage('control_validation',control_files=len(CONTROL['control_files']))
     for row in CONTROL['control_files']:
         path=(base/row['path']).resolve()
         if not path.is_relative_to(base) or not path.is_file() or path.stat().st_size!=row['bytes'] or sha(path)!=row['sha256']:
@@ -73,8 +87,10 @@ try:
     if sha(bootstrap_path)!=bootstrap_spec['sha256']: raise RuntimeError('Dataset bootstrap hash mismatch')
     spec=importlib.util.spec_from_file_location('m09_dataset_bootstrap',bootstrap_path); BOOTSTRAP=importlib.util.module_from_spec(spec); sys.modules[spec.name]=BOOTSTRAP; spec.loader.exec_module(BOOTSTRAP)
     empty=WORKING_ROOT/'m09-unified-empty-input'; empty.mkdir(parents=True,exist_ok=True)
+    stage('source_materialization')
     prepared=BOOTSTRAP.prepare_inputs(DATASET_PATH,input_root=empty,working_root=WORKING_ROOT)
     SOURCE_ROOT=Path(prepared['source_root'])
+    stage('control_overlay_materialization')
     overlay_source=DATASET_PATH.parent/'control_overlay'; OVERLAY_ROOT=WORKING_ROOT/'m09-unified-control-overlay'
     if OVERLAY_ROOT.exists(): shutil.rmtree(OVERLAY_ROOT)
     shutil.copytree(overlay_source,OVERLAY_ROOT)
@@ -82,20 +98,27 @@ try:
     ENV=os.environ.copy(); ENV['PYTHONUNBUFFERED']='1'; ENV['PYTHONDONTWRITEBYTECODE']='1'; ENV['PYTHONPATH']=str(OVERLAY_ROOT)+os.pathsep+str(SOURCE_ROOT)+(os.pathsep+ENV['PYTHONPATH'] if ENV.get('PYTHONPATH') else '')
     ENV['GUANDAN_MARVEL_SOURCE_ROOT']=str(SOURCE_ROOT); ENV['GUANDAN_MARVEL_SOURCE_COMMIT']=str(CONTROL['source_identity']['source_commit'])
     from guandan_marvel.kaggle.unified_pipeline import discover_latest_recovery, materialize_recovery_candidate
+    stage('recovery_discovery')
     selected=discover_latest_recovery(INPUT_ROOT,source_identity=CONTROL['source_identity'])
-    RECOVERY_ROOT=materialize_recovery_candidate(selected,WORKING_ROOT/'guandan-marvel-recovery')
+    stage('recovery_materialization',kind=selected.kind,iteration=int(selected.manifest.get('iteration',-1)))
+    RECOVERY_ROOT=materialize_recovery_candidate(selected,WORKING_ROOT/'guandan-marvel-recovery',copy_directory=False)
     recovery_manifest=json.loads((RECOVERY_ROOT/'recovery_manifest.json').read_text(encoding='utf-8'))
     restored=False; runtime_binary=recovery_manifest.get('runtime_binary')
     if isinstance(runtime_binary,dict):
         source_binary=RECOVERY_ROOT/runtime_binary['archive_path']; target_binary=SOURCE_ROOT/runtime_binary['restore_relative_path']; target_binary.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(source_binary,target_binary); restored=True
     if not restored:
+        stage('native_build')
         build_env=dict(ENV); build_env['GUANDAN_BUILD_TIMEOUT_SECONDS']='600'
         if stream([sys.executable,'-u','setup.py','build_ext','--inplace'],cwd=SOURCE_ROOT,env=build_env,label='native-build')!=0: raise RuntimeError('native build failed')
+    stage('native_import')
     if stream([sys.executable,'-u','-c',"import guandan_marvel.cpp_game as g; print(g.get_backend_build_identity(),flush=True)"],cwd=SOURCE_ROOT,env=ENV,label='native-import')!=0: raise RuntimeError('native import failed')
+    stage('unified_pipeline')
     script=OVERLAY_ROOT/'scripts/m09_unified_pipeline.py'
     command=[sys.executable,'-u',str(script),'--dataset-manifest',str(DATASET_PATH),'--control-manifest',str(CONTROL_PATH),'--input-root',str(INPUT_ROOT),'--working-root',str(WORKING_ROOT),'--source-root',str(SOURCE_ROOT),'--recovery-root',str(RECOVERY_ROOT)]
     PIPELINE_EXIT=stream(command,cwd=SOURCE_ROOT,env=ENV,label='unified-pipeline')
+    BOOTSTRAP_STOP.set(); BOOTSTRAP_THREAD.join(timeout=2.0)
 except BaseException as error:
+    BOOTSTRAP_STOP.set(); BOOTSTRAP_THREAD.join(timeout=2.0)
     PIPELINE_ERROR=f'{type(error).__name__}: {error}'
     print(PIPELINE_ERROR,flush=True); traceback.print_exc()
 '''

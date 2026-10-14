@@ -373,7 +373,18 @@ def discover_latest_recovery(
     return directories[0] if directories else finalists[0]
 
 
-def materialize_recovery_candidate(candidate: RecoveryCandidate, destination: str | Path) -> Path:
+def materialize_recovery_candidate(
+    candidate: RecoveryCandidate,
+    destination: str | Path,
+    *,
+    copy_directory: bool = True,
+) -> Path:
+    if candidate.kind == "directory" and not copy_directory:
+        # Kaggle auto-unpacked recovery trees are immutable inputs.  Training
+        # resume only reads them, so avoid a silent 1+ GiB copy before the
+        # first Notebook log line.
+        read_recovery_progress(candidate.path)
+        return candidate.path.resolve()
     target = Path(destination).resolve()
     if target.exists():
         shutil.rmtree(target)

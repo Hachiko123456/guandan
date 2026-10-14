@@ -69,8 +69,8 @@
 - initial iter500 recovery SHA-256：`2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44`；
 - iter100 champion seed SHA-256：`b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c`；
 - legacy V1 anchor SHA-256：`880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d`；
-- Unified control manifest hash：`95e3c2b716c3b08baa7222f96f13e947ca4a398a75173a76a7b145d41dd19a08`；
-- delivery manifest hash：`5ef5e75f866085e770ce20497cc7e9401f04946bc8bfb21ee7c95e7651f60a53`。
+- Unified control manifest hash：`fcb518a1ef8d51928db65585ab0bff32d9e18c56366057255d948cf2406db8e4`；
+- delivery manifest hash：`d07ebb2327678b38eb77b8b1085f8d585fe4f0b72fc0b3d584b5f1034b0f650b`。
 
 完整 hash 清单：
 
@@ -343,7 +343,15 @@ GUANDAN_M09_REMOTE_VALIDATION=C
 - `docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/remote_a_formal_deal_hash_repair.json`；
 - `docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/upload_v6_artifact_preflight.json`。
 
-## 15. 已知限制与下一步
+## 15. Bootstrap observability / recovery-copy repair（2026-10-14）
+
+Saved Version 可能在数百秒内显示 0 B 且无日志，原因是 Notebook 第一条输出原本要等到 native import；此前会静默完成 control/source 校验、overlay materialization、recovery discovery，并把 Kaggle 已自动解包的完整 recovery checkpoint tree 再复制到 `/kaggle/working`。该 tree 解压后超过 1 GiB，在存储抖动时会形成长时间空白。
+
+v7 改为：启动即输出 stage；每 10 秒输出 bootstrap heartbeat；每个 discovery/materialization/native/pipeline 阶段立即 flush；对经过验证的 auto-unpacked recovery directory 直接只读复用，不再复制。最终 v7 ZIP 已再次通过模拟 Kaggle auto-unpack artifact preflight。
+
+上传包：`D:\project\kaggle_train\guandan-marvel-m09-unified-pipeline-v1\guandan-marvel-m09-unified-dataset-upload-v7.zip`；SHA-256 `8025d3ee194a85778b548fda3a79f2b59318e1d5a481c541846c0e0196124cb6`；69,293,512 bytes；20 entries。
+
+## 16. 已知限制与下一步
 
 - Remote A/B/C 尚未执行；当前只能称 `local implementation complete / remote validation pending`。
 - 不得直接用未经 Remote A/B/C 验证的 Unified 高级路径运行正式 Segment1000。

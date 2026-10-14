@@ -74,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
         empty = temp / "empty-input"; empty.mkdir()
         prepared = prepare_inputs(dataset / "guandan_marvel_dataset.json", input_root=empty, working_root=temp / "working")
         selected = discover_latest_recovery(dataset, source_identity=control["source_identity"])
-        recovery_root = materialize_recovery_candidate(selected, temp / "selected-recovery")
+        recovery_root = materialize_recovery_candidate(selected, temp / "selected-recovery", copy_directory=False)
         recovery_manifest = json.loads((recovery_root / "recovery_manifest.json").read_text(encoding="utf-8"))
         if int(recovery_manifest["iteration"]) != 500:
             raise AssertionError("wrong recovery iteration")
