@@ -160,6 +160,9 @@ def _copy_verified_continuation(manifest_path: Path, *, output_root: Path) -> di
 
 
 def _runtime_dataset(*, dataset_manifest_path: Path, target: SegmentTarget, runtime_root: Path) -> Path:
+    from guandan_marvel.kaggle.bootstrap import resolve_dataset_input
+
+    resolved_dataset = resolve_dataset_input(dataset_manifest_path)
     dataset = _load(dataset_manifest_path)
     profile = json.loads(json.dumps(dataset["profiles"][dataset["mode"]]))
     profile["mode"] = "resume"
@@ -180,9 +183,16 @@ def _runtime_dataset(*, dataset_manifest_path: Path, target: SegmentTarget, runt
     runtime["recovery"] = {"required": True, "auto_discovery": False}
     runtime["m09"]["role"] = f"unified_{target.segment_id}"
     runtime["m09"]["segment"] = target.identity()
+    if runtime_root.exists():
+        shutil.rmtree(runtime_root)
     runtime_root.mkdir(parents=True, exist_ok=True)
     base = dataset_manifest_path.parent
     shutil.copy2(base / str(dataset["source"]["manifest"]), runtime_root / str(dataset["source"]["manifest"]))
+    if resolved_dataset.source.kind == "zip":
+        shutil.copy2(resolved_dataset.source.path, runtime_root / str(dataset["source"]["archive"]))
+    else:
+        source_root_name = str(resolved_dataset.source.content_manifest["source_root"])
+        shutil.copytree(resolved_dataset.source.path, runtime_root / source_root_name, symlinks=False)
     for key in ("plan", "locked_config"):
         item = dataset["m09"][key]
         shutil.copy2(base / str(item["path"]), runtime_root / str(item["path"]))

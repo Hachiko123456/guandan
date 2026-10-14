@@ -1,7 +1,7 @@
 {
   "auto_continuation_enabled": false,
   "champion_seed_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
-  "control_manifest_hash": "dd229f94f70e47e45d18cdd2f9043014b61305752f39f15451f0f69f45c3b658",
+  "control_manifest_hash": "86ecb0133d21335a0c0fd928204ca033b356123f14be84b94659bdbd89dd301e",
   "dataset_count": 1,
   "delivery_id": "guandan-marvel-m09-unified-pipeline-v1",
   "dual_gpu_formal_remote_validated": false,

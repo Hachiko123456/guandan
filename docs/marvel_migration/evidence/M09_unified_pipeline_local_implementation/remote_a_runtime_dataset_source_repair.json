@@ -1,0 +1,26 @@
+{
+  "checkpoint_modified": false,
+  "delivery_control_manifest_hash": "86ecb0133d21335a0c0fd928204ca033b356123f14be84b94659bdbd89dd301e",
+  "delivery_manifest_hash": "926cd82f7079d014466804a23c0a55f578d9ce7f59feb87d5a17f70eb489ec90",
+  "final_holdout_generated": false,
+  "fix": "_runtime_dataset now resolves the original Dataset source input and copies either the retained source ZIP or the exact manifest-declared unpacked source tree into the temporary runtime Dataset before launching the DDP runner.",
+  "hash": "8092fbda069c1b3f23ee409351a05c9d973f87ad76a28cf4b1243403a00b97db",
+  "observed_error": "runtime resume dataset validation could not find its declared source ZIP or validated unpacked source directory",
+  "root_cause": "Kaggle correctly auto-unpacked both source and recovery inputs. The Unified orchestrator generated a temporary resume manifest and copied only source_manifest.json, but the existing runner performs full source resolution relative to that temporary manifest.",
+  "schema": "guandan-marvel-m09-unified-runtime-dataset-source-repair-v1",
+  "screenshot_layout_correct": true,
+  "segment1000_started": false,
+  "status": "fixed_reupload_required",
+  "tests": {
+    "kaggle_auto_unpacked_directory": true,
+    "pytest": "12 passed",
+    "retained_zip": true
+  },
+  "training_started": false,
+  "upload_zip": {
+    "bytes": 69291260,
+    "entries": 19,
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\guandan-marvel-m09-unified-dataset-upload-v4.zip",
+    "sha256": "e4e0376470dc10beb03488a5c45374a0d33bb4cfe89b8fff0edc0ea10ae603fa"
+  }
+}

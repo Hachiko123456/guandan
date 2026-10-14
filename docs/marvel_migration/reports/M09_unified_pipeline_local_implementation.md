@@ -69,8 +69,8 @@
 - initial iter500 recovery SHA-256：`2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44`；
 - iter100 champion seed SHA-256：`b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c`；
 - legacy V1 anchor SHA-256：`880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d`；
-- Unified control manifest hash：`dd229f94f70e47e45d18cdd2f9043014b61305752f39f15451f0f69f45c3b658`；
-- delivery manifest hash：`463bf9b2e7c827d9489945a0556ba07fcac6e9f8bc9af8425ec6a37ab6cb1df4`。
+- Unified control manifest hash：`86ecb0133d21335a0c0fd928204ca033b356123f14be84b94659bdbd89dd301e`；
+- delivery manifest hash：`926cd82f7079d014466804a23c0a55f578d9ce7f59feb87d5a17f70eb489ec90`。
 
 完整 hash 清单：
 
@@ -285,7 +285,30 @@ GUANDAN_M09_REMOTE_VALIDATION=C
 
 机器证据：`docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/remote_a_bootstrap_repair.json`。
 
-## 13. 已知限制与下一步
+## 13. Remote A runtime Dataset source repair（2026-10-14）
+
+第三次 Kaggle 尝试进一步通过了 acceptance profile materialization、iter500 recovery discovery，并开始调用既有 DDP runner。截图中 `guandan-marvel-source/guandan-marvel-source` 和 `m09_initial_iter0500_recovery.seed/{checkpoint,runtime,...}` 是 Kaggle 自动解包后的正确布局，不是用户操作错误。
+
+失败发生在临时 Remote A resume Dataset 校验：Unified orchestrator 只复制了 external `source_manifest.json`，而既有 runner 会相对于临时 Dataset manifest 再执行完整 source resolution，因此找不到 declared source ZIP，也找不到完整的 manifest-declared unpacked source tree。
+
+修复后 `_runtime_dataset`：
+
+1. 对原 Unified Dataset 调用 shared `resolve_dataset_input()`；
+2. 若 Kaggle 保留 source ZIP，则复制并绑定该 ZIP；
+3. 若 Kaggle 自动解包，则复制 exact manifest-declared source tree；
+4. 再生成临时 resume manifest并启动 DDP runner。
+
+新增回归同时覆盖 retained ZIP 和 Kaggle auto-unpacked directory，两种路径均通过。该失败仍发生在 torchrun 启动前，没有 learner update、checkpoint 变更或 Segment1000。修复上传包：
+
+`D:\project\kaggle_train\guandan-marvel-m09-unified-pipeline-v1\guandan-marvel-m09-unified-dataset-upload-v4.zip`
+
+- bytes：69,291,260；
+- SHA-256：`e4e0376470dc10beb03488a5c45374a0d33bb4cfe89b8fff0edc0ea10ae603fa`；
+- 19 entries。
+
+机器证据：`docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/remote_a_runtime_dataset_source_repair.json`。
+
+## 14. 已知限制与下一步
 
 - Remote A/B/C 尚未执行；当前只能称 `local implementation complete / remote validation pending`。
 - 不得直接用未经 Remote A/B/C 验证的 Unified 高级路径运行正式 Segment1000。

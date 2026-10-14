@@ -401,3 +401,43 @@ def test_remote_validation_target_override_is_small_and_does_not_select_segment1
     result = pipeline.run(iteration=500, completed_games=2000, target_override=target)
     assert result["segment"] == target.identity()
     assert observed == [target]
+
+
+def test_runtime_dataset_preserves_retained_or_auto_unpacked_source(tmp_path):
+    import importlib.util
+    import zipfile
+    from guandan_marvel.kaggle.bootstrap import resolve_dataset_input
+
+    repo_root = Path(__file__).resolve().parents[2]
+    spec = importlib.util.spec_from_file_location("m09_unified_pipeline_runtime_dataset", repo_root / "scripts/m09_unified_pipeline.py")
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    delivery_dataset = Path(r"D:\project\kaggle_train\guandan-marvel-m09-unified-pipeline-v1\dataset")
+    target = SegmentTarget("remote_a_smoke0502", 502, 2008)
+
+    retained = module._runtime_dataset(
+        dataset_manifest_path=delivery_dataset / "guandan_marvel_dataset.json",
+        target=target,
+        runtime_root=tmp_path / "retained-runtime",
+    )
+    assert resolve_dataset_input(retained).source.kind == "zip"
+
+    unpacked_dataset = tmp_path / "auto-unpacked-dataset"
+    unpacked_dataset.mkdir()
+    for name in (
+        "guandan_marvel_dataset.json",
+        "source_manifest.json",
+        "marvel_m09_main_training_plan.json",
+        "marvel_m08_locked_config.json",
+    ):
+        shutil.copy2(delivery_dataset / name, unpacked_dataset / name)
+    with zipfile.ZipFile(delivery_dataset / "guandan-marvel-source.zip") as archive:
+        archive.extractall(unpacked_dataset)
+    assert not (unpacked_dataset / "guandan-marvel-source.zip").exists()
+    unpacked = module._runtime_dataset(
+        dataset_manifest_path=unpacked_dataset / "guandan_marvel_dataset.json",
+        target=target,
+        runtime_root=tmp_path / "unpacked-runtime",
+    )
+    assert resolve_dataset_input(unpacked).source.kind == "directory"

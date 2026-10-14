@@ -1,9 +1,9 @@
 {
-  "control_manifest_hash": "dd229f94f70e47e45d18cdd2f9043014b61305752f39f15451f0f69f45c3b658",
+  "control_manifest_hash": "86ecb0133d21335a0c0fd928204ca033b356123f14be84b94659bdbd89dd301e",
   "dataset_count": 1,
   "dataset_path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\dataset",
   "delivery_id": "guandan-marvel-m09-unified-pipeline-v1",
-  "delivery_manifest_hash": "463bf9b2e7c827d9489945a0556ba07fcac6e9f8bc9af8425ec6a37ab6cb1df4",
+  "delivery_manifest_hash": "926cd82f7079d014466804a23c0a55f578d9ce7f59feb87d5a17f70eb489ec90",
   "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1",
   "files": [
     {
@@ -52,9 +52,9 @@
       "sha256": "d02c9dcaaf3dbfcacba0ccd4af61902ea0bafccc425efaca9b232eb7f22fa8b5"
     },
     {
-      "bytes": 39216,
+      "bytes": 39779,
       "path": "dataset/control_overlay/scripts/m09_unified_pipeline.py",
-      "sha256": "a872614b4eadf1378d6b81a60538bb774057215f3d15be59b5bffe8a04cd06da"
+      "sha256": "d4d89de4f87223906b2f499aa45a139a3b4196604e12d1cc079553ac1219dd1a"
     },
     {
       "bytes": 670997,
@@ -69,7 +69,7 @@
     {
       "bytes": 2058,
       "path": "dataset/guandan_marvel_dataset.json",
-      "sha256": "8d16377f89eeed5926c13524636230556f646eece93acd95503c2c86a29b1720"
+      "sha256": "39370df632fe084393340d0a68657cb4e2d9d991533b047980bc26f02ddaee74"
     },
     {
       "bytes": 8316529,
@@ -89,7 +89,7 @@
     {
       "bytes": 5813,
       "path": "dataset/m09_unified_control.json",
-      "sha256": "c1f6d72121830b3065ff7365b67516514db946bf3ab04a5d443ee84dc4b6aa97"
+      "sha256": "6dc2a41b1231bedee73bf0a566ab0a0fb186b764e22f32617b884c19b025e49b"
     },
     {
       "bytes": 2926,
@@ -112,7 +112,7 @@
       "sha256": "997daa76b5c328ef2968b07afbebe6a8c4bd6b5a1c1d428f44df841ab8b9678e"
     }
   ],
-  "hash": "0e9a3a2bc6d5470832ed7be619d5dd60204990d3c715fee473f9f6a5be7bb035",
+  "hash": "de6ca94355690220cf5ad0ef3e08affcff7d7acc6a808254457181496044fd72",
   "notebook_count": 1,
   "notebook_path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\guandan_marvel_m09_unified_pipeline.ipynb",
   "remote_validated": false,
