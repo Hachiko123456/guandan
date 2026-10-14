@@ -240,6 +240,14 @@ def main(argv: list[str] | None = None) -> int:
     source_identity = dict(control["source_identity"])
     champion_seed = _safe_control_file(control_base, control["champion_seed"], "champion seed")
     legacy_checkpoint = _safe_control_file(control_base, control["legacy_checkpoint"], "legacy checkpoint")
+    acceptance_profiles = _safe_control_file(control_base, control["acceptance_profiles"], "acceptance profiles")
+    profile_target = source_root / "configs/acceptance_profiles.json"
+    profile_target.parent.mkdir(parents=True, exist_ok=True)
+    if not profile_target.is_file() or sha256_file(profile_target) != sha256_file(acceptance_profiles):
+        shutil.copy2(acceptance_profiles, profile_target)
+    if sha256_file(profile_target) != control["acceptance_profiles"]["sha256"]:
+        raise ValueError("materialized acceptance profile identity mismatch")
+    _emit("acceptance_profiles_materialized", path=str(profile_target), sha256=sha256_file(profile_target))
     worker_script = _safe_control_file(control_base, control["formal_worker"], "formal worker")
     plan_path = _safe_control_file(control_base, control["main_training_plan"], "main training plan")
     main_plan = _load(plan_path)

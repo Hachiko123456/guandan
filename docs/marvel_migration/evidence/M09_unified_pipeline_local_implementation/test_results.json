@@ -35,6 +35,13 @@
       "failed": 0,
       "passed": 1,
       "result": "delivery valid"
+    },
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle/test_m09_unified_pipeline.py -q",
+      "duration_seconds": 19.0,
+      "failed": 0,
+      "passed": 11,
+      "result": "includes acceptance profile materialization regression marker and delivery validation"
     }
   ],
   "environment": {
@@ -42,7 +49,7 @@
     "python": "3.12.0"
   },
   "final_holdout_generated": false,
-  "hash": "14073a6ca6e77526ae3a4b63996f261da4e0fe34b8a72642757a39d975623465",
+  "hash": "87875d85db7d72cabc7f9fe2c5f9ffcef7942732b24f1bc036e8e72e9f8c7121",
   "remote_tests_executed": false,
   "schema": "guandan-marvel-m09-unified-test-results-v1",
   "scoped_unique_total_note": "The 22 targeted tests are subsets of the 69/61 scoped suites and are listed separately as the required feature gate.",

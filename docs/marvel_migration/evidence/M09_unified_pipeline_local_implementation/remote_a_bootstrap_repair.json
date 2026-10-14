@@ -1,0 +1,22 @@
+{
+  "checkpoint_modified": false,
+  "delivery_control_manifest_hash": "dd229f94f70e47e45d18cdd2f9043014b61305752f39f15451f0f69f45c3b658",
+  "delivery_manifest_hash": "463bf9b2e7c827d9489945a0556ba07fcac6e9f8bc9af8425ec6a37ab6cb1df4",
+  "failure_phase": "before training/DDP",
+  "final_holdout_generated": false,
+  "fix": "m09_unified_pipeline.py now verifies and copies acceptance_profiles.json to source_root/configs/acceptance_profiles.json before champion/pool initialization.",
+  "hash": "77880216fa25aa420e65ca28fc592f35a47e771f279364319877fb83a449db57",
+  "observed_error": "configs/acceptance_profiles.json missing while loading legacy_v1 anchor profile local_fast",
+  "root_cause": "Unified bootstrap materialized the exact source and native binary but did not copy the hash-bound acceptance profile catalog into source_root/configs before loading the legacy anchor.",
+  "schema": "guandan-marvel-m09-unified-remote-a-bootstrap-repair-v1",
+  "segment1000_started": false,
+  "status": "fixed_reupload_required",
+  "training_started": false,
+  "upload_zip": {
+    "bytes": 69291142,
+    "contains_nested_control_overlay_zip": false,
+    "entries": 19,
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\guandan-marvel-m09-unified-dataset-upload-v3.zip",
+    "sha256": "9acf9f3aa93c15525bd878b8dca3b0c7574ce71761407294cf6cc665d4738aed"
+  }
+}

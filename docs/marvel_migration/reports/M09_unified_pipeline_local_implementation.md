@@ -69,8 +69,8 @@
 - initial iter500 recovery SHA-256：`2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44`；
 - iter100 champion seed SHA-256：`b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c`；
 - legacy V1 anchor SHA-256：`880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d`；
-- Unified control manifest hash：`1fde8173e26256982cc298cadc9a43d02efd2929d76429315b1fd0c5adfaa14e`；
-- delivery manifest hash：`b53b73a377d6ee09db38effe111ef4f08e2fb22b937f717b457402dbe6204d15`。
+- Unified control manifest hash：`dd229f94f70e47e45d18cdd2f9043014b61305752f39f15451f0f69f45c3b658`；
+- delivery manifest hash：`463bf9b2e7c827d9489945a0556ba07fcac6e9f8bc9af8425ec6a37ab6cb1df4`。
 
 完整 hash 清单：
 
@@ -262,7 +262,30 @@ GUANDAN_M09_REMOTE_VALIDATION=C
 
 `docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/remote_validation_plan.json`
 
-## 12. 已知限制与下一步
+## 12. Remote A bootstrap repair（2026-10-14）
+
+第二次 Kaggle 尝试已通过 Unified control 校验、recovery materialization 和 native binary import，但在训练启动前加载 legacy V1 anchor 时失败：exact-resume source 内没有 `configs/acceptance_profiles.json`。根因是 Unified control Dataset 已携带并校验 acceptance profile catalog，但 runner 在 champion/pool 初始化前没有将它 materialize 到 source runtime 路径。
+
+修复后，`scripts/m09_unified_pipeline.py` 在加载 champion/legacy/pool 前：
+
+1. 验证 Dataset 中 `acceptance_profiles.json` 的 SHA-256；
+2. 复制到 `<source_root>/configs/acceptance_profiles.json`；
+3. 再次验证目标 hash；
+4. 输出 `acceptance_profiles_materialized` 事件；
+5. 才继续加载 legacy anchor。
+
+该失败发生在 training/DDP 启动前，没有修改 checkpoint、recovery、champion，也没有运行 Segment1000。修复上传包：
+
+`D:\project\kaggle_train\guandan-marvel-m09-unified-pipeline-v1\guandan-marvel-m09-unified-dataset-upload-v3.zip`
+
+- bytes：69,291,142；
+- SHA-256：`9acf9f3aa93c15525bd878b8dca3b0c7574ce71761407294cf6cc665d4738aed`；
+- 19 entries；
+- 不含会与 raw `control_overlay/` 冲突的内层 `control_overlay.zip`。
+
+机器证据：`docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/remote_a_bootstrap_repair.json`。
+
+## 13. 已知限制与下一步
 
 - Remote A/B/C 尚未执行；当前只能称 `local implementation complete / remote validation pending`。
 - 不得直接用未经 Remote A/B/C 验证的 Unified 高级路径运行正式 Segment1000。

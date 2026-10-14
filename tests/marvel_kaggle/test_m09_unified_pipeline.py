@@ -371,6 +371,8 @@ def test_unified_remote_scripts_keep_training_and_evaluation_in_separate_process
     compile(worker, "m09_unified_formal_worker.py", "exec")
     assert '"-m", "guandan_marvel.kaggle.runner"' in pipeline
     assert "DeterministicWorkerGroup" in pipeline and "worker_script" in pipeline
+    assert 'source_root / "configs/acceptance_profiles.json"' in pipeline
+    assert "acceptance_profiles_materialized" in pipeline
     assert "remote_validation_defaulted" in pipeline
     assert 'validation_control.get("default_mode", "A")' in pipeline
     assert 'validation_mode == "C"' in pipeline

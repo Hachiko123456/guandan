@@ -473,6 +473,7 @@ stages:
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/design_fault_matrix.json
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/local_smoke.json
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/remote_validation_plan.json
+      - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/remote_a_bootstrap_repair.json
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/source_control_artifact_hashes.json
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/test_results.json
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/verification.json
@@ -510,9 +511,10 @@ stages:
     current_champion_checkpoint_sha256: b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c
     segment1000_authorized: true
     unified_pipeline_delivery_root: D:\project\kaggle_train\guandan-marvel-m09-unified-pipeline-v1
-    unified_pipeline_control_manifest_hash: 1fde8173e26256982cc298cadc9a43d02efd2929d76429315b1fd0c5adfaa14e
-    unified_pipeline_delivery_manifest_hash: b53b73a377d6ee09db38effe111ef4f08e2fb22b937f717b457402dbe6204d15
+    unified_pipeline_control_manifest_hash: dd229f94f70e47e45d18cdd2f9043014b61305752f39f15451f0f69f45c3b658
+    unified_pipeline_delivery_manifest_hash: 463bf9b2e7c827d9489945a0556ba07fcac6e9f8bc9af8425ec6a37ab6cb1df4
     unified_pipeline_remote_a_complete: false
+    unified_pipeline_remote_a_last_attempt: bootstrap_failed_missing_acceptance_profiles_fixed_pending_rerun
     unified_pipeline_remote_b_complete: false
     unified_pipeline_remote_c_complete: false
     unified_pipeline_dual_gpu_formal_default: false
