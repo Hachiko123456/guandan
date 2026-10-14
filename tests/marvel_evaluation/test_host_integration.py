@@ -4,6 +4,7 @@ from guandan.state import PreviousHandResult
 from guandan_marvel.evaluation.checkpoints import load_legacy_v1_opponent, load_v2_policy
 from guandan_marvel.evaluation.host import play_game
 from guandan_marvel.evaluation.manifests import build_deals_manifest
+from guandan_marvel.evaluation.provenance import materialize_deal_identity
 
 
 def test_real_cpp_host_completes_with_dedicated_legacy_adapter(v2_checkpoint, legacy_checkpoint):
@@ -12,14 +13,18 @@ def test_real_cpp_host_completes_with_dedicated_legacy_adapter(v2_checkpoint, le
         level_ranks=(5,), leader_seats=(0,),
         previous_results=(PreviousHandResult((1, 4, 3, 2), 0, "HEAD_THIRD"),),
     )
+    deal = manifest["datasets"]["selection"][0]
+    identity = materialize_deal_identity(deal)
     record = play_game(
-        deal=manifest["datasets"]["selection"][0], rotation=0,
+        deal=deal, rotation=0,
         opponent_id="legacy", opponent_kind="legacy_v1",
         candidate=load_v2_policy(v2_checkpoint),
         legacy=load_legacy_v1_opponent(legacy_checkpoint),
         temperature=0.0,
     )
     assert record["status"] == "complete"
+    assert record["base_deal_sha256"] == identity["base_deal_sha256"]
+    assert identity["deal_sha256"] != identity["base_deal_sha256"]
     assert record["illegal_count"] == 0 and record["truncated_count"] == 0
     assert record["backend"] == "cpp"
     assert record["committed_steps"] == record["engine_finish_committed_step"]

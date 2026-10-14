@@ -189,6 +189,7 @@ def build_unified_delivery(
         "guandan_marvel/kaggle/unified_pipeline.py": repo / "guandan_marvel/kaggle/unified_pipeline.py",
         "guandan_marvel/evaluation/resumable.py": repo / "guandan_marvel/evaluation/resumable.py",
         "guandan_marvel/evaluation/dual_gpu.py": repo / "guandan_marvel/evaluation/dual_gpu.py",
+        "guandan_marvel/evaluation/provenance.py": repo / "guandan_marvel/evaluation/provenance.py",
         "scripts/m09_unified_pipeline.py": repo / "scripts/m09_unified_pipeline.py",
         "scripts/m09_unified_formal_worker.py": repo / "scripts/m09_unified_formal_worker.py",
     }

@@ -81,11 +81,13 @@ def build_resumable_evaluation_plan(
     if not protocol_version:
         raise ValueError("candidate protocol identity is missing")
     deal_hashes: dict[str, str] = {}
+    base_deal_hashes: dict[str, str] = {}
     for row in materialized_deals:
         deal_id = str(row.get("deal_id", ""))
         if not deal_id or deal_id in deal_hashes:
             raise ValueError("materialized deal IDs must be unique and nonempty")
         deal_hashes[deal_id] = str(_hex64(row.get("deal_sha256"), f"deal {deal_id}"))
+        base_deal_hashes[deal_id] = str(_hex64(row.get("base_deal_sha256", row.get("deal_sha256")), f"base deal {deal_id}"))
     if set(deal_hashes) != set(map(str, deal_ids)):
         raise ValueError("materialized deal identity set differs from the evaluation plan")
     deterministic_policy = {
@@ -117,6 +119,7 @@ def build_resumable_evaluation_plan(
                     "opponent_checkpoint_sha256": opponent_sha,
                     "deal_id": deal_id,
                     "deal_sha256": deal_hashes[deal_id],
+                    "base_deal_sha256": base_deal_hashes[deal_id],
                     "seat_rotation": int(rotation),
                 }
                 tasks.append({**body, "task_hash": _canonical_hash(body)})
@@ -190,7 +193,7 @@ def bind_formal_record(
     expected_raw = {
         "candidate_checkpoint_sha256": plan["candidate"]["checkpoint_sha256"],
         "opponent_checkpoint_sha256": task.get("opponent_checkpoint_sha256"),
-        "base_deal_sha256": str(task["deal_sha256"]),
+        "base_deal_sha256": str(task["base_deal_sha256"]),
         "backend": str(plan["backend"]),
         "protocol_version": str(plan["protocol_version"]),
     }
@@ -218,6 +221,7 @@ def bind_formal_record(
         "opponent_checkpoint_sha256": task.get("opponent_checkpoint_sha256"),
         "deal_id": str(task["deal_id"]),
         "deal_sha256": str(task["deal_sha256"]),
+        "base_deal_sha256": str(task["base_deal_sha256"]),
         "seat_rotation": int(task["seat_rotation"]),
         "backend_identity_hash": str(plan["backend_identity_hash"]),
         "protocol_version": str(plan["protocol_version"]),
@@ -255,6 +259,7 @@ def validate_formal_record(record: Mapping[str, object], *, plan: Mapping[str, o
         "opponent_checkpoint_sha256": task.get("opponent_checkpoint_sha256"),
         "deal_id": task["deal_id"],
         "deal_sha256": task["deal_sha256"],
+        "base_deal_sha256": task["base_deal_sha256"],
         "seat_rotation": task["seat_rotation"],
         "backend_identity_hash": plan["backend_identity_hash"],
         "protocol_version": plan["protocol_version"],
@@ -267,8 +272,8 @@ def validate_formal_record(record: Mapping[str, object], *, plan: Mapping[str, o
         raise ValueError("formal record candidate checkpoint differs from plan")
     if record.get("opponent_checkpoint_sha256") != task.get("opponent_checkpoint_sha256"):
         raise ValueError("formal record opponent checkpoint differs from plan")
-    if record.get("base_deal_sha256") != task["deal_sha256"]:
-        raise ValueError("formal record deal hash differs from plan")
+    if record.get("base_deal_sha256") != task["base_deal_sha256"]:
+        raise ValueError("formal record base-deal hash differs from plan")
     if record.get("backend") != plan["backend"] or record.get("protocol_version") != plan["protocol_version"]:
         raise ValueError("formal record backend/protocol identity differs from plan")
     if record.get("status") != "complete":

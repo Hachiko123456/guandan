@@ -2,15 +2,15 @@
   "commands": [
     {
       "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle -q",
-      "duration_seconds": 58.09,
+      "duration_seconds": 62.22,
       "failed": 0,
-      "passed": 70
+      "passed": 71
     },
     {
       "command": "python -m pytest --import-mode=importlib tests/marvel_evaluation -q",
-      "duration_seconds": 54.3,
+      "duration_seconds": 57.19,
       "failed": 0,
-      "passed": 62
+      "passed": 63
     },
     {
       "command": "python -m pytest --import-mode=importlib tests/marvel_training tests/unit/test_checkpoint_compatibility.py tests/unit/test_kaggle_recovery.py -q",
@@ -20,9 +20,9 @@
     },
     {
       "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle/test_m09_unified_pipeline.py tests/marvel_evaluation/test_resumable_formal.py tests/marvel_evaluation/test_dual_gpu_formal.py -q",
-      "duration_seconds": 18.13,
+      "duration_seconds": 21.34,
       "failed": 0,
-      "passed": 24
+      "passed": 26
     },
     {
       "command": "python scripts/run_m09_unified_local_smoke.py --output runs/m09_unified_local_smoke.json",
@@ -42,6 +42,13 @@
       "failed": 0,
       "passed": 12,
       "result": "includes retained ZIP and Kaggle auto-unpacked source runtime-dataset regression"
+    },
+    {
+      "command": "python scripts/verify_m09_unified_upload_artifact.py --upload-zip ...upload-v6.zip --output runs/m09_unified_upload_v6_preflight.json",
+      "duration_seconds": 19.34,
+      "failed": 0,
+      "passed": 1,
+      "result": "simulated Kaggle auto-unpack, runtime source resolution, acceptance profile materialization, packaged provenance identity, and two real C++ deal-hash checks passed"
     }
   ],
   "environment": {
@@ -49,7 +56,7 @@
     "python": "3.12.0"
   },
   "final_holdout_generated": false,
-  "hash": "ed0a2e9c03fe91814cd02d464f196f9154ecd24ceca50c399661d51158b3d066",
+  "hash": "eedabd37a9108f7662407e8a920c4e8038857ab7d443c2587de90e256a00ee82",
   "remote_tests_executed": false,
   "schema": "guandan-marvel-m09-unified-test-results-v1",
   "scoped_unique_total_note": "The 22 targeted tests are subsets of the 69/61 scoped suites and are listed separately as the required feature gate.",

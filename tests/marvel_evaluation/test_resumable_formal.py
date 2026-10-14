@@ -251,3 +251,25 @@ def test_resumable_selection_plan_supports_nonpromoting_remote_smoke():
     )
     assert plan["promotion_allowed"] is False
     assert plan["final_holdout"] is False
+
+
+def test_formal_record_distinguishes_provenance_deal_hash_from_physical_base_deal_hash():
+    base = _base_plan(("selection-000000",))
+    plan = build_resumable_evaluation_plan(
+        base_plan=base,
+        materialized_deals=[{
+            "deal_id": "selection-000000",
+            "deal_sha256": "1" * 64,
+            "base_deal_sha256": "2" * 64,
+        }],
+    )
+    task = plan["tasks"][0]
+    raw = _raw(task)
+    raw["base_deal_sha256"] = "2" * 64
+    record = bind_formal_record(raw, plan=plan, task=task)
+    assert record["formal_binding"]["deal_sha256"] == "1" * 64
+    assert record["formal_binding"]["base_deal_sha256"] == "2" * 64
+    foreign = _raw(task)
+    foreign["base_deal_sha256"] = "1" * 64
+    with pytest.raises(ValueError, match="base_deal_sha256"):
+        bind_formal_record(foreign, plan=plan, task=task)

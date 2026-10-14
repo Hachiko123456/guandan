@@ -9,6 +9,7 @@ from typing import Iterable, Mapping
 from guandan_marvel import cpp_game
 
 from .checkpoints import V2PolicyArtifact
+from .common import canonical_json_bytes
 from .manifests import deal_game_config, deals_for, dataset_identity, validate_deals_manifest
 
 DATA_ISOLATION_SCHEMA = "guandan-marvel-data-isolation-verification-v1"
@@ -23,8 +24,9 @@ def materialize_deal_identity(row: Mapping[str, object]) -> dict[str, object]:
     env = cpp_game.EnvBatch(1, configs=[config], auto_reset=False)
     env.reset(int(row["seed"]))
     state = env.debug_state(0)["state"]
+    hands = [sorted(int(card) for card in hand) for hand in state["hands"]]
     identity = {
-        "hands": [sorted(int(card) for card in hand) for hand in state["hands"]],
+        "hands": hands,
         "level_rank": int(state["level_rank"]),
         "leader_seat": int(state["leader_seat"]),
         "previous_result": state.get("previous_result"),
@@ -32,7 +34,11 @@ def materialize_deal_identity(row: Mapping[str, object]) -> dict[str, object]:
     return {
         "deal_id": str(row["deal_id"]),
         "seed": int(row["seed"]),
+        # Full identity remains the training-overlap/provenance hash.
         "deal_sha256": _canonical_hash(identity),
+        # The game host's base_deal_sha256 intentionally binds only the 27x4
+        # physical hands, independent of level/leader/previous-result context.
+        "base_deal_sha256": hashlib.sha256(canonical_json_bytes(hands)).hexdigest(),
     }
 
 

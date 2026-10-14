@@ -1,0 +1,37 @@
+{
+  "delivery_control_manifest_hash": "95e3c2b716c3b08baa7222f96f13e947ca4a398a75173a76a7b145d41dd19a08",
+  "delivery_manifest_hash": "5ef5e75f866085e770ce20497cc7e9401f04946bc8bfb21ee7c95e7651f60a53",
+  "final_holdout_generated": false,
+  "fix": [
+    "materialize_deal_identity now returns both deal_sha256 and base_deal_sha256",
+    "resumable tasks/bindings carry both identities",
+    "packaged control overlay now includes the repaired provenance.py",
+    "real C++ host regression asserts planned base hash equals play_game hash"
+  ],
+  "hash": "52f2791f80b223001c4b52bc203d5395ee313df9972fa8a03a7771adb5f744cf",
+  "observed_error": "formal worker rejected base_deal_sha256 because the resumable plan used the full contextual provenance deal hash while play_game emits a physical-hands-only base-deal hash",
+  "remote_observation": {
+    "completed_games": 2008,
+    "continuation_generated": true,
+    "evaluation_failed_before_first_record": true,
+    "training_commit_preserved": true,
+    "training_reached_iteration": 502
+  },
+  "root_cause": "Two intentional hash domains were conflated: training overlap/provenance hash includes hands+level+leader+previous_result; game record base_deal_sha256 binds only the 27x4 physical hands.",
+  "schema": "guandan-marvel-m09-unified-formal-deal-hash-repair-v1",
+  "status": "fixed_and_artifact_preflight_passed",
+  "upload_zip": {
+    "bytes": 69293382,
+    "entries": 20,
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\guandan-marvel-m09-unified-dataset-upload-v6.zip",
+    "sha256": "6c1b17d1b8ad3ce42dd7f051895c294fc43696e3d3560df6de841092db80e87e"
+  },
+  "validation": {
+    "marvel_evaluation_passed": 63,
+    "marvel_kaggle_passed": 71,
+    "real_cpp_deal_hash_checks": 2,
+    "simulated_kaggle_auto_unpack": true,
+    "targeted_passed": 26,
+    "upload_artifact_preflight": "passed"
+  }
+}

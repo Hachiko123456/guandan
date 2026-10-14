@@ -1,9 +1,9 @@
 {
-  "control_manifest_hash": "86ecb0133d21335a0c0fd928204ca033b356123f14be84b94659bdbd89dd301e",
+  "control_manifest_hash": "95e3c2b716c3b08baa7222f96f13e947ca4a398a75173a76a7b145d41dd19a08",
   "dataset_count": 1,
   "dataset_path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\dataset",
   "delivery_id": "guandan-marvel-m09-unified-pipeline-v1",
-  "delivery_manifest_hash": "926cd82f7079d014466804a23c0a55f578d9ce7f59feb87d5a17f70eb489ec90",
+  "delivery_manifest_hash": "5ef5e75f866085e770ce20497cc7e9401f04946bc8bfb21ee7c95e7651f60a53",
   "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1",
   "files": [
     {
@@ -32,9 +32,14 @@
       "sha256": "cba2fdf55f0d869d31b1c7e56b7b55f4a0b7c121c40e97c5c0be1f6288a3493c"
     },
     {
-      "bytes": 27975,
+      "bytes": 5798,
+      "path": "dataset/control_overlay/guandan_marvel/evaluation/provenance.py",
+      "sha256": "ae3dce1338f73a136134eb16221dbd3fa001a54cb88111795d53db12e14d1d2d"
+    },
+    {
+      "bytes": 28342,
       "path": "dataset/control_overlay/guandan_marvel/evaluation/resumable.py",
-      "sha256": "7232c3920585742fe7c87e491dce2df3feaf28aac856c53a23966c8c1557dfa7"
+      "sha256": "657d078a056985c8e8a6932bc8b4c9e3c34a0e7cbd414dad9bdbe861cbac6716"
     },
     {
       "bytes": 75,
@@ -69,7 +74,7 @@
     {
       "bytes": 2058,
       "path": "dataset/guandan_marvel_dataset.json",
-      "sha256": "39370df632fe084393340d0a68657cb4e2d9d991533b047980bc26f02ddaee74"
+      "sha256": "e328c41400b0168769e093580efbf01135a06f50b05a7c2dc075aef95b8611c3"
     },
     {
       "bytes": 8316529,
@@ -87,9 +92,9 @@
       "sha256": "2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44"
     },
     {
-      "bytes": 5813,
+      "bytes": 6003,
       "path": "dataset/m09_unified_control.json",
-      "sha256": "6dc2a41b1231bedee73bf0a566ab0a0fb186b764e22f32617b884c19b025e49b"
+      "sha256": "b58075f15f609904079f09e8e1dae06411490b8ab666f49be783401f03534806"
     },
     {
       "bytes": 2926,
@@ -112,7 +117,7 @@
       "sha256": "997daa76b5c328ef2968b07afbebe6a8c4bd6b5a1c1d428f44df841ab8b9678e"
     }
   ],
-  "hash": "de6ca94355690220cf5ad0ef3e08affcff7d7acc6a808254457181496044fd72",
+  "hash": "1d8f9f07438b222b9f02fbb39e5be926023d1728dc9e375fd4511ab5d7283329",
   "notebook_count": 1,
   "notebook_path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\guandan_marvel_m09_unified_pipeline.ipynb",
   "remote_validated": false,

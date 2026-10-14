@@ -69,8 +69,8 @@
 - initial iter500 recovery SHA-256：`2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44`；
 - iter100 champion seed SHA-256：`b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c`；
 - legacy V1 anchor SHA-256：`880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d`；
-- Unified control manifest hash：`86ecb0133d21335a0c0fd928204ca033b356123f14be84b94659bdbd89dd301e`；
-- delivery manifest hash：`926cd82f7079d014466804a23c0a55f578d9ce7f59feb87d5a17f70eb489ec90`。
+- Unified control manifest hash：`95e3c2b716c3b08baa7222f96f13e947ca4a398a75173a76a7b145d41dd19a08`；
+- delivery manifest hash：`5ef5e75f866085e770ce20497cc7e9401f04946bc8bfb21ee7c95e7651f60a53`。
 
 完整 hash 清单：
 
@@ -202,16 +202,16 @@ formal plan 将 5 个 opponent lanes × 32 independent selection clusters × 4 r
 
 ```text
 python -m pytest --import-mode=importlib tests/marvel_kaggle -q
-# 70 passed
+# 71 passed
 
 python -m pytest --import-mode=importlib tests/marvel_evaluation -q
-# 62 passed
+# 63 passed
 
 python -m pytest --import-mode=importlib tests/marvel_training tests/unit/test_checkpoint_compatibility.py tests/unit/test_kaggle_recovery.py -q
 # 114 passed
 
 python -m pytest --import-mode=importlib tests/marvel_kaggle/test_m09_unified_pipeline.py tests/marvel_evaluation/test_resumable_formal.py tests/marvel_evaluation/test_dual_gpu_formal.py -q
-# 24 passed
+# 26 passed
 
 python scripts/run_m09_unified_local_smoke.py --output runs/m09_unified_local_smoke.json
 # passed
@@ -308,7 +308,42 @@ GUANDAN_M09_REMOTE_VALIDATION=C
 
 机器证据：`docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/remote_a_runtime_dataset_source_repair.json`。
 
-## 14. 已知限制与下一步
+## 14. Remote A formal deal-hash repair 与打包前 artifact preflight（2026-10-14）
+
+第四次 Kaggle 尝试已经真实完成 Remote A 两个 DDP iterations：iteration 502 / completed games 2008，并生成 training commit、immutable recovery 和 continuation。失败发生在第一个 formal game record 写入前：resumable plan 错把 full contextual `deal_sha256` 当作 host record 的 `base_deal_sha256`。
+
+两者原本是两个不同且都必要的身份域：
+
+- `deal_sha256`：hands + level rank + leader seat + previous result，用于 training provenance/overlap；
+- `base_deal_sha256`：仅 27×4 physical hands，用于跨 opponent/rotation 的 game record base-deal 一致性。
+
+修复后 materialized deal、task、formal binding 同时保存两者；worker 对 raw record 校验 physical base hash，对 data isolation 保留 full contextual hash。修复后的 `provenance.py` 已显式打入 control overlay，避免继续使用旧 source archive 中的实现。
+
+本次不再只做 manifest/unit 检查。新增 `verify_m09_unified_upload_artifact.py`，对最终上传 ZIP 执行打包后 preflight：
+
+1. 解压外层 upload ZIP并逐个验证 control files；
+2. 模拟 Kaggle 自动解包 source/recovery；
+3. 使用 shared resolver 发现 unpacked source 和 iter500 recovery；
+4. materialize acceptance profile；
+5. 生成并重新验证临时 runtime Dataset；
+6. 验证 packaged provenance 与当前实现逐字节一致；
+7. 用真实 C++ EnvBatch 对两个 selection deals 比较 planned/host base-deal hash。
+
+全部通过。最终上传包：
+
+`D:\project\kaggle_train\guandan-marvel-m09-unified-pipeline-v1\guandan-marvel-m09-unified-dataset-upload-v6.zip`
+
+- bytes：69,293,382；
+- SHA-256：`6c1b17d1b8ad3ce42dd7f051895c294fc43696e3d3560df6de841092db80e87e`；
+- 20 entries；
+- artifact preflight：passed。
+
+机器证据：
+
+- `docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/remote_a_formal_deal_hash_repair.json`；
+- `docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/upload_v6_artifact_preflight.json`。
+
+## 15. 已知限制与下一步
 
 - Remote A/B/C 尚未执行；当前只能称 `local implementation complete / remote validation pending`。
 - 不得直接用未经 Remote A/B/C 验证的 Unified 高级路径运行正式 Segment1000。
