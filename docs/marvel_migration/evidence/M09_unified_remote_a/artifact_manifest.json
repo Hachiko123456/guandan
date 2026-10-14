@@ -1,0 +1,68 @@
+{
+  "files": [
+    {
+      "bytes": 1722,
+      "path": "champion_manifest.json",
+      "sha256": "027db1492a2256a1f03ff602c203087fcc9aea44c2969c9215f6d1988947f65e"
+    },
+    {
+      "bytes": 4355,
+      "path": "continuation_manifest.json",
+      "sha256": "fa073acff07e49999cb0234dc2b5827cc032d6a21730d69478381c32b8b0561e"
+    },
+    {
+      "bytes": 29880,
+      "path": "evaluation_plan.json",
+      "sha256": "5f4ac721dbbf25aa9afc09b2bc2b71449945f52f678b4c8726f47eb22e32bbec"
+    },
+    {
+      "bytes": 625,
+      "path": "evaluation_result.json",
+      "sha256": "eda08b0ae72559a066f4cb6e26566e06246acccf7f6b3ed22c41f781c8198d55"
+    },
+    {
+      "bytes": 7518,
+      "path": "evaluation_summary.json",
+      "sha256": "173551292e6aa7f7eb840e72a4ee32553ea30e8cfdb9af0449a77101687271ae"
+    },
+    {
+      "bytes": 3355,
+      "path": "opponent_pool_manifest.json",
+      "sha256": "92d095b29b1c5066ea301152c796a90d83632c90e664957b0eb3381a283c29c3"
+    },
+    {
+      "bytes": 2076,
+      "path": "pipeline_state.json",
+      "sha256": "d9c35d8b2cecba5f131ae9805b078d8e0ca1483049895d0e935e79d2978b2e73"
+    },
+    {
+      "bytes": 3633,
+      "path": "promotion_decision.json",
+      "sha256": "684d63dfe63b8e50ff6ae79e61fb27746c7a55c8ab310e557f40e124e44e2cf5"
+    },
+    {
+      "bytes": 3353,
+      "path": "remote_a_review.json",
+      "sha256": "a171a5033b820c4c11a4d75d5126a7c320252876b67aa8bca8055b760ccfcf10"
+    },
+    {
+      "bytes": 1428,
+      "path": "training_commit.json",
+      "sha256": "5567c49f12c54f61c9cde601c034ab815350f72d70d1eaf0f4219457e56d9a18"
+    },
+    {
+      "bytes": 1072,
+      "path": "worker_group_result.json",
+      "sha256": "2424fe2a85387102154c292a807c6f569b662e1967257038b45a7ab103c22d25"
+    },
+    {
+      "bytes": 399,
+      "path": "worker_progress.json",
+      "sha256": "fc8780a84e311fe87e4ac70da5c53120b463f49117a8b512e064b1e55b71f4dc"
+    }
+  ],
+  "hash": "d17fccdcb7d5d050e31cb4afbe1ec5c036e49f157dbed0b65047ad65c6a15fdc",
+  "log_sha256": "8c006e65ee227dd7819706c1999ddc3a20422f3db6f467888f79b340c2ef2099",
+  "schema": "guandan-marvel-m09-unified-remote-a-artifact-manifest-v1",
+  "source_continuation_sha256": "be6c07d267af388a922ce17da48e151742340b04ae68d9a6bea892b0c6a72016"
+}

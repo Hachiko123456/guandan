@@ -1,0 +1,662 @@
+{
+  "backend": "cpp",
+  "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+  "base_plan_hash": "12bb9714b5cae92ce1a03b76326919bddf5496717aed6d7635476c77400e6ed8",
+  "candidate": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "backend": "cpp",
+    "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+    "checkpoint_path": "/kaggle/working/guandan-marvel-unified-output/candidates/ippo_iter000502.pt",
+    "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+    "checkpoint_sha256": "f2d94121577e80c9d1bf6450f73f31343ad999cbb1cb1fee78d99a646e3ee3fe",
+    "iteration": 502,
+    "merged_policy": {
+      "beta": 0.0,
+      "identity": "current_policy_copy",
+      "not_smoothed_when_beta_zero": true
+    },
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "resolved_config_hash": "ed4d90a16ceb32da0c3d63cee2be82f623481b82d8b12403d53118808875c836",
+    "schema": "guandan-marvel-policy-identity-v1",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+    "training_counters": {
+      "iteration": 502
+    },
+    "training_data_provenance_hash": "5c156966b6e900c67bf19ac233f71b582c5fa87253c4629a5dcc380800f70844",
+    "training_data_provenance_status": "complete"
+  },
+  "created_at": "2026-10-14T13:36:45.246574+00:00",
+  "current_champion": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "backend": "cpp",
+    "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+    "checkpoint_path": "/kaggle/working/guandan-marvel-unified-output/champion_state/champions/generation000001_iter000100.pt",
+    "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+    "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+    "iteration": 100,
+    "merged_policy": {
+      "beta": 0.0,
+      "frozen_for_evaluation": true,
+      "identity": "current_policy_copy"
+    },
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "resolved_config_hash": "5ae777a870653a877cbef0bdb2876b709f85eea8d1ea9d2ef46094b8df444afc",
+    "schema": "guandan-marvel-policy-identity-v1",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+    "training_counters": {
+      "iteration": 100
+    },
+    "training_data_provenance_hash": "b77207cb951112344465353f61f086540da9b0fce6a69f16d058704acc18c369",
+    "training_data_provenance_status": "complete"
+  },
+  "data_isolation": {
+    "checks": [
+      {
+        "checkpoint_sha256": "f2d94121577e80c9d1bf6450f73f31343ad999cbb1cb1fee78d99a646e3ee3fe",
+        "deal_hash_overlap": [],
+        "provenance_status": "complete",
+        "seed_overlap": [],
+        "seed_semantics": "EnvBatch initial seed plus slot, followed by each slot's serialized continuous PRNG reset stream; subsequent deals are not represented as seed+counter",
+        "training_generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+        "training_initial_seeds": [
+          470700
+        ],
+        "training_manifest_hash": "88c2c4119f9533d1469e4136b9d5b5aeba6c822d075e221b260be04f43f04b56"
+      },
+      {
+        "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+        "deal_hash_overlap": [],
+        "provenance_status": "complete",
+        "seed_overlap": [],
+        "seed_semantics": "EnvBatch initial seed plus slot, followed by each slot's serialized continuous PRNG reset stream; subsequent deals are not represented as seed+counter",
+        "training_generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+        "training_initial_seeds": [
+          470700,
+          1470703
+        ],
+        "training_manifest_hash": "88c2c4119f9533d1469e4136b9d5b5aeba6c822d075e221b260be04f43f04b56"
+      }
+    ],
+    "dataset_hash": "32548d1ae813b8f2c2bc8b36ee6fa86140a900d054ce37d772668c40397e7236",
+    "domain": "selection",
+    "formal_selection_eligible": true,
+    "materialized_deals": [
+      {
+        "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+        "deal_id": "selection-000000",
+        "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+        "seed": 1000000000
+      },
+      {
+        "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+        "deal_id": "selection-000001",
+        "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+        "seed": 1000000001
+      }
+    ],
+    "policy": "formal",
+    "reasons": [],
+    "schema": "guandan-marvel-data-isolation-verification-v1"
+  },
+  "deal_dataset_hash": "32548d1ae813b8f2c2bc8b36ee6fa86140a900d054ce37d772668c40397e7236",
+  "deal_ids": [
+    "selection-000000",
+    "selection-000001"
+  ],
+  "deals_manifest_hash": "791e4ee27c1e296f3c1b967d8d2a323fd4b430d79c5153dbc88f9329950d9974",
+  "deterministic_policy": {
+    "candidate_protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "mode": "deterministic_greedy",
+    "temperature": 0.0
+  },
+  "deterministic_policy_hash": "216224520529588e0c9ff2d244ce1ec42abeee8e83bce940f1cbdb540e3a71a4",
+  "evaluation_id": "m09-remote_a_smoke0502-f2d94121577e80c9",
+  "final_holdout": false,
+  "hash": "8f78e2fd7673aac143e5214bf42a92a617b3d234774c155c83f97faf516a6727",
+  "legacy_anchor": {
+    "algorithm": "ippo",
+    "checkpoint_path": "/kaggle/input/datasets/hachiko123/guandan-marvel-m09/legacy_v1_anchor.pt",
+    "checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+    "protocol_versions": {
+      "action_version": "GD-ACTION-0.1",
+      "encoding_version": "GD-ENCODING-0.1",
+      "environment_version": "GD-ENV-0.1",
+      "rules_version": "GD-RULES-0.1"
+    },
+    "schema": "guandan-legacy-v1-opponent-identity-v1",
+    "training_resume_allowed": false,
+    "usage": "opponent_only"
+  },
+  "matrix": [
+    {
+      "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "id": "champion",
+      "kind": "v2"
+    },
+    {
+      "checkpoint_sha256": null,
+      "id": "rule",
+      "kind": "rule"
+    },
+    {
+      "checkpoint_sha256": null,
+      "id": "random",
+      "kind": "random"
+    },
+    {
+      "checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+      "id": "legacy",
+      "kind": "legacy_v1"
+    },
+    {
+      "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "id": "opponent_pool",
+      "kind": "v2"
+    }
+  ],
+  "mode": "selection",
+  "opponent_pool_sample": {
+    "active": true,
+    "added_at": "2026-10-14T13:34:40.387243+00:00",
+    "checkpoint": "/kaggle/working/guandan-marvel-unified-output/champion_state/champions/generation000001_iter000100.pt",
+    "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+    "id": "champion-generation-1",
+    "kind": "champion",
+    "policy_identity": {
+      "algorithm": "ippo",
+      "architecture": "v1.3",
+      "backend": "cpp",
+      "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+      "checkpoint_path": "/kaggle/working/guandan-marvel-unified-output/champion_state/champions/generation000001_iter000100.pt",
+      "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+      "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "iteration": 100,
+      "merged_policy": {
+        "beta": 0.0,
+        "frozen_for_evaluation": true,
+        "identity": "current_policy_copy"
+      },
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+      "resolved_config_hash": "5ae777a870653a877cbef0bdb2876b709f85eea8d1ea9d2ef46094b8df444afc",
+      "schema": "guandan-marvel-policy-identity-v1",
+      "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+      "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+      "training_counters": {
+        "iteration": 100
+      },
+      "training_data_provenance_hash": "b77207cb951112344465353f61f086540da9b0fce6a69f16d058704acc18c369",
+      "training_data_provenance_status": "complete"
+    },
+    "pool_manifest_hash": "4ae7be2c26619693bf8c29f472d68b1fffc50114cb59d46cc86e4f87891fb1a8",
+    "sample_seed": 502,
+    "sampling_probability": 1.0,
+    "source_champion_manifest_hash": "8a1137878acac715ca22d35e89db20236d70e283e960edb80d8709d7313326c8",
+    "weight": 1.0
+  },
+  "promotion_allowed": false,
+  "promotion_policy": {
+    "ci95_low_threshold": 0.52,
+    "min_clusters": 1,
+    "mode": "smoke",
+    "random_min_win_rate": 0.7,
+    "rule_min_win_rate": 0.4,
+    "schema": "guandan-marvel-promotion-policy-v2",
+    "zero_variance_policy": "bounded empirical-Bernstein interval remains non-degenerate at finite n"
+  },
+  "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+  "schema": "guandan-marvel-resumable-evaluation-plan-v1",
+  "seat_rotations": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "task_count": 40,
+  "tasks": [
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "champion",
+      "opponent_kind": "v2",
+      "seat_rotation": 0,
+      "task_hash": "dbce2b59acf591a4edac711acaeff8b389c98d4b59365bf3ce571c65b0ba3341",
+      "task_index": 0
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "champion",
+      "opponent_kind": "v2",
+      "seat_rotation": 1,
+      "task_hash": "fb327304c06dc908adfbbe42b882b3fcc709d7702610fe8d799d610613ab0549",
+      "task_index": 1
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "champion",
+      "opponent_kind": "v2",
+      "seat_rotation": 2,
+      "task_hash": "58fdebecd576181a480aaa4c3cdcf2746a286e1b90e5d87b93cec91902bbd0d2",
+      "task_index": 2
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "champion",
+      "opponent_kind": "v2",
+      "seat_rotation": 3,
+      "task_hash": "3f7f84f1f2d13b9471dcab51637e930c99b563d6cd428ec9c2685c4e189af32c",
+      "task_index": 3
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "champion",
+      "opponent_kind": "v2",
+      "seat_rotation": 0,
+      "task_hash": "aac0aa7c6929662dcfd5109854cb57f8887950db026768a194b6ebec0e8fda6c",
+      "task_index": 4
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "champion",
+      "opponent_kind": "v2",
+      "seat_rotation": 1,
+      "task_hash": "4ea57f7a7290ff77f6ea19bbcba0fbe5ef0b8d9ac88db1979379cfdad92bde08",
+      "task_index": 5
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "champion",
+      "opponent_kind": "v2",
+      "seat_rotation": 2,
+      "task_hash": "e2247a73ba66751e97fe540c7d0b39accb45ba54d5e02fd4f20fed0d77c784ab",
+      "task_index": 6
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "champion",
+      "opponent_kind": "v2",
+      "seat_rotation": 3,
+      "task_hash": "3fdaf1679cbd028a504333a19e7ec9fe0fb39b107768667f74f70b10f06cbc19",
+      "task_index": 7
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "rule",
+      "opponent_kind": "rule",
+      "seat_rotation": 0,
+      "task_hash": "5a22b47d9fd01b23dbbf9dade40ff21029bf3f7a65f9443b68e8eedd5ec038aa",
+      "task_index": 8
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "rule",
+      "opponent_kind": "rule",
+      "seat_rotation": 1,
+      "task_hash": "75cb8e0b7dea38e96a7e7dfcbf8a6b9246a575ab037415f227e3d65e4ba7144e",
+      "task_index": 9
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "rule",
+      "opponent_kind": "rule",
+      "seat_rotation": 2,
+      "task_hash": "d5ec4c5772d2e98147bde49e913a1de15a6994395e041bd9ebc85ad6d06a0304",
+      "task_index": 10
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "rule",
+      "opponent_kind": "rule",
+      "seat_rotation": 3,
+      "task_hash": "ef3eee8aad1abb4456df69c236f985e98150c9d77b04bd80b00e0c1a164be6a3",
+      "task_index": 11
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "rule",
+      "opponent_kind": "rule",
+      "seat_rotation": 0,
+      "task_hash": "0570cf908271e3607a8af88787763924307fcac33a3808097c78ca9a709c20ae",
+      "task_index": 12
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "rule",
+      "opponent_kind": "rule",
+      "seat_rotation": 1,
+      "task_hash": "4f00e8e3d490f081d391146b4f91305f15a183c938355aaa5385240dd943040a",
+      "task_index": 13
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "rule",
+      "opponent_kind": "rule",
+      "seat_rotation": 2,
+      "task_hash": "d9c38dc60d38c010c443a9f8833c90f646e234e2ad5a43226d834c912bd65378",
+      "task_index": 14
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "rule",
+      "opponent_kind": "rule",
+      "seat_rotation": 3,
+      "task_hash": "c893858a88c136606a5ecb24cb51800950588264de2a20b261eada49cfa9f3b0",
+      "task_index": 15
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "random",
+      "opponent_kind": "random",
+      "seat_rotation": 0,
+      "task_hash": "36e34a299e517bdc1811a38d862d5f617450af441b0369c5f8e826da6aa170e0",
+      "task_index": 16
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "random",
+      "opponent_kind": "random",
+      "seat_rotation": 1,
+      "task_hash": "9c97cbf76a28782bf02201fbece082d474415e77af88b2f247ef70785d70c7fe",
+      "task_index": 17
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "random",
+      "opponent_kind": "random",
+      "seat_rotation": 2,
+      "task_hash": "e35ce22fdf51687f322d6225f822e1d5b1c2b3fb3eab051669b67aa637e21988",
+      "task_index": 18
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "random",
+      "opponent_kind": "random",
+      "seat_rotation": 3,
+      "task_hash": "f6d86d7331dc7fceb4ecb882bcdf112a6b9a794225c0a67c66b52fce69a032b9",
+      "task_index": 19
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "random",
+      "opponent_kind": "random",
+      "seat_rotation": 0,
+      "task_hash": "d868251b3919d299372d7a6ab41b97057870b3cf94421bf981e9fd1381f22a29",
+      "task_index": 20
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "random",
+      "opponent_kind": "random",
+      "seat_rotation": 1,
+      "task_hash": "84aa4efb1c4b1040f1d48efd569adf0e68d71495985298a49847548b96edad52",
+      "task_index": 21
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "random",
+      "opponent_kind": "random",
+      "seat_rotation": 2,
+      "task_hash": "f4f3df3b185592781578eaecba69fd415aea05de5c8411ea647ceefa81738a48",
+      "task_index": 22
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": null,
+      "opponent_id": "random",
+      "opponent_kind": "random",
+      "seat_rotation": 3,
+      "task_hash": "c1a7163c279403d1e239b56b52ceaa517f03a48ff167f100c455e9ccc30eda0d",
+      "task_index": 23
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+      "opponent_id": "legacy",
+      "opponent_kind": "legacy_v1",
+      "seat_rotation": 0,
+      "task_hash": "ac79a56dfbba30c8233e1152f3efe4bf439f43f24bf05053519f0351bf9fe51a",
+      "task_index": 24
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+      "opponent_id": "legacy",
+      "opponent_kind": "legacy_v1",
+      "seat_rotation": 1,
+      "task_hash": "bc70739b2e4765b2d80d846da860974721bf6a96f73a34effd7a139642c5cb5a",
+      "task_index": 25
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+      "opponent_id": "legacy",
+      "opponent_kind": "legacy_v1",
+      "seat_rotation": 2,
+      "task_hash": "f88c007c820d0777554db7db04dc760ee6104f7fc1efc50c6fff651e0220ee58",
+      "task_index": 26
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+      "opponent_id": "legacy",
+      "opponent_kind": "legacy_v1",
+      "seat_rotation": 3,
+      "task_hash": "c9799d95beffb1c92f06271cb2fa6a774d22e78156952850441f59c2f777b85a",
+      "task_index": 27
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+      "opponent_id": "legacy",
+      "opponent_kind": "legacy_v1",
+      "seat_rotation": 0,
+      "task_hash": "8f9a5bbbc60223240b4d10444cdcf551a6a0f3ef2bd66d34a6f9b7bbf9698309",
+      "task_index": 28
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+      "opponent_id": "legacy",
+      "opponent_kind": "legacy_v1",
+      "seat_rotation": 1,
+      "task_hash": "54eb2b95b29d536dd37e351fb932f6027cbdd76ec976a03cb4c2f58f46f7b0eb",
+      "task_index": 29
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+      "opponent_id": "legacy",
+      "opponent_kind": "legacy_v1",
+      "seat_rotation": 2,
+      "task_hash": "1308c407cecf442c644d8e66bc4e462ef7e8599967fff8b45794c2db33c77ba8",
+      "task_index": 30
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+      "opponent_id": "legacy",
+      "opponent_kind": "legacy_v1",
+      "seat_rotation": 3,
+      "task_hash": "305d99720a1f549d90eb25e82c6c5b835aff76699d4bd057f3fdf7ecadf1932f",
+      "task_index": 31
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "opponent_pool",
+      "opponent_kind": "v2",
+      "seat_rotation": 0,
+      "task_hash": "0c800bda3e60aae85e7ffad649905edf297ca24212adb75c59d97ef8a5568faa",
+      "task_index": 32
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "opponent_pool",
+      "opponent_kind": "v2",
+      "seat_rotation": 1,
+      "task_hash": "e3634abb18b022539d332fa31fa02878d4d409029a6cad2c1abb3580ca76800d",
+      "task_index": 33
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "opponent_pool",
+      "opponent_kind": "v2",
+      "seat_rotation": 2,
+      "task_hash": "fefb35a9a39d32072db642ce13958d19ff691a95eb605b3bf64da9b10d55f083",
+      "task_index": 34
+    },
+    {
+      "base_deal_sha256": "67aa95b622c9924ac8051681e61bb908d56a4794a5acdf29e6d40d7999b994ec",
+      "deal_id": "selection-000000",
+      "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "opponent_pool",
+      "opponent_kind": "v2",
+      "seat_rotation": 3,
+      "task_hash": "4687b6e337855f4ccfaf418c42dc5af481bee3a08006e87e60d1404c771c3440",
+      "task_index": 35
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "opponent_pool",
+      "opponent_kind": "v2",
+      "seat_rotation": 0,
+      "task_hash": "e2c9852d81dd39d0094b9bb1f91c72f92cfed7a66fb113b10656792117413a8f",
+      "task_index": 36
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "opponent_pool",
+      "opponent_kind": "v2",
+      "seat_rotation": 1,
+      "task_hash": "a5eb6d70514140ec23c4dee04021abbe475dd5a4af9460b2e31bbe4cf2357b25",
+      "task_index": 37
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "opponent_pool",
+      "opponent_kind": "v2",
+      "seat_rotation": 2,
+      "task_hash": "0e35a467cd3c717c7d4677dd729db19f8de1d5e2a9aedb3f37b8333e0b9a515c",
+      "task_index": 38
+    },
+    {
+      "base_deal_sha256": "988de30f61d1d16b0796f9e26a07680578f4fbcf58e9cc9d8cbd67f9838aac18",
+      "deal_id": "selection-000001",
+      "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+      "opponent_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "opponent_id": "opponent_pool",
+      "opponent_kind": "v2",
+      "seat_rotation": 3,
+      "task_hash": "1cfc8f5675a737c2040e3fff03258970cca1a4fb15f684e69162f8c890d057e5",
+      "task_index": 39
+    }
+  ],
+  "version": 1
+}

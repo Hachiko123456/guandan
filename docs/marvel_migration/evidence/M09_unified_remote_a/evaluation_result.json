@@ -1,0 +1,14 @@
+{
+  "complete": true,
+  "evaluation_hash": "2bf0967783c659c2eb3c10a1d81aa9c995b7ef0ee2055b1b86a1f24cbd59fe78",
+  "expected_games": 40,
+  "final_holdout": false,
+  "games": 40,
+  "hash": "7759fc4b6412d8d5295d8c90f1f632288922891b91700cee5413c9bef576f979",
+  "plan_hash": "8f78e2fd7673aac143e5214bf42a92a617b3d234774c155c83f97faf516a6727",
+  "promotion_allowed": false,
+  "records_hash": "5b058811f6e214d208add889e5d5f66091861cd20ac0ddc1668289d850204826",
+  "schema": "guandan-marvel-resumable-evaluation-result-v1",
+  "status": "complete",
+  "summary_hash": "ffe5e079e340f5179b8f8594e54ec8f9c949caf3d7212ebaeb4b2917780de41e"
+}

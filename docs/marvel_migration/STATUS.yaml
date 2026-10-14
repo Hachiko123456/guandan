@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: unified_pipeline_local_implementation_complete_remote_abc_pending_segment1000_not_run
+    status: unified_pipeline_remote_a_accepted_remote_b_c_pending_segment1000_not_run
     accepted: false
     commit: null
     preparation_commits:
@@ -383,6 +383,7 @@ stages:
       - docs/marvel_migration/reports/M09_iter500_formal_eval_preparation.md
       - docs/marvel_migration/reports/M09_iter500_formal_eval.md
       - docs/marvel_migration/reports/M09_unified_pipeline_local_implementation.md
+      - docs/marvel_migration/reports/M09_unified_remote_a.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -482,6 +483,18 @@ stages:
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/source_control_artifact_hashes.json
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/test_results.json
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/verification.json
+      - docs/marvel_migration/evidence/M09_unified_remote_a/remote_a_review.json
+      - docs/marvel_migration/evidence/M09_unified_remote_a/continuation_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_remote_a/training_commit.json
+      - docs/marvel_migration/evidence/M09_unified_remote_a/pipeline_state.json
+      - docs/marvel_migration/evidence/M09_unified_remote_a/evaluation_plan.json
+      - docs/marvel_migration/evidence/M09_unified_remote_a/evaluation_summary.json
+      - docs/marvel_migration/evidence/M09_unified_remote_a/evaluation_result.json
+      - docs/marvel_migration/evidence/M09_unified_remote_a/promotion_decision.json
+      - docs/marvel_migration/evidence/M09_unified_remote_a/worker_group_result.json
+      - docs/marvel_migration/evidence/M09_unified_remote_a/champion_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_remote_a/opponent_pool_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_remote_a/artifact_manifest.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -518,19 +531,23 @@ stages:
     unified_pipeline_delivery_root: D:\project\kaggle_train\guandan-marvel-m09-unified-pipeline-v1
     unified_pipeline_control_manifest_hash: fcb518a1ef8d51928db65585ab0bff32d9e18c56366057255d948cf2406db8e4
     unified_pipeline_delivery_manifest_hash: d07ebb2327678b38eb77b8b1085f8d585fe4f0b72fc0b3d584b5f1034b0f650b
-    unified_pipeline_remote_a_complete: false
-    unified_pipeline_remote_a_last_attempt: training_commit_succeeded_formal_deal_hash_mismatch_fixed_and_upload_v6_preflight_passed_pending_rerun
+    unified_pipeline_remote_a_complete: true
+    unified_pipeline_remote_a_status: accepted_complete
+    unified_pipeline_remote_a_run: 20261014T133447Z-unified_remote_a_smoke0502-58a2b5af
+    unified_pipeline_remote_a_continuation_sha256: be6c07d267af388a922ce17da48e151742340b04ae68d9a6bea892b0c6a72016
+    unified_pipeline_remote_a_training_commit_hash: b72ac7fa982b182baa33b08d07f30e3182e359aeb5f78c08f83dac087d43af76
+    unified_pipeline_remote_a_evaluation_hash: 2bf0967783c659c2eb3c10a1d81aa9c995b7ef0ee2055b1b86a1f24cbd59fe78
     unified_pipeline_remote_b_complete: false
     unified_pipeline_remote_c_complete: false
     unified_pipeline_dual_gpu_formal_default: false
     unified_pipeline_auto_continuation_enabled: false
     unified_pipeline_production_enabled: false
     unified_pipeline_remote_smoke_target_iteration: 502
-    note: iter500 formal selection remains complete with no promotion; the single-Dataset/single-Notebook train-commit-resumable-eval pipeline is locally implemented and locally fault-tested, production Segment1000 is fail-closed behind Remote A/B/C, segment1000 has not run in this task, iter100 remains champion, and M09 remains incomplete
+    note: Unified Pipeline Remote A passed real Kaggle T4x2 training/commit/40-game smoke evaluation and continuation verification; Remote B/C remain pending, production Segment1000 remains fail-closed, iter100 remains champion, final holdout has not run, and M09 remains incomplete
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
       - iter500 candidate was not promoted; current champion remains the r2 IPPO iter100 evaluation checkpoint
-      - Unified Pipeline Remote A/B/C have not run; the advanced path is not yet approved for real Segment1000
+      - Unified Pipeline Remote B/C have not run; the advanced path is not yet approved for real Segment1000
       - segment1000/1500/2000 training and their mandatory formal reviews have not run
       - main long-training deal distribution remains narrow Rank.TWO/no-previous-result and broad-context acceptance remains blocking
       - final candidate and one-shot final holdout are incomplete

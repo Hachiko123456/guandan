@@ -1,0 +1,78 @@
+{
+  "entries": [
+    {
+      "active": true,
+      "added_at": "2026-10-14T13:34:40.387243+00:00",
+      "checkpoint": "/kaggle/working/guandan-marvel-unified-output/champion_state/champions/generation000001_iter000100.pt",
+      "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "id": "champion-generation-1",
+      "kind": "champion",
+      "policy_identity": {
+        "algorithm": "ippo",
+        "architecture": "v1.3",
+        "backend": "cpp",
+        "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+        "checkpoint_path": "/kaggle/working/guandan-marvel-unified-output/champion_state/champions/generation000001_iter000100.pt",
+        "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+        "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+        "iteration": 100,
+        "merged_policy": {
+          "beta": 0.0,
+          "frozen_for_evaluation": true,
+          "identity": "current_policy_copy"
+        },
+        "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+        "resolved_config_hash": "5ae777a870653a877cbef0bdb2876b709f85eea8d1ea9d2ef46094b8df444afc",
+        "schema": "guandan-marvel-policy-identity-v1",
+        "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+        "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+        "training_counters": {
+          "iteration": 100
+        },
+        "training_data_provenance_hash": "b77207cb951112344465353f61f086540da9b0fce6a69f16d058704acc18c369",
+        "training_data_provenance_status": "complete"
+      },
+      "source_champion_manifest_hash": "8a1137878acac715ca22d35e89db20236d70e283e960edb80d8709d7313326c8",
+      "weight": 1.0
+    },
+    {
+      "active": true,
+      "added_at": "2026-10-14T13:34:40.606445+00:00",
+      "checkpoint": "/kaggle/input/datasets/hachiko123/guandan-marvel-m09/legacy_v1_anchor.pt",
+      "checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+      "id": "legacy-v1-anchor",
+      "kind": "legacy_v1",
+      "legacy_identity": {
+        "algorithm": "ippo",
+        "checkpoint_path": "/kaggle/input/datasets/hachiko123/guandan-marvel-m09/legacy_v1_anchor.pt",
+        "checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+        "protocol_versions": {
+          "action_version": "GD-ACTION-0.1",
+          "encoding_version": "GD-ENCODING-0.1",
+          "environment_version": "GD-ENV-0.1",
+          "rules_version": "GD-RULES-0.1"
+        },
+        "schema": "guandan-legacy-v1-opponent-identity-v1",
+        "training_resume_allowed": false,
+        "usage": "opponent_only"
+      },
+      "weight": 0.25
+    },
+    {
+      "active": true,
+      "added_at": "2026-10-14T13:34:40.683517+00:00",
+      "id": "rule-anchor-v1",
+      "kind": "rule",
+      "version": "v2-public-row-heuristic-v1",
+      "weight": 0.25
+    }
+  ],
+  "hash": "4ae7be2c26619693bf8c29f472d68b1fffc50114cb59d46cc86e4f87891fb1a8",
+  "revision": 3,
+  "sampling": {
+    "schema": "guandan-marvel-opponent-pool-weighted-sampling-v1",
+    "seed": 20261014
+  },
+  "schema": "guandan-marvel-opponent-pool-v2",
+  "updated_at": "2026-10-14T13:34:40.683543+00:00"
+}

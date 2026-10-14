@@ -1,0 +1,117 @@
+{
+  "control_hash": "fcb518a1ef8d51928db65585ab0bff32d9e18c56366057255d948cf2406db8e4",
+  "created_at": "2026-10-14T13:39:46.686509+00:00",
+  "files": [
+    {
+      "bytes": 8366485,
+      "path": "candidates/ippo_iter000502.pt",
+      "sha256": "f2d94121577e80c9d1bf6450f73f31343ad999cbb1cb1fee78d99a646e3ee3fe"
+    },
+    {
+      "bytes": 1722,
+      "path": "champion/champion_manifest.json",
+      "sha256": "027db1492a2256a1f03ff602c203087fcc9aea44c2969c9215f6d1988947f65e"
+    },
+    {
+      "bytes": 3355,
+      "path": "champion/opponent_pool_manifest.json",
+      "sha256": "92d095b29b1c5066ea301152c796a90d83632c90e664957b0eb3381a283c29c3"
+    },
+    {
+      "bytes": 8316529,
+      "path": "champion_state/champions/generation000001_iter000100.pt",
+      "sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c"
+    },
+    {
+      "bytes": 1948,
+      "path": "evaluation/remote_a_smoke0502/deals_manifest.json",
+      "sha256": "021ef73af01bb0802606091e3e2ed68dfca8f992f4a0a55cac818da2abf32f01"
+    },
+    {
+      "bytes": 29880,
+      "path": "evaluation/remote_a_smoke0502/evaluation_plan.json",
+      "sha256": "5f4ac721dbbf25aa9afc09b2bc2b71449945f52f678b4c8726f47eb22e32bbec"
+    },
+    {
+      "bytes": 625,
+      "path": "evaluation/remote_a_smoke0502/evaluation_result.json",
+      "sha256": "eda08b0ae72559a066f4cb6e26566e06246acccf7f6b3ed22c41f781c8198d55"
+    },
+    {
+      "bytes": 7518,
+      "path": "evaluation/remote_a_smoke0502/evaluation_summary.json",
+      "sha256": "173551292e6aa7f7eb840e72a4ee32553ea30e8cfdb9af0449a77101687271ae"
+    },
+    {
+      "bytes": 97101,
+      "path": "evaluation/remote_a_smoke0502/games.gpu0.jsonl",
+      "sha256": "c7673edadc0114d94c30ae49a4d12fe00c60fc588238ebabe67f512109f45e59"
+    },
+    {
+      "bytes": 97101,
+      "path": "evaluation/remote_a_smoke0502/games.jsonl",
+      "sha256": "c7673edadc0114d94c30ae49a4d12fe00c60fc588238ebabe67f512109f45e59"
+    },
+    {
+      "bytes": 3633,
+      "path": "evaluation/remote_a_smoke0502/promotion_decision.json",
+      "sha256": "684d63dfe63b8e50ff6ae79e61fb27746c7a55c8ab310e557f40e124e44e2cf5"
+    },
+    {
+      "bytes": 377,
+      "path": "evaluation/remote_a_smoke0502/worker0.log",
+      "sha256": "b88068fba5684df669a5be85476d5f0533059d38eca795ba9cbbe0d2aa90cee6"
+    },
+    {
+      "bytes": 399,
+      "path": "evaluation/remote_a_smoke0502/worker0.progress.json",
+      "sha256": "fc8780a84e311fe87e4ac70da5c53120b463f49117a8b512e064b1e55b71f4dc"
+    },
+    {
+      "bytes": 939,
+      "path": "evaluation/remote_a_smoke0502/worker_context.json",
+      "sha256": "16a152c142c35512d1380887526e734ef53845f22ee61e1d371f018f2815fae6"
+    },
+    {
+      "bytes": 388,
+      "path": "evaluation/remote_a_smoke0502/worker_group_heartbeat.json",
+      "sha256": "5b6d61c223d1059689e7d1e140473a1012872fdbb7b1f2abf7f2a3adf8edd764"
+    },
+    {
+      "bytes": 1072,
+      "path": "evaluation/remote_a_smoke0502/worker_group_result.json",
+      "sha256": "2424fe2a85387102154c292a807c6f569b662e1967257038b45a7ab103c22d25"
+    },
+    {
+      "bytes": 2076,
+      "path": "pipeline/pipeline_state.json",
+      "sha256": "d9c35d8b2cecba5f131ae9805b078d8e0ca1483049895d0e935e79d2978b2e73"
+    },
+    {
+      "bytes": 1428,
+      "path": "training/training_commit.json",
+      "sha256": "5567c49f12c54f61c9cde601c034ab815350f72d70d1eaf0f4219457e56d9a18"
+    },
+    {
+      "bytes": 61903136,
+      "path": "training/training_recovery.committed.zip",
+      "sha256": "1aea0ff39e4382e79d2532661bb4bd392ad7049ac501ae6b156d738c7f793a10"
+    }
+  ],
+  "final_holdout_generated": false,
+  "hash": "5a03ccc6f63ac04bc6244559fecaab654824125880943913a6a5eb472aa3612c",
+  "next_target": {
+    "segment_id": "segment1000",
+    "target_completed_games": 4000,
+    "target_iteration": 1000
+  },
+  "plan_hash": "8f78e2fd7673aac143e5214bf42a92a617b3d234774c155c83f97faf516a6727",
+  "schema": "guandan-marvel-m09-unified-continuation-v1",
+  "source_identity": {
+    "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_content_manifest_hash": "fd8853e379b3bb2a6eefc00474bda9c200aa49139bcbea841a4ffa7c105e6fca"
+  },
+  "training_commit_hash": "b72ac7fa982b182baa33b08d07f30e3182e359aeb5f78c08f83dac087d43af76",
+  "version": 1
+}

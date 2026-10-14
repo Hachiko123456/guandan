@@ -1,0 +1,12 @@
+{
+  "assigned": 40,
+  "complete": true,
+  "completed_before": 0,
+  "completed_now": 40,
+  "finished_at": "2026-10-14T13:39:41.964717+00:00",
+  "hash": "3fa322c3a9865d249e33fe68a17e1b80e0d92f4a15d65ba00426d2214c3a14f7",
+  "plan_hash": "8f78e2fd7673aac143e5214bf42a92a617b3d234774c155c83f97faf516a6727",
+  "schema": "guandan-marvel-formal-worker-progress-v1",
+  "worker_index": 0,
+  "world_size": 1
+}

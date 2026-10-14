@@ -1,0 +1,89 @@
+{
+  "continuation_zip": {
+    "bytes": 76296774,
+    "crc_valid": true,
+    "entries": 20,
+    "manifest_hash": "5a03ccc6f63ac04bc6244559fecaab654824125880943913a6a5eb472aa3612c",
+    "sha256": "be6c07d267af388a922ce17da48e151742340b04ae68d9a6bea892b0c6a72016"
+  },
+  "control_hash": "fcb518a1ef8d51928db65585ab0bff32d9e18c56366057255d948cf2406db8e4",
+  "evaluation": {
+    "evaluation_hash": "2bf0967783c659c2eb3c10a1d81aa9c995b7ef0ee2055b1b86a1f24cbd59fe78",
+    "expected_games": 40,
+    "games": 40,
+    "illegal": 0,
+    "lanes": {
+      "champion": 8,
+      "legacy": 8,
+      "opponent_pool": 8,
+      "random": 8,
+      "rule": 8
+    },
+    "overall_win_rate": 0.75,
+    "plan_hash": "8f78e2fd7673aac143e5214bf42a92a617b3d234774c155c83f97faf516a6727",
+    "records_hash": "5b058811f6e214d208add889e5d5f66091861cd20ac0ddc1668289d850204826",
+    "summary_hash": "ffe5e079e340f5179b8f8594e54ec8f9c949caf3d7212ebaeb4b2917780de41e",
+    "truncated": 0,
+    "unique_tasks": 40,
+    "worker_status": "complete"
+  },
+  "final_holdout_generated": false,
+  "hash": "2af3dc6a426b0f2e7a6a006ecf17ebbf91717d64914c20fcbac4fbf12127091b",
+  "kaggle_t4x2": true,
+  "log_sha256": "8c006e65ee227dd7819706c1999ddc3a20422f3db6f467888f79b340c2ef2099",
+  "m09_accepted": false,
+  "pipeline": {
+    "error": null,
+    "next_target": {
+      "segment_id": "segment1000",
+      "target_completed_games": 4000,
+      "target_iteration": 1000
+    },
+    "phase": "COMPLETE"
+  },
+  "promotion": {
+    "champion_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+    "champion_generation": 1,
+    "decision_hash": "9b4fd0f6ecbedaecb08f665b75c7577b436dfef9ebf8b7ac099c80b5246a75c8",
+    "promote": false,
+    "reasons": [
+      "smoke promotion policy never performs automatic promotion"
+    ],
+    "status": "inconclusive"
+  },
+  "remote_validation": "A",
+  "run_finished_at": "2026-10-14T13:39:49Z",
+  "run_started_at": "2026-10-14T13:34:39Z",
+  "schema": "guandan-marvel-m09-unified-remote-a-review-v1",
+  "source_identity": {
+    "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_content_manifest_hash": "fd8853e379b3bb2a6eefc00474bda9c200aa49139bcbea841a4ffa7c105e6fca"
+  },
+  "status": "accepted_complete",
+  "training": {
+    "checkpoint_manifest_hash": "015b8ecd216cd6dea48f0dbec9b1780f90617cce113a3b94dd3f67155a45c27f",
+    "completed_games": 2008,
+    "global_counters": {
+      "completed_games_total": 2008,
+      "total_env_steps": 601674,
+      "total_game_steps": 230525
+    },
+    "rank_shards": [
+      {
+        "rank": 0,
+        "sha256": "ec8714df152b2e876d250cfbc94a5c1f46acf8ed1fb01e52363575090ff73244"
+      },
+      {
+        "rank": 1,
+        "sha256": "30b3497d17d5079d2fefd186051efdc0882c1b6513ac4a54c14848af7016f7ae"
+      }
+    ],
+    "recovery_manifest_hash": "0402141a0ec71f1dd404459747644e604896c6ed576518285541bacb371b8d1d",
+    "recovery_sha256": "1aea0ff39e4382e79d2532661bb4bd392ad7049ac501ae6b156d738c7f793a10",
+    "start_iteration": 500,
+    "target_iteration": 502,
+    "training_commit_hash": "b72ac7fa982b182baa33b08d07f30e3182e359aeb5f78c08f83dac087d43af76",
+    "world_size": 2
+  }
+}
