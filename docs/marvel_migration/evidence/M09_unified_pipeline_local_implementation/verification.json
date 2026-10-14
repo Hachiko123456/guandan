@@ -1,0 +1,33 @@
+{
+  "auto_continuation_default_enabled": false,
+  "deterministic_dual_gpu_sharding": true,
+  "deterministic_merge": true,
+  "dual_gpu_formal_default_workers": 1,
+  "evaluation_failure_preserves_recovery": true,
+  "final_holdout_generated": false,
+  "foreign_corrupt_conflict_rejection": true,
+  "hash": "5495b8cacd1889763dad8e19e7df5f037d1a8dc50fd60575f819000ac670330f",
+  "local_smoke_is_kaggle_acceptance": false,
+  "m09_accepted": false,
+  "partial_evaluation_resume": true,
+  "phase_commits": [
+    "d4c5406a4338a5b9fc7eeb082a08f8033539b108",
+    "e5fdc70c184ee854c9c20c720a12d9e2f3fb8bd2",
+    "07fc7e94fba756b512d3ab28bf977d7e64b88cef"
+  ],
+  "production_segment1000_enabled": false,
+  "promotion_transaction_idempotent": true,
+  "remote_a_complete": false,
+  "remote_b_complete": false,
+  "remote_c_complete": false,
+  "remote_smoke_selection_clusters": 2,
+  "remote_smoke_target_iteration": 502,
+  "rerun_skips_completed_training": true,
+  "schema": "guandan-marvel-m09-unified-local-verification-v1",
+  "single_dataset": true,
+  "single_notebook": true,
+  "status": "local_implementation_complete_remote_validation_pending",
+  "three_phase_local_implementation": true,
+  "training_commit_before_evaluation": true,
+  "worker_failure_blocks_promotion": true
+}

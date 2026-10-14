@@ -1,0 +1,82 @@
+{
+  "dataset_path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\dataset",
+  "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1",
+  "hash": "d50c52c0af526193909e544db2ff695561d7aac298b1c2c6c7ba6b1d57052e35",
+  "notebook_path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\guandan_marvel_m09_unified_pipeline.ipynb",
+  "production_enabled": false,
+  "remote_a": {
+    "budget": {
+      "games": 40,
+      "selection_clusters": 2,
+      "start_completed_games": 2000,
+      "start_iteration": 500,
+      "target_completed_games": 2008,
+      "target_iteration": 502
+    },
+    "environment": {
+      "GUANDAN_M09_REMOTE_VALIDATION": "A (optional; v1 defaults to A while production is gated)"
+    },
+    "expected": [
+      "small DDP training subprocess exits",
+      "training_commit.json and immutable committed recovery exist before evaluation",
+      "standalone single-worker smoke evaluation runs",
+      "continuation ZIP and heartbeat artifacts are downloadable"
+    ],
+    "forbidden": [
+      "formal Segment1000",
+      "final holdout",
+      "claim M09 accepted"
+    ],
+    "inputs": [
+      "Unified Dataset only"
+    ],
+    "name": "Unified Pipeline Smoke"
+  },
+  "remote_b": {
+    "expected": [
+      "first run commits iter502 recovery before controlled evaluation failure",
+      "first run preserves partial shard and committed recovery",
+      "second run restores pending remote_b_smoke0502 evaluation",
+      "training is skipped",
+      "only missing tasks run",
+      "summary/promotion/continuation complete after repair"
+    ],
+    "first_run_env": {
+      "GUANDAN_M09_EVAL_FAIL_AFTER": "8",
+      "GUANDAN_M09_EVAL_FAIL_WORKER": "0",
+      "GUANDAN_M09_REMOTE_VALIDATION": "B"
+    },
+    "first_run_inputs": [
+      "Unified Dataset only"
+    ],
+    "name": "Fault and Resume",
+    "second_run_env": {
+      "GUANDAN_M09_REMOTE_VALIDATION": "B"
+    },
+    "second_run_inputs": [
+      "same Unified Dataset",
+      "first Remote B Notebook Output"
+    ]
+  },
+  "remote_c": {
+    "environment": {
+      "GUANDAN_M09_REMOTE_VALIDATION": "C"
+    },
+    "expected": [
+      "no training subprocess",
+      "reuse Remote A fixed smoke plan/candidate",
+      "task_index modulo 2 shards",
+      "record keys/outcomes/ranking/health/steps/action traces identical",
+      "merged ordering, records hash, summary hash and promotion input identical"
+    ],
+    "gate": "dual formal production remains one worker until this comparison passes",
+    "inputs": [
+      "Unified Dataset",
+      "completed Remote A Notebook Output"
+    ],
+    "name": "Single/Dual Consistency"
+  },
+  "remote_executed": false,
+  "schema": "guandan-marvel-m09-unified-remote-validation-plan-v1",
+  "segment1000_policy": "production_enabled=false in v1; do not run formal Segment1000 until Remote A/B/C pass and the same long-lived Dataset is updated with a reviewed production-enabled control version"
+}

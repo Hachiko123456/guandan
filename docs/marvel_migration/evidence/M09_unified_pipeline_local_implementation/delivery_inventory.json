@@ -1,0 +1,120 @@
+{
+  "control_manifest_hash": "1fde8173e26256982cc298cadc9a43d02efd2929d76429315b1fd0c5adfaa14e",
+  "dataset_count": 1,
+  "dataset_path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\dataset",
+  "delivery_id": "guandan-marvel-m09-unified-pipeline-v1",
+  "delivery_manifest_hash": "b53b73a377d6ee09db38effe111ef4f08e2fb22b937f717b457402dbe6204d15",
+  "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1",
+  "files": [
+    {
+      "bytes": 1718,
+      "path": "README_统一流水线.md",
+      "sha256": "c2ccced8d1e3d93b86f7a7fa0f59448beffe09c94d9f56a629b5399b9b2f04b7"
+    },
+    {
+      "bytes": 1387,
+      "path": "dataset/acceptance_profiles.json",
+      "sha256": "da0f42c5fd0798aabf01d1124da9f981f4c3a8ee9d2c35efda81825c1ed7b6e7"
+    },
+    {
+      "bytes": 75,
+      "path": "dataset/control_overlay/guandan_marvel/__init__.py",
+      "sha256": "4032724b98ed267185b12b8ec78dd9bcb0423ab1c89a6f0dad99397fd51159d9"
+    },
+    {
+      "bytes": 75,
+      "path": "dataset/control_overlay/guandan_marvel/evaluation/__init__.py",
+      "sha256": "4032724b98ed267185b12b8ec78dd9bcb0423ab1c89a6f0dad99397fd51159d9"
+    },
+    {
+      "bytes": 10296,
+      "path": "dataset/control_overlay/guandan_marvel/evaluation/dual_gpu.py",
+      "sha256": "cba2fdf55f0d869d31b1c7e56b7b55f4a0b7c121c40e97c5c0be1f6288a3493c"
+    },
+    {
+      "bytes": 27975,
+      "path": "dataset/control_overlay/guandan_marvel/evaluation/resumable.py",
+      "sha256": "7232c3920585742fe7c87e491dce2df3feaf28aac856c53a23966c8c1557dfa7"
+    },
+    {
+      "bytes": 75,
+      "path": "dataset/control_overlay/guandan_marvel/kaggle/__init__.py",
+      "sha256": "4032724b98ed267185b12b8ec78dd9bcb0423ab1c89a6f0dad99397fd51159d9"
+    },
+    {
+      "bytes": 34498,
+      "path": "dataset/control_overlay/guandan_marvel/kaggle/unified_pipeline.py",
+      "sha256": "fa3d4a91f8be17389323df3304f08aff6c75b093b86ca555350d5141430053aa"
+    },
+    {
+      "bytes": 3433,
+      "path": "dataset/control_overlay/scripts/m09_unified_formal_worker.py",
+      "sha256": "d02c9dcaaf3dbfcacba0ccd4af61902ea0bafccc425efaca9b232eb7f22fa8b5"
+    },
+    {
+      "bytes": 38535,
+      "path": "dataset/control_overlay/scripts/m09_unified_pipeline.py",
+      "sha256": "f528b33c12b040ce40d47e6c98ad757105667fdc2001631ab3ed1fa97322a8c4"
+    },
+    {
+      "bytes": 670997,
+      "path": "dataset/guandan-marvel-source.zip",
+      "sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465"
+    },
+    {
+      "bytes": 24328,
+      "path": "dataset/guandan_marvel_bootstrap.py",
+      "sha256": "c48e2784413d542e4357b9fdfd44622dc028d6be912af8eeb2650eaed76f26ad"
+    },
+    {
+      "bytes": 2058,
+      "path": "dataset/guandan_marvel_dataset.json",
+      "sha256": "464b10faa664b51819aa81ed491624ca01c2107ad93520c73c965924d36dcf45"
+    },
+    {
+      "bytes": 8316529,
+      "path": "dataset/ippo_iter000100_champion_seed.pt",
+      "sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c"
+    },
+    {
+      "bytes": 100909,
+      "path": "dataset/legacy_v1_anchor.pt",
+      "sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d"
+    },
+    {
+      "bytes": 61903395,
+      "path": "dataset/m09_initial_iter0500_recovery.seed.zip",
+      "sha256": "2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44"
+    },
+    {
+      "bytes": 5813,
+      "path": "dataset/m09_unified_control.json",
+      "sha256": "09542c1b5adbfc558ff2df40c2a7338b01b67f972a7d3079257742dfbe06a7da"
+    },
+    {
+      "bytes": 2926,
+      "path": "dataset/marvel_m08_locked_config.json",
+      "sha256": "6994f7f80eaeb8e44c695cac8d21c6bb03561e6a8615866d47e8dcc933f67d21"
+    },
+    {
+      "bytes": 4869,
+      "path": "dataset/marvel_m09_main_training_plan.json",
+      "sha256": "04e4e9ee332481829b9d2d8c6fe510f3fdc4d444c44ad7ba5ee5dd30fa426c22"
+    },
+    {
+      "bytes": 37040,
+      "path": "dataset/source_manifest.json",
+      "sha256": "66918fd6badca38fd4d2427e957db96f6d33509f682c716436b812446196851a"
+    },
+    {
+      "bytes": 8348,
+      "path": "guandan_marvel_m09_unified_pipeline.ipynb",
+      "sha256": "997daa76b5c328ef2968b07afbebe6a8c4bd6b5a1c1d428f44df841ab8b9678e"
+    }
+  ],
+  "hash": "0269bd11cd561abe62502813401e3820b096113bb0ca549ecd61573c867b53e5",
+  "notebook_count": 1,
+  "notebook_path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\guandan_marvel_m09_unified_pipeline.ipynb",
+  "remote_validated": false,
+  "schema": "guandan-marvel-m09-unified-delivery-inventory-v1"
+}

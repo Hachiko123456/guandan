@@ -1,0 +1,39 @@
+{
+  "continuation_next_target": {
+    "segment_id": "segment1500",
+    "target_completed_games": 6000,
+    "target_iteration": 1500
+  },
+  "continuation_sha256": "489b590798126ab03218d94d914db82eef1206fd074c8e2d5a4af041b612e7e9",
+  "controlled_evaluation_failure": "controlled formal evaluation failure",
+  "dual_evaluation_hash": "7c63863f7e20cc5eb8324a733e623837ce401746932c4a033ba7566a61f543b0",
+  "evaluation_calls": 2,
+  "final_holdout_generated": false,
+  "hash": "5d347fea0629f75ca4e227705b34f94f9529559d2f142e66c53f5a8acf4cf6be",
+  "kaggle_acceptance": false,
+  "local_only": true,
+  "partial_records_before_retry": 3,
+  "pipeline_final_phase": "PROMOTION_COMMITTED",
+  "promotion_calls": 1,
+  "rerun_skipped_training": true,
+  "schema": "guandan-marvel-m09-unified-local-smoke-v1",
+  "single_dual_consistency": {
+    "complete": true,
+    "field_mismatches": [],
+    "hash": "c6f963b92443313ad0f2e892b71b47f7624a3482c5211d73ab25b7cb3baafea1",
+    "ordering_identical": true,
+    "plan_hash": "90fd6b221a2e81493457de56d97f9fb818acc61220ea09e60540159020e4abcd",
+    "promotion_input_identical": true,
+    "records_hash_identical": true,
+    "records_identical": true,
+    "schema": "guandan-marvel-single-dual-consistency-v1",
+    "summary_hash_identical": true,
+    "task_count": 20
+  },
+  "single_evaluation_hash": "7c63863f7e20cc5eb8324a733e623837ce401746932c4a033ba7566a61f543b0",
+  "status": "passed",
+  "training_calls": 1,
+  "training_recovery_preserved": true,
+  "training_recovery_sha256_after_retry": "497e84e203d748ad14a564e6625d45e9ca984f485d2f1cdc3d055789a124a77b",
+  "training_recovery_sha256_before_failure_retry": "497e84e203d748ad14a564e6625d45e9ca984f485d2f1cdc3d055789a124a77b"
+}

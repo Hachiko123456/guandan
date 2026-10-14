@@ -306,6 +306,93 @@ def validate_recovery_archive(path: str | Path) -> dict[str, object]:
     }
 
 
+@dataclass(frozen=True, slots=True)
+class RecoveryCandidate:
+    kind: str
+    path: Path
+    manifest: dict[str, object]
+    archive_sha256: str | None
+
+
+def _recovery_manifest_from_zip(path: Path) -> dict[str, object]:
+    validation = validate_recovery_archive(path)
+    with zipfile.ZipFile(path) as archive:
+        manifest = json.loads(archive.read("recovery_manifest.json"))
+    if validation["manifest_hash"] != manifest["manifest_hash"]:
+        raise ValueError("recovery archive validation identity changed")
+    return manifest
+
+
+def discover_latest_recovery(
+    input_root: str | Path,
+    *,
+    source_identity: Mapping[str, object],
+) -> RecoveryCandidate:
+    """Choose the highest compatible recovery, retaining the static iter500 seed.
+
+    Lower-iteration compatible recoveries are expected because the long-lived
+    Unified Dataset always carries the verified iter500 bootstrap recovery.
+    Conflicting identities at the highest iteration fail closed.
+    """
+    root = Path(input_root).resolve()
+    candidates: list[RecoveryCandidate] = []
+    zip_names = {
+        "guandan-marvel-recovery.zip",
+        "training_recovery.committed.zip",
+        "m09_initial_iter0500_recovery.seed.zip",
+    }
+    for path in sorted(root.rglob("*.zip")):
+        if path.name not in zip_names:
+            continue
+        try:
+            manifest = _recovery_manifest_from_zip(path)
+        except Exception as error:
+            raise ValueError(f"invalid recovery candidate {path}: {error}") from error
+        candidates.append(RecoveryCandidate("zip", path.resolve(), manifest, sha256_file(path)))
+    for manifest_path in sorted(root.rglob("recovery_manifest.json")):
+        recovery_root = manifest_path.parent.resolve()
+        manifest = _load_object(manifest_path)
+        declared = manifest.get("manifest_hash")
+        if declared != canonical_hash({key: value for key, value in manifest.items() if key != "manifest_hash"}):
+            raise ValueError(f"recovery directory manifest hash mismatch: {manifest_path}")
+        candidates.append(RecoveryCandidate("directory", recovery_root, manifest, None))
+    matches = [
+        item for item in candidates
+        if all(str(item.manifest.get(key, "")) == str(value) for key, value in source_identity.items())
+    ]
+    if not matches:
+        raise RuntimeError("no recovery matching the unified training source identity was found")
+    highest = max(int(item.manifest.get("iteration", -1)) for item in matches)
+    finalists = [item for item in matches if int(item.manifest.get("iteration", -1)) == highest]
+    identities = {str(item.manifest.get("manifest_hash", "")) for item in finalists}
+    if len(identities) != 1:
+        raise RuntimeError(
+            f"conflicting highest-iteration recovery inputs found: {[str(item.path) for item in finalists]}"
+        )
+    directories = [item for item in finalists if item.kind == "directory"]
+    return directories[0] if directories else finalists[0]
+
+
+def materialize_recovery_candidate(candidate: RecoveryCandidate, destination: str | Path) -> Path:
+    target = Path(destination).resolve()
+    if target.exists():
+        shutil.rmtree(target)
+    if candidate.kind == "directory":
+        shutil.copytree(candidate.path, target, symlinks=False)
+    else:
+        target.mkdir(parents=True)
+        with zipfile.ZipFile(candidate.path) as archive:
+            for info in archive.infolist():
+                member = Path(info.filename.replace("/", os.sep))
+                if member.is_absolute() or ".." in member.parts:
+                    raise ValueError(f"unsafe recovery ZIP member: {info.filename}")
+            archive.extractall(target)
+    progress = read_recovery_progress(target)
+    if str(progress["recovery_manifest_hash"]) != str(candidate.manifest["manifest_hash"]):
+        raise ValueError("materialized recovery identity mismatch")
+    return target
+
+
 class PipelineStateStore:
     """Hash-protected, fsync-before-rename pipeline state."""
 
@@ -382,7 +469,10 @@ def discover_previous_continuation(
             continue
         validated.append((path, payload))
     if len(validated) > 1:
-        raise RuntimeError(f"multiple compatible continuation manifests found: {[str(item[0]) for item in validated]}")
+        identities = {str(item[1].get("hash", "")) for item in validated}
+        if len(identities) > 1:
+            raise RuntimeError(f"multiple different compatible continuation manifests found: {[str(item[0]) for item in validated]}")
+        validated.sort(key=lambda item: (len(item[0].parts), str(item[0])))
     if not validated:
         if candidates and foreign:
             raise RuntimeError(f"continuation inputs were found but none match this unified control: {foreign}")
@@ -480,6 +570,7 @@ def create_continuation_bundle(
     opponent_pool_manifest_path: str | Path,
     promotion_transaction_path: str | Path | None,
     evaluation_paths: Sequence[str | Path],
+    additional_files: Mapping[str, str | Path] | None = None,
     next_target: SegmentTarget | None,
     source_identity: Mapping[str, object],
     control_hash: str,
@@ -501,6 +592,13 @@ def create_continuation_bundle(
     for index, path in enumerate(evaluation_paths):
         source = Path(path)
         inputs[f"evaluation/{index:03d}-{source.name}"] = source
+    for relative, path in dict(additional_files or {}).items():
+        normalized = Path(relative)
+        if normalized.is_absolute() or ".." in normalized.parts or not normalized.parts:
+            raise ValueError(f"unsafe continuation additional path: {relative}")
+        if normalized.as_posix() in inputs:
+            raise ValueError(f"duplicate continuation path: {relative}")
+        inputs[normalized.as_posix()] = Path(path)
     training_commit = load_training_commit(inputs["training/training_commit.json"])
     committed_recovery = Path(training_commit_path).resolve().parent / str(training_commit["recovery"]["path"])
     inputs["training/training_recovery.committed.zip"] = committed_recovery
@@ -577,9 +675,26 @@ class UnifiedSegmentPipeline:
             raise ValueError("existing training commit identity mismatch")
         return commit
 
-    def run(self, *, iteration: int, completed_games: int) -> dict[str, object]:
+    def run(
+        self,
+        *,
+        iteration: int,
+        completed_games: int,
+        pending_target: SegmentTarget | None = None,
+        target_override: SegmentTarget | None = None,
+    ) -> dict[str, object]:
         self.state.transition("DISCOVER_INPUTS", segment=None, details={"iteration": iteration, "completed_games": completed_games})
-        target = select_next_segment(iteration, completed_games)
+        if pending_target is not None and target_override is not None:
+            raise ValueError("pending_target and target_override are mutually exclusive")
+        target = pending_target or target_override or select_next_segment(iteration, completed_games)
+        if pending_target is not None:
+            if iteration < pending_target.target_iteration or completed_games < pending_target.target_completed_games:
+                raise ValueError("pending evaluation target is newer than the selected recovery")
+            if self._existing_commit(pending_target) is None:
+                raise ValueError("pending evaluation target has no durable training commit")
+        if target_override is not None:
+            if iteration >= target_override.target_iteration or completed_games >= target_override.target_completed_games:
+                raise ValueError("target_override must advance both recovery counters")
         if target is None:
             return self.state.transition("COMPLETE", segment=None, details={"reason": "schedule_complete"})
         self.state.transition("PREFLIGHT", segment=target, details={"source_identity": self.source_identity})
@@ -650,8 +765,9 @@ class UnifiedSegmentPipeline:
 __all__ = [
     "AUTO_CONTINUATION_SCHEMA", "AutoContinuationConfig", "CONTINUATION_ARCHIVE_NAME", "CONTINUATION_MANIFEST_NAME", "CONTINUATION_SCHEMA",
     "DEFAULT_SEGMENT_SCHEDULE", "FAILURE_PHASES", "PIPELINE_PHASES", "PIPELINE_STATE_NAME",
-    "PIPELINE_STATE_SCHEMA", "PipelineHooks", "PipelineStateStore", "SegmentTarget",
+    "PIPELINE_STATE_SCHEMA", "PipelineHooks", "PipelineStateStore", "RecoveryCandidate", "SegmentTarget",
     "TRAINING_COMMIT_NAME", "TRAINING_COMMIT_SCHEMA", "TrainingArtifacts", "UnifiedSegmentPipeline",
     "commit_training_artifacts", "continuation_gate", "create_continuation_bundle", "discover_previous_continuation",
-    "load_training_commit", "read_recovery_progress", "select_next_segment", "validate_recovery_archive",
+    "discover_latest_recovery", "load_training_commit", "materialize_recovery_candidate",
+    "read_recovery_progress", "select_next_segment", "validate_recovery_archive",
 ]

@@ -1,0 +1,104 @@
+{
+  "failure_cases": [
+    {
+      "fault": "preflight_failure",
+      "preserved": [
+        "input recovery",
+        "champion seed"
+      ],
+      "retry": "rerun after correcting input/environment",
+      "terminal_state": "no_training_started"
+    },
+    {
+      "fault": "training_before_checkpoint",
+      "preserved": [
+        "previous input recovery",
+        "previous champion/pool"
+      ],
+      "retry": "resume from previous committed recovery",
+      "terminal_state": "TRAINING_FAILED_RECOVERABLE"
+    },
+    {
+      "fault": "training_after_checkpoint_before_commit",
+      "preserved": [
+        "previous committed recovery"
+      ],
+      "retry": "new checkpoint is ignored until shard/budget/CRC commit validation passes",
+      "terminal_state": "TRAINING_FAILED_RECOVERABLE"
+    },
+    {
+      "fault": "recovery_packaging_failure",
+      "preserved": [
+        "previous recovery",
+        "durable trainer checkpoint when emitted"
+      ],
+      "retry": "repair packaging; no evaluation starts",
+      "terminal_state": "TRAINING_FAILED_RECOVERABLE"
+    },
+    {
+      "fault": "evaluation_setup_or_midrun_failure",
+      "preserved": [
+        "immutable training recovery",
+        "valid formal JSONL shards",
+        "plan"
+      ],
+      "retry": "same Notebook enters evaluation-only pending_target path",
+      "terminal_state": "TRAINING_COMPLETE_EVALUATION_FAILED"
+    },
+    {
+      "fault": "record_corruption_foreign_identity_or_conflict",
+      "preserved": [
+        "training recovery",
+        "nonconflicting shards"
+      ],
+      "retry": "reject bad record, repair/remove it, execute only missing planned tasks",
+      "terminal_state": "EVALUATION_INCOMPLETE_RESUMABLE"
+    },
+    {
+      "fault": "promotion_partial_failure",
+      "preserved": [
+        "old champion",
+        "candidate checkpoint",
+        "decision",
+        "transaction state"
+      ],
+      "retry": "replay prepared/champion_published_pool_pending without double generation",
+      "terminal_state": "PROMOTION_REPAIR_REQUIRED"
+    },
+    {
+      "fault": "final_archive_failure",
+      "preserved": [
+        "training commit",
+        "evaluation summary/shards",
+        "champion/pool"
+      ],
+      "retry": "rebuild continuation; no retraining",
+      "terminal_state": "PACKAGING_FAILED_RECOVERABLE"
+    },
+    {
+      "fault": "any_dual_worker_nonzero_or_missing_task",
+      "preserved": [
+        "training recovery",
+        "successful worker shard"
+      ],
+      "retry": "rerun failed shard; summary/promotion blocked until exact matrix complete",
+      "terminal_state": "TRAINING_COMPLETE_EVALUATION_FAILED"
+    }
+  ],
+  "final_holdout_policy": "always forbidden in unified segment pipeline",
+  "hash": "34d233bf2ce544e44375207e51d83b9edb7d2b619e36827d8d2b7b00b13bd4fc",
+  "phases": [
+    "DISCOVER_INPUTS",
+    "PREFLIGHT",
+    "TRAINING",
+    "TRAINING_CHECKPOINT_COMMITTED",
+    "TRAINING_RECOVERY_COMMITTED",
+    "EVALUATION_PREPARING",
+    "EVALUATING",
+    "EVALUATION_COMPLETE",
+    "PROMOTION_COMMITTED",
+    "PACKAGING",
+    "COMPLETE"
+  ],
+  "schema": "guandan-marvel-m09-unified-design-fault-matrix-v1"
+}

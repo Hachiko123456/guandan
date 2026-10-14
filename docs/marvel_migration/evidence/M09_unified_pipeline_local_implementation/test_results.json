@@ -1,0 +1,50 @@
+{
+  "commands": [
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle -q",
+      "duration_seconds": 58.09,
+      "failed": 0,
+      "passed": 70
+    },
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_evaluation -q",
+      "duration_seconds": 54.3,
+      "failed": 0,
+      "passed": 62
+    },
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_training tests/unit/test_checkpoint_compatibility.py tests/unit/test_kaggle_recovery.py -q",
+      "duration_seconds": 74.81,
+      "failed": 0,
+      "passed": 114
+    },
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle/test_m09_unified_pipeline.py tests/marvel_evaluation/test_resumable_formal.py tests/marvel_evaluation/test_dual_gpu_formal.py -q",
+      "duration_seconds": 18.13,
+      "failed": 0,
+      "passed": 24
+    },
+    {
+      "command": "python scripts/run_m09_unified_local_smoke.py --output runs/m09_unified_local_smoke.json",
+      "failed": 0,
+      "passed": 1,
+      "result": "local fault/resume smoke passed; not Kaggle acceptance"
+    },
+    {
+      "command": "python -c \"from guandan_marvel.kaggle.m09_unified_delivery import validate_unified_delivery; validate_unified_delivery(r'D:\\\\project\\\\kaggle_train\\\\guandan-marvel-m09-unified-pipeline-v1')\"",
+      "failed": 0,
+      "passed": 1,
+      "result": "delivery valid"
+    }
+  ],
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.0"
+  },
+  "final_holdout_generated": false,
+  "hash": "14073a6ca6e77526ae3a4b63996f261da4e0fe34b8a72642757a39d975623465",
+  "remote_tests_executed": false,
+  "schema": "guandan-marvel-m09-unified-test-results-v1",
+  "scoped_unique_total_note": "The 22 targeted tests are subsets of the 69/61 scoped suites and are listed separately as the required feature gate.",
+  "status": "passed"
+}

@@ -270,3 +270,132 @@ def test_continuation_bundle_contains_only_non_holdout_handoff_state(tmp_path):
         names = set(bundle.namelist())
     assert CONTINUATION_MANIFEST_NAME in names
     assert all("holdout" not in name.lower() for name in names)
+
+
+def test_unified_dataset_notebook_delivery_validation(tmp_path, monkeypatch):
+    from guandan_marvel.kaggle import m09_unified_delivery as delivery
+
+    repo_root = Path(__file__).resolve().parents[2]
+    source_dataset = Path(r"D:\project\kaggle_train\guandan-marvel-m09-main-ippo-segmented-20261013\datasets\segment1000")
+    recovery = repo_root / "runs/M09_full_training/remote/r2_main_segment0500_20261013T135603Z/downloaded/guandan-marvel-recovery.zip"
+    champion = Path(r"D:\project\kaggle_train\guandan-marvel-m09-algorithm-selection-20261013\dataset\ippo_iter000100.pt")
+    legacy = repo_root / "runs/a07probe/local_fast/ippo/ippo_update_000001_90453d2696194fc2b755820939dcbed2_periodic.pt"
+    assert source_dataset.is_dir() and recovery.is_file() and champion.is_file() and legacy.is_file()
+    original_copy2 = delivery.shutil.copy2
+
+    def link_large(source, destination, *args, **kwargs):
+        source_path = Path(source)
+        destination_path = Path(destination)
+        if destination_path.is_dir():
+            destination_path = destination_path / source_path.name
+        destination_path.parent.mkdir(parents=True, exist_ok=True)
+        if source_path.stat().st_size > 10_000_000:
+            destination_path.unlink(missing_ok=True)
+            destination_path.hardlink_to(source_path)
+            return str(destination_path)
+        return original_copy2(source, destination, *args, **kwargs)
+
+    monkeypatch.setattr(delivery.shutil, "copy2", link_large)
+    output = repo_root / "runs/.m09-unified-delivery-tests" / tmp_path.name / delivery.UNIFIED_DELIVERY_ID
+    if output.parent.exists():
+        shutil.rmtree(output.parent)
+    manifest = delivery.build_unified_delivery(
+        repo_root,
+        output,
+        source_dataset_root=source_dataset,
+        initial_recovery=recovery,
+        champion_seed=champion,
+        legacy_checkpoint=legacy,
+    )
+    validation = delivery.validate_unified_delivery(output)
+    assert manifest["delivery_id"] == delivery.UNIFIED_DELIVERY_ID
+    assert validation["valid"] is True
+    assert validation["dataset_count"] == validation["notebook_count"] == 1
+    assert validation["formal_workers_default"] == 1
+    assert validation["production_enabled"] is False
+    assert validation["auto_continuation_enabled"] is False
+    assert validation["final_holdout_generated"] is False
+    assert not list(output.rglob("*final_holdout*"))
+    shutil.rmtree(output.parent)
+
+
+def test_latest_recovery_prefers_previous_output_over_static_seed(tmp_path):
+    from guandan_marvel.kaggle.unified_pipeline import discover_latest_recovery, materialize_recovery_candidate
+
+    input_root = tmp_path / "input"
+    input_root.mkdir()
+    seed = _fake_recovery(tmp_path / "seed", DEFAULT_SEGMENT_SCHEDULE[0])
+    previous = _fake_recovery(tmp_path / "previous", DEFAULT_SEGMENT_SCHEDULE[1])
+    shutil.copy2(seed.recovery_zip, input_root / "m09_initial_iter0500_recovery.seed.zip")
+    prior_dir = input_root / "previous-output/continuation/training"
+    prior_dir.mkdir(parents=True)
+    shutil.copy2(previous.recovery_zip, prior_dir / "training_recovery.committed.zip")
+    selected = discover_latest_recovery(input_root, source_identity=SOURCE)
+    assert int(selected.manifest["iteration"]) == 1000
+    root = materialize_recovery_candidate(selected, tmp_path / "materialized")
+    assert json.loads((root / "recovery_manifest.json").read_text())["iteration"] == 1000
+
+
+def test_retry_with_target_recovery_uses_pending_segment_and_skips_training(tmp_path):
+    target = DEFAULT_SEGMENT_SCHEDULE[1]
+    calls = {"train": 0, "evaluate": 0}
+
+    def train(selected, output):
+        calls["train"] += 1
+        return _fake_recovery(tmp_path / "training", selected)
+
+    def evaluate(selected, commit, output):
+        calls["evaluate"] += 1
+        if calls["evaluate"] == 1:
+            raise RuntimeError("controlled")
+        return {"complete": True, "evaluation_hash": "e" * 64}
+
+    pipeline = UnifiedSegmentPipeline(
+        output_root=tmp_path / "pipeline",
+        source_identity=SOURCE,
+        control_hash=CONTROL_HASH,
+        hooks=PipelineHooks(train=train, evaluate=evaluate, promote=lambda *_: {"status": "inconclusive", "promote": False}),
+    )
+    with pytest.raises(RuntimeError):
+        pipeline.run(iteration=500, completed_games=2000)
+    result = pipeline.run(iteration=1000, completed_games=4000, pending_target=target)
+    assert result["phase"] == "PROMOTION_COMMITTED"
+    assert calls == {"train": 1, "evaluate": 2}
+
+
+def test_unified_remote_scripts_keep_training_and_evaluation_in_separate_processes():
+    repo_root = Path(__file__).resolve().parents[2]
+    pipeline = (repo_root / "scripts/m09_unified_pipeline.py").read_text(encoding="utf-8")
+    worker = (repo_root / "scripts/m09_unified_formal_worker.py").read_text(encoding="utf-8")
+    compile(pipeline, "m09_unified_pipeline.py", "exec")
+    compile(worker, "m09_unified_formal_worker.py", "exec")
+    assert '"-m", "guandan_marvel.kaggle.runner"' in pipeline
+    assert "DeterministicWorkerGroup" in pipeline and "worker_script" in pipeline
+    assert "remote_validation_defaulted" in pipeline
+    assert 'validation_control.get("default_mode", "A")' in pipeline
+    assert 'validation_mode == "C"' in pipeline
+    assert pipeline.index('"-m", "guandan_marvel.kaggle.runner"') < pipeline.index("def evaluate(")
+    assert "final_holdout" not in worker
+
+
+def test_remote_validation_target_override_is_small_and_does_not_select_segment1000(tmp_path):
+    target = SegmentTarget("remote_a_smoke0502", 502, 2008)
+    observed = []
+
+    def train(selected, output):
+        observed.append(selected)
+        return _fake_recovery(tmp_path / "smoke-training", selected)
+
+    pipeline = UnifiedSegmentPipeline(
+        output_root=tmp_path / "pipeline",
+        source_identity=SOURCE,
+        control_hash=CONTROL_HASH,
+        hooks=PipelineHooks(
+            train=train,
+            evaluate=lambda *_: {"complete": True, "evaluation_hash": "e" * 64},
+            promote=lambda *_: {"status": "inconclusive", "promote": False},
+        ),
+    )
+    result = pipeline.run(iteration=500, completed_games=2000, target_override=target)
+    assert result["segment"] == target.identity()
+    assert observed == [target]

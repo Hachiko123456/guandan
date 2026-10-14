@@ -1,0 +1,23 @@
+{
+  "champion_seed_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+  "control_manifest_hash": "1fde8173e26256982cc298cadc9a43d02efd2929d76429315b1fd0c5adfaa14e",
+  "dataset_manifest_sha256": "464b10faa664b51819aa81ed491624ca01c2107ad93520c73c965924d36dcf45",
+  "delivery_manifest_hash": "b53b73a377d6ee09db38effe111ef4f08e2fb22b937f717b457402dbe6204d15",
+  "delivery_manifest_sha256": "f610054a1c227af4bf403d094e66599bfabf861117a4ef0934199792c010b11d",
+  "final_holdout_generated": false,
+  "hash": "1db397cf7bd99307529a91df1eba68e028bcd5ec13f553fbcc7d283d74d07339",
+  "initial_recovery_sha256": "2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44",
+  "main_plan_hash": "96f324f43ab391c3912a9284fd1dc862424b4c19d63ae9b375a0c15627095f88",
+  "notebook_sha256": "997daa76b5c328ef2968b07afbebe6a8c4bd6b5a1c1d428f44df841ab8b9678e",
+  "phase_commits": {
+    "deterministic_dual_gpu": "07fc7e94fba756b512d3ab28bf977d7e64b88cef",
+    "resumable_formal_evaluation": "e5fdc70c184ee854c9c20c720a12d9e2f3fb8bd2",
+    "unified_pipeline": "d4c5406a4338a5b9fc7eeb082a08f8033539b108"
+  },
+  "schema": "guandan-marvel-m09-unified-source-control-artifact-hashes-v1",
+  "training_source_identity": {
+    "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_content_manifest_hash": "fd8853e379b3bb2a6eefc00474bda9c200aa49139bcbea841a4ffa7c105e6fca"
+  }
+}

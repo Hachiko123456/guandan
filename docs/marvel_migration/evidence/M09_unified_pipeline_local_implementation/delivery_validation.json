@@ -1,0 +1,20 @@
+{
+  "auto_continuation_enabled": false,
+  "champion_seed_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+  "control_manifest_hash": "1fde8173e26256982cc298cadc9a43d02efd2929d76429315b1fd0c5adfaa14e",
+  "dataset_count": 1,
+  "delivery_id": "guandan-marvel-m09-unified-pipeline-v1",
+  "dual_gpu_formal_remote_validated": false,
+  "final_holdout_generated": false,
+  "formal_workers_default": 1,
+  "initial_recovery_sha256": "2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44",
+  "m09_accepted": false,
+  "notebook_count": 1,
+  "notebook_syntax_valid": true,
+  "production_enabled": false,
+  "remote_validated": false,
+  "schema": "guandan-marvel-m09-unified-delivery-validation-v1",
+  "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+  "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+  "valid": true
+}

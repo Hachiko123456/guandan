@@ -64,8 +64,7 @@ def build_resumable_evaluation_plan(
     """Upgrade one immutable M06 selection plan into an enumerated task plan."""
     if base_plan.get("mode") != "selection" or base_plan.get("deal_domain") != "selection":
         raise ValueError("resumable formal evaluation only accepts selection plans")
-    if base_plan.get("promotion_allowed") is not True:
-        raise ValueError("formal plan is not promotion-eligible")
+    promotion_allowed = bool(base_plan.get("promotion_allowed", False))
     if base_plan.get("hash") != payload_hash(base_plan):
         raise ValueError("base evaluation plan hash mismatch")
     matrix = base_plan.get("matrix")
@@ -142,7 +141,7 @@ def build_resumable_evaluation_plan(
         "deterministic_policy": deterministic_policy,
         "deterministic_policy_hash": deterministic_policy_hash,
         "promotion_policy": dict(base_plan.get("promotion_policy") or {}),
-        "promotion_allowed": True,
+        "promotion_allowed": promotion_allowed,
         "data_isolation": dict(base_plan.get("data_isolation") or {}),
         "tasks": tasks,
         "task_count": len(tasks),
@@ -157,8 +156,8 @@ def build_resumable_evaluation_plan(
 def validate_resumable_plan(plan: Mapping[str, object]) -> None:
     if plan.get("schema") != RESUMABLE_PLAN_SCHEMA or plan.get("hash") != payload_hash(plan):
         raise ValueError("resumable evaluation plan schema/hash mismatch")
-    if plan.get("mode") != "selection" or plan.get("promotion_allowed") is not True or plan.get("final_holdout") is not False:
-        raise ValueError("resumable plan must be promotion-eligible selection and never final holdout")
+    if plan.get("mode") != "selection" or type(plan.get("promotion_allowed")) is not bool or plan.get("final_holdout") is not False:
+        raise ValueError("resumable plan must be a selection plan and never final holdout")
     tasks = plan.get("tasks")
     if not isinstance(tasks, list) or len(tasks) != int(plan.get("task_count", -1)):
         raise ValueError("resumable plan task count mismatch")
@@ -188,17 +187,23 @@ def bind_formal_record(
     if task_key(raw_record) != expected_key:
         raise ValueError("executor returned a record for a different task")
     record = dict(raw_record)
+    expected_raw = {
+        "candidate_checkpoint_sha256": plan["candidate"]["checkpoint_sha256"],
+        "opponent_checkpoint_sha256": task.get("opponent_checkpoint_sha256"),
+        "base_deal_sha256": str(task["deal_sha256"]),
+        "backend": str(plan["backend"]),
+        "protocol_version": str(plan["protocol_version"]),
+    }
+    for field, expected_value in expected_raw.items():
+        if field in record and record[field] != expected_value:
+            raise ValueError(f"executor record identity differs from plan: {field}")
+        record[field] = expected_value
     record["schema"] = "guandan-marvel-evaluation-game-v1"
     record["status"] = str(record.get("status", "complete"))
-    record["candidate_checkpoint_sha256"] = plan["candidate"]["checkpoint_sha256"]
-    record["opponent_checkpoint_sha256"] = task.get("opponent_checkpoint_sha256")
-    record["base_deal_sha256"] = str(task["deal_sha256"])
     record["seat_rotation"] = int(task["seat_rotation"])
     record["opponent_id"] = str(task["opponent_id"])
     record["opponent_kind"] = str(task["opponent_kind"])
     record["deal_id"] = str(task["deal_id"])
-    record["backend"] = str(plan["backend"])
-    record["protocol_version"] = str(plan["protocol_version"])
     # Formal identity excludes wall-clock scheduling noise.  Heartbeats retain
     # real timings outside the game record.
     record["runtime_seconds"] = 0.0
@@ -357,7 +362,10 @@ class ResumableEvaluationStore:
     ) -> dict[str, object]:
         if world_size <= 0 or worker_index < 0 or worker_index >= world_size:
             raise ValueError("invalid formal evaluation worker assignment")
-        existing, _ = self.load_records()
+        # Independent workers read only their own durable shard while running;
+        # the parent validates all shards after every worker exits.  This avoids
+        # observing another process between write() and fsync().
+        existing, _ = self.load_records(None if world_size == 1 else [self.shard_path(worker_index)])
         assigned = [
             dict(task) for task in self.plan["tasks"]
             if int(task["task_index"]) % world_size == worker_index
@@ -465,7 +473,7 @@ class ResumableEvaluationStore:
             "evaluation_hash": evaluation_hash,
             "games": len(records),
             "expected_games": int(self.plan["task_count"]),
-            "promotion_allowed": True,
+            "promotion_allowed": bool(self.plan["promotion_allowed"]),
             "final_holdout": False,
         }
         result = {**result_body, "hash": _canonical_hash(result_body)}

@@ -89,8 +89,9 @@ def _raw(task):
         "runtime_seconds": 9.9,
         "actions_per_second": 1.01,
         "action_trace_sha256": f"{int(task['task_index']) + 1000:064x}",
-        "candidate_checkpoint_sha256": "foreign-will-be-overwritten",
-        "opponent_checkpoint_sha256": "foreign-will-be-overwritten",
+        "candidate_checkpoint_sha256": "a" * 64,
+        "opponent_checkpoint_sha256": task.get("opponent_checkpoint_sha256"),
+        "base_deal_sha256": task["deal_sha256"],
         "backend": "cpp",
         "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL",
     }
@@ -237,3 +238,16 @@ def test_promotion_transaction_resume_is_idempotent(tmp_path):
     )
     assert completed["state"] == "completed" and replay == completed
     assert calls == {"champion": 1, "pool": 2}
+
+
+def test_resumable_selection_plan_supports_nonpromoting_remote_smoke():
+    base = _base_plan(("selection-000000",))
+    base["promotion_allowed"] = False
+    base["promotion_policy"] = {"schema": "policy", "mode": "smoke"}
+    base["hash"] = payload_hash(base)
+    plan = build_resumable_evaluation_plan(
+        base_plan=base,
+        materialized_deals=[{"deal_id": "selection-000000", "deal_sha256": "1" * 64}],
+    )
+    assert plan["promotion_allowed"] is False
+    assert plan["final_holdout"] is False
