@@ -1,0 +1,74 @@
+{
+  "candidate_checkpoint_sha256": "f4d1d5872fa80ad1be2804ee91620046256dc0d481b78a25e4b0311f80355cea",
+  "candidate_iteration": 500,
+  "champion_checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+  "champion_iteration_before": 100,
+  "clusters": 32,
+  "current_champion_after_iteration": 100,
+  "current_champion_after_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+  "date": "2026-10-14",
+  "evaluation_hash": "9a0606ff7aabb6476fbbc411ac68477cb91eb3a38e46c221f9dbc87dc3be5fcc",
+  "evaluation_id": "08dab22e0d4b4474a58be715ea5d8ab9",
+  "final_holdout_used": false,
+  "games": 640,
+  "games_per_second": 0.2397354276628836,
+  "illegal_count": 0,
+  "m09_accepted": false,
+  "matrix": [
+    "champion",
+    "legacy",
+    "opponent_pool",
+    "random",
+    "rule"
+  ],
+  "overall_win_rate": 0.678125,
+  "overall_wins": 434,
+  "per_opponent": {
+    "champion": {
+      "clustered_ci95_high": 1.0,
+      "clustered_ci95_low": 0.011331193087268931,
+      "games": 128,
+      "win_rate": 0.578125,
+      "wins": 74
+    },
+    "legacy": {
+      "clustered_ci95_high": 1.0,
+      "clustered_ci95_low": 0.35784035000741166,
+      "games": 128,
+      "win_rate": 0.8359375,
+      "wins": 107
+    },
+    "opponent_pool": {
+      "clustered_ci95_high": 1.0,
+      "clustered_ci95_low": 0.011331193087268931,
+      "games": 128,
+      "win_rate": 0.578125,
+      "wins": 74
+    },
+    "random": {
+      "clustered_ci95_high": 1.0,
+      "clustered_ci95_low": 0.36348308099018134,
+      "games": 128,
+      "win_rate": 0.8359375,
+      "wins": 107
+    },
+    "rule": {
+      "clustered_ci95_high": 1.0,
+      "clustered_ci95_low": 0.0,
+      "games": 128,
+      "win_rate": 0.5625,
+      "wins": 72
+    }
+  },
+  "plan_hash": "9df7dab80ec9258e772dd49a89f8907495ca480f4a19e574f25b2a5fcf963478",
+  "promote": false,
+  "promotion_decision_hash": "ad5a759ef2e7d52887328418abe5fe0bd4ee92eabd9a7f2e463502825d7faa1f",
+  "promotion_reason": "candidate-vs-champion CI lower bound does not reach the promotion threshold",
+  "promotion_status": "inconclusive",
+  "runtime_seconds": 2695.60627588,
+  "schema": "guandan-marvel-m09-iter500-formal-eval-summary-v1",
+  "status": "complete_no_promotion",
+  "strength_claim": false,
+  "summary_hash": "5493cf77223a736ef7a397f19d302e61261de68163ea8ac9b15cb734792c87c9",
+  "truncated_count": 0
+}

@@ -6,7 +6,7 @@
       "exit_code": 0,
       "failures": 0,
       "skipped": 0,
-      "tests": 57
+      "tests": 59
     },
     {
       "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle/test_m09_formal_eval_control.py -q",
@@ -14,9 +14,11 @@
       "exit_code": 0,
       "failures": 0,
       "skipped": 0,
-      "tests": 2
+      "tests": 4
     }
   ],
   "failures": 0,
+  "progress_heartbeat_regression_covered": true,
+  "repair_regression_covered": true,
   "schema": "guandan-marvel-m09-iter500-formal-eval-preparation-test-results-v1"
 }

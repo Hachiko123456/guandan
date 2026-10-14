@@ -2,19 +2,24 @@
   "control_dataset_directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-iter0500-formal-eval-20261014\\dataset",
   "control_files": [
     {
+      "bytes": 1387,
+      "name": "acceptance_profiles.json",
+      "sha256": "da0f42c5fd0798aabf01d1124da9f981f4c3a8ee9d2c35efda81825c1ed7b6e7"
+    },
+    {
       "bytes": 100909,
       "name": "legacy_v1_anchor.pt",
       "sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d"
     },
     {
-      "bytes": 1111,
+      "bytes": 1408,
       "name": "m09_formal_eval_control.json",
-      "sha256": "395109b7d9be9e8ff6a0cc3d439055630f2029d740551532f232b4134d0062e8"
+      "sha256": "393e269797d4bca390e1f597ae2432b017b0ad3deac57a012f509e919bc0e9f0"
     },
     {
-      "bytes": 8978,
+      "bytes": 19958,
       "name": "m09_kaggle_formal_eval.py",
-      "sha256": "b6f6d7378441582f1ac37acba41f7077fb4d857f75ffc0a34134dc3e69c25408"
+      "sha256": "fd9d3058844e613fc1a21f4d9519bbd4f3cfd7ddc1dc140dc5381e132b3b5780"
     }
   ],
   "kaggle_inputs": [
@@ -23,10 +28,17 @@
     "r2 IPPO Pilot Notebook Output"
   ],
   "large_training_files_reupload_required": false,
+  "monitoring": {
+    "gpu": "index/name/utilization/memory/power via nvidia-smi",
+    "heartbeat_seconds": 20,
+    "progress": "completed/640, lane, rate, ETA, stalled seconds, records bytes"
+  },
   "notebook": {
     "bytes": 2464,
     "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-iter0500-formal-eval-20261014\\guandan_marvel_m09_iter0500_formal_eval.ipynb",
     "sha256": "73d676b828909c5ade0c7793a8d68c50823b10915b3e3545589e96b84517bb36"
   },
+  "ready_combined_input_directory": "D:\\project\\kaggle_train\\guandan-marvel-m09-iter0500-formal-eval-combined-v4",
+  "repair": "materialize notebook-output source into /kaggle/working/guandan-marvel-source and inject the hash-bound acceptance profile catalog required by the legacy V1 anchor loader",
   "schema": "guandan-marvel-m09-iter500-formal-eval-upload-inventory-v1"
 }

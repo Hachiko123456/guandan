@@ -1,0 +1,24 @@
+{
+  "commands": [
+    {
+      "command": "formal artifact validator (CRC, paths, hashes, self-hashes, 640-game matrix)",
+      "exit_code": 0,
+      "failures": 0,
+      "tests": 1
+    },
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle -q",
+      "exit_code": 0,
+      "failures": 0,
+      "tests": 59
+    },
+    {
+      "command": "python -m pytest --import-mode=importlib tests/marvel_kaggle/test_m09_formal_eval_control.py -q",
+      "exit_code": 0,
+      "failures": 0,
+      "tests": 4
+    }
+  ],
+  "failures": 0,
+  "schema": "guandan-marvel-m09-iter500-formal-eval-test-results-v1"
+}

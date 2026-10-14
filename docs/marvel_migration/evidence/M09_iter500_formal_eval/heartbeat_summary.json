@@ -1,0 +1,11 @@
+{
+  "evaluation_elapsed_seconds": 2696.730929075,
+  "gpu0_active": true,
+  "gpu1_expected_idle": true,
+  "heartbeat_count": 135,
+  "heartbeat_seconds": 20,
+  "max_stalled_seconds": 0.0,
+  "observability_complete": true,
+  "runner_exit_zero": true,
+  "schema": "guandan-marvel-m09-iter500-formal-eval-heartbeat-summary-v1"
+}

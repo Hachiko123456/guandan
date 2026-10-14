@@ -1,0 +1,390 @@
+{
+  "backend": "cpp",
+  "candidate": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "backend": "cpp",
+    "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+    "checkpoint_path": "/kaggle/working/guandan-marvel-formal-eval-iter0500/candidates/ippo_iter000500.pt",
+    "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+    "checkpoint_sha256": "f4d1d5872fa80ad1be2804ee91620046256dc0d481b78a25e4b0311f80355cea",
+    "iteration": 500,
+    "merged_policy": {
+      "beta": 0.0,
+      "identity": "current_policy_copy",
+      "not_smoothed_when_beta_zero": true
+    },
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "resolved_config_hash": "b5653520321e44ceca124a2a19779b4abfb7203ece931fe1d230eabae373f753",
+    "schema": "guandan-marvel-policy-identity-v1",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+    "training_counters": {
+      "iteration": 500
+    },
+    "training_data_provenance_hash": "206ca2b752929fc8b367f41e4781f303310d7e99b3ff6b76e1b6f07394bc375a",
+    "training_data_provenance_status": "complete"
+  },
+  "cluster_unit": "base_deal_with_four_seat_rotations",
+  "created_at": "2026-10-14T02:20:31.600527+00:00",
+  "current_champion": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "backend": "cpp",
+    "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+    "checkpoint_path": "/kaggle/working/guandan-marvel-formal-eval-iter0500/champion_state/champions/generation000001_iter000100.pt",
+    "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+    "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+    "iteration": 100,
+    "merged_policy": {
+      "beta": 0.0,
+      "frozen_for_evaluation": true,
+      "identity": "current_policy_copy"
+    },
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "resolved_config_hash": "5ae777a870653a877cbef0bdb2876b709f85eea8d1ea9d2ef46094b8df444afc",
+    "schema": "guandan-marvel-policy-identity-v1",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+    "training_counters": {
+      "iteration": 100
+    },
+    "training_data_provenance_hash": "b77207cb951112344465353f61f086540da9b0fce6a69f16d058704acc18c369",
+    "training_data_provenance_status": "complete"
+  },
+  "data_isolation": {
+    "checks": [
+      {
+        "checkpoint_sha256": "f4d1d5872fa80ad1be2804ee91620046256dc0d481b78a25e4b0311f80355cea",
+        "deal_hash_overlap": [],
+        "provenance_status": "complete",
+        "seed_overlap": [],
+        "seed_semantics": "EnvBatch initial seed plus slot, followed by each slot's serialized continuous PRNG reset stream; subsequent deals are not represented as seed+counter",
+        "training_generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+        "training_initial_seeds": [
+          470700
+        ],
+        "training_manifest_hash": "88c2c4119f9533d1469e4136b9d5b5aeba6c822d075e221b260be04f43f04b56"
+      },
+      {
+        "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+        "deal_hash_overlap": [],
+        "provenance_status": "complete",
+        "seed_overlap": [],
+        "seed_semantics": "EnvBatch initial seed plus slot, followed by each slot's serialized continuous PRNG reset stream; subsequent deals are not represented as seed+counter",
+        "training_generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+        "training_initial_seeds": [
+          470700,
+          1470703
+        ],
+        "training_manifest_hash": "88c2c4119f9533d1469e4136b9d5b5aeba6c822d075e221b260be04f43f04b56"
+      }
+    ],
+    "dataset_hash": "36d78e096abd6546c586b9d6b93a536e938d3bd8a1bd8e7019148bdad6de2fcd",
+    "domain": "selection",
+    "formal_selection_eligible": true,
+    "materialized_deals": [
+      {
+        "deal_id": "selection-000000",
+        "deal_sha256": "cd9eccbcaec965b406c892b50c7e135e85f6a7b8ba9b93d5030be756ed9dd5eb",
+        "seed": 1000000000
+      },
+      {
+        "deal_id": "selection-000001",
+        "deal_sha256": "24e7ac6d86db1a7d1b88dc11fdf2344d403b9b86d6e16137cca5ea4081d90983",
+        "seed": 1000000001
+      },
+      {
+        "deal_id": "selection-000002",
+        "deal_sha256": "0e9e0194739f8757fd33c820b72fa15628883c1685622f10703a77be8dca3e3c",
+        "seed": 1000000002
+      },
+      {
+        "deal_id": "selection-000003",
+        "deal_sha256": "9a48e77c4ce887db6a1b37a1871d2bc8e63469fa68b4e6531aad03dee0e6f844",
+        "seed": 1000000003
+      },
+      {
+        "deal_id": "selection-000004",
+        "deal_sha256": "9dbafc67958f89b757de6d52c1b8b46d1915b630d7099e970950dc65d8d55781",
+        "seed": 1000000004
+      },
+      {
+        "deal_id": "selection-000005",
+        "deal_sha256": "2c69015425a097d89b48d472270872346553caa7568a9c0338194bf4505afb20",
+        "seed": 1000000005
+      },
+      {
+        "deal_id": "selection-000006",
+        "deal_sha256": "be9e7cb9f4c5a5c21cf9080b73c8959fd46910df5e8ec48f2fb0afb02125d706",
+        "seed": 1000000006
+      },
+      {
+        "deal_id": "selection-000007",
+        "deal_sha256": "d583552a7ebb5628e4da694b2f37c7f1fece3a2ba21af6df14fa3cd0e41971da",
+        "seed": 1000000007
+      },
+      {
+        "deal_id": "selection-000008",
+        "deal_sha256": "74857725e4f72088ffd86b6c7ace4ecac27547a1f3048f6ec9161d9a24aaf12d",
+        "seed": 1000000008
+      },
+      {
+        "deal_id": "selection-000009",
+        "deal_sha256": "1c50a5559389a0544cc6b8cdd82d32f5697b704579d2b31c5cb0e968918e6255",
+        "seed": 1000000009
+      },
+      {
+        "deal_id": "selection-000010",
+        "deal_sha256": "10c103868b8ed216e2d1587e730579a14ece19891ac8e540d4115bfcd6e99e65",
+        "seed": 1000000010
+      },
+      {
+        "deal_id": "selection-000011",
+        "deal_sha256": "c675ad5dac40a0a33eaad991a3f453494c9af72eb5eee1ca47543f72eaed6864",
+        "seed": 1000000011
+      },
+      {
+        "deal_id": "selection-000012",
+        "deal_sha256": "f54c7eb7e4b02f337afdc99d5ef6c224019431cdcf12cff85317f2f97312f22f",
+        "seed": 1000000012
+      },
+      {
+        "deal_id": "selection-000013",
+        "deal_sha256": "c4ff19a36b24ade43fe92a7ec003745eb9f2456857d7bddf57beebb39dd8a635",
+        "seed": 1000000013
+      },
+      {
+        "deal_id": "selection-000014",
+        "deal_sha256": "f185fb2b7c0fd0097682c4f34a00df45383819690cd98729ef44b92739e20a80",
+        "seed": 1000000014
+      },
+      {
+        "deal_id": "selection-000015",
+        "deal_sha256": "5f32b2fc8de9fa09a13292605acce0b95bdfdddc33adc1911254276a59c0297e",
+        "seed": 1000000015
+      },
+      {
+        "deal_id": "selection-000016",
+        "deal_sha256": "cd26da58f9003b60f53507d04099e6215bd9ea7c31282418bf4f99be4d46a52a",
+        "seed": 1000000016
+      },
+      {
+        "deal_id": "selection-000017",
+        "deal_sha256": "7233d9aa5897e8823a765782e24013c7cb6fdb1b6447d31f453e73b3a1672752",
+        "seed": 1000000017
+      },
+      {
+        "deal_id": "selection-000018",
+        "deal_sha256": "2291e0ebb47f79ebd88ba0b8e3f78ddb4761d352545b24adf2dd4eab8e30121b",
+        "seed": 1000000018
+      },
+      {
+        "deal_id": "selection-000019",
+        "deal_sha256": "3cbb077c595fed26bbcdc7b661a51e4f4855b9d8567f8aa4dc315c658b11ab24",
+        "seed": 1000000019
+      },
+      {
+        "deal_id": "selection-000020",
+        "deal_sha256": "930d65f746f35bec77af9b3985e9c35ab3dea92886cf6db01821e2789d883ce7",
+        "seed": 1000000020
+      },
+      {
+        "deal_id": "selection-000021",
+        "deal_sha256": "01e2c10d7bd353f5304214619f3e5b7ba517ab00f20dbf2dcbfe6ad075c4fc9b",
+        "seed": 1000000021
+      },
+      {
+        "deal_id": "selection-000022",
+        "deal_sha256": "cd9a536240b794298a059ccc18d1043ea294002d5f037420c7601cbc1cea177a",
+        "seed": 1000000022
+      },
+      {
+        "deal_id": "selection-000023",
+        "deal_sha256": "36685d179103751a7b14847d53c0e675e49196e39c5b84690802f07fba5ee3e6",
+        "seed": 1000000023
+      },
+      {
+        "deal_id": "selection-000024",
+        "deal_sha256": "c4c0ed6be8b72a080df6f05774252b55f15939a72b50cec224dd9897b731bb1d",
+        "seed": 1000000024
+      },
+      {
+        "deal_id": "selection-000025",
+        "deal_sha256": "5b1e86a03366724e3d7844801fb955ca44e0c7bec31f4cdf8ee8e9017a9781c2",
+        "seed": 1000000025
+      },
+      {
+        "deal_id": "selection-000026",
+        "deal_sha256": "07d06f13977ca9aaceb9deed3d709f2e3e1a31c7e3ed3c067a61beeb4c97a2b5",
+        "seed": 1000000026
+      },
+      {
+        "deal_id": "selection-000027",
+        "deal_sha256": "91c1e67078ddd9402f917ab00f0c3a2b7836334faf32b4a47f37a7dc3a9865f0",
+        "seed": 1000000027
+      },
+      {
+        "deal_id": "selection-000028",
+        "deal_sha256": "a830ada10f0d9c3e1d2b40b08fa81a99159a0cb3b3e0616fa709bea8435d5e8a",
+        "seed": 1000000028
+      },
+      {
+        "deal_id": "selection-000029",
+        "deal_sha256": "b7f85b88b44865894df37ca76c6acea69f892ad830d4fb55865d74337a03410d",
+        "seed": 1000000029
+      },
+      {
+        "deal_id": "selection-000030",
+        "deal_sha256": "79c5aeef329f3504ab9c446aeef64464f539d3af93287b6c56c7736525c52673",
+        "seed": 1000000030
+      },
+      {
+        "deal_id": "selection-000031",
+        "deal_sha256": "e12f6f9d3cb7c0e43380e8783a0799c6b9f4d2ea8d88dc9ae1e0f79f1298b833",
+        "seed": 1000000031
+      }
+    ],
+    "policy": "formal",
+    "reasons": [],
+    "schema": "guandan-marvel-data-isolation-verification-v1"
+  },
+  "deal_dataset_hash": "36d78e096abd6546c586b9d6b93a536e938d3bd8a1bd8e7019148bdad6de2fcd",
+  "deal_domain": "selection",
+  "deal_ids": [
+    "selection-000000",
+    "selection-000001",
+    "selection-000002",
+    "selection-000003",
+    "selection-000004",
+    "selection-000005",
+    "selection-000006",
+    "selection-000007",
+    "selection-000008",
+    "selection-000009",
+    "selection-000010",
+    "selection-000011",
+    "selection-000012",
+    "selection-000013",
+    "selection-000014",
+    "selection-000015",
+    "selection-000016",
+    "selection-000017",
+    "selection-000018",
+    "selection-000019",
+    "selection-000020",
+    "selection-000021",
+    "selection-000022",
+    "selection-000023",
+    "selection-000024",
+    "selection-000025",
+    "selection-000026",
+    "selection-000027",
+    "selection-000028",
+    "selection-000029",
+    "selection-000030",
+    "selection-000031"
+  ],
+  "deals_manifest_hash": "09516477ae97ad17bf36d035987d90df227f52b2958fafd65b7c5323ddd4a544",
+  "evaluation_id": "08dab22e0d4b4474a58be715ea5d8ab9",
+  "hash": "9df7dab80ec9258e772dd49a89f8907495ca480f4a19e574f25b2a5fcf963478",
+  "identity_hash": "4aba89755c16d25c1f9fdc4320b0afbbea796192dde04fac3940d0bdabc9e475",
+  "legacy_anchor": {
+    "algorithm": "ippo",
+    "checkpoint_path": "/kaggle/input/datasets/hachiko123/guandan-marvel-m09-iter0500-formal-eval/legacy_v1_anchor.pt",
+    "checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+    "protocol_versions": {
+      "action_version": "GD-ACTION-0.1",
+      "encoding_version": "GD-ENCODING-0.1",
+      "environment_version": "GD-ENV-0.1",
+      "rules_version": "GD-RULES-0.1"
+    },
+    "schema": "guandan-legacy-v1-opponent-identity-v1",
+    "training_resume_allowed": false,
+    "usage": "opponent_only"
+  },
+  "matrix": [
+    {
+      "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "id": "champion",
+      "kind": "v2"
+    },
+    {
+      "checkpoint_sha256": null,
+      "id": "rule",
+      "kind": "rule"
+    },
+    {
+      "checkpoint_sha256": null,
+      "id": "random",
+      "kind": "random"
+    },
+    {
+      "checkpoint_sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d",
+      "id": "legacy",
+      "kind": "legacy_v1"
+    },
+    {
+      "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "id": "opponent_pool",
+      "kind": "v2"
+    }
+  ],
+  "mode": "selection",
+  "opponent_pool_sample": {
+    "active": true,
+    "added_at": "2026-10-14T02:20:30.206540+00:00",
+    "checkpoint": "/kaggle/working/guandan-marvel-formal-eval-iter0500/champion_state/champions/generation000001_iter000100.pt",
+    "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+    "id": "champion-generation-1",
+    "kind": "champion",
+    "policy_identity": {
+      "algorithm": "ippo",
+      "architecture": "v1.3",
+      "backend": "cpp",
+      "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+      "checkpoint_path": "/kaggle/working/guandan-marvel-formal-eval-iter0500/champion_state/champions/generation000001_iter000100.pt",
+      "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+      "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+      "iteration": 100,
+      "merged_policy": {
+        "beta": 0.0,
+        "frozen_for_evaluation": true,
+        "identity": "current_policy_copy"
+      },
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+      "resolved_config_hash": "5ae777a870653a877cbef0bdb2876b709f85eea8d1ea9d2ef46094b8df444afc",
+      "schema": "guandan-marvel-policy-identity-v1",
+      "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+      "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+      "training_counters": {
+        "iteration": 100
+      },
+      "training_data_provenance_hash": "b77207cb951112344465353f61f086540da9b0fce6a69f16d058704acc18c369",
+      "training_data_provenance_status": "complete"
+    },
+    "pool_manifest_hash": "08d3b016dac79ec519a203e139cbb5109f980f083331a405c507773446efabe4",
+    "sample_seed": 500,
+    "sampling_probability": 1.0,
+    "source_champion_manifest_hash": "e8a18381602d7c610f5d035731599a607386dbaad633d1532d3c082e8a5bbdd5",
+    "weight": 1.0
+  },
+  "promotion_allowed": true,
+  "promotion_policy": {
+    "ci95_low_threshold": 0.52,
+    "min_clusters": 32,
+    "mode": "formal",
+    "random_min_win_rate": 0.7,
+    "rule_min_win_rate": 0.4,
+    "schema": "guandan-marvel-promotion-policy-v2",
+    "zero_variance_policy": "bounded empirical-Bernstein interval remains non-degenerate at finite n"
+  },
+  "schema": "guandan-marvel-evaluation-plan-v2",
+  "seat_rotations": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "temperature": 0.0
+}

@@ -1,4 +1,8 @@
 {
+  "acceptance_profiles": {
+    "path": "acceptance_profiles.json",
+    "sha256": "da0f42c5fd0798aabf01d1124da9f981f4c3a8ee9d2c35efda81825c1ed7b6e7"
+  },
   "claims": {
     "final_holdout": false,
     "m09_accepted": false,
@@ -17,10 +21,15 @@
     "path": "legacy_v1_anchor.pt",
     "sha256": "880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d"
   },
-  "manifest_hash": "75bd050d935d69bcb8ace7107c3c2088c3bdb806888d2a1f2513ef5b77d94800",
+  "manifest_hash": "5d67c99ae8c4d1179dab5b5156bd227fc35f12230f2ca55586887e84cb0921bd",
+  "monitoring": {
+    "gpu_source": "nvidia-smi",
+    "heartbeat_seconds": 20,
+    "progress_source": "selection_run/games.jsonl"
+  },
   "schema": "guandan-marvel-m09-formal-eval-control-v1",
   "script": {
     "path": "m09_kaggle_formal_eval.py",
-    "sha256": "b6f6d7378441582f1ac37acba41f7077fb4d857f75ffc0a34134dc3e69c25408"
+    "sha256": "fd9d3058844e613fc1a21f4d9519bbd4f3cfd7ddc1dc140dc5381e132b3b5780"
   }
 }

@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: iter500_formal_evaluation_delivery_ready
+    status: iter500_formal_evaluation_complete_no_promotion_segment1000_authorized
     accepted: false
     commit: null
     preparation_commits:
@@ -378,6 +378,7 @@ stages:
       - docs/marvel_migration/reports/M09_main_training_preparation.md
       - docs/marvel_migration/reports/M09_main_segment0500.md
       - docs/marvel_migration/reports/M09_iter500_formal_eval_preparation.md
+      - docs/marvel_migration/reports/M09_iter500_formal_eval.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -452,6 +453,17 @@ stages:
       - docs/marvel_migration/evidence/M09_iter500_formal_eval_preparation/upload_inventory.json
       - docs/marvel_migration/evidence/M09_iter500_formal_eval_preparation/verification.json
       - docs/marvel_migration/evidence/M09_iter500_formal_eval_preparation/test_results.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval/evaluation_summary.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval/evaluation_plan.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval/cluster_summary.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval/promotion_decision.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval/run_result.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval/champion_manifest.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval/opponent_pool_manifest.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval/heartbeat_summary.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval/artifact_manifest.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval/test_results.json
+      - docs/marvel_migration/evidence/M09_iter500_formal_eval/verification.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -475,13 +487,23 @@ stages:
     main_completed_games: 2000
     main_iter500_recovery_sha256: 2d395ae4293e42c0b07f28e9b6d8508aa3c07aa1419d11ce65cb53598a43cb44
     iter500_formal_eval_control_root: D:\project\kaggle_train\guandan-marvel-m09-iter0500-formal-eval-20261014
-    note: exact-resume IPPO reached iter500/2000 games; a small reusable control Dataset and notebook-output chaining evaluation delivery are ready, without re-uploading source/recovery/checkpoints
+    iter500_formal_eval_run: 08dab22e0d4b4474a58be715ea5d8ab9
+    iter500_formal_eval_zip_sha256: 204f6fa0b7b118b771d37805ea42867e6127c6aa98a584fe8e964acaaf3a0fe3
+    iter500_candidate_checkpoint_sha256: f4d1d5872fa80ad1be2804ee91620046256dc0d481b78a25e4b0311f80355cea
+    iter500_formal_eval_decision_hash: ad5a759ef2e7d52887328418abe5fe0bd4ee92eabd9a7f2e463502825d7faa1f
+    iter500_formal_eval_evaluation_hash: 9a0606ff7aabb6476fbbc411ac68477cb91eb3a38e46c221f9dbc87dc3be5fcc
+    iter500_promotion_status: inconclusive
+    iter500_promotion_performed: false
+    current_champion_iteration: 100
+    current_champion_checkpoint_sha256: b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c
+    segment1000_authorized: true
+    note: iter500 formal selection completed 640/640 with zero illegal/truncated games; candidate point estimate beat iter100 57.81% but the frozen conservative CI gate was not met, so iter100 remains champion and segment1000 may exact-resume from iter500 recovery
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
-      - formal selection/champion evaluation after segment0500 has not run
-      - segment1000 is not authorized until the iteration500 evaluation and promotion decision are accepted
-      - main long-training deal distribution and Dataset are not frozen
-      - champion history, formal selection, long training, final candidate and one-shot final holdout are incomplete
+      - iter500 candidate was not promoted; current champion remains the r2 IPPO iter100 evaluation checkpoint
+      - segment1000/1500/2000 training and their mandatory formal reviews have not run
+      - main long-training deal distribution remains narrow Rank.TWO/no-previous-result and broad-context acceptance remains blocking
+      - final candidate and one-shot final holdout are incomplete
 
   M10_belief_search:
     status: blocked

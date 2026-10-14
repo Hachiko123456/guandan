@@ -1,0 +1,23 @@
+{
+  "artifacts": [
+    {
+      "bytes": 15491466,
+      "path": "runs/M09_full_training/remote/iter500_formal_eval_20261014T030527Z/downloaded/guandan-marvel-formal-eval-iter0500.zip",
+      "sha256": "204f6fa0b7b118b771d37805ea42867e6127c6aa98a584fe8e964acaaf3a0fe3"
+    },
+    {
+      "bytes": 99045,
+      "path": "runs/M09_full_training/remote/iter500_formal_eval_20261014T030527Z/downloaded/kaggle-console.log",
+      "sha256": "bff973724b71c76c7a293be0188b5ec032d8406f5796b2d3f32fd08ae0605615"
+    },
+    {
+      "bytes": 3294,
+      "path": "runs/M09_full_training/remote/iter500_formal_eval_20261014T030527Z/validation.json",
+      "sha256": "cdce9bee3eed68925644b61c83910ab06dfa7b004e7b191ecc48235f65e289e2"
+    }
+  ],
+  "extracted_entries": 11,
+  "large_artifacts_committed": false,
+  "schema": "guandan-marvel-m09-iter500-formal-eval-artifact-manifest-v1",
+  "zip_crc_ok": true
+}
