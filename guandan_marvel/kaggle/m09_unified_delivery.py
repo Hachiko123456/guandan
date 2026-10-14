@@ -70,11 +70,16 @@ def stream(command, *, cwd, env, label):
 
 try:
     stage('dataset_discovery')
-    manifests=sorted(INPUT_ROOT.rglob('guandan_marvel_dataset.json'))
     controls=sorted(INPUT_ROOT.rglob('m09_unified_control.json'))
-    if len(manifests)!=1 or len(controls)!=1:
-        raise RuntimeError(f'exactly one Unified Dataset is required: manifests={manifests}, controls={controls}')
-    DATASET_PATH=manifests[0].resolve(); CONTROL_PATH=controls[0].resolve(); DATASET=json.loads(DATASET_PATH.read_text(encoding='utf-8')); CONTROL=json.loads(CONTROL_PATH.read_text(encoding='utf-8'))
+    if len(controls)!=1:
+        raise RuntimeError(f'exactly one Unified control manifest is required: controls={controls}')
+    CONTROL_PATH=controls[0].resolve()
+    DATASET_PATH=(CONTROL_PATH.parent/'guandan_marvel_dataset.json').resolve()
+    if not DATASET_PATH.is_file():
+        raise RuntimeError(f'Unified Dataset manifest is missing beside its control: {DATASET_PATH}')
+    ignored_runtime_manifests=[path for path in sorted(INPUT_ROOT.rglob('guandan_marvel_dataset.json')) if path.resolve()!=DATASET_PATH]
+    print(json.dumps({'event':'unified_dataset_selected','dataset_manifest':str(DATASET_PATH),'ignored_runtime_manifests':[str(path) for path in ignored_runtime_manifests]},sort_keys=True),flush=True)
+    DATASET=json.loads(DATASET_PATH.read_text(encoding='utf-8')); CONTROL=json.loads(CONTROL_PATH.read_text(encoding='utf-8'))
     if CONTROL.get('schema')!='guandan-marvel-m09-unified-control-v1' or CONTROL.get('manifest_hash')!=canonical({k:v for k,v in CONTROL.items() if k!='manifest_hash'}):
         raise RuntimeError('Unified control manifest identity mismatch')
     base=CONTROL_PATH.parent.resolve()

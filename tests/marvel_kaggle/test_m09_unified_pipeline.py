@@ -318,6 +318,8 @@ def test_unified_dataset_notebook_delivery_validation(tmp_path, monkeypatch):
     notebook_text = (output / delivery.UNIFIED_NOTEBOOK_NAME).read_text(encoding="utf-8")
     assert "unified_bootstrap_heartbeat" in notebook_text
     assert "copy_directory=False" in notebook_text
+    assert "ignored_runtime_manifests" in notebook_text
+    assert "CONTROL_PATH.parent/'guandan_marvel_dataset.json'" in notebook_text
     assert (output / "dataset/control_overlay/guandan_marvel/evaluation/provenance.py").read_bytes() == (repo_root / "guandan_marvel/evaluation/provenance.py").read_bytes()
     assert not list(output.rglob("*final_holdout*"))
     shutil.rmtree(output.parent)

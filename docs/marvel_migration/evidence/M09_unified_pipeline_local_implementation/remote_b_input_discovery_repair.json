@@ -1,0 +1,23 @@
+{
+  "dataset_reupload_required": false,
+  "delivery_manifest_hash": "afee248dea5a41e83827f9f35c9eed70dbd732e0e2d76ec92f3d918986ac07c6",
+  "final_holdout_generated": false,
+  "fix": "Select the unique m09_unified_control.json first and bind only the guandan_marvel_dataset.json beside that control; list but ignore runtime manifests from continuation outputs.",
+  "hash": "9a81f7d0cfae4933427ff877467a5f32df6f5d94ea8ace8a14e708dead487d72",
+  "notebook": {
+    "bytes": 10459,
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\guandan_marvel_m09_unified_pipeline.ipynb",
+    "sha256": "32f32b7badd5e1c0892dd0c90567e0ad70ec02b3a21ba72f488354c0f0cb653a"
+  },
+  "observed_error": "exactly one Unified Dataset required because prior Notebook Output contains an internal runtime guandan_marvel_dataset.json",
+  "remote_b_complete": false,
+  "remote_b_first_continuation_sha256": "890da58d8782d3c49066503ded292cfbde00956f0c5e21eef68a0aa0c5151c4a",
+  "remote_b_first_run_log_status": "expected_controlled_failure",
+  "root_cause": "Notebook bootstrap recursively counted temporary runtime Dataset manifests inside prior Notebook Outputs as top-level Unified Datasets.",
+  "schema": "guandan-marvel-m09-unified-prior-output-input-discovery-repair-v1",
+  "status": "fixed_new_notebook_required",
+  "user_input_issue": [
+    "The attached input was Remote A Output (path contains remote_a_smoke0502), not Remote B first-failure Output.",
+    "The top cell still set GUANDAN_M09_EVAL_FAIL_AFTER=8 and GUANDAN_M09_EVAL_FAIL_WORKER=0; B2 must remove them."
+  ]
+}
