@@ -3,7 +3,7 @@
   "dataset_count": 1,
   "dataset_path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\dataset",
   "delivery_id": "guandan-marvel-m09-unified-pipeline-v1",
-  "delivery_manifest_hash": "afee248dea5a41e83827f9f35c9eed70dbd732e0e2d76ec92f3d918986ac07c6",
+  "delivery_manifest_hash": "3548649e3c1c3bbcba9bed60848c2ae99c2eb27a7af36e2ab8e5bdcb697caaa9",
   "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1",
   "files": [
     {
@@ -112,12 +112,12 @@
       "sha256": "66918fd6badca38fd4d2427e957db96f6d33509f682c716436b812446196851a"
     },
     {
-      "bytes": 10459,
+      "bytes": 12075,
       "path": "guandan_marvel_m09_unified_pipeline.ipynb",
-      "sha256": "32f32b7badd5e1c0892dd0c90567e0ad70ec02b3a21ba72f488354c0f0cb653a"
+      "sha256": "a71f765ff0e0e635399ea4f261cda837b8dc1f9eabc92c285bbe1d2067abdc40"
     }
   ],
-  "hash": "f2e1032984c4bebfad0fdc9f51f676717ce9f624d4104f5f3548a3e229fa2df9",
+  "hash": "3e6acd5842b7254525e225bfa31657339358e7cc9396235fd81d421502f3e938",
   "notebook_count": 1,
   "notebook_path": "D:\\project\\kaggle_train\\guandan-marvel-m09-unified-pipeline-v1\\guandan_marvel_m09_unified_pipeline.ipynb",
   "remote_validated": false,

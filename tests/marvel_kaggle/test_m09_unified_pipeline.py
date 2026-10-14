@@ -320,6 +320,8 @@ def test_unified_dataset_notebook_delivery_validation(tmp_path, monkeypatch):
     assert "copy_directory=False" in notebook_text
     assert "ignored_runtime_manifests" in notebook_text
     assert "CONTROL_PATH.parent/'guandan_marvel_dataset.json'" in notebook_text
+    assert "REMOTE_B_EXPECTED_FAILURE_COMPLETE" in notebook_text
+    assert "EXPECTED_REMOTE_B_FAULT" in notebook_text
     assert (output / "dataset/control_overlay/guandan_marvel/evaluation/provenance.py").read_bytes() == (repo_root / "guandan_marvel/evaluation/provenance.py").read_bytes()
     assert not list(output.rglob("*final_holdout*"))
     shutil.rmtree(output.parent)

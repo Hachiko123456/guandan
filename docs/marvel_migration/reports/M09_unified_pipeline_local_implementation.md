@@ -70,7 +70,7 @@
 - iter100 champion seed SHA-256：`b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c`；
 - legacy V1 anchor SHA-256：`880e74c1c41a5be252c1319f9be3ccb1f19553c4e63fe4658198b57c850b1f1d`；
 - Unified control manifest hash：`fcb518a1ef8d51928db65585ab0bff32d9e18c56366057255d948cf2406db8e4`；
-- delivery manifest hash：`afee248dea5a41e83827f9f35c9eed70dbd732e0e2d76ec92f3d918986ac07c6`。
+- delivery manifest hash：`3548649e3c1c3bbcba9bed60848c2ae99c2eb27a7af36e2ab8e5bdcb697caaa9`。
 
 完整 hash 清单：
 

@@ -1,0 +1,29 @@
+{
+  "dataset_reupload_required": false,
+  "delivery_manifest_hash": "3548649e3c1c3bbcba9bed60848c2ae99c2eb27a7af36e2ab8e5bdcb697caaa9",
+  "final_holdout_generated": false,
+  "fix": "Notebook result cell recognizes only the exact Remote B controlled-failure state (mode B + fail-after configured + TRAINING_COMPLETE_EVALUATION_FAILED + worker failure contains controlled formal evaluation failure + continuation exists), writes remote_b_fault_injection_complete.json, prints REMOTE_B_EXPECTED_FAILURE_COMPLETE, and exits the Notebook successfully without changing the resumable pipeline state.",
+  "hash": "a11b4287ef3c1d6538804b6ed28aa660b54b637abc9f52c74ceb3aad70a2a78b",
+  "notebooks": {
+    "guandan_marvel_m09_unified_pipeline.ipynb": {
+      "bytes": 12075,
+      "sha256": "a71f765ff0e0e635399ea4f261cda837b8dc1f9eabc92c285bbe1d2067abdc40"
+    },
+    "validation_notebooks/guandan_marvel_m09_remote_b1.ipynb": {
+      "bytes": 12627,
+      "sha256": "753bdb8d05a7be79138c07bb4e7d81e1e3e218c59b5de30e4bd490e887fa1e19"
+    },
+    "validation_notebooks/guandan_marvel_m09_remote_b2.ipynb": {
+      "bytes": 12631,
+      "sha256": "b23dbb2f961903d60d1360df0503a4bfb8e4fe260509be0eeb844171a32449d1"
+    },
+    "validation_notebooks/guandan_marvel_m09_remote_c.ipynb": {
+      "bytes": 12631,
+      "sha256": "c8ca414babacdff04814252672026128c9230a1f3404f86699c3eff991323b9a"
+    }
+  },
+  "problem": "Kaggle does not expose errored Saved Version output as a reusable Notebook Input.",
+  "safety": "Unexpected pipeline failures still raise and fail the Notebook.",
+  "schema": "guandan-marvel-m09-remote-b-expected-failure-notebook-v1",
+  "status": "fixed_new_notebook_required"
+}

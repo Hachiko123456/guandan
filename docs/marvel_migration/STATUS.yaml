@@ -481,6 +481,7 @@ stages:
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/upload_v7_artifact_preflight.json
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/bootstrap_observability_repair.json
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/remote_b_input_discovery_repair.json
+      - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/remote_b_expected_failure_notebook.json
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/source_control_artifact_hashes.json
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/test_results.json
       - docs/marvel_migration/evidence/M09_unified_pipeline_local_implementation/verification.json
@@ -531,7 +532,7 @@ stages:
     segment1000_authorized: true
     unified_pipeline_delivery_root: D:\project\kaggle_train\guandan-marvel-m09-unified-pipeline-v1
     unified_pipeline_control_manifest_hash: fcb518a1ef8d51928db65585ab0bff32d9e18c56366057255d948cf2406db8e4
-    unified_pipeline_delivery_manifest_hash: afee248dea5a41e83827f9f35c9eed70dbd732e0e2d76ec92f3d918986ac07c6
+    unified_pipeline_delivery_manifest_hash: 3548649e3c1c3bbcba9bed60848c2ae99c2eb27a7af36e2ab8e5bdcb697caaa9
     unified_pipeline_remote_a_complete: true
     unified_pipeline_remote_a_status: accepted_complete
     unified_pipeline_remote_a_run: 20261014T133447Z-unified_remote_a_smoke0502-58a2b5af

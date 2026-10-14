@@ -129,11 +129,28 @@ except BaseException as error:
 '''
 
 NOTEBOOK_RESULTS = r'''OUTPUT=WORKING_ROOT/'guandan-marvel-unified-output'
+EXPECTED_REMOTE_B_FAULT=False
 if OUTPUT.is_dir():
     latest=OUTPUT/'latest_run.json'
     if latest.is_file(): print(latest.read_text(encoding='utf-8'),flush=True)
+    state_path=OUTPUT/'pipeline_state.json'
+    failure_paths=sorted(OUTPUT.glob('evaluation/remote_b_smoke0502/worker*.failure.json'))
+    if state_path.is_file():
+        state=json.loads(state_path.read_text(encoding='utf-8'))
+        controlled_failure=any('controlled formal evaluation failure' in path.read_text(encoding='utf-8') for path in failure_paths)
+        EXPECTED_REMOTE_B_FAULT=(
+            os.environ.get('GUANDAN_M09_REMOTE_VALIDATION')=='B'
+            and os.environ.get('GUANDAN_M09_EVAL_FAIL_AFTER') is not None
+            and state.get('phase')=='TRAINING_COMPLETE_EVALUATION_FAILED'
+            and controlled_failure
+            and (OUTPUT/'guandan-marvel-continuation.zip').is_file()
+        )
+        if EXPECTED_REMOTE_B_FAULT:
+            marker={'schema':'guandan-marvel-m09-remote-b-fault-injection-complete-v1','status':'expected_failure_complete','pipeline_phase':state.get('phase'),'continuation':str(OUTPUT/'guandan-marvel-continuation.zip')}
+            (OUTPUT/'remote_b_fault_injection_complete.json').write_text(json.dumps(marker,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+            print('REMOTE_B_EXPECTED_FAILURE_COMPLETE: training recovery and partial evaluation continuation are ready.',flush=True)
     links=[]
-    for path in [OUTPUT/'guandan-marvel-continuation.zip',OUTPUT/'pipeline_state.json',OUTPUT/'latest_run.json',OUTPUT/'remote_c_result.json']:
+    for path in [OUTPUT/'guandan-marvel-continuation.zip',OUTPUT/'pipeline_state.json',OUTPUT/'latest_run.json',OUTPUT/'remote_b_result.json',OUTPUT/'remote_b_fault_injection_complete.json',OUTPUT/'remote_c_result.json']:
         if path.is_file(): links.append(path)
     links.extend(sorted(OUTPUT.glob('committed_training/*/training_recovery.committed.zip')))
     links.extend(sorted(OUTPUT.glob('evaluation/*/evaluation_summary.json')))
@@ -142,7 +159,7 @@ if OUTPUT.is_dir():
 else:
     print('Unified output directory was not created.',flush=True)
 if PIPELINE_ERROR is not None: raise RuntimeError(PIPELINE_ERROR)
-if PIPELINE_EXIT!=0: raise RuntimeError(f'Unified pipeline failed recoverably with exit={PIPELINE_EXIT}; download the links above and rerun with this Notebook Output as Input.')
+if PIPELINE_EXIT!=0 and not EXPECTED_REMOTE_B_FAULT: raise RuntimeError(f'Unified pipeline failed recoverably with exit={PIPELINE_EXIT}; download the links above and rerun with this Notebook Output as Input.')
 '''
 
 
