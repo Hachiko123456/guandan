@@ -1,0 +1,14 @@
+{
+  "authorized_segment": "segment1000",
+  "auto_continuation_enabled": false,
+  "dual_gpu_formal_remote_validated": true,
+  "final_holdout_generated": false,
+  "formal_workers_default": 2,
+  "m09_accepted": false,
+  "production_enabled": true,
+  "remote_a_accepted": true,
+  "remote_b_accepted": true,
+  "remote_c_accepted": true,
+  "schema": "guandan-marvel-m09-unified-production-validation-v1",
+  "valid": true
+}

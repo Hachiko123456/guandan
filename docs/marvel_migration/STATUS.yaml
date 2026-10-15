@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: unified_pipeline_remote_a_b_c_accepted_production_control_pending_segment1000_not_run
+    status: unified_pipeline_production_segment1000_remote_ready_not_run
     accepted: false
     commit: null
     preparation_commits:
@@ -386,6 +386,7 @@ stages:
       - docs/marvel_migration/reports/M09_unified_remote_a.md
       - docs/marvel_migration/reports/M09_unified_remote_b.md
       - docs/marvel_migration/reports/M09_unified_remote_c.md
+      - docs/marvel_migration/reports/M09_unified_production_segment1000_preparation.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -521,6 +522,10 @@ stages:
       - docs/marvel_migration/evidence/M09_unified_remote_c/single_dual_consistency.json
       - docs/marvel_migration/evidence/M09_unified_remote_c/review_bundle_manifest.json
       - docs/marvel_migration/evidence/M09_unified_remote_c/artifact_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_production_segment1000_preparation/production_preparation.json
+      - docs/marvel_migration/evidence/M09_unified_production_segment1000_preparation/delivery_validation.json
+      - docs/marvel_migration/evidence/M09_unified_production_segment1000_preparation/remote_acceptance.json
+      - docs/marvel_migration/evidence/M09_unified_production_segment1000_preparation/upload_artifact_preflight.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -577,13 +582,18 @@ stages:
     unified_pipeline_remote_c_plan_hash: afa80afaecabc6e3e5df50ccac589778e11957294cb75efb1e314d30637d82cd
     unified_pipeline_dual_gpu_formal_default: false
     unified_pipeline_auto_continuation_enabled: false
-    unified_pipeline_production_enabled: false
+    unified_pipeline_production_delivery_root: D:\project\kaggle_train\guandan-marvel-m09-unified-production-segment1000-v1
+    unified_pipeline_production_control_hash: 1e30157bae9ba26bf75857d932cd54597187c4aa6931aaf81812d9d5bbf77ec2
+    unified_pipeline_production_delivery_hash: 278b05aa02af932c9163bc2198bab4fc0dc4b7773be88b8f0ecfbeaba5d6fd05
+    unified_pipeline_production_upload_sha256: bcc0945b5763a0ad5d4b18ce655135ae948dfe55d59ec5f32bde2c3470a8802a
+    unified_pipeline_production_enabled: true
+    unified_pipeline_production_authorized_segment: segment1000
     unified_pipeline_remote_smoke_target_iteration: 502
-    note: Unified Pipeline Remote A/B/C all passed. Remote B proved failure isolation and 8-to-40 resume without retraining; Remote C proved deterministic single/dual formal equivalence. Production control generation remains pending, Segment1000 has not run, iter100 remains champion, final holdout has not run, and M09 remains incomplete
+    note: Unified Pipeline Remote A/B/C all passed and the production-enabled Segment1000 delivery is remote-ready. One Run All now combines iter500-to-1000 DDP training, durable commit, dual-worker formal evaluation, promotion transaction and continuation packaging. Segment1000 has not run, iter100 remains champion, final holdout has not run, and M09 remains incomplete
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
       - iter500 candidate was not promoted; current champion remains the r2 IPPO iter100 evaluation checkpoint
-      - production-enabled Unified Dataset/control has not yet been generated or reviewed for real Segment1000
+      - production Segment1000 has not yet run; its mandatory formal review remains pending
       - segment1000/1500/2000 training and their mandatory formal reviews have not run
       - main long-training deal distribution remains narrow Rank.TWO/no-previous-result and broad-context acceptance remains blocking
       - final candidate and one-shot final holdout are incomplete

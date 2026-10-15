@@ -1,0 +1,19 @@
+{
+  "remote_a": {
+    "continuation_sha256": "be6c07d267af388a922ce17da48e151742340b04ae68d9a6bea892b0c6a72016",
+    "review_hash": "2af3dc6a426b0f2e7a6a006ecf17ebbf91717d64914c20fcbac4fbf12127091b",
+    "status": "accepted_complete"
+  },
+  "remote_b": {
+    "recovery_sha256": "aa7669388c72806a83454c41309ad4fa9cfcd4e7059c25bab9f872afdb3a38c4",
+    "review_hash": "ee34f11e12641c7267ab066be2cfaf870d4bee4e0fdb5fc450e01fbc53a764ce",
+    "status": "accepted_complete",
+    "training_commit_hash": "d0233efa3ed20f2df009e67a01978cd14cae7fdf2b00f28ac728213d789a617f"
+  },
+  "remote_c": {
+    "consistency_hash": "59d3cfcc42f8edacc2710fc14b0d0eb96994fe004288818e7356e44f51968092",
+    "review_hash": "9f4515107e7918d0ab888493743fad609d94cb68118288dd093e5e4501c2e32f",
+    "status": "accepted_complete"
+  },
+  "schema": "guandan-marvel-m09-unified-remote-acceptance-v1"
+}

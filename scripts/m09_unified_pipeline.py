@@ -438,7 +438,8 @@ def main(argv: list[str] | None = None) -> int:
         requested = os.environ.get("GUANDAN_M09_FORMAL_WORKERS")
         if requested is not None:
             workers = int(requested)
-        if workers == 2 and os.environ.get("GUANDAN_M09_ALLOW_EXPERIMENTAL_DUAL") != "1":
+        dual_remote_validated = bool(control["evaluation"].get("dual_gpu_formal_remote_validated", False))
+        if workers == 2 and not dual_remote_validated and os.environ.get("GUANDAN_M09_ALLOW_EXPERIMENTAL_DUAL") != "1":
             raise RuntimeError("dual-GPU formal evaluation is experimental until Remote C; explicit opt-in is required")
         if workers not in {1, 2}:
             raise ValueError("formal_workers must be 1 or 2")
@@ -601,6 +602,11 @@ def main(argv: list[str] | None = None) -> int:
         "finished_at": _timestamp(),
     }
     atomic_json(output_root / "latest_run.json", latest)
+    if continuation is not None and os.environ.get("GUANDAN_M09_KEEP_RUNTIME", "0") != "1":
+        runtime_root = output_root / "runtime"
+        if runtime_root.is_dir():
+            shutil.rmtree(runtime_root)
+            _emit("runtime_cleanup_complete", path=str(runtime_root))
     _emit("pipeline_finished", **latest, gpu=_gpu_snapshot())
     if caught is not None:
         print(f"RECOVERABLE_ERROR: {type(caught).__name__}: {caught}", file=sys.stderr, flush=True)
