@@ -1,0 +1,25 @@
+{
+  "candidate_freeze_hash": "83d04c4187515d01293b1ee329ef2ed0b6297c4988979675dd3f056e241cb7f2",
+  "candidate_sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8",
+  "control_hash": "da789f7da631f2faf1320e619d4eb477737c1836106c9d728c8bb941c34114aa",
+  "delivery_manifest_hash": "6c3505d8dc91f9ee261eef813c536c0407fb114bdbadefd1331878897a165bf1",
+  "delivery_root": "D:\\project\\kaggle_train\\guandan-marvel-m09-final-holdout-iter2000-v1",
+  "final_clusters": 65,
+  "final_dataset_hash": "06c8db261da5b8afbd33550080342ac7260bad31e613e2ec584822567743aeda",
+  "final_holdout_run": false,
+  "hash": "1072d4da3f88c41681a1357100d161d6beb7872834e5972074812b339f84c8ff",
+  "m09_accepted": false,
+  "notebook": {
+    "path": "D:\\project\\kaggle_train\\guandan-marvel-m09-final-holdout-iter2000-v1\\guandan_marvel_m09_final_holdout.ipynb",
+    "sha256": "c057c009fb97ce13ed3a9f4f40412921a8a8fcb148657d03a48c403fd94503c3"
+  },
+  "one_shot": true,
+  "schema": "guandan-marvel-m09-final-holdout-preparation-v1",
+  "status": "remote_ready_one_shot_not_run",
+  "total_games": 1300,
+  "upload": {
+    "bytes": 16633562,
+    "path": "guandan-marvel-m09-final-holdout-upload.zip",
+    "sha256": "bf5c82cbcd07f5fd1ce5813552d8f21ca213f0bac6d8c54fbe47b8407090b37a"
+  }
+}

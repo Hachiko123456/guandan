@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: unified_pipeline_training_plan_complete_final_candidate_freeze_pending
+    status: iter2000_final_candidate_frozen_final_holdout_remote_ready_not_run
     accepted: false
     commit: null
     preparation_commits:
@@ -566,6 +566,8 @@ stages:
       - docs/marvel_migration/evidence/M09_unified_segment2000/opponent_pool_manifest.json
       - docs/marvel_migration/evidence/M09_unified_segment2000/continuation_manifest.json
       - docs/marvel_migration/evidence/M09_unified_segment2000/artifact_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_segment2000/final_candidate_freeze.json
+      - docs/marvel_migration/evidence/M09_unified_segment2000/final_holdout_preparation.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -636,6 +638,14 @@ stages:
     unified_pipeline_segment2000_evaluation_hash: 314b472d87013837089d3aa8c976b7c3f48f09212d78bd1520ab4076d8cdd161
     unified_pipeline_segment2000_promotion_status: inconclusive
     unified_pipeline_segment2000_promoted: false
+    final_candidate_iteration: 2000
+    final_candidate_checkpoint_sha256: af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8
+    final_candidate_freeze_hash: 83d04c4187515d01293b1ee329ef2ed0b6297c4988979675dd3f056e241cb7f2
+    final_holdout_delivery_root: D:\project\kaggle_train\guandan-marvel-m09-final-holdout-iter2000-v1
+    final_holdout_control_hash: da789f7da631f2faf1320e619d4eb477737c1836106c9d728c8bb941c34114aa
+    final_holdout_dataset_hash: 06c8db261da5b8afbd33550080342ac7260bad31e613e2ec584822567743aeda
+    final_holdout_upload_sha256: bf5c82cbcd07f5fd1ce5813552d8f21ca213f0bac6d8c54fbe47b8407090b37a
+    final_holdout_run: false
     unified_pipeline_segment1500_run_status: accepted_complete_no_promotion
     unified_pipeline_segment1500_training_commit_hash: b6bdddfc030727a55da8f1c73125e6eb42d343ef5a2df2d7fd9dbab2dbc59c6f
     unified_pipeline_segment1500_recovery_sha256: 79c9527cfba604b590a3b0caa2e88e76798c6ad3409f849a8890e8388bfe68f7
@@ -649,11 +659,11 @@ stages:
     unified_pipeline_segment1000_promotion_status: inconclusive
     unified_pipeline_segment1000_promoted: false
     unified_pipeline_remote_smoke_target_iteration: 502
-    note: Unified Pipeline training plan completed at iter2000/8000 games. Segment2000 had 640/640 dual-worker formal evaluation, zero health failures, rule/random floors passed, and candidate-vs-champion point estimate 62.50%, but conservative CI remained inconclusive; iter100 remains champion. Final candidate freeze and one-shot final holdout are pending; M09 remains incomplete
+    note: Unified training completed at iter2000/8000 games. The plan-terminal iter2000 checkpoint, which had the strongest selection point estimates and passed all health/floor gates, is explicitly frozen as final candidate without rewriting champion history. The one-shot 65-cluster/1300-game final holdout delivery is remote-ready but has not run; M09 remains incomplete
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
       - iter500 candidate was not promoted; current champion remains the r2 IPPO iter100 evaluation checkpoint
-      - final candidate selection/freeze and one-shot final holdout have not run
+      - one-shot final holdout has not run
       - segment1000/1500/2000 training and their mandatory formal reviews have not run
       - main long-training deal distribution remains narrow Rank.TWO/no-previous-result and broad-context acceptance remains blocking
       - final candidate and one-shot final holdout are incomplete

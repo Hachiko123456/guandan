@@ -1,0 +1,28 @@
+{
+  "candidate_checkpoint_sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8",
+  "candidate_iteration": 2000,
+  "candidate_vs_champion_win_rate": 0.625,
+  "champion_rewritten": false,
+  "current_champion_iteration": 100,
+  "current_champion_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+  "final_holdout_run": false,
+  "freeze_basis": [
+    "M09 main plan terminal checkpoint at iteration 2000",
+    "highest candidate-vs-champion point estimate among iter500/1000/1500/2000",
+    "rule/random health floors passed",
+    "frozen before any final holdout score is observed"
+  ],
+  "frozen_at": "2026-10-15T12:31:02.213427+00:00",
+  "hash": "83d04c4187515d01293b1ee329ef2ed0b6297c4988979675dd3f056e241cb7f2",
+  "health_pass": true,
+  "legacy_win_rate": 0.859375,
+  "random_win_rate": 0.890625,
+  "recovery_sha256": "50ab0f413873119b49c0f86592bd773ef9f206531a4f6bb5394e05a18b503aae",
+  "rule_win_rate": 0.65625,
+  "schema": "guandan-marvel-m09-final-candidate-freeze-v1",
+  "selection_decision_hash": "3fb2d21394ff5145f1996269c8075d19fd7c834356a9991c66944e2195ec6e0e",
+  "selection_evaluation_hash": "314b472d87013837089d3aa8c976b7c3f48f09212d78bd1520ab4076d8cdd161",
+  "selection_status": "inconclusive",
+  "status": "frozen",
+  "training_commit_hash": "ca96a98c5315fb03a091d9c34448d4424f6ac6cd561022f98d6cc4dabe0576b9"
+}
