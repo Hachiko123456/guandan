@@ -1,0 +1,77 @@
+{
+  "candidate": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "backend": "cpp",
+    "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+    "checkpoint_path": "/kaggle/working/guandan-marvel-unified-output/candidates/ippo_iter001500.pt",
+    "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+    "checkpoint_sha256": "c6e19323e369be1ff08432e4198236bc92bab785a2bfd619e2cd7c103f1f496b",
+    "iteration": 1500,
+    "merged_policy": {
+      "beta": 0.0,
+      "identity": "current_policy_copy",
+      "not_smoothed_when_beta_zero": true
+    },
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "resolved_config_hash": "08cd701e8b13706ab285dfc54592351f6e9bed4778b79ac8b3c45e41e4d2515e",
+    "schema": "guandan-marvel-policy-identity-v1",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+    "training_counters": {
+      "iteration": 1500
+    },
+    "training_data_provenance_hash": "4b1273b99c228eef47138ff99cd3789e941dd8caec77d26c7771e5dd91ea3150",
+    "training_data_provenance_status": "complete"
+  },
+  "current_champion": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "backend": "cpp",
+    "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+    "checkpoint_path": "/kaggle/working/guandan-marvel-unified-output/champion_state/champions/generation000001_iter000100.pt",
+    "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+    "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+    "iteration": 100,
+    "merged_policy": {
+      "beta": 0.0,
+      "frozen_for_evaluation": true,
+      "identity": "current_policy_copy"
+    },
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "resolved_config_hash": "5ae777a870653a877cbef0bdb2876b709f85eea8d1ea9d2ef46094b8df444afc",
+    "schema": "guandan-marvel-policy-identity-v1",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+    "training_counters": {
+      "iteration": 100
+    },
+    "training_data_provenance_hash": "b77207cb951112344465353f61f086540da9b0fce6a69f16d058704acc18c369",
+    "training_data_provenance_status": "complete"
+  },
+  "current_champion_generation": 1,
+  "current_champion_manifest_hash": "2d03edfc5d4a7f15b7c52c93e45e822be2ef58a0729626293d484f50647a6be0",
+  "decided_at": "2026-10-15T07:26:17.934112+00:00",
+  "evaluation_hash": "f92e4605d205de7b59635a8005dfddbcc0109480db22f42131c1fb5afb931d59",
+  "evaluation_mode": "selection",
+  "hash": "049cca8c934fd3643c92fe066978fe59e6ca94aace620e402c7fbda64008fb89",
+  "plan_hash": "185c61cfabbeb0e887d8f9b4ee6aaac4a90c2a6660dad00c2081ede197405f3a",
+  "policy": {
+    "ci95_low_threshold": 0.52,
+    "min_clusters": 32,
+    "mode": "formal",
+    "random_min_win_rate": 0.7,
+    "rule_min_win_rate": 0.4,
+    "schema": "guandan-marvel-promotion-policy-v2",
+    "zero_variance_policy": "bounded empirical-Bernstein interval remains non-degenerate at finite n"
+  },
+  "promote": false,
+  "reasons": [
+    "candidate-vs-champion CI lower bound does not reach the promotion threshold"
+  ],
+  "schema": "guandan-marvel-promotion-decision-v2",
+  "selection_deals_hash": "a700956da78c155d3d967804f28d2f19785643e3d057606c62d7d53e87c58632",
+  "selection_eligible": true,
+  "status": "inconclusive",
+  "summary_hash": "f19bc1fa6ccb8774fcc0b67082f839ac81af455b3f431fdd160d1fea72a9cc0f"
+}

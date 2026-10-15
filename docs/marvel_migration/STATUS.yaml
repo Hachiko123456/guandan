@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: unified_pipeline_segment1000_complete_no_promotion_segment1500_authorized
+    status: unified_pipeline_segment1500_complete_no_promotion_segment2000_authorized
     accepted: false
     commit: null
     preparation_commits:
@@ -388,6 +388,7 @@ stages:
       - docs/marvel_migration/reports/M09_unified_remote_c.md
       - docs/marvel_migration/reports/M09_unified_production_segment1000_preparation.md
       - docs/marvel_migration/reports/M09_unified_segment1000.md
+      - docs/marvel_migration/reports/M09_unified_segment1500.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -539,6 +540,18 @@ stages:
       - docs/marvel_migration/evidence/M09_unified_segment1000/opponent_pool_manifest.json
       - docs/marvel_migration/evidence/M09_unified_segment1000/continuation_manifest.json
       - docs/marvel_migration/evidence/M09_unified_segment1000/artifact_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_segment1500/segment1500_review.json
+      - docs/marvel_migration/evidence/M09_unified_segment1500/training_commit.json
+      - docs/marvel_migration/evidence/M09_unified_segment1500/pipeline_state.json
+      - docs/marvel_migration/evidence/M09_unified_segment1500/evaluation_plan.json
+      - docs/marvel_migration/evidence/M09_unified_segment1500/evaluation_result.json
+      - docs/marvel_migration/evidence/M09_unified_segment1500/evaluation_summary.json
+      - docs/marvel_migration/evidence/M09_unified_segment1500/promotion_decision.json
+      - docs/marvel_migration/evidence/M09_unified_segment1500/worker_group_result.json
+      - docs/marvel_migration/evidence/M09_unified_segment1500/champion_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_segment1500/opponent_pool_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_segment1500/continuation_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_segment1500/artifact_manifest.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -600,7 +613,13 @@ stages:
     unified_pipeline_production_delivery_hash: 278b05aa02af932c9163bc2198bab4fc0dc4b7773be88b8f0ecfbeaba5d6fd05
     unified_pipeline_production_upload_sha256: bcc0945b5763a0ad5d4b18ce655135ae948dfe55d59ec5f32bde2c3470a8802a
     unified_pipeline_production_enabled: true
-    unified_pipeline_production_authorized_segment: segment1500
+    unified_pipeline_production_authorized_segment: segment2000
+    unified_pipeline_segment1500_run_status: accepted_complete_no_promotion
+    unified_pipeline_segment1500_training_commit_hash: b6bdddfc030727a55da8f1c73125e6eb42d343ef5a2df2d7fd9dbab2dbc59c6f
+    unified_pipeline_segment1500_recovery_sha256: 79c9527cfba604b590a3b0caa2e88e76798c6ad3409f849a8890e8388bfe68f7
+    unified_pipeline_segment1500_evaluation_hash: f92e4605d205de7b59635a8005dfddbcc0109480db22f42131c1fb5afb931d59
+    unified_pipeline_segment1500_promotion_status: inconclusive
+    unified_pipeline_segment1500_promoted: false
     unified_pipeline_segment1000_run_status: accepted_complete_no_promotion
     unified_pipeline_segment1000_training_commit_hash: 4d5497289a97100f8482a0ba0f90c90586071105389bc1b25612c86f7a00f99e
     unified_pipeline_segment1000_recovery_sha256: 9d7f94c59258382794385c99a65178fee888d26b0e4a6a58ea77066ffb8b146d
@@ -608,11 +627,11 @@ stages:
     unified_pipeline_segment1000_promotion_status: inconclusive
     unified_pipeline_segment1000_promoted: false
     unified_pipeline_remote_smoke_target_iteration: 502
-    note: Unified Pipeline Segment1000 completed at iter1000/4000 games with 640/640 dual-worker formal evaluation and zero health failures. Candidate-vs-champion point estimate was 56.25% but the conservative CI gate remained inconclusive, so iter100 remains champion. Rule/random floors passed and Segment1500 is authorized; final holdout has not run and M09 remains incomplete
+    note: Unified Pipeline Segment1500 completed at iter1500/6000 games with 640/640 dual-worker formal evaluation and zero health failures. Candidate-vs-champion point estimate rose to 60.94% but the conservative CI gate remained inconclusive, so iter100 remains champion. Rule/random floors passed and Segment2000 is authorized; final holdout has not run and M09 remains incomplete
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
       - iter500 candidate was not promoted; current champion remains the r2 IPPO iter100 evaluation checkpoint
-      - Segment1500/2000 training and mandatory formal reviews have not run
+      - Segment2000 training and mandatory formal review have not run
       - segment1000/1500/2000 training and their mandatory formal reviews have not run
       - main long-training deal distribution remains narrow Rank.TWO/no-previous-result and broad-context acceptance remains blocking
       - final candidate and one-shot final holdout are incomplete
