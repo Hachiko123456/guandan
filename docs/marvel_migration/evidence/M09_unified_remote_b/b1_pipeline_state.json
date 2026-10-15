@@ -1,0 +1,79 @@
+{
+  "details": {
+    "continuation_archive": "/kaggle/working/guandan-marvel-unified-output/guandan-marvel-continuation.zip",
+    "pre_packaging_phase": "TRAINING_COMPLETE_EVALUATION_FAILED"
+  },
+  "error": "FormalWorkerFailure: formal evaluation worker failure blocks merge/promotion: [{'worker_index': 0, 'device_index': 0, 'pid': 170, 'exit_code': 1, 'assigned_tasks': 40, 'log': '/kaggle/working/guandan-marvel-unified-output/evaluation/remote_b_smoke0502/worker0.log'}]",
+  "hash": "43e8ee74d8dc8c8f38659e0bf6a03a2b541e942e1415fa19061d1176404e961b",
+  "history": [
+    {
+      "at": "2026-10-14T23:47:15.721125+00:00",
+      "error": null,
+      "phase": "DISCOVER_INPUTS",
+      "sequence": 1
+    },
+    {
+      "at": "2026-10-14T23:47:15.724859+00:00",
+      "error": null,
+      "phase": "PREFLIGHT",
+      "sequence": 2
+    },
+    {
+      "at": "2026-10-14T23:47:15.728308+00:00",
+      "error": null,
+      "phase": "TRAINING",
+      "sequence": 3
+    },
+    {
+      "at": "2026-10-14T23:49:09.377114+00:00",
+      "error": null,
+      "phase": "TRAINING_CHECKPOINT_COMMITTED",
+      "sequence": 4
+    },
+    {
+      "at": "2026-10-14T23:49:20.440229+00:00",
+      "error": null,
+      "phase": "TRAINING_RECOVERY_COMMITTED",
+      "sequence": 5
+    },
+    {
+      "at": "2026-10-14T23:49:20.443373+00:00",
+      "error": null,
+      "phase": "EVALUATION_PREPARING",
+      "sequence": 6
+    },
+    {
+      "at": "2026-10-14T23:49:20.446318+00:00",
+      "error": null,
+      "phase": "EVALUATING",
+      "sequence": 7
+    },
+    {
+      "at": "2026-10-14T23:50:29.807201+00:00",
+      "error": "FormalWorkerFailure: formal evaluation worker failure blocks merge/promotion: [{'worker_index': 0, 'device_index': 0, 'pid': 170, 'exit_code': 1, 'assigned_tasks': 40, 'log': '/kaggle/working/guandan-marvel-unified-output/evaluation/remote_b_smoke0502/worker0.log'}]",
+      "phase": "TRAINING_COMPLETE_EVALUATION_FAILED",
+      "sequence": 8
+    },
+    {
+      "at": "2026-10-14T23:50:29.812960+00:00",
+      "error": null,
+      "phase": "PACKAGING",
+      "sequence": 9
+    },
+    {
+      "at": "2026-10-14T23:50:33.208700+00:00",
+      "error": "FormalWorkerFailure: formal evaluation worker failure blocks merge/promotion: [{'worker_index': 0, 'device_index': 0, 'pid': 170, 'exit_code': 1, 'assigned_tasks': 40, 'log': '/kaggle/working/guandan-marvel-unified-output/evaluation/remote_b_smoke0502/worker0.log'}]",
+      "phase": "TRAINING_COMPLETE_EVALUATION_FAILED",
+      "sequence": 10
+    }
+  ],
+  "phase": "TRAINING_COMPLETE_EVALUATION_FAILED",
+  "schema": "guandan-marvel-m09-unified-pipeline-state-v1",
+  "segment": {
+    "segment_id": "remote_b_smoke0502",
+    "target_completed_games": 2008,
+    "target_iteration": 502
+  },
+  "updated_at": "2026-10-14T23:50:33.208700+00:00",
+  "version": 1
+}

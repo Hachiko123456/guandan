@@ -1,0 +1,11 @@
+{
+  "assigned": 40,
+  "completed_now": 8,
+  "error": "RuntimeError: controlled formal evaluation failure",
+  "failed_at": "2026-10-14T23:50:28.938220+00:00",
+  "hash": "1d287345fb07f6e24bdf11183f7a541110b4a989b14588890ea49408aa63e06a",
+  "plan_hash": "afa80afaecabc6e3e5df50ccac589778e11957294cb75efb1e314d30637d82cd",
+  "schema": "guandan-marvel-formal-worker-failure-v1",
+  "worker_index": 0,
+  "world_size": 1
+}

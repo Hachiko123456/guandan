@@ -1,0 +1,92 @@
+{
+  "files": [
+    {
+      "bytes": 3712,
+      "path": "b1_continuation_manifest.json",
+      "sha256": "221338c252784b665b43b5a4d6d292de07ad248a6038d928ec9879ea176f50fb"
+    },
+    {
+      "bytes": 30542,
+      "path": "b1_evaluation_plan.json",
+      "sha256": "6d4e632f9dd48dfd6b4b4e2318a053909edd725f1676dcdd2a7ef0599e20a2c3"
+    },
+    {
+      "bytes": 2892,
+      "path": "b1_pipeline_state.json",
+      "sha256": "7f54ab503fe8698e7cb0f4f9b14bc94f5b41d494a2f1358c819f3661fa212c64"
+    },
+    {
+      "bytes": 1466,
+      "path": "b1_training_commit.json",
+      "sha256": "f9446fcfc7bf8962fa73d1e4cacd315aa9f8e0dbac383f1c0b258284aeff0692"
+    },
+    {
+      "bytes": 426,
+      "path": "b1_worker_failure.json",
+      "sha256": "75cedcff9f1ab266c802ca3a305fa64eaffac30305134c8b030ea34526915142"
+    },
+    {
+      "bytes": 1139,
+      "path": "b1_worker_group_result.json",
+      "sha256": "629dee5a0f207e794d90b5a375a7782d30ab6c7e5dd9d63555bbab374a3dd20c"
+    },
+    {
+      "bytes": 4662,
+      "path": "b2_continuation_manifest.json",
+      "sha256": "3ad295e1c189c953538a10484de35798ceeae6e1fce8141d3d5731d658fad0be"
+    },
+    {
+      "bytes": 30542,
+      "path": "b2_evaluation_plan.json",
+      "sha256": "6d4e632f9dd48dfd6b4b4e2318a053909edd725f1676dcdd2a7ef0599e20a2c3"
+    },
+    {
+      "bytes": 639,
+      "path": "b2_evaluation_result.json",
+      "sha256": "b73130415dcac57829c2b09cbe263d8e8dae23e69832443cd908fa966c170e90"
+    },
+    {
+      "bytes": 7767,
+      "path": "b2_evaluation_summary.json",
+      "sha256": "1c3d533739866efdf90359d29f9c0324cddfcf638e747ba1ac2960a231028b19"
+    },
+    {
+      "bytes": 3873,
+      "path": "b2_pipeline_state.json",
+      "sha256": "d8899ca5940db5495e04d39a839896374125c48d8477d0f884c4496a371559ec"
+    },
+    {
+      "bytes": 3710,
+      "path": "b2_promotion_decision.json",
+      "sha256": "27410c34b3d71919045b0ad76c9ba754d1dac15b85c8aa5bc93ce3000dd4bc13"
+    },
+    {
+      "bytes": 1466,
+      "path": "b2_training_commit.json",
+      "sha256": "f9446fcfc7bf8962fa73d1e4cacd315aa9f8e0dbac383f1c0b258284aeff0692"
+    },
+    {
+      "bytes": 426,
+      "path": "b2_worker_failure.json",
+      "sha256": "75cedcff9f1ab266c802ca3a305fa64eaffac30305134c8b030ea34526915142"
+    },
+    {
+      "bytes": 1140,
+      "path": "b2_worker_group_result.json",
+      "sha256": "a87cbddcc410a2e8cbc9afcf333a5ad9af5fe19422bb6b668fdf1d437c70e8bb"
+    },
+    {
+      "bytes": 411,
+      "path": "b2_worker_progress.json",
+      "sha256": "b043351b338e1a6e35f1b6de7d48c37e6bfe87d3a52f5866baecfa0357675eb5"
+    },
+    {
+      "bytes": 2309,
+      "path": "remote_b_review.json",
+      "sha256": "91f37d42484520636f7aee535585199f6dad4c46b14a4f187d899577047d4773"
+    }
+  ],
+  "hash": "f8ae35f776751188aa61182844f49c40f781187dc7fa9d058e03ac92f7562804",
+  "review_bundle_sha256": "f39bf6b9125661d36e9e98b5f1acef01bcff94ace96c5ede4b24b8fd35d4aa5b",
+  "schema": "guandan-marvel-m09-unified-remote-b-artifact-manifest-v1"
+}

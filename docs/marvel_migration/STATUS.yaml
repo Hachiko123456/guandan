@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: unified_pipeline_remote_a_accepted_remote_b_c_pending_segment1000_not_run
+    status: unified_pipeline_remote_a_b_accepted_remote_c_pending_segment1000_not_run
     accepted: false
     commit: null
     preparation_commits:
@@ -384,6 +384,7 @@ stages:
       - docs/marvel_migration/reports/M09_iter500_formal_eval.md
       - docs/marvel_migration/reports/M09_unified_pipeline_local_implementation.md
       - docs/marvel_migration/reports/M09_unified_remote_a.md
+      - docs/marvel_migration/reports/M09_unified_remote_b.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -497,6 +498,23 @@ stages:
       - docs/marvel_migration/evidence/M09_unified_remote_a/champion_manifest.json
       - docs/marvel_migration/evidence/M09_unified_remote_a/opponent_pool_manifest.json
       - docs/marvel_migration/evidence/M09_unified_remote_a/artifact_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/remote_b_review.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b1_continuation_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b1_training_commit.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b1_pipeline_state.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b1_evaluation_plan.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b1_worker_failure.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b1_worker_group_result.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b2_continuation_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b2_training_commit.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b2_pipeline_state.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b2_evaluation_plan.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b2_worker_progress.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b2_worker_group_result.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b2_evaluation_result.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b2_evaluation_summary.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/b2_promotion_decision.json
+      - docs/marvel_migration/evidence/M09_unified_remote_b/artifact_manifest.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -539,7 +557,11 @@ stages:
     unified_pipeline_remote_a_continuation_sha256: be6c07d267af388a922ce17da48e151742340b04ae68d9a6bea892b0c6a72016
     unified_pipeline_remote_a_training_commit_hash: b72ac7fa982b182baa33b08d07f30e3182e359aeb5f78c08f83dac087d43af76
     unified_pipeline_remote_a_evaluation_hash: 2bf0967783c659c2eb3c10a1d81aa9c995b7ef0ee2055b1b86a1f24cbd59fe78
-    unified_pipeline_remote_b_complete: false
+    unified_pipeline_remote_b_complete: true
+    unified_pipeline_remote_b_status: accepted_complete
+    unified_pipeline_remote_b_training_commit_hash: d0233efa3ed20f2df009e67a01978cd14cae7fdf2b00f28ac728213d789a617f
+    unified_pipeline_remote_b_recovery_sha256: aa7669388c72806a83454c41309ad4fa9cfcd4e7059c25bab9f872afdb3a38c4
+    unified_pipeline_remote_b_evaluation_hash: 905be3fc425e5e3ba889f90cbaf1d97be292c210cf2f435d4854a7936b7eb5b8
     unified_pipeline_remote_b_fault_run: 20261014T144842Z-unified_remote_b_smoke0502-af98c983
     unified_pipeline_remote_b_fault_run_status: expected_controlled_failure_log_passed_artifact_resume_pending
     unified_pipeline_remote_b_fault_continuation_sha256: 890da58d8782d3c49066503ded292cfbde00956f0c5e21eef68a0aa0c5151c4a
@@ -548,11 +570,11 @@ stages:
     unified_pipeline_auto_continuation_enabled: false
     unified_pipeline_production_enabled: false
     unified_pipeline_remote_smoke_target_iteration: 502
-    note: Unified Pipeline Remote A passed real Kaggle T4x2 training/commit/40-game smoke evaluation and continuation verification; Remote B/C remain pending, production Segment1000 remains fail-closed, iter100 remains champion, final holdout has not run, and M09 remains incomplete
+    note: Unified Pipeline Remote A and Remote B passed; Remote B proved controlled evaluation failure preserves the exact training commit/recovery and B2 skips training while resuming 8-to-40 records. Remote C remains pending, production Segment1000 remains fail-closed, iter100 remains champion, final holdout has not run, and M09 remains incomplete
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
       - iter500 candidate was not promoted; current champion remains the r2 IPPO iter100 evaluation checkpoint
-      - Unified Pipeline Remote B/C have not run; the advanced path is not yet approved for real Segment1000
+      - Unified Pipeline Remote C has not run; the advanced path is not yet approved for real Segment1000
       - segment1000/1500/2000 training and their mandatory formal reviews have not run
       - main long-training deal distribution remains narrow Rank.TWO/no-previous-result and broad-context acceptance remains blocking
       - final candidate and one-shot final holdout are incomplete

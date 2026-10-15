@@ -1,0 +1,59 @@
+{
+  "b1": {
+    "phase": "TRAINING_COMPLETE_EVALUATION_FAILED",
+    "plan_hash": "afa80afaecabc6e3e5df50ccac589778e11957294cb75efb1e314d30637d82cd",
+    "recovery_sha256": "aa7669388c72806a83454c41309ad4fa9cfcd4e7059c25bab9f872afdb3a38c4",
+    "training_commit_hash": "d0233efa3ed20f2df009e67a01978cd14cae7fdf2b00f28ac728213d789a617f",
+    "zip_bytes": 76275938,
+    "zip_crc_valid": true,
+    "zip_sha256": "902d11776aaeb9c8c3ee2132ded42651c6389ae187569ee6901aca28957a20a9"
+  },
+  "b2": {
+    "phase": "COMPLETE",
+    "plan_hash": "afa80afaecabc6e3e5df50ccac589778e11957294cb75efb1e314d30637d82cd",
+    "recovery_sha256": "aa7669388c72806a83454c41309ad4fa9cfcd4e7059c25bab9f872afdb3a38c4",
+    "training_commit_hash": "d0233efa3ed20f2df009e67a01978cd14cae7fdf2b00f28ac728213d789a617f",
+    "zip_bytes": 76297289,
+    "zip_crc_valid": true,
+    "zip_sha256": "77c8f4e3ff2e6768f020f699b048a6bc1bfec31fa637ba29f5d95272c9085da2"
+  },
+  "evaluation": {
+    "evaluation_hash": "905be3fc425e5e3ba889f90cbaf1d97be292c210cf2f435d4854a7936b7eb5b8",
+    "expected_games": 40,
+    "games": 40,
+    "illegal": 0,
+    "records_hash": "cd61049b5c113adafd27cba16ca299d4f771352388ce645e0cea91188fe80ea8",
+    "summary_hash": "db106f3410080fc7765cb9031f53b285b1f1ab1459dd0484532eb7bf4fe63b2c",
+    "truncated": 0
+  },
+  "final_holdout_generated": false,
+  "hash": "ee34f11e12641c7267ab066be2cfaf870d4bee4e0fdb5fc450e01fbc53a764ce",
+  "m09_accepted": false,
+  "promotion": {
+    "decision_hash": "3864c490075687b10aa00ef6afeeef26550eadb8d497a0b8eb9e0a65d80746d4",
+    "promote": false,
+    "reasons": [
+      "smoke promotion policy never performs automatic promotion"
+    ],
+    "status": "inconclusive"
+  },
+  "remote_c_complete": false,
+  "resume": {
+    "b1_records": 8,
+    "b2_records": 40,
+    "complete": true,
+    "completed_before": 8,
+    "completed_now": 32,
+    "first_records_exact": true,
+    "plan_hash_unchanged": true,
+    "recovery_sha256_unchanged": true,
+    "training_commit_unchanged": true
+  },
+  "review_bundle": {
+    "bytes": 152633497,
+    "crc_valid": true,
+    "sha256": "f39bf6b9125661d36e9e98b5f1acef01bcff94ace96c5ede4b24b8fd35d4aa5b"
+  },
+  "schema": "guandan-marvel-m09-unified-remote-b-review-v1",
+  "status": "accepted_complete"
+}

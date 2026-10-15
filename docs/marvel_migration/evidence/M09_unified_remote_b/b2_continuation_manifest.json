@@ -1,0 +1,122 @@
+{
+  "control_hash": "fcb518a1ef8d51928db65585ab0bff32d9e18c56366057255d948cf2406db8e4",
+  "created_at": "2026-10-15T00:07:51.062056+00:00",
+  "files": [
+    {
+      "bytes": 8366485,
+      "path": "candidates/ippo_iter000502.pt",
+      "sha256": "e363d2fe6d3c48b4c92b6e0a125dce4ef28852f71e611deff7e88c1b1bf0ae24"
+    },
+    {
+      "bytes": 1722,
+      "path": "champion/champion_manifest.json",
+      "sha256": "da2ec74a8b1f053dc381b9664a74f16616b41339df765890238b23545a0e7e0c"
+    },
+    {
+      "bytes": 3355,
+      "path": "champion/opponent_pool_manifest.json",
+      "sha256": "ebb2cc91f988992ca4180748d4df5699eec61697723221a80cc29629870f1df7"
+    },
+    {
+      "bytes": 8316529,
+      "path": "champion_state/champions/generation000001_iter000100.pt",
+      "sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c"
+    },
+    {
+      "bytes": 1948,
+      "path": "evaluation/remote_b_smoke0502/deals_manifest.json",
+      "sha256": "34335b2e17556084f64e8b65c90b10150ced5b306efb9a209beec5172fe282e2"
+    },
+    {
+      "bytes": 29880,
+      "path": "evaluation/remote_b_smoke0502/evaluation_plan.json",
+      "sha256": "d38cd51d92e7091462af7e5f3953b269984bb4f9b71e0e579142514a02e243be"
+    },
+    {
+      "bytes": 625,
+      "path": "evaluation/remote_b_smoke0502/evaluation_result.json",
+      "sha256": "12c64aab3ccbc303d3330084cba0b89e12ee2245f2d3d84691b9d99b0719f503"
+    },
+    {
+      "bytes": 7518,
+      "path": "evaluation/remote_b_smoke0502/evaluation_summary.json",
+      "sha256": "2a20512d09442b1a16d6a688d41c85585b70785a3b9e696885b96e947d377426"
+    },
+    {
+      "bytes": 97101,
+      "path": "evaluation/remote_b_smoke0502/games.gpu0.jsonl",
+      "sha256": "3dc5c59b604376e779e21d80fda6475e52de4c2408295e11cbd37c197994b755"
+    },
+    {
+      "bytes": 97101,
+      "path": "evaluation/remote_b_smoke0502/games.jsonl",
+      "sha256": "3dc5c59b604376e779e21d80fda6475e52de4c2408295e11cbd37c197994b755"
+    },
+    {
+      "bytes": 3633,
+      "path": "evaluation/remote_b_smoke0502/promotion_decision.json",
+      "sha256": "54d1305748d083b5d5a0cbc3fc64ac3a63ebeb6da0c0b99daf667e30896b9e72"
+    },
+    {
+      "bytes": 415,
+      "path": "evaluation/remote_b_smoke0502/worker0.failure.json",
+      "sha256": "b84c249de0cbd9b370fc1258b6f2bc5e40d3e5de3d339aa1707b20f678f67bf8"
+    },
+    {
+      "bytes": 1117,
+      "path": "evaluation/remote_b_smoke0502/worker0.log",
+      "sha256": "a6deea9ed25afd7c9f8d246c7f60584e62d44ee44d8512b702933101f6154902"
+    },
+    {
+      "bytes": 399,
+      "path": "evaluation/remote_b_smoke0502/worker0.progress.json",
+      "sha256": "fa0fa33cf5e6bb0d22a64f1425fb159036b9e0ff3427d593f76d847cf2e41568"
+    },
+    {
+      "bytes": 939,
+      "path": "evaluation/remote_b_smoke0502/worker_context.json",
+      "sha256": "af43c068cfa1d881172710c82aa185b8662793ec11efe63875c0fb4f5b9710e8"
+    },
+    {
+      "bytes": 382,
+      "path": "evaluation/remote_b_smoke0502/worker_group_heartbeat.json",
+      "sha256": "5bbea716943f522d6cf9062bbf2b7e0bcb3751f3b6ad95b94099e9fed57e4c13"
+    },
+    {
+      "bytes": 1076,
+      "path": "evaluation/remote_b_smoke0502/worker_group_result.json",
+      "sha256": "f5742e10f147db14c7649e96f237bb164e59277a863f6f4d92446b063298b0bc"
+    },
+    {
+      "bytes": 3740,
+      "path": "pipeline/pipeline_state.json",
+      "sha256": "cc4dd3d61bcb21475c2a5b1f4dcef1b5b47b66c1b9bba2c36fe85fce9fe8a068"
+    },
+    {
+      "bytes": 1428,
+      "path": "training/training_commit.json",
+      "sha256": "f8577eb7568941aa062faecff265ece506a5c6ee5ac2a2ce14ded77327630d3b"
+    },
+    {
+      "bytes": 61902583,
+      "path": "training/training_recovery.committed.zip",
+      "sha256": "aa7669388c72806a83454c41309ad4fa9cfcd4e7059c25bab9f872afdb3a38c4"
+    }
+  ],
+  "final_holdout_generated": false,
+  "hash": "022dd06c23daf3ae97977fe87af1eaebc10394d92198f99e7e4426c7533d2e10",
+  "next_target": {
+    "segment_id": "segment1000",
+    "target_completed_games": 4000,
+    "target_iteration": 1000
+  },
+  "plan_hash": "afa80afaecabc6e3e5df50ccac589778e11957294cb75efb1e314d30637d82cd",
+  "schema": "guandan-marvel-m09-unified-continuation-v1",
+  "source_identity": {
+    "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_content_manifest_hash": "fd8853e379b3bb2a6eefc00474bda9c200aa49139bcbea841a4ffa7c105e6fca"
+  },
+  "training_commit_hash": "d0233efa3ed20f2df009e67a01978cd14cae7fdf2b00f28ac728213d789a617f",
+  "version": 1
+}
