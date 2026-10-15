@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: unified_pipeline_remote_a_b_accepted_remote_c_pending_segment1000_not_run
+    status: unified_pipeline_remote_a_b_c_accepted_production_control_pending_segment1000_not_run
     accepted: false
     commit: null
     preparation_commits:
@@ -385,6 +385,7 @@ stages:
       - docs/marvel_migration/reports/M09_unified_pipeline_local_implementation.md
       - docs/marvel_migration/reports/M09_unified_remote_a.md
       - docs/marvel_migration/reports/M09_unified_remote_b.md
+      - docs/marvel_migration/reports/M09_unified_remote_c.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -515,6 +516,11 @@ stages:
       - docs/marvel_migration/evidence/M09_unified_remote_b/b2_evaluation_summary.json
       - docs/marvel_migration/evidence/M09_unified_remote_b/b2_promotion_decision.json
       - docs/marvel_migration/evidence/M09_unified_remote_b/artifact_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_remote_c/remote_c_review.json
+      - docs/marvel_migration/evidence/M09_unified_remote_c/remote_c_result.json
+      - docs/marvel_migration/evidence/M09_unified_remote_c/single_dual_consistency.json
+      - docs/marvel_migration/evidence/M09_unified_remote_c/review_bundle_manifest.json
+      - docs/marvel_migration/evidence/M09_unified_remote_c/artifact_manifest.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -565,16 +571,19 @@ stages:
     unified_pipeline_remote_b_fault_run: 20261014T144842Z-unified_remote_b_smoke0502-af98c983
     unified_pipeline_remote_b_fault_run_status: expected_controlled_failure_log_passed_artifact_resume_pending
     unified_pipeline_remote_b_fault_continuation_sha256: 890da58d8782d3c49066503ded292cfbde00956f0c5e21eef68a0aa0c5151c4a
-    unified_pipeline_remote_c_complete: false
+    unified_pipeline_remote_c_complete: true
+    unified_pipeline_remote_c_status: accepted_complete
+    unified_pipeline_remote_c_consistency_hash: 59d3cfcc42f8edacc2710fc14b0d0eb96994fe004288818e7356e44f51968092
+    unified_pipeline_remote_c_plan_hash: afa80afaecabc6e3e5df50ccac589778e11957294cb75efb1e314d30637d82cd
     unified_pipeline_dual_gpu_formal_default: false
     unified_pipeline_auto_continuation_enabled: false
     unified_pipeline_production_enabled: false
     unified_pipeline_remote_smoke_target_iteration: 502
-    note: Unified Pipeline Remote A and Remote B passed; Remote B proved controlled evaluation failure preserves the exact training commit/recovery and B2 skips training while resuming 8-to-40 records. Remote C remains pending, production Segment1000 remains fail-closed, iter100 remains champion, final holdout has not run, and M09 remains incomplete
+    note: Unified Pipeline Remote A/B/C all passed. Remote B proved failure isolation and 8-to-40 resume without retraining; Remote C proved deterministic single/dual formal equivalence. Production control generation remains pending, Segment1000 has not run, iter100 remains champion, final holdout has not run, and M09 remains incomplete
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
       - iter500 candidate was not promoted; current champion remains the r2 IPPO iter100 evaluation checkpoint
-      - Unified Pipeline Remote C has not run; the advanced path is not yet approved for real Segment1000
+      - production-enabled Unified Dataset/control has not yet been generated or reviewed for real Segment1000
       - segment1000/1500/2000 training and their mandatory formal reviews have not run
       - main long-training deal distribution remains narrow Rank.TWO/no-previous-result and broad-context acceptance remains blocking
       - final candidate and one-shot final holdout are incomplete

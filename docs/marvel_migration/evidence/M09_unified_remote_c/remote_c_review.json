@@ -1,0 +1,26 @@
+{
+  "consistency_hash": "59d3cfcc42f8edacc2710fc14b0d0eb96994fe004288818e7356e44f51968092",
+  "field_mismatches": [],
+  "final_holdout_generated": false,
+  "hash": "9f4515107e7918d0ab888493743fad609d94cb68118288dd093e5e4501c2e32f",
+  "kaggle_t4x2": true,
+  "log_sha256": "b33ba7046b19f5ed776539daa4d12483ee6edc4552c0c352f47b5319878e9cd4",
+  "m09_accepted": false,
+  "ordering_identical": true,
+  "plan_hash": "afa80afaecabc6e3e5df50ccac589778e11957294cb75efb1e314d30637d82cd",
+  "production_segment1000_started": false,
+  "promotion_input_identical": true,
+  "records_hash_identical": true,
+  "records_identical": true,
+  "remote_c_finished_at": "2026-10-15T00:40:45.888120+00:00",
+  "review_bundle": {
+    "bytes": 76339783,
+    "crc_valid": true,
+    "sha256": "5f564217f9db0863c7173cf4e2d8f05c459aa76c6d5d0c883d7298f96f9b2da2"
+  },
+  "schema": "guandan-marvel-m09-unified-remote-c-review-v1",
+  "segment_id": "remote_b_smoke0502",
+  "status": "accepted_complete",
+  "summary_hash_identical": true,
+  "task_count": 40
+}

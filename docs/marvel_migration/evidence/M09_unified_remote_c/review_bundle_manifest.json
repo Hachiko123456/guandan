@@ -1,0 +1,134 @@
+{
+  "continuation_count": 1,
+  "files": [
+    {
+      "archive_path": "remote_b2_complete/guandan-marvel-continuation.zip",
+      "bytes": 76297289,
+      "sha256": "77c8f4e3ff2e6768f020f699b048a6bc1bfec31fa637ba29f5d95272c9085da2",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/guandan-marvel-continuation.zip"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/champion/champion_manifest.json",
+      "bytes": 1722,
+      "sha256": "da2ec74a8b1f053dc381b9664a74f16616b41339df765890238b23545a0e7e0c",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/champion/champion_manifest.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/champion/opponent_pool_manifest.json",
+      "bytes": 3355,
+      "sha256": "ebb2cc91f988992ca4180748d4df5699eec61697723221a80cc29629870f1df7",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/champion/opponent_pool_manifest.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/deals_manifest.json",
+      "bytes": 1948,
+      "sha256": "34335b2e17556084f64e8b65c90b10150ced5b306efb9a209beec5172fe282e2",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/deals_manifest.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/evaluation_plan.json",
+      "bytes": 29880,
+      "sha256": "d38cd51d92e7091462af7e5f3953b269984bb4f9b71e0e579142514a02e243be",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/evaluation_plan.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/evaluation_result.json",
+      "bytes": 625,
+      "sha256": "12c64aab3ccbc303d3330084cba0b89e12ee2245f2d3d84691b9d99b0719f503",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/evaluation_result.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/evaluation_summary.json",
+      "bytes": 7518,
+      "sha256": "2a20512d09442b1a16d6a688d41c85585b70785a3b9e696885b96e947d377426",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/evaluation_summary.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/games.gpu0.jsonl",
+      "bytes": 97101,
+      "sha256": "3dc5c59b604376e779e21d80fda6475e52de4c2408295e11cbd37c197994b755",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/games.gpu0.jsonl"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/games.jsonl",
+      "bytes": 97101,
+      "sha256": "3dc5c59b604376e779e21d80fda6475e52de4c2408295e11cbd37c197994b755",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/games.jsonl"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/promotion_decision.json",
+      "bytes": 3633,
+      "sha256": "54d1305748d083b5d5a0cbc3fc64ac3a63ebeb6da0c0b99daf667e30896b9e72",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/promotion_decision.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/worker0.failure.json",
+      "bytes": 415,
+      "sha256": "b84c249de0cbd9b370fc1258b6f2bc5e40d3e5de3d339aa1707b20f678f67bf8",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/worker0.failure.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/worker0.log",
+      "bytes": 1117,
+      "sha256": "a6deea9ed25afd7c9f8d246c7f60584e62d44ee44d8512b702933101f6154902",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/worker0.log"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/worker0.progress.json",
+      "bytes": 399,
+      "sha256": "fa0fa33cf5e6bb0d22a64f1425fb159036b9e0ff3427d593f76d847cf2e41568",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/worker0.progress.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/worker_context.json",
+      "bytes": 939,
+      "sha256": "af43c068cfa1d881172710c82aa185b8662793ec11efe63875c0fb4f5b9710e8",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/worker_context.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/worker_group_heartbeat.json",
+      "bytes": 382,
+      "sha256": "5bbea716943f522d6cf9062bbf2b7e0bcb3751f3b6ad95b94099e9fed57e4c13",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/worker_group_heartbeat.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/evaluation/remote_b_smoke0502/worker_group_result.json",
+      "bytes": 1076,
+      "sha256": "f5742e10f147db14c7649e96f237bb164e59277a863f6f4d92446b063298b0bc",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/evaluation/remote_b_smoke0502/worker_group_result.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/pipeline/pipeline_state.json",
+      "bytes": 3740,
+      "sha256": "cc4dd3d61bcb21475c2a5b1f4dcef1b5b47b66c1b9bba2c36fe85fce9fe8a068",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/pipeline/pipeline_state.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/training/training_commit.json",
+      "bytes": 1428,
+      "sha256": "f8577eb7568941aa062faecff265ece506a5c6ee5ac2a2ce14ded77327630d3b",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/training/training_commit.json"
+    },
+    {
+      "archive_path": "remote_b2_complete/continuation/unified_continuation.json",
+      "bytes": 4540,
+      "sha256": "66139b15049e2b04e5373eeaf064f51492119dc15091ec1121aa66b1e62eff27",
+      "source_path": "/kaggle/input/notebooks/hachiko123/guandan-marvel-m09-remote-b2/guandan-marvel-unified-output/continuation/unified_continuation.json"
+    },
+    {
+      "archive_path": "remote_c/000-single_dual_consistency.json",
+      "bytes": 451,
+      "sha256": "7067935793538b5386293989579c725f76ebe665ab5a18825859a3b76dc4b53e",
+      "source_path": "/kaggle/input/notebooks/hachiko123/m09-remote-c/guandan-marvel-unified-output/evaluation/remote_b_smoke0502-dual-remote-c/single_dual_consistency.json"
+    },
+    {
+      "archive_path": "remote_c/001-remote_c_result.json",
+      "bytes": 718,
+      "sha256": "7dc397c3d30fe61316a59b821e5cfde3260c15b32ff3c95e67f877488f1fcbbc",
+      "source_path": "/kaggle/input/notebooks/hachiko123/m09-remote-c/guandan-marvel-unified-output/remote_c_result.json"
+    }
+  ],
+  "hash": "92a33ef57816cc9ad6e00505bac130b75863a17521208f9a8a08a4c3b5a229d2",
+  "note": "Kaggle console logs are not mounted as ordinary Notebook Output files and must be downloaded separately.",
+  "schema": "guandan-marvel-m09-remote-review-bundle-v1"
+}

@@ -1,0 +1,21 @@
+{
+  "complete": true,
+  "consistency": {
+    "complete": true,
+    "field_mismatches": [],
+    "hash": "59d3cfcc42f8edacc2710fc14b0d0eb96994fe004288818e7356e44f51968092",
+    "ordering_identical": true,
+    "plan_hash": "afa80afaecabc6e3e5df50ccac589778e11957294cb75efb1e314d30637d82cd",
+    "promotion_input_identical": true,
+    "records_hash_identical": true,
+    "records_identical": true,
+    "schema": "guandan-marvel-single-dual-consistency-v1",
+    "summary_hash_identical": true,
+    "task_count": 40
+  },
+  "final_holdout_generated": false,
+  "finished_at": "2026-10-15T00:40:45.888120+00:00",
+  "schema": "guandan-marvel-m09-remote-c-result-v1",
+  "segment_id": "remote_b_smoke0502",
+  "status": "passed"
+}

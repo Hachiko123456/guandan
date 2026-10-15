@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "bytes": 739,
+      "path": "remote_c_result.json",
+      "sha256": "b1857287ddfa151e4e8e4cee6f55aa693534b1af13788bc15aad95b15df7bd1f"
+    },
+    {
+      "bytes": 1048,
+      "path": "remote_c_review.json",
+      "sha256": "188b1c34122e165a2f94d9d8792f193bc51481dda16b0ca8bbf4d9270c89e5cd"
+    },
+    {
+      "bytes": 8552,
+      "path": "review_bundle_manifest.json",
+      "sha256": "6113d010ee3ebbaa6fa0bd812d865fd2bdaa9e306371dc8f501fa81591eac98b"
+    },
+    {
+      "bytes": 464,
+      "path": "single_dual_consistency.json",
+      "sha256": "eca2393b226a4a11656fe804d2bb5587aea4bab7e9124cdd897b167c9532887c"
+    }
+  ],
+  "hash": "5d409b27b2d26ec8299df818f5c79925e68c6b4934a3a0b27e2d73c2f6c3398a",
+  "log_sha256": "b33ba7046b19f5ed776539daa4d12483ee6edc4552c0c352f47b5319878e9cd4",
+  "review_bundle_sha256": "5f564217f9db0863c7173cf4e2d8f05c459aa76c6d5d0c883d7298f96f9b2da2",
+  "schema": "guandan-marvel-m09-unified-remote-c-artifact-manifest-v1"
+}
