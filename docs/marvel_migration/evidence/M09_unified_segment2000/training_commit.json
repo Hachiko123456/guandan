@@ -1,0 +1,38 @@
+{
+  "checkpoint_manifest_hash": "239da3f682714b22b0cc6b02efb2e2a2e1f4eff906811bfa040a41385b74c471",
+  "committed_at": "2026-10-15T10:40:42.461934+00:00",
+  "completed_games": 8000,
+  "control_hash": "1e30157bae9ba26bf75857d932cd54597187c4aa6931aaf81812d9d5bbf77ec2",
+  "hash": "ca96a98c5315fb03a091d9c34448d4424f6ac6cd561022f98d6cc4dabe0576b9",
+  "immutable": true,
+  "rank_shards": [
+    {
+      "rank": 0,
+      "sha256": "eef9079843d26cee64c57f6eb38ecef21a02ea431a0fff5acbe7d56eab142208",
+      "shard": "rank000.pt"
+    },
+    {
+      "rank": 1,
+      "sha256": "dfa15398fb04e85442259a640fde5792fc562089d1b559348764845a47e7f270",
+      "shard": "rank001.pt"
+    }
+  ],
+  "recovery": {
+    "bytes": 63022543,
+    "crc_valid": true,
+    "manifest_hash": "eb5d79e6582253ef7a7775e2a9037351200773649b69fe9a5a78db03e61a4099",
+    "path": "training_recovery.committed.zip",
+    "sha256": "50ab0f413873119b49c0f86592bd773ef9f206531a4f6bb5394e05a18b503aae"
+  },
+  "schema": "guandan-marvel-m09-training-commit-v1",
+  "segment": {
+    "segment_id": "segment2000",
+    "target_completed_games": 8000,
+    "target_iteration": 2000
+  },
+  "source_identity": {
+    "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_content_manifest_hash": "fd8853e379b3bb2a6eefc00474bda9c200aa49139bcbea841a4ffa7c105e6fca"
+  }
+}

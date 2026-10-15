@@ -1,0 +1,39 @@
+{
+  "candidates": [
+    {
+      "iteration": 500,
+      "promoted": false,
+      "random_win_rate": 0.8359375,
+      "rule_win_rate": 0.5625,
+      "vs_champion_win_rate": 0.578125
+    },
+    {
+      "iteration": 1000,
+      "promoted": false,
+      "random_win_rate": 0.8046875,
+      "rule_win_rate": 0.5625,
+      "vs_champion_win_rate": 0.5625
+    },
+    {
+      "iteration": 1500,
+      "promoted": false,
+      "random_win_rate": 0.875,
+      "rule_win_rate": 0.5,
+      "vs_champion_win_rate": 0.609375
+    },
+    {
+      "candidate_sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8",
+      "iteration": 2000,
+      "legacy_win_rate": 0.859375,
+      "promoted": false,
+      "random_win_rate": 0.890625,
+      "rule_win_rate": 0.65625,
+      "vs_champion_win_rate": 0.625
+    }
+  ],
+  "champion_iteration": 100,
+  "champion_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+  "hash": "bd6fe9c9906130f781f7f449d22df623d4b70e1a7e4f359fb674699e10c6d55c",
+  "interpretation": "all formal health/floor gates passed; conservative bounded-CI promotion gate remained inconclusive; iter2000 is the plan-terminal checkpoint and best vs-champion point estimate, so it may be explicitly frozen as final candidate without rewriting champion history",
+  "schema": "guandan-marvel-m09-selection-trend-v1"
+}
