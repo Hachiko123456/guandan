@@ -1,0 +1,132 @@
+{
+  "control_hash": "1e30157bae9ba26bf75857d932cd54597187c4aa6931aaf81812d9d5bbf77ec2",
+  "created_at": "2026-10-15T03:24:37.550657+00:00",
+  "files": [
+    {
+      "bytes": 8440149,
+      "path": "candidates/ippo_iter001000.pt",
+      "sha256": "cc686624e62db74280ea0dce3e9e21ce87c09206be795a83c7bc1ec5f3496930"
+    },
+    {
+      "bytes": 1722,
+      "path": "champion/champion_manifest.json",
+      "sha256": "a51ac0059a147dace7e7ebdba752293be2edaeca181625f98f711bc6093400c4"
+    },
+    {
+      "bytes": 3377,
+      "path": "champion/opponent_pool_manifest.json",
+      "sha256": "475132e381aa5f25f401ddbee7c0975318cd6385a9554313b2e24e188bc8c2d0"
+    },
+    {
+      "bytes": 8316529,
+      "path": "champion_state/champions/generation000001_iter000100.pt",
+      "sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c"
+    },
+    {
+      "bytes": 12886,
+      "path": "evaluation/segment1000/deals_manifest.json",
+      "sha256": "469bca7b488624f7a6e8bf39508676a62a2874422d1ab1ade1b56ef6923b0f0f"
+    },
+    {
+      "bytes": 346569,
+      "path": "evaluation/segment1000/evaluation_plan.json",
+      "sha256": "c49b47c527031da2f82160b198a5edc99192020535f505bbcb3cc3749c7fc16f"
+    },
+    {
+      "bytes": 626,
+      "path": "evaluation/segment1000/evaluation_result.json",
+      "sha256": "15b831684a708ed2adcae248567a932e99d6598d163263cafc8195403c55aa49"
+    },
+    {
+      "bytes": 7939,
+      "path": "evaluation/segment1000/evaluation_summary.json",
+      "sha256": "30b91291543d4d21b6ae4a00f4150b79f652a2ce555faa03e7b0f2aea3973ed5"
+    },
+    {
+      "bytes": 777526,
+      "path": "evaluation/segment1000/games.gpu0.jsonl",
+      "sha256": "2e84ea2906d9aff1468c69d797242001ca04b16d72c6b9431d675d8866c743ff"
+    },
+    {
+      "bytes": 777588,
+      "path": "evaluation/segment1000/games.gpu1.jsonl",
+      "sha256": "8fa0bcaec7cfc82c717a4701a91595aa10539d40b8429a7e19f12076350b487b"
+    },
+    {
+      "bytes": 1555114,
+      "path": "evaluation/segment1000/games.jsonl",
+      "sha256": "220bf10b5dcd5f57ca6b270349e2ffd47cfa35b716ec9164b9e3f15b2b2440a2"
+    },
+    {
+      "bytes": 3655,
+      "path": "evaluation/segment1000/promotion_decision.json",
+      "sha256": "aa1be6443fb5a9006a3317d23db9c265f0b07c672a412e55dbe1101791097298"
+    },
+    {
+      "bytes": 379,
+      "path": "evaluation/segment1000/worker0.log",
+      "sha256": "dc6ad40789be98378fda6ae0be46b36df2c33a4fe617d54d6a480ba751beec45"
+    },
+    {
+      "bytes": 401,
+      "path": "evaluation/segment1000/worker0.progress.json",
+      "sha256": "e18073d92f0e21ac98e8c7ba1c39996c7a9f3f1e8c84de47fcd332a54100c30c"
+    },
+    {
+      "bytes": 379,
+      "path": "evaluation/segment1000/worker1.log",
+      "sha256": "c3a1d7402b8ff407139aa4d5ac0c6da1fc658d53ef8648698acd5d2fd0387ed7"
+    },
+    {
+      "bytes": 401,
+      "path": "evaluation/segment1000/worker1.progress.json",
+      "sha256": "192f6d6b10f7bdf6408714e226b304f2a05160061fefe3ab9069cb62b0b100fe"
+    },
+    {
+      "bytes": 929,
+      "path": "evaluation/segment1000/worker_context.json",
+      "sha256": "cf54f951619068a6b2c861144943fe9844772e6cece21637369b55f8d71042d0"
+    },
+    {
+      "bytes": 519,
+      "path": "evaluation/segment1000/worker_group_heartbeat.json",
+      "sha256": "32e12bb3d1e903c7a1b156c7f692ba426d2d8cbc53e29bb5e882e57c819eed2d"
+    },
+    {
+      "bytes": 7848,
+      "path": "evaluation/segment1000/worker_group_result.json",
+      "sha256": "094626e2fa8edfa66144580523660775bf5be6cf75c899b183c8ac7b6314a109"
+    },
+    {
+      "bytes": 2070,
+      "path": "pipeline/pipeline_state.json",
+      "sha256": "ef3abf59251f5e01eded75665767802080ac24364331d2f11eae0900172a70e3"
+    },
+    {
+      "bytes": 1422,
+      "path": "training/training_commit.json",
+      "sha256": "bd132ff6258321338b94c1999170269b104d1c008d8f84c63ce5184aaca8a323"
+    },
+    {
+      "bytes": 62331595,
+      "path": "training/training_recovery.committed.zip",
+      "sha256": "9d7f94c59258382794385c99a65178fee888d26b0e4a6a58ea77066ffb8b146d"
+    }
+  ],
+  "final_holdout_generated": false,
+  "hash": "81059081c79068161cef29a97963bda8a928c15497bcf690cba2c8c06596e86c",
+  "next_target": {
+    "segment_id": "segment1500",
+    "target_completed_games": 6000,
+    "target_iteration": 1500
+  },
+  "plan_hash": "b1cfd873eb9c4c2ae982897228c32520136e3174835fa70b87ba5a7754fe7528",
+  "schema": "guandan-marvel-m09-unified-continuation-v1",
+  "source_identity": {
+    "source_archive_sha256": "d08b8743970b8cce38a5ffe7768a3169b117a76ba2c03c596acafadd7e7cd465",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_content_manifest_hash": "fd8853e379b3bb2a6eefc00474bda9c200aa49139bcbea841a4ffa7c105e6fca"
+  },
+  "training_commit_hash": "4d5497289a97100f8482a0ba0f90c90586071105389bc1b25612c86f7a00f99e",
+  "version": 1
+}

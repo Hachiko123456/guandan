@@ -1,0 +1,126 @@
+{
+  "evaluation": {
+    "candidate_sha256": "cc686624e62db74280ea0dce3e9e21ce87c09206be795a83c7bc1ec5f3496930",
+    "champion_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+    "evaluation_hash": "f533b4be34c03df10b6ed03609fc3121f8eedc96bced090a1971fd69f2753195",
+    "expected_games": 640,
+    "games": 640,
+    "illegal": 0,
+    "overall_win_rate": 0.6609375,
+    "per_opponent": {
+      "champion": {
+        "ci95_high": 1.0,
+        "ci95_low": 0.0,
+        "clusters": 32,
+        "games": 128,
+        "illegal": 0,
+        "truncated": 0,
+        "win_rate": 0.5625
+      },
+      "legacy": {
+        "ci95_high": 1.0,
+        "ci95_low": 0.3322883575206272,
+        "clusters": 32,
+        "games": 128,
+        "illegal": 0,
+        "truncated": 0,
+        "win_rate": 0.8125
+      },
+      "opponent_pool": {
+        "ci95_high": 1.0,
+        "ci95_low": 0.0,
+        "clusters": 32,
+        "games": 128,
+        "illegal": 0,
+        "truncated": 0,
+        "win_rate": 0.5625
+      },
+      "random": {
+        "ci95_high": 1.0,
+        "ci95_low": 0.32590858815786405,
+        "clusters": 32,
+        "games": 128,
+        "illegal": 0,
+        "truncated": 0,
+        "win_rate": 0.8046875
+      },
+      "rule": {
+        "ci95_high": 1.0,
+        "ci95_low": 0.038637425268215675,
+        "clusters": 32,
+        "games": 128,
+        "illegal": 0,
+        "truncated": 0,
+        "win_rate": 0.5625
+      }
+    },
+    "plan_hash": "b1cfd873eb9c4c2ae982897228c32520136e3174835fa70b87ba5a7754fe7528",
+    "records_hash": "e1be3249cc484c41412c5500a6859c48bc204f5f7c7175dfb630d8ad30e53a88",
+    "summary_hash": "6fffe34a3ce828e0fd76f063bccb11a5d23f27c429d69dca37cdb1df06889016",
+    "truncated": 0,
+    "unique_tasks": 640,
+    "workers": 2
+  },
+  "final_holdout_generated": false,
+  "gate": {
+    "formal_complete": true,
+    "health_pass": true,
+    "next_segment_authorized": "segment1500",
+    "random_floor_pass": true,
+    "rule_floor_pass": true
+  },
+  "hash": "1c2b2b862ecd4bddbe9aa778b57dd8448abf203c2a88ebf8bb9fc625c5fe53b8",
+  "kaggle_t4x2": true,
+  "m09_accepted": false,
+  "pipeline": {
+    "error": null,
+    "next_target": {
+      "segment_id": "segment1500",
+      "target_completed_games": 6000,
+      "target_iteration": 1500
+    },
+    "phase": "COMPLETE"
+  },
+  "promotion": {
+    "champion_generation": 1,
+    "champion_iteration": 100,
+    "champion_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+    "decision_hash": "7886631aaf6ed1d47311f651d362e8a427b9ab23bf1bfc55258e0846824f8e11",
+    "promote": false,
+    "reasons": [
+      "candidate-vs-champion CI lower bound does not reach the promotion threshold"
+    ],
+    "status": "inconclusive"
+  },
+  "run": {
+    "continuation_bytes": 77100024,
+    "continuation_crc_valid": true,
+    "continuation_sha256": "d1e9eeff3fc2ca0bda32b2537e71878cfb97f387fce40ac5ecc853ab3a3e28da",
+    "log_sha256": "8efe7686b97c12f76b918dd640b0c346ea128a4e01effe571604d8a12a59a4de"
+  },
+  "schema": "guandan-marvel-m09-unified-segment1000-review-v1",
+  "status": "accepted_complete_no_promotion_segment1500_authorized",
+  "training": {
+    "checkpoint_manifest_hash": "442fe60b032b2ba362415aa93a43764290397831663540343ea132aa6dedb5fe",
+    "completed_games": 4000,
+    "global_counters": {
+      "completed_games_total": 4000,
+      "total_env_steps": 1189344,
+      "total_game_steps": 452192
+    },
+    "iteration": 1000,
+    "rank_shards": [
+      {
+        "rank": 0,
+        "sha256": "ea743b3caca5d3e883f460b7feae83b3f23df9264356a8169bbba3ed68af6c34"
+      },
+      {
+        "rank": 1,
+        "sha256": "2005db529be40e8712f1c308d4f17a56639b4641fe9540ef5aadfa1b93dd155e"
+      }
+    ],
+    "recovery_sha256": "9d7f94c59258382794385c99a65178fee888d26b0e4a6a58ea77066ffb8b146d",
+    "training_commit_hash": "4d5497289a97100f8482a0ba0f90c90586071105389bc1b25612c86f7a00f99e",
+    "world_size": 2
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "details": {
+    "continuation_archive": "/kaggle/working/guandan-marvel-unified-output/guandan-marvel-continuation.zip",
+    "pre_packaging_phase": "PROMOTION_COMMITTED"
+  },
+  "error": null,
+  "hash": "7e70795689997aafd307cba296bb28e892ffdc49eeda2fbac84f725dab0332ad",
+  "history": [
+    {
+      "at": "2026-10-15T01:21:33.789951+00:00",
+      "error": null,
+      "phase": "DISCOVER_INPUTS",
+      "sequence": 1
+    },
+    {
+      "at": "2026-10-15T01:21:33.793281+00:00",
+      "error": null,
+      "phase": "PREFLIGHT",
+      "sequence": 2
+    },
+    {
+      "at": "2026-10-15T01:21:33.796468+00:00",
+      "error": null,
+      "phase": "TRAINING",
+      "sequence": 3
+    },
+    {
+      "at": "2026-10-15T03:00:09.909857+00:00",
+      "error": null,
+      "phase": "TRAINING_CHECKPOINT_COMMITTED",
+      "sequence": 4
+    },
+    {
+      "at": "2026-10-15T03:00:21.705197+00:00",
+      "error": null,
+      "phase": "TRAINING_RECOVERY_COMMITTED",
+      "sequence": 5
+    },
+    {
+      "at": "2026-10-15T03:00:21.708440+00:00",
+      "error": null,
+      "phase": "EVALUATION_PREPARING",
+      "sequence": 6
+    },
+    {
+      "at": "2026-10-15T03:00:21.710891+00:00",
+      "error": null,
+      "phase": "EVALUATING",
+      "sequence": 7
+    },
+    {
+      "at": "2026-10-15T03:24:33.618759+00:00",
+      "error": null,
+      "phase": "EVALUATION_COMPLETE",
+      "sequence": 8
+    },
+    {
+      "at": "2026-10-15T03:24:33.627237+00:00",
+      "error": null,
+      "phase": "PROMOTION_COMMITTED",
+      "sequence": 9
+    },
+    {
+      "at": "2026-10-15T03:24:33.630866+00:00",
+      "error": null,
+      "phase": "PACKAGING",
+      "sequence": 10
+    },
+    {
+      "at": "2026-10-15T03:24:37.134018+00:00",
+      "error": null,
+      "phase": "COMPLETE",
+      "sequence": 11
+    }
+  ],
+  "phase": "COMPLETE",
+  "schema": "guandan-marvel-m09-unified-pipeline-state-v1",
+  "segment": {
+    "segment_id": "segment1000",
+    "target_completed_games": 4000,
+    "target_iteration": 1000
+  },
+  "updated_at": "2026-10-15T03:24:37.134018+00:00",
+  "version": 1
+}

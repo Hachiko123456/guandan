@@ -1,0 +1,249 @@
+{
+  "base_plan_hash": "71dec77d2b9dbd884d9dc7f6a52b8a33b05e76874b72eac01c4f0c8dac7c37d9",
+  "cluster_summary": {
+    "overall": {
+      "by_rotation": {
+        "0": 0.575,
+        "1": 0.71875,
+        "2": 0.59375,
+        "3": 0.75625
+      },
+      "clustered_ci95": {
+        "clusters": 32,
+        "conclusive": false,
+        "high": null,
+        "low": null,
+        "mean": null,
+        "method": "not-reported-across-correlated-opponents",
+        "schema": "guandan-marvel-bounded-cluster-ci-v1"
+      },
+      "complete": true,
+      "completed_games": 640,
+      "eval/cluster_count": 32,
+      "eval/clustered_ci95_high": null,
+      "eval/clustered_ci95_low": null,
+      "eval/double_down_rate": 0.5984375,
+      "eval/games_per_second": null,
+      "eval/head_last_rate": 0.2859375,
+      "eval/head_third_rate": 0.115625,
+      "eval/illegal_count": 0,
+      "eval/mean_team_reward": 0.321875,
+      "eval/seat_rotation_gap": 0.18125000000000002,
+      "eval/team02_win_rate": 0.584375,
+      "eval/team13_win_rate": 0.7375,
+      "eval/truncated_count": 0,
+      "eval/win_rate": 0.6609375,
+      "games": 640
+    },
+    "per_opponent": {
+      "champion": {
+        "by_rotation": {
+          "0": 0.46875,
+          "1": 0.65625,
+          "2": 0.46875,
+          "3": 0.65625
+        },
+        "clustered_ci95": {
+          "clusters": 32,
+          "conclusive": true,
+          "confidence": 0.95,
+          "finite_sample_range_correction": 0.3838448027083219,
+          "high": 1.0,
+          "low": 0.0,
+          "mean": 0.5625,
+          "method": "bounded-empirical-Bernstein-95",
+          "sample_variance": 0.125,
+          "schema": "guandan-marvel-bounded-cluster-ci-v1"
+        },
+        "complete": true,
+        "completed_games": 128,
+        "eval/cluster_count": 32,
+        "eval/clustered_ci95_high": 1.0,
+        "eval/clustered_ci95_low": 0.0,
+        "eval/double_down_rate": 0.53125,
+        "eval/games_per_second": null,
+        "eval/head_last_rate": 0.3125,
+        "eval/head_third_rate": 0.15625,
+        "eval/illegal_count": 0,
+        "eval/mean_team_reward": 0.125,
+        "eval/seat_rotation_gap": 0.1875,
+        "eval/team02_win_rate": 0.46875,
+        "eval/team13_win_rate": 0.65625,
+        "eval/truncated_count": 0,
+        "eval/win_rate": 0.5625,
+        "games": 128
+      },
+      "legacy": {
+        "by_rotation": {
+          "0": 0.6875,
+          "1": 0.84375,
+          "2": 0.78125,
+          "3": 0.9375
+        },
+        "clustered_ci95": {
+          "clusters": 32,
+          "conclusive": true,
+          "confidence": 0.95,
+          "finite_sample_range_correction": 0.3838448027083219,
+          "high": 1.0,
+          "low": 0.3322883575206272,
+          "mean": 0.8125,
+          "method": "bounded-empirical-Bernstein-95",
+          "sample_variance": 0.036290322580645164,
+          "schema": "guandan-marvel-bounded-cluster-ci-v1"
+        },
+        "complete": true,
+        "completed_games": 128,
+        "eval/cluster_count": 32,
+        "eval/clustered_ci95_high": 1.0,
+        "eval/clustered_ci95_low": 0.3322883575206272,
+        "eval/double_down_rate": 0.6484375,
+        "eval/games_per_second": null,
+        "eval/head_last_rate": 0.296875,
+        "eval/head_third_rate": 0.0546875,
+        "eval/illegal_count": 0,
+        "eval/mean_team_reward": 0.625,
+        "eval/seat_rotation_gap": 0.25,
+        "eval/team02_win_rate": 0.734375,
+        "eval/team13_win_rate": 0.890625,
+        "eval/truncated_count": 0,
+        "eval/win_rate": 0.8125,
+        "games": 128
+      },
+      "opponent_pool": {
+        "by_rotation": {
+          "0": 0.46875,
+          "1": 0.65625,
+          "2": 0.46875,
+          "3": 0.65625
+        },
+        "clustered_ci95": {
+          "clusters": 32,
+          "conclusive": true,
+          "confidence": 0.95,
+          "finite_sample_range_correction": 0.3838448027083219,
+          "high": 1.0,
+          "low": 0.0,
+          "mean": 0.5625,
+          "method": "bounded-empirical-Bernstein-95",
+          "sample_variance": 0.125,
+          "schema": "guandan-marvel-bounded-cluster-ci-v1"
+        },
+        "complete": true,
+        "completed_games": 128,
+        "eval/cluster_count": 32,
+        "eval/clustered_ci95_high": 1.0,
+        "eval/clustered_ci95_low": 0.0,
+        "eval/double_down_rate": 0.53125,
+        "eval/games_per_second": null,
+        "eval/head_last_rate": 0.3125,
+        "eval/head_third_rate": 0.15625,
+        "eval/illegal_count": 0,
+        "eval/mean_team_reward": 0.125,
+        "eval/seat_rotation_gap": 0.1875,
+        "eval/team02_win_rate": 0.46875,
+        "eval/team13_win_rate": 0.65625,
+        "eval/truncated_count": 0,
+        "eval/win_rate": 0.5625,
+        "games": 128
+      },
+      "random": {
+        "by_rotation": {
+          "0": 0.75,
+          "1": 0.8125,
+          "2": 0.75,
+          "3": 0.90625
+        },
+        "clustered_ci95": {
+          "clusters": 32,
+          "conclusive": true,
+          "confidence": 0.95,
+          "finite_sample_range_correction": 0.3838448027083219,
+          "high": 1.0,
+          "low": 0.32590858815786405,
+          "mean": 0.8046875,
+          "method": "bounded-empirical-Bernstein-95",
+          "sample_variance": 0.03521925403225806,
+          "schema": "guandan-marvel-bounded-cluster-ci-v1"
+        },
+        "complete": true,
+        "completed_games": 128,
+        "eval/cluster_count": 32,
+        "eval/clustered_ci95_high": 1.0,
+        "eval/clustered_ci95_low": 0.32590858815786405,
+        "eval/double_down_rate": 0.6875,
+        "eval/games_per_second": null,
+        "eval/head_last_rate": 0.2109375,
+        "eval/head_third_rate": 0.1015625,
+        "eval/illegal_count": 0,
+        "eval/mean_team_reward": 0.609375,
+        "eval/seat_rotation_gap": 0.15625,
+        "eval/team02_win_rate": 0.75,
+        "eval/team13_win_rate": 0.859375,
+        "eval/truncated_count": 0,
+        "eval/win_rate": 0.8046875,
+        "games": 128
+      },
+      "rule": {
+        "by_rotation": {
+          "0": 0.5,
+          "1": 0.625,
+          "2": 0.5,
+          "3": 0.625
+        },
+        "clustered_ci95": {
+          "clusters": 32,
+          "conclusive": true,
+          "confidence": 0.95,
+          "finite_sample_range_correction": 0.3838448027083219,
+          "high": 1.0,
+          "low": 0.038637425268215675,
+          "mean": 0.5625,
+          "method": "bounded-empirical-Bernstein-95",
+          "sample_variance": 0.07661290322580645,
+          "schema": "guandan-marvel-bounded-cluster-ci-v1"
+        },
+        "complete": true,
+        "completed_games": 128,
+        "eval/cluster_count": 32,
+        "eval/clustered_ci95_high": 1.0,
+        "eval/clustered_ci95_low": 0.038637425268215675,
+        "eval/double_down_rate": 0.59375,
+        "eval/games_per_second": null,
+        "eval/head_last_rate": 0.296875,
+        "eval/head_third_rate": 0.109375,
+        "eval/illegal_count": 0,
+        "eval/mean_team_reward": 0.125,
+        "eval/seat_rotation_gap": 0.125,
+        "eval/team02_win_rate": 0.5,
+        "eval/team13_win_rate": 0.625,
+        "eval/truncated_count": 0,
+        "eval/win_rate": 0.5625,
+        "games": 128
+      }
+    },
+    "schema": "guandan-marvel-clustered-summary-v2",
+    "seat_rotation_coverage": {
+      "cluster_count": 160,
+      "complete": true,
+      "errors": [],
+      "expected_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "plan_bound": true
+    }
+  },
+  "deterministic": true,
+  "final_holdout": false,
+  "hash": "6fffe34a3ce828e0fd76f063bccb11a5d23f27c429d69dca37cdb1df06889016",
+  "load_stats": {
+    "unique": 640
+  },
+  "plan_hash": "b1cfd873eb9c4c2ae982897228c32520136e3174835fa70b87ba5a7754fe7528",
+  "records_hash": "e1be3249cc484c41412c5500a6859c48bc204f5f7c7175dfb630d8ad30e53a88",
+  "schema": "guandan-marvel-resumable-evaluation-summary-v1",
+  "task_count": 640
+}

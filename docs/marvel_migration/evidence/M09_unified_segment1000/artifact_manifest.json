@@ -1,0 +1,73 @@
+{
+  "continuation_sha256": "d1e9eeff3fc2ca0bda32b2537e71878cfb97f387fce40ac5ecc853ab3a3e28da",
+  "files": [
+    {
+      "bytes": 1764,
+      "path": "champion_manifest.json",
+      "sha256": "c91c73e661a86089b7fb3e2ecb447baefbe008dc3e59f6bb44ffaba864cfbb9e"
+    },
+    {
+      "bytes": 4930,
+      "path": "continuation_manifest.json",
+      "sha256": "f0a1f616f30b67f6769e135a5a30534f411d298c8e101d86b596faa2b5b971de"
+    },
+    {
+      "bytes": 354041,
+      "path": "evaluation_plan.json",
+      "sha256": "c209421ed1d94f35cf0c5efff61ea48c8db82280cabbf6dc1435cc2b22012b6a"
+    },
+    {
+      "bytes": 640,
+      "path": "evaluation_result.json",
+      "sha256": "5e2f9ef6f8e8af5548d50080da56f54b0f3d6c8d33ca9bf7883c6f2a821a8102"
+    },
+    {
+      "bytes": 8188,
+      "path": "evaluation_summary.json",
+      "sha256": "a5bb71209e32e6ab858007ad82d3cd07bf0390d51b833f77ee06ae45d4ec9362"
+    },
+    {
+      "bytes": 3455,
+      "path": "opponent_pool_manifest.json",
+      "sha256": "bb636ca8bfb27389678d773146328f27b5c06e194e5fc6ce186ed4de27daf683"
+    },
+    {
+      "bytes": 2155,
+      "path": "pipeline_state.json",
+      "sha256": "58f2fa908a6de2b89e2c12d6529ef7d26b377f28c7d4e4326b642a85342aa3de"
+    },
+    {
+      "bytes": 3732,
+      "path": "promotion_decision.json",
+      "sha256": "a96c032b2c9c8512e768d29f71bd629a246b0aae13281d03bcc9f30bc29a865b"
+    },
+    {
+      "bytes": 4060,
+      "path": "segment1000_review.json",
+      "sha256": "03c26626235315fd5d70663083d5bba2c71376a7a78448dac5609a22081133d9"
+    },
+    {
+      "bytes": 1460,
+      "path": "training_commit.json",
+      "sha256": "cc4238d81f779fac43e1495d5c2875530d6e8e71bb64558043f30ec6675bc123"
+    },
+    {
+      "bytes": 413,
+      "path": "worker0_progress.json",
+      "sha256": "7335dc436a246bb06b1db2d43a8c0f9ccee6ffb2ee0138509316985f8570e378"
+    },
+    {
+      "bytes": 413,
+      "path": "worker1_progress.json",
+      "sha256": "2b707541e4d6e9c4815f8dff0f036957ffe9097150a9f378f1a8709f98876408"
+    },
+    {
+      "bytes": 8522,
+      "path": "worker_group_result.json",
+      "sha256": "2c64db103f9d7df158dcbc7a35138c42f2070ed3b9bd8c419d559d3f5d9efd6f"
+    }
+  ],
+  "hash": "b9003efd5486b0cd28d9150e66f68e904f452260d0bce40000d3f4c05e982396",
+  "log_sha256": "8efe7686b97c12f76b918dd640b0c346ea128a4e01effe571604d8a12a59a4de",
+  "schema": "guandan-marvel-m09-unified-segment1000-artifact-manifest-v1"
+}
