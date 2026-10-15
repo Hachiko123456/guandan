@@ -1,0 +1,42 @@
+{
+  "champion": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "backend": "cpp",
+    "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+    "checkpoint_path": "/kaggle/working/guandan-marvel-m09-final-holdout/champion/champions/generation000001_iter000100.pt",
+    "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+    "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+    "iteration": 100,
+    "merged_policy": {
+      "beta": 0.0,
+      "frozen_for_evaluation": true,
+      "identity": "current_policy_copy"
+    },
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "resolved_config_hash": "5ae777a870653a877cbef0bdb2876b709f85eea8d1ea9d2ef46094b8df444afc",
+    "schema": "guandan-marvel-policy-identity-v1",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+    "training_counters": {
+      "iteration": 100
+    },
+    "training_data_provenance_hash": "b77207cb951112344465353f61f086540da9b0fce6a69f16d058704acc18c369",
+    "training_data_provenance_status": "complete"
+  },
+  "generation": 1,
+  "hash": "b958cbb20bc218ebd5875e89144a586b0268d234a1000792b9b9a663242d67db",
+  "pool_sync": {
+    "status": "not_required",
+    "transaction_id": null
+  },
+  "previous_champion": null,
+  "promotion": {
+    "kind": "bootstrap",
+    "promoted_at": "2026-10-15T14:47:05.321348+00:00",
+    "promotion_evaluation_hash": null,
+    "reason": "frozen pre-final iter100 champion baseline",
+    "selection_deals_hash": null
+  },
+  "schema": "guandan-marvel-champion-manifest-v2"
+}

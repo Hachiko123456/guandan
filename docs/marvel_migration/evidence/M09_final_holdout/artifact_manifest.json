@@ -1,0 +1,53 @@
+{
+  "archive_sha256": "83722a8395f7cc5576b7bf66d2f645b1a68c64c8549b68a684ef7c5dcbce7721",
+  "files": [
+    {
+      "bytes": 1762,
+      "path": "champion_manifest.json",
+      "sha256": "2bfa1f3fa8609622c893ab0f4cd31036b14cbedde1db93ca46eb35084e211491"
+    },
+    {
+      "bytes": 25618,
+      "path": "deals_manifest.json",
+      "sha256": "d255f5ac6b702710f7ae290e6e3f0f724cbab379a8574dbbfea2fee47a5caa83"
+    },
+    {
+      "bytes": 21275,
+      "path": "evaluation_plan.json",
+      "sha256": "d4f21a48ce5d75b6d1d11072d287d0eec2d99156e4a2c0c9e2ced2e501eec2a5"
+    },
+    {
+      "bytes": 15675,
+      "path": "evaluation_result.json",
+      "sha256": "8ddc850f81c3752193cc6c25207797df8c9e6f5c2f3061ac7c0273eda90b8ddb"
+    },
+    {
+      "bytes": 8389,
+      "path": "evaluation_summary.json",
+      "sha256": "9e3823760b1511edf2266cee529a8c7e055362ca426bc474302b43a424282c90"
+    },
+    {
+      "bytes": 2352,
+      "path": "final_holdout_audit.json",
+      "sha256": "0a032940eb1a1421060a54d3f408fcfaab6935e8ad747bcb2b6a7849826d72f2"
+    },
+    {
+      "bytes": 30864,
+      "path": "final_holdout_report.json",
+      "sha256": "9004faf15adba69c3a274d7940ad1087a3591fd9a0c8bbcd79044ef899d60bb9"
+    },
+    {
+      "bytes": 4932,
+      "path": "final_holdout_review.json",
+      "sha256": "327a7b25a8898756f67900b51723405c3b1711699e0762f21aa85468160b3e6c"
+    },
+    {
+      "bytes": 3433,
+      "path": "opponent_pool_manifest.json",
+      "sha256": "53b5d2a64064c61eb71fec4aabc80bcac16f36f6c220bc7f2b760863eef04099"
+    }
+  ],
+  "hash": "3dcb8e7c0e3a4836f5724ea1aacb5f9c584d91a47dc8bed9b503c6a8773d86bc",
+  "log_sha256": "b31d6636749a1f9006c9a3e5376b199d9f19afb0da5ea02ec4d8a314ce4ccddb",
+  "schema": "guandan-marvel-m09-final-holdout-artifact-manifest-v1"
+}

@@ -1,0 +1,50 @@
+{
+  "active_evaluation": {
+    "candidate_sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8",
+    "config_hash": "0bb164be287c67b30bd88235a2d9222e6975c330a78b0bbadc070bd7f246f1c0",
+    "dataset_identity": "06c8db261da5b8afbd33550080342ac7260bad31e613e2ec584822567743aeda",
+    "deal_count": 65,
+    "error": null,
+    "evaluation_hash": "d23132ba90e0f15207fe5cd23bc53a8807b54841d42b2d8787549bb99e11d73c",
+    "evaluation_id": "m09-final-iter2000-v1",
+    "generator_version": "guandan-marvel-deal-seed-generator-v1",
+    "plan_identity_hash": "d51691224475587de5c1d558ecea3e86371aa7273bd8382fb36c711f5c800b1b",
+    "reserved_at": "2026-10-15T14:47:06.001014+00:00",
+    "terminal_status": "consumed"
+  },
+  "hash": "0fdfb19f6d9f42994dce75111f12bd058f5a66122e0a937ebf2afa0e8bf532af",
+  "history": [
+    {
+      "candidate_sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8",
+      "config_hash": "0bb164be287c67b30bd88235a2d9222e6975c330a78b0bbadc070bd7f246f1c0",
+      "dataset_identity": "06c8db261da5b8afbd33550080342ac7260bad31e613e2ec584822567743aeda",
+      "deal_count": 65,
+      "evaluation_id": "m09-final-iter2000-v1",
+      "event": "reserved",
+      "generator_version": "guandan-marvel-deal-seed-generator-v1",
+      "plan_identity_hash": "d51691224475587de5c1d558ecea3e86371aa7273bd8382fb36c711f5c800b1b",
+      "reserved_at": "2026-10-15T14:47:06.001014+00:00"
+    },
+    {
+      "at": "2026-10-15T14:47:07.802078+00:00",
+      "evaluation_id": "m09-final-iter2000-v1",
+      "event": "running"
+    },
+    {
+      "at": "2026-10-15T16:35:53.211807+00:00",
+      "error": null,
+      "evaluation_hash": "d23132ba90e0f15207fe5cd23bc53a8807b54841d42b2d8787549bb99e11d73c",
+      "evaluation_id": "m09-final-iter2000-v1",
+      "event": "consumed"
+    }
+  ],
+  "holdout_identity": {
+    "dataset_hash": "06c8db261da5b8afbd33550080342ac7260bad31e613e2ec584822567743aeda",
+    "deal_count": 65,
+    "generator_version": "guandan-marvel-deal-seed-generator-v1",
+    "manifest_hash_at_registration": "c5958996d33ffc1fa9f38e0933587ed0ec9a402ba8dc0e20d45533bd9280a176"
+  },
+  "locked_candidate_sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8",
+  "schema": "guandan-marvel-final-holdout-audit-v2",
+  "state": "consumed"
+}

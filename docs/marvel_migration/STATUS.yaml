@@ -357,7 +357,7 @@ stages:
     blockers: []
 
   M09_full_training:
-    status: iter2000_final_candidate_frozen_final_holdout_remote_ready_not_run
+    status: final_holdout_complete_e1_e2_supported_e3_not_demonstrated
     accepted: false
     commit: null
     preparation_commits:
@@ -390,6 +390,7 @@ stages:
       - docs/marvel_migration/reports/M09_unified_segment1000.md
       - docs/marvel_migration/reports/M09_unified_segment1500.md
       - docs/marvel_migration/reports/M09_unified_segment2000.md
+      - docs/marvel_migration/reports/M09_final_holdout.md
     evidence:
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_safety_check.json
       - docs/marvel_migration/evidence/M09_full_training_preparation/delivery_validation.json
@@ -568,6 +569,16 @@ stages:
       - docs/marvel_migration/evidence/M09_unified_segment2000/artifact_manifest.json
       - docs/marvel_migration/evidence/M09_unified_segment2000/final_candidate_freeze.json
       - docs/marvel_migration/evidence/M09_unified_segment2000/final_holdout_preparation.json
+      - docs/marvel_migration/evidence/M09_final_holdout/final_holdout_review.json
+      - docs/marvel_migration/evidence/M09_final_holdout/final_holdout_report.json
+      - docs/marvel_migration/evidence/M09_final_holdout/final_holdout_audit.json
+      - docs/marvel_migration/evidence/M09_final_holdout/deals_manifest.json
+      - docs/marvel_migration/evidence/M09_final_holdout/evaluation_plan.json
+      - docs/marvel_migration/evidence/M09_final_holdout/evaluation_result.json
+      - docs/marvel_migration/evidence/M09_final_holdout/evaluation_summary.json
+      - docs/marvel_migration/evidence/M09_final_holdout/champion_manifest.json
+      - docs/marvel_migration/evidence/M09_final_holdout/opponent_pool_manifest.json
+      - docs/marvel_migration/evidence/M09_final_holdout/artifact_manifest.json
     delivery_root: D:\project\kaggle_train\guandan-marvel-m09-algorithm-pilot-20261011-r2
     delivery_source_commit: e5c82e7c27fb366800e9722c9e8e4720df7db01f
     package_id: guandan-marvel-m09-algorithm-pilot-20261011-r2
@@ -645,7 +656,15 @@ stages:
     final_holdout_control_hash: da789f7da631f2faf1320e619d4eb477737c1836106c9d728c8bb941c34114aa
     final_holdout_dataset_hash: 06c8db261da5b8afbd33550080342ac7260bad31e613e2ec584822567743aeda
     final_holdout_upload_sha256: bf5c82cbcd07f5fd1ce5813552d8f21ca213f0bac6d8c54fbe47b8407090b37a
-    final_holdout_run: false
+    final_holdout_run: true
+    final_holdout_state: consumed
+    final_holdout_output_sha256: 83722a8395f7cc5576b7bf66d2f645b1a68c64c8549b68a684ef7c5dcbce7721
+    final_holdout_evaluation_hash: d23132ba90e0f15207fe5cd23bc53a8807b54841d42b2d8787549bb99e11d73c
+    final_holdout_report_hash: c140e67e5c26b8959e01ac32b141d21393365def129d3e52c3cdcfb98902b694
+    final_strength_level_supported: E2
+    final_e1_supported: true
+    final_e2_supported: true
+    final_e3_supported: false
     unified_pipeline_segment1500_run_status: accepted_complete_no_promotion
     unified_pipeline_segment1500_training_commit_hash: b6bdddfc030727a55da8f1c73125e6eb42d343ef5a2df2d7fd9dbab2dbc59c6f
     unified_pipeline_segment1500_recovery_sha256: 79c9527cfba604b590a3b0caa2e88e76798c6ad3409f849a8890e8388bfe68f7
@@ -659,11 +678,12 @@ stages:
     unified_pipeline_segment1000_promotion_status: inconclusive
     unified_pipeline_segment1000_promoted: false
     unified_pipeline_remote_smoke_target_iteration: 502
-    note: Unified training completed at iter2000/8000 games. The plan-terminal iter2000 checkpoint, which had the strongest selection point estimates and passed all health/floor gates, is explicitly frozen as final candidate without rewriting champion history. The one-shot 65-cluster/1300-game final holdout delivery is remote-ready but has not run; M09 remains incomplete
+    note: The frozen iter2000 candidate completed the one-shot 65-cluster/1300-game final holdout with zero illegal/truncated games. It stably beat random and legacy, was competitive with rule, and beat iter100 champion by point estimate, demonstrating effective training and supporting E1/E2. Stable rule superiority was not demonstrated, so the M09 E3 target was not met and M09 remains not accepted. The final holdout is consumed and must not be rerun
     blockers:
       - the verified old-source iter100 checkpoint remains demo/salvage-only and must not be cross-resumed into r2
       - iter500 candidate was not promoted; current champion remains the r2 IPPO iter100 evaluation checkpoint
-      - one-shot final holdout has not run
+      - M09 target E3 was not demonstrated because final rule clustered CI lower bound did not exceed 50%
+      - final holdout is consumed; any further training/protocol change requires a new versioned plan and a new holdout dataset
       - segment1000/1500/2000 training and their mandatory formal reviews have not run
       - main long-training deal distribution remains narrow Rank.TWO/no-previous-result and broad-context acceptance remains blocking
       - final candidate and one-shot final holdout are incomplete

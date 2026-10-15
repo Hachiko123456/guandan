@@ -1,0 +1,132 @@
+{
+  "coverage": {
+    "final_clusters": 65,
+    "games": 1300,
+    "illegal": 0,
+    "lanes": {
+      "champion": 260,
+      "legacy": 260,
+      "opponent_pool": 260,
+      "random": 260,
+      "rule": 260
+    },
+    "truncated": 0,
+    "unique_tasks": 1300
+  },
+  "current_champion_rewritten": false,
+  "final_holdout_may_be_rerun": false,
+  "hash": "0dd337466f4710313cf31abcddf5e5073d77a0082a17ef0fe7fede0cb62b79be",
+  "identity": {
+    "audit_hash": "0fdfb19f6d9f42994dce75111f12bd058f5a66122e0a937ebf2afa0e8bf532af",
+    "candidate_iteration": 2000,
+    "candidate_sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8",
+    "champion_iteration": 100,
+    "champion_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+    "deal_manifest_hash": "c5958996d33ffc1fa9f38e0933587ed0ec9a402ba8dc0e20d45533bd9280a176",
+    "evaluation_hash": "d23132ba90e0f15207fe5cd23bc53a8807b54841d42b2d8787549bb99e11d73c",
+    "evaluation_id": "m09-final-iter2000-v1",
+    "final_dataset_hash": "06c8db261da5b8afbd33550080342ac7260bad31e613e2ec584822567743aeda",
+    "plan_hash": "4b99899dd776bd9ff77009b02fbd4f349b9ad2c152f87304691145b2b10b3a66",
+    "report_hash": "c140e67e5c26b8959e01ac32b141d21393365def129d3e52c3cdcfb98902b694",
+    "summary_hash": "45f713afa362d053d8d39da1a111ce6df97374409f09e8e2f25669d2f675fca2"
+  },
+  "kaggle_t4x2": true,
+  "m09_accepted": false,
+  "m09_target_E3_met": false,
+  "one_shot_consumed": true,
+  "results": {
+    "overall_mean_team_reward": 0.45076923076923076,
+    "overall_seat_rotation_gap": 0.12923076923076926,
+    "overall_win_rate": 0.7253846153846154,
+    "per_opponent": {
+      "champion": {
+        "ci95_high": 0.9725131565759587,
+        "ci95_low": 0.36594838188557965,
+        "clusters": 65,
+        "games": 260,
+        "illegal": 0,
+        "seat_rotation_gap": 0.16923076923076918,
+        "team02_win_rate": 0.7538461538461538,
+        "team13_win_rate": 0.5846153846153846,
+        "truncated": 0,
+        "win_rate": 0.6692307692307692,
+        "wins": 174
+      },
+      "legacy": {
+        "ci95_high": 1.0,
+        "ci95_low": 0.6230441009285138,
+        "clusters": 65,
+        "games": 260,
+        "illegal": 0,
+        "seat_rotation_gap": 0.13846153846153852,
+        "team02_win_rate": 0.9230769230769231,
+        "team13_win_rate": 0.8307692307692308,
+        "truncated": 0,
+        "win_rate": 0.8769230769230769,
+        "wins": 228
+      },
+      "opponent_pool": {
+        "ci95_high": 0.9725131565759587,
+        "ci95_low": 0.36594838188557965,
+        "clusters": 65,
+        "games": 260,
+        "illegal": 0,
+        "seat_rotation_gap": 0.16923076923076918,
+        "team02_win_rate": 0.7538461538461538,
+        "team13_win_rate": 0.5846153846153846,
+        "truncated": 0,
+        "win_rate": 0.6692307692307692,
+        "wins": 174
+      },
+      "random": {
+        "ci95_high": 1.0,
+        "ci95_low": 0.6004037329296009,
+        "clusters": 65,
+        "games": 260,
+        "illegal": 0,
+        "seat_rotation_gap": 0.06153846153846154,
+        "team02_win_rate": 0.8692307692307693,
+        "team13_win_rate": 0.8461538461538461,
+        "truncated": 0,
+        "win_rate": 0.8576923076923076,
+        "wins": 223
+      },
+      "rule": {
+        "ci95_high": 0.8564643133817813,
+        "ci95_low": 0.2512279943105264,
+        "clusters": 65,
+        "games": 260,
+        "illegal": 0,
+        "seat_rotation_gap": 0.1538461538461538,
+        "team02_win_rate": 0.6307692307692307,
+        "team13_win_rate": 0.47692307692307695,
+        "truncated": 0,
+        "win_rate": 0.5538461538461539,
+        "wins": 144
+      }
+    }
+  },
+  "run": {
+    "archive_bytes": 15730769,
+    "archive_crc_valid": true,
+    "archive_sha256": "83722a8395f7cc5576b7bf66d2f645b1a68c64c8549b68a684ef7c5dcbce7721",
+    "log_sha256": "b31d6636749a1f9006c9a3e5376b199d9f19afb0da5ea02ec4d8a314ce4ccddb",
+    "runtime_seconds": 6525.337905772
+  },
+  "schema": "guandan-marvel-m09-final-holdout-review-v1",
+  "status": "complete_e1_e2_supported_e3_not_demonstrated",
+  "strength": {
+    "E1_stable_beat_random": true,
+    "E2_rule_competitive": true,
+    "E3_stable_beat_rule_and_legacy": false,
+    "reason": "random and legacy clustered CI lower bounds exceed 0.5; rule point estimate is above 0.5 but its clustered CI lower bound does not, so stable rule superiority is not demonstrated",
+    "supported_level": "E2"
+  },
+  "training_effect_evidence": [
+    "frozen iter2000 candidate wins 174/260 (66.92%) against iter100 champion on independent final deals",
+    "candidate wins 223/260 against random with clustered CI low 60.04%",
+    "candidate wins 228/260 against legacy with clustered CI low 62.30%",
+    "zero illegal/truncated across 1300 games"
+  ],
+  "training_effective": true
+}

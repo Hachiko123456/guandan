@@ -1,0 +1,411 @@
+{
+  "candidate": {
+    "algorithm": "ippo",
+    "architecture": "v1.3",
+    "backend": "cpp",
+    "backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+    "checkpoint_path": "/kaggle/working/guandan-marvel-m09-final-holdout/candidate/ippo_iter002000.pt",
+    "checkpoint_schema": "guandan-marvel-evaluation-checkpoint-v1",
+    "checkpoint_sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8",
+    "iteration": 2000,
+    "merged_policy": {
+      "beta": 0.0,
+      "identity": "current_policy_copy",
+      "not_smoothed_when_beta_zero": true
+    },
+    "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+    "resolved_config_hash": "9dc92b6910ca900038724df31829377ab64e52ed615c89c6fc1d4ff0aaedc1bb",
+    "schema": "guandan-marvel-policy-identity-v1",
+    "source_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+    "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+    "training_counters": {
+      "iteration": 2000
+    },
+    "training_data_provenance_hash": "91abe868339cbbb33f303ec372e03ca517a2bf35d4028ba1a1a2b59a279b2dca",
+    "training_data_provenance_status": "complete"
+  },
+  "champion_after_hash": "b958cbb20bc218ebd5875e89144a586b0268d234a1000792b9b9a663242d67db",
+  "champion_before_hash": "b958cbb20bc218ebd5875e89144a586b0268d234a1000792b9b9a663242d67db",
+  "champion_unchanged": true,
+  "completed_at": "2026-10-15T16:35:53.207393+00:00",
+  "data_isolation": {
+    "checks": [
+      {
+        "checkpoint_sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8",
+        "deal_hash_overlap": [],
+        "provenance_status": "complete",
+        "seed_overlap": [],
+        "seed_semantics": "EnvBatch initial seed plus slot, followed by each slot's serialized continuous PRNG reset stream; subsequent deals are not represented as seed+counter",
+        "training_generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+        "training_initial_seeds": [
+          470700
+        ],
+        "training_manifest_hash": "88c2c4119f9533d1469e4136b9d5b5aeba6c822d075e221b260be04f43f04b56"
+      },
+      {
+        "checkpoint_sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c",
+        "deal_hash_overlap": [],
+        "provenance_status": "complete",
+        "seed_overlap": [],
+        "seed_semantics": "EnvBatch initial seed plus slot, followed by each slot's serialized continuous PRNG reset stream; subsequent deals are not represented as seed+counter",
+        "training_generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+        "training_initial_seeds": [
+          470700,
+          1470703
+        ],
+        "training_manifest_hash": "88c2c4119f9533d1469e4136b9d5b5aeba6c822d075e221b260be04f43f04b56"
+      }
+    ],
+    "dataset_hash": "06c8db261da5b8afbd33550080342ac7260bad31e613e2ec584822567743aeda",
+    "domain": "final",
+    "formal_selection_eligible": true,
+    "materialized_deals": [
+      {
+        "deal_id": "final-000000",
+        "deal_sha256": "6fc2dfb3d18ccc20280fb89436225c7e3da37e86e5a99cea955da9a7e11a2ee8",
+        "seed": 1500000000
+      },
+      {
+        "deal_id": "final-000001",
+        "deal_sha256": "aa06b8565034cfb719d508141051ac5634b34d0c1e6903cc73344e946cdbdb30",
+        "seed": 1500000001
+      },
+      {
+        "deal_id": "final-000002",
+        "deal_sha256": "16c89c3fff01ac49f2e2ed47f931caf037d0517b6dac4dc44669bf7bdf1f1358",
+        "seed": 1500000002
+      },
+      {
+        "deal_id": "final-000003",
+        "deal_sha256": "9b6c61fdb4042900ba1913e3e760a625c4d8ea8de7e837823fb1e6658412406a",
+        "seed": 1500000003
+      },
+      {
+        "deal_id": "final-000004",
+        "deal_sha256": "d02862b6008d27aabb955112b5591bce3847aca95a866fd4dcaf23e145158849",
+        "seed": 1500000004
+      },
+      {
+        "deal_id": "final-000005",
+        "deal_sha256": "9d8760ef741655c98714c605c85a5999039ab5cd3c76958d0f1c3ab673e30036",
+        "seed": 1500000005
+      },
+      {
+        "deal_id": "final-000006",
+        "deal_sha256": "cc638c3d8e5c4ac9431636c98149d422dba03ba49b52b4f90c92e70c5bc06a3f",
+        "seed": 1500000006
+      },
+      {
+        "deal_id": "final-000007",
+        "deal_sha256": "a3e41b5d9f2090e30743fd0954b2cebfb93c304360fada1466fdcd2618647fee",
+        "seed": 1500000007
+      },
+      {
+        "deal_id": "final-000008",
+        "deal_sha256": "2adb48f05ce1e0cf7edfcba467655dad98b64d0acdd5cc1e2f26545c29943cea",
+        "seed": 1500000008
+      },
+      {
+        "deal_id": "final-000009",
+        "deal_sha256": "7ff17a6e86cfdecab63faedab485c6c83c3dcf2998335e93a350543169eea3de",
+        "seed": 1500000009
+      },
+      {
+        "deal_id": "final-000010",
+        "deal_sha256": "a424f217b01b88b9ae63c5f8016861e3c82df01a1e5e8a67d1748a2709200d06",
+        "seed": 1500000010
+      },
+      {
+        "deal_id": "final-000011",
+        "deal_sha256": "362c8b55af79ef3cba1180daa4160e25d348d8e7318f7f097c155df4305aee2e",
+        "seed": 1500000011
+      },
+      {
+        "deal_id": "final-000012",
+        "deal_sha256": "bcf7433c306920a6e8a91c8793f5345c34b7d57e098438752c2a96c91c6843cf",
+        "seed": 1500000012
+      },
+      {
+        "deal_id": "final-000013",
+        "deal_sha256": "627ef52284f474433d5a76443f9531db16adb677d0df15a52888439a9c2187ab",
+        "seed": 1500000013
+      },
+      {
+        "deal_id": "final-000014",
+        "deal_sha256": "73b02d295d53d1dc47fe538b7c2a17ced41d5bf52e806d36cbca98c78b60a270",
+        "seed": 1500000014
+      },
+      {
+        "deal_id": "final-000015",
+        "deal_sha256": "bcfb427768766f7ff96344b9f0bc8ca9e196ce00167ff2a28e2b551cdf829a1f",
+        "seed": 1500000015
+      },
+      {
+        "deal_id": "final-000016",
+        "deal_sha256": "4c5ab93da6810db94b8fda93ac5103d4cab0e7e085bc95eac50116b6d3a44f0d",
+        "seed": 1500000016
+      },
+      {
+        "deal_id": "final-000017",
+        "deal_sha256": "8a73bb0b2476d95525a4333388a072217b06a029d030b1d2b2cf84b277077bd6",
+        "seed": 1500000017
+      },
+      {
+        "deal_id": "final-000018",
+        "deal_sha256": "0bd32b879213c2ecda138ba426dd8557dac7e809089d409dffd24b7b9ed59eac",
+        "seed": 1500000018
+      },
+      {
+        "deal_id": "final-000019",
+        "deal_sha256": "2f172c9d4ee2b5570154c677da68df6f1199316cb15f2c2c95463f974f25922c",
+        "seed": 1500000019
+      },
+      {
+        "deal_id": "final-000020",
+        "deal_sha256": "35b330ee12ee56b5b003624768ce1bfce108e141c1aab7dc7280e057a26cf14f",
+        "seed": 1500000020
+      },
+      {
+        "deal_id": "final-000021",
+        "deal_sha256": "30ffbc4ccfdc5d7f47895cdc16c2540b8ba4e1998edcd8f1884c5f5427aa6314",
+        "seed": 1500000021
+      },
+      {
+        "deal_id": "final-000022",
+        "deal_sha256": "b7bdab956e7e193bf1c0e7a597dd970a0c80cf970def64eca3524796ba5d4c71",
+        "seed": 1500000022
+      },
+      {
+        "deal_id": "final-000023",
+        "deal_sha256": "d81599f937e0ddceed8c4a0b09cc53310dd41b9cf62f40e80f5d4c5bed4966ab",
+        "seed": 1500000023
+      },
+      {
+        "deal_id": "final-000024",
+        "deal_sha256": "1c94f0940cf089b6393eb5456386f93294fb18a39825e485df8ca6621d7e6fae",
+        "seed": 1500000024
+      },
+      {
+        "deal_id": "final-000025",
+        "deal_sha256": "623d1048e5cea7c9efc2c93f4d40459d0eba10aae3e11ea9c5058f18df300d96",
+        "seed": 1500000025
+      },
+      {
+        "deal_id": "final-000026",
+        "deal_sha256": "6a4006b71570269e051fa0971583140050d16b1a0daabc63e92db92d0752c5a3",
+        "seed": 1500000026
+      },
+      {
+        "deal_id": "final-000027",
+        "deal_sha256": "0a29e56405b81891b00f1c1b5a553de9bfb4827a9b4c75e1e810ea6ed741c974",
+        "seed": 1500000027
+      },
+      {
+        "deal_id": "final-000028",
+        "deal_sha256": "868fd5895e399b9f51c1a2c12531ca0b907290eb2b49839cde91d5ca19ca96fd",
+        "seed": 1500000028
+      },
+      {
+        "deal_id": "final-000029",
+        "deal_sha256": "f43da9b2d32b375df1e34cbb5a3fd856460baabb4cc12f9a3ae85cd19e69c560",
+        "seed": 1500000029
+      },
+      {
+        "deal_id": "final-000030",
+        "deal_sha256": "3458a84520d1e97f239683185c98510a54d8e4bc01408eb16c2af7268aa0e5cc",
+        "seed": 1500000030
+      },
+      {
+        "deal_id": "final-000031",
+        "deal_sha256": "40b553138b1c45de53d2474001aac1729e6aa7678398c8abf25cc1a9ff3ec293",
+        "seed": 1500000031
+      },
+      {
+        "deal_id": "final-000032",
+        "deal_sha256": "9ac8e80e5828370eb72f58192a5c18fd3703a87b8f9dfed619b06ba93c3927f6",
+        "seed": 1500000032
+      },
+      {
+        "deal_id": "final-000033",
+        "deal_sha256": "0824a1020c79a30bca30a73ff27e34b9f017247ea07e573841dd1538c0ca7f46",
+        "seed": 1500000033
+      },
+      {
+        "deal_id": "final-000034",
+        "deal_sha256": "7fb57674ef29f0f151a85e0dc903f3f1800454123b9ed5e6b608d2ccea1cc27c",
+        "seed": 1500000034
+      },
+      {
+        "deal_id": "final-000035",
+        "deal_sha256": "65eb3036eb40ad835065910a9e6cfa02042ec21df00c88edbf6a81e84b43e219",
+        "seed": 1500000035
+      },
+      {
+        "deal_id": "final-000036",
+        "deal_sha256": "ab00d0b58f73a16902152cf731e24e8ae8dcf3de0244048f07fdb11da9c8e033",
+        "seed": 1500000036
+      },
+      {
+        "deal_id": "final-000037",
+        "deal_sha256": "3ba59d45ad85c553af83cb2e569ed59e66cae30282f9c7392735009ed8495368",
+        "seed": 1500000037
+      },
+      {
+        "deal_id": "final-000038",
+        "deal_sha256": "6debf813ffc88a24ff73ec64e577f7a22b033e4b8d6a4cc44c59687aa32d4c21",
+        "seed": 1500000038
+      },
+      {
+        "deal_id": "final-000039",
+        "deal_sha256": "cbb36c83a9586a665e814a0cd52d6df15938d2e925b55263e05c5e6f24f47d70",
+        "seed": 1500000039
+      },
+      {
+        "deal_id": "final-000040",
+        "deal_sha256": "669fef34f9932a4dec5cab805e05e461cd779c76b07dfbd1c1af69b99b69e27a",
+        "seed": 1500000040
+      },
+      {
+        "deal_id": "final-000041",
+        "deal_sha256": "ea5f1b16dbb1a358bb293ee69830de9301abb19cecaa3eca74e9f0158ddd8504",
+        "seed": 1500000041
+      },
+      {
+        "deal_id": "final-000042",
+        "deal_sha256": "7a914951a7fc44163d9bd4fcde512c544b713ff81fd93531b9b3fc32a1d86f4e",
+        "seed": 1500000042
+      },
+      {
+        "deal_id": "final-000043",
+        "deal_sha256": "bed7c7ea6535fd6d4dd535c49fc82db5f7ca5801e9bd7627c0f3c7b259e091e7",
+        "seed": 1500000043
+      },
+      {
+        "deal_id": "final-000044",
+        "deal_sha256": "515f3b3a3816021b4c7999430c75c1062d955d9346222fff3ab06425d6136222",
+        "seed": 1500000044
+      },
+      {
+        "deal_id": "final-000045",
+        "deal_sha256": "82d8752d59db12a291e1402073133df4e098b77c3ae38739c42927c125b0e460",
+        "seed": 1500000045
+      },
+      {
+        "deal_id": "final-000046",
+        "deal_sha256": "e85ebc3a02d9c29c0013d0b1e80845dc14ce6c3b29b4cc64bda4f581e152656b",
+        "seed": 1500000046
+      },
+      {
+        "deal_id": "final-000047",
+        "deal_sha256": "0ddeb9fc713d37d22acad8db322c5d3713fc479e8e2efce68e3513dadd728176",
+        "seed": 1500000047
+      },
+      {
+        "deal_id": "final-000048",
+        "deal_sha256": "1b7467a1a580940365bd4b8ce7d0ee6ea3765d4d1fec4221547448b099519434",
+        "seed": 1500000048
+      },
+      {
+        "deal_id": "final-000049",
+        "deal_sha256": "a9973e54c53d6b5b5dcfc595df6af09b022367585ce50711fae6ecfd9345f8e3",
+        "seed": 1500000049
+      },
+      {
+        "deal_id": "final-000050",
+        "deal_sha256": "30c75534094a220b3bab32f506c5e66437ff92eb6485e199fefe2127a2fb841b",
+        "seed": 1500000050
+      },
+      {
+        "deal_id": "final-000051",
+        "deal_sha256": "299ce049851581fa0f2d0321799791289c6278a12aea07c9a1dc412cd82b24ba",
+        "seed": 1500000051
+      },
+      {
+        "deal_id": "final-000052",
+        "deal_sha256": "926fc6154f609d53a3bdb9ff8b2bc2719587fb5b623e3599cd8f4b6ab716a3d5",
+        "seed": 1500000052
+      },
+      {
+        "deal_id": "final-000053",
+        "deal_sha256": "a79de0d955f0abb2c547c56314ca7eb45305ccad48c030fc94735cfb704a303a",
+        "seed": 1500000053
+      },
+      {
+        "deal_id": "final-000054",
+        "deal_sha256": "19e387a24df26ae625667de9332bc2419cc5663a7ba0f2ea451350b317f6056f",
+        "seed": 1500000054
+      },
+      {
+        "deal_id": "final-000055",
+        "deal_sha256": "3b0700cb59d3bd24def84594d1f48f8f51005514b38ba148dba0383f92ac07df",
+        "seed": 1500000055
+      },
+      {
+        "deal_id": "final-000056",
+        "deal_sha256": "45f7292b734365f2dce78e5f837f369984c56259b74e0d85207418aeb94cb559",
+        "seed": 1500000056
+      },
+      {
+        "deal_id": "final-000057",
+        "deal_sha256": "015cac0e6e01243b824c4d5f688b45b2a3f6f6f96b0c9259156c5aa88273b6eb",
+        "seed": 1500000057
+      },
+      {
+        "deal_id": "final-000058",
+        "deal_sha256": "da12b7aded1b39ae661d118c41062bccb5d83fbd200ca6ec0513f1d45398d86e",
+        "seed": 1500000058
+      },
+      {
+        "deal_id": "final-000059",
+        "deal_sha256": "b50a2fce7e0b583309a25d0b540bde050d902c744d5140d5b47e726583387f5e",
+        "seed": 1500000059
+      },
+      {
+        "deal_id": "final-000060",
+        "deal_sha256": "11468eb2e7a0fccfbe39607366cef30b9854381968b197e5f383e3d6518aa7ff",
+        "seed": 1500000060
+      },
+      {
+        "deal_id": "final-000061",
+        "deal_sha256": "b0273fe48211f70cfd1c25637b4fa4a237603af3325e0018328ece6a8c63fc8d",
+        "seed": 1500000061
+      },
+      {
+        "deal_id": "final-000062",
+        "deal_sha256": "49d84153c9702f002a8651045ac5ee3870ec23dd16e80bdcad8b77cd3117c8c3",
+        "seed": 1500000062
+      },
+      {
+        "deal_id": "final-000063",
+        "deal_sha256": "74af18a5aa7fc9a1a065820761cab5bb8dfc7e159508005f11e0f4a9b0e4e6ac",
+        "seed": 1500000063
+      },
+      {
+        "deal_id": "final-000064",
+        "deal_sha256": "28e9f6b2ccbc69b739edeb22bc4a158a48c02f8fcac3147a517d2af6adc4afaa",
+        "seed": 1500000064
+      }
+    ],
+    "policy": "formal",
+    "reasons": [],
+    "schema": "guandan-marvel-data-isolation-verification-v1"
+  },
+  "deal_dataset_hash": "06c8db261da5b8afbd33550080342ac7260bad31e613e2ec584822567743aeda",
+  "deals_manifest_hash": "c5958996d33ffc1fa9f38e0933587ed0ec9a402ba8dc0e20d45533bd9280a176",
+  "error": null,
+  "evaluation_hash": "d23132ba90e0f15207fe5cd23bc53a8807b54841d42b2d8787549bb99e11d73c",
+  "evaluation_id": "m09-final-iter2000-v1",
+  "expected_games": 1300,
+  "games_path": "/kaggle/working/guandan-marvel-m09-final-holdout/final_run/games.jsonl",
+  "games_recorded": 1300,
+  "hash": "78f38d6c8c09c3cfc0cd868514d0f308124d2fab11128cec809ed98c3b6708bb",
+  "mode": "final_audit",
+  "plan_hash": "4b99899dd776bd9ff77009b02fbd4f349b9ad2c152f87304691145b2b10b3a66",
+  "plan_identity_hash": "d51691224475587de5c1d558ecea3e86371aa7273bd8382fb36c711f5c800b1b",
+  "promotion_decision": null,
+  "promotion_transaction": null,
+  "schema": "guandan-marvel-evaluation-run-v2",
+  "status": "complete",
+  "summary_hash": "45f713afa362d053d8d39da1a111ce6df97374409f09e8e2f25669d2f675fca2",
+  "summary_path": "/kaggle/working/guandan-marvel-m09-final-holdout/final_run/cluster_summary.json"
+}
