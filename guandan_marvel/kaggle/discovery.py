@@ -39,6 +39,15 @@ def validate_dataset_manifest(payload: Mapping[str, object], *, manifest_path: P
         if mode == "single_gpu_control" and world_size != 1:
             raise ValueError("single_gpu_control requires torchrun world_size=1")
     if mode in fresh_training_modes:
+        warm_start = profile.get("warm_start")
+        if warm_start is not None:
+            if not isinstance(warm_start, Mapping) or warm_start.get("schema") != "guandan-marvel-warm-start-input-v1":
+                raise ValueError("warm_start must be a versioned object")
+            for key in ("path", "sha256", "bytes"):
+                if key not in warm_start:
+                    raise ValueError(f"warm_start.{key} is required")
+            if mode != "full":
+                raise ValueError("warm_start is supported only by full mode")
         training = profile.get("training")
         if not isinstance(training, Mapping):
             raise ValueError(f"{mode} profile requires a training object")

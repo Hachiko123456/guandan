@@ -176,6 +176,7 @@ class TrainConfig:
     training_data_domain: str = "training"
     training_data_manifest_hash: str | None = None
     training_data_generator_version: str = "guandan-marvel-env-batch-continuous-prng-v1"
+    training_context_schedule: dict[str, Any] | None = None
     deterministic: bool = False
     deterministic_disable_tf32: bool = False
     amp_enabled: bool = False
@@ -223,6 +224,24 @@ class TrainConfig:
             raise ValueError("training_data_domain must be 'training'")
         if not str(self.training_data_generator_version).strip():
             raise ValueError("training_data_generator_version must be non-empty")
+        if self.training_context_schedule is not None:
+            if not isinstance(self.training_context_schedule, Mapping):
+                raise TypeError("training_context_schedule must be a mapping or None")
+            schedule = dict(self.training_context_schedule)
+            if schedule.get("schema") != "guandan-marvel-training-context-schedule-v1":
+                raise ValueError("unsupported training_context_schedule schema")
+            contexts = schedule.get("contexts")
+            if not isinstance(contexts, list) or not contexts:
+                raise ValueError("training_context_schedule.contexts must be a non-empty list")
+            for index, context in enumerate(contexts):
+                if not isinstance(context, Mapping):
+                    raise TypeError(f"training context {index} must be a mapping")
+                if int(context.get("level_rank", 0)) <= 0 or int(context.get("leader_seat", -1)) not in range(4):
+                    raise ValueError(f"training context {index} has invalid rank/leader")
+                weight = int(context.get("weight", 1))
+                if weight <= 0:
+                    raise ValueError(f"training context {index} weight must be positive")
+            self.training_context_schedule = schedule
         if self.training_data_manifest_hash is None:
             source = {
                 "schema": "guandan-marvel-training-source-manifest-v1",

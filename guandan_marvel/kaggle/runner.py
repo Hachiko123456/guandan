@@ -164,6 +164,7 @@ def _run_torchrun(
     manifest: dict[str, object],
     source: dict[str, object],
     recovery_root: Path | None,
+    warm_start_checkpoint: Path | None,
     console: Console,
     local_cpu_test: bool,
     local_process_timeout_seconds: float,
@@ -183,6 +184,8 @@ def _run_torchrun(
     ]
     if recovery_root is not None:
         worker_args.extend(["--recovery-root", str(recovery_root)])
+    if warm_start_checkpoint is not None:
+        worker_args.extend(["--warm-start-checkpoint", str(warm_start_checkpoint)])
     if local_cpu_test:
         worker_args.append("--local-cpu-test")
     env = os.environ.copy()
@@ -321,6 +324,17 @@ def main(argv: list[str] | None = None) -> int:
     returncode = 1
     status = "failed"
     recovery_root = args.recovery_root.resolve() if args.recovery_root is not None else None
+    warm_start_checkpoint = None
+    warm_spec = profile.get("warm_start")
+    if warm_spec is not None:
+        if not isinstance(warm_spec, dict) or warm_spec.get("schema") != "guandan-marvel-warm-start-input-v1":
+            raise ValueError("profile warm_start must be a versioned object")
+        candidate = (dataset_path.parent / str(warm_spec.get("path", ""))).resolve()
+        if not candidate.is_relative_to(dataset_path.parent.resolve()) or not candidate.is_file():
+            raise FileNotFoundError("warm-start checkpoint is missing or escapes the Dataset")
+        if candidate.stat().st_size != int(warm_spec.get("bytes", -1)) or sha256_file(candidate) != warm_spec.get("sha256"):
+            raise ValueError("warm-start checkpoint identity mismatch")
+        warm_start_checkpoint = candidate
     try:
         require_remote = kaggle and mode in {
             "preflight", "pilot", "resume", "full", "eval_only",
@@ -411,6 +425,7 @@ def main(argv: list[str] | None = None) -> int:
                     manifest=manifest,
                     source=source,
                     recovery_root=recovery_root,
+                    warm_start_checkpoint=warm_start_checkpoint,
                     console=console,
                     local_cpu_test=args.local_cpu_test,
                     local_process_timeout_seconds=args.local_process_timeout_seconds,

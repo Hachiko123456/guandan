@@ -411,10 +411,24 @@ public:
     int observation_capacity() const { return observation_capacity_; }
     std::string backend() const { return BACKEND; }
 
+    void configure_context_schedule(const py::sequence& configs) {
+        if (py::len(configs) <= 0) throw std::invalid_argument("context schedule must be non-empty");
+        context_schedule_.clear();
+        for (const py::handle value : configs) context_schedule_.push_back(config_from_object(value));
+        for (auto& config : context_schedule_) config.max_token_steps = max_horizon_;
+        context_cursor_.assign(batch_size_, 0);
+    }
+
     PyEnvStep reset(std::uint64_t seed = 0) {
         auto trials = games_;
         auto trial_events = events_;
+        if (!context_schedule_.empty()) context_cursor_.assign(batch_size_, 0);
         for (int index = 0; index < batch_size_; ++index) {
+            if (!context_schedule_.empty()) {
+                const std::size_t selected = (static_cast<std::size_t>(seed) + static_cast<std::size_t>(index)) % context_schedule_.size();
+                trials[index].config = context_schedule_[selected];
+                context_cursor_[index] = (selected + static_cast<std::size_t>(batch_size_)) % context_schedule_.size();
+            }
             trials[index].reset(seed + static_cast<std::uint64_t>(index));
             trial_events[index] = reset_events(trials[index]);
         }
@@ -506,6 +520,10 @@ public:
                 info["finish_committed_step"] = game.state.finish_committed_step;
                 info["terminal_state"] = game_to_dict(game);
                 if (auto_reset_) {
+                    if (!context_schedule_.empty()) {
+                        game.config = context_schedule_[context_cursor_[index]];
+                        context_cursor_[index] = (context_cursor_[index] + static_cast<std::size_t>(batch_size_)) % context_schedule_.size();
+                    }
                     game.reset_auto();
                     trial_events[index] = reset_events(game);
                     trial_steps[index] = 0;
@@ -572,6 +590,17 @@ public:
         payload["action_capacity"] = action_capacity_;
         payload["observation_capacity"] = observation_capacity_;
         payload["trajectory_steps"] = trajectory_steps_;
+        py::list raw_schedule;
+        for (const auto& config : context_schedule_) {
+            py::dict row;
+            row["level_rank"] = static_cast<int>(config.level_rank);
+            row["leader_seat"] = config.leader_seat;
+            if (config.previous_result) row["previous_result"] = previous_to_dict(config.previous_result);
+            else row["previous_result"] = py::none();
+            raw_schedule.append(row);
+        }
+        payload["context_schedule"] = raw_schedule;
+        payload["context_cursor"] = context_cursor_;
         py::list raw_events;
         for (const auto& event : events_) raw_events.append(event);
         payload["events"] = raw_events;
@@ -599,7 +628,13 @@ public:
         result->events_.clear();
         for (const py::handle item : data["events"].cast<py::list>()) result->events_.push_back(events_from_object(item));
         result->trajectory_steps_ = data["trajectory_steps"].cast<std::vector<int>>();
+        if (data.contains("context_schedule")) {
+            for (const py::handle item : data["context_schedule"].cast<py::list>()) result->context_schedule_.push_back(result->config_from_object(item));
+            result->context_cursor_ = data["context_cursor"].cast<std::vector<std::size_t>>();
+        }
         if (result->events_.size() != result->games_.size() || result->trajectory_steps_.size() != result->games_.size()) throw ProtocolError("serialized batch shape mismatch");
+        if ((!result->context_schedule_.empty() && result->context_cursor_.size() != result->games_.size()) ||
+            (result->context_schedule_.empty() && !result->context_cursor_.empty())) throw ProtocolError("serialized context schedule shape mismatch");
         for (int index = 0; index < result->batch_size_; ++index) {
             const Game& game = result->games_[index];
             const int trajectory_step = result->trajectory_steps_[index];
@@ -624,6 +659,8 @@ private:
     std::vector<std::array<std::vector<int>, 4>> events_;
     std::vector<int> trajectory_steps_;
     std::vector<bool> is_reset_;
+    std::vector<GameConfig> context_schedule_;
+    std::vector<std::size_t> context_cursor_;
 
     GameConfig config_from_object(const py::handle& value) const {
         GameConfig config;
@@ -810,6 +847,7 @@ PYBIND11_MODULE(_guandan_cpp, module) {
         .def_property_readonly("max_horizon", &CppEnvBatch::max_horizon)
         .def_property_readonly("action_capacity", &CppEnvBatch::action_capacity)
         .def_property_readonly("observation_capacity", &CppEnvBatch::observation_capacity)
+        .def("configure_context_schedule", &CppEnvBatch::configure_context_schedule, py::arg("configs"))
         .def("reset", &CppEnvBatch::reset, py::arg("seed") = 0)
         .def("reset_from_deals", &CppEnvBatch::reset_from_deals, py::arg("deals"), py::arg("level_ranks") = py::none(), py::arg("leader_seats") = py::none(), py::arg("previous_results") = py::none())
         .def("observe", &CppEnvBatch::observe)

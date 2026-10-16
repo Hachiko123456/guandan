@@ -312,6 +312,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--source-archive-sha256", required=True)
     parser.add_argument("--source-content-manifest-hash", required=True)
     parser.add_argument("--recovery-root", type=Path)
+    parser.add_argument("--warm-start-checkpoint", type=Path)
     parser.add_argument("--local-cpu-test", action="store_true")
     args = parser.parse_args(argv)
 
@@ -388,6 +389,22 @@ def main(argv: list[str] | None = None) -> int:
     trainer_cls = IPPOTrainer if cfg.algo_name == "ippo" else VRPOTrainer
     trainer = trainer_cls(cfg, game=game, run_dir=rank_root / "trainer")
     context = trainer.distributed
+    warm_start_load = None
+    if args.warm_start_checkpoint is not None:
+        if mode == "resume":
+            raise ValueError("resume mode cannot also use a warm-start checkpoint")
+        warm_path = args.warm_start_checkpoint.resolve()
+        if not warm_path.is_file():
+            raise FileNotFoundError(warm_path)
+        warm_payload = torch.load(warm_path, map_location=trainer.device, weights_only=False)
+        if not isinstance(warm_payload, Mapping):
+            raise TypeError("warm-start checkpoint payload must be a mapping")
+        warm_start_load = trainer.load_warm_start_policy(warm_payload)
+        append_jsonl(diagnostic_path, {
+            "schema": "guandan-marvel-rank-diagnostic-v1", "event": "warm_start_loaded",
+            "rank": rank, "checkpoint": str(warm_path), "load": warm_start_load,
+            "timestamp": _timestamp(),
+        })
     controls = _controls(profile, mode)
     max_wall_seconds = float(controls.get("max_wall_seconds", 0) or 0)
     checkpoint_interval = int(controls["checkpoint_interval"])
@@ -452,6 +469,7 @@ def main(argv: list[str] | None = None) -> int:
             "source_archive_sha256": args.source_archive_sha256,
             "source_content_manifest_hash": args.source_content_manifest_hash,
             "world_size": world_size,
+            "warm_start": warm_start_load,
             "remote_verified": False,
         })
         write_empty_champion(run_root, reason="no evaluation has completed")

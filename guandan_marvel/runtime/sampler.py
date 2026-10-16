@@ -46,6 +46,7 @@ class SamplerConfig:
     data_domain: str | None = None
     data_manifest_hash: str | None = None
     data_generator_version: str = "guandan-marvel-env-batch-continuous-prng-v1"
+    context_schedule: Mapping[str, object] | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "device", torch.device(self.device))
@@ -122,6 +123,20 @@ class Sampler:
         self._buffer_config = buffer_config
 
         self.envs = envs if envs is not None else self.game.EnvBatch(self.rollout_batch_size)
+        if envs is None and config.context_schedule is not None:
+            contexts = config.context_schedule.get("contexts") if isinstance(config.context_schedule, Mapping) else None
+            if not isinstance(contexts, list) or not contexts:
+                raise ValueError("context_schedule must contain a non-empty contexts list")
+            configure = getattr(self.envs, "configure_context_schedule", None)
+            if not callable(configure):
+                raise TypeError("runtime EnvBatch does not support context schedules")
+            expanded = []
+            for context in contexts:
+                if not isinstance(context, Mapping):
+                    raise TypeError("context schedule rows must be mappings")
+                row = {key: value for key, value in context.items() if key != "weight"}
+                expanded.extend(dict(row) for _ in range(int(context.get("weight", 1))))
+            configure(expanded)
         if parsed_envs_step is None:
             seed = self._env_seed if self._env_seed is not None else 0
             reset_result = self.envs.reset(seed)

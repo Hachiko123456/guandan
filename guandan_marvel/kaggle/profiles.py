@@ -54,6 +54,7 @@ def build_train_config(
         training_data_generator_version=str(training.get(
             "training_data_generator_version", "guandan-marvel-env-batch-continuous-prng-v1",
         )),
+        training_context_schedule=None if training.get("training_context_schedule") is None else dict(training["training_context_schedule"]),
         rollout_batch_size=int(training["rollout_batch_size"]),
         collect_batch_size=int(training["collect_batch_size"]),
         replay_buffer_scale=int(training["replay_buffer_scale"]),
@@ -73,6 +74,11 @@ def build_train_config(
         ),
     )
     config.ppo.agent_epoch = int(training.get("agent_epoch", 1))
+    config.ppo.base_lr = float(training.get("base_lr", config.ppo.base_lr))
+    config.ppo.base_clip_coef = float(training.get("base_clip_coef", config.ppo.base_clip_coef))
+    config.ppo.base_reg_coef = float(training.get("base_reg_coef", config.ppo.base_reg_coef))
+    config.lr_stable_iterations = int(training.get("lr_stable_iterations", config.lr_stable_iterations))
+    config.reg_stable_iterations = int(training.get("reg_stable_iterations", config.reg_stable_iterations))
     config.vrpo.aux_epoch = int(training.get("critic_aux_epoch", 1))
     config.agent_merging_beta = float(training.get("agent_merging_beta", 0.0))
     config.optimizer.use_muon = bool(training.get("use_muon", False))

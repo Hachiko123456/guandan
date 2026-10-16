@@ -1,0 +1,54 @@
+{
+  "schema": "guandan-marvel-two-stage-continuation-plan-v1",
+  "plan_id": "m09-ippo-two-stage-continuation-v1",
+  "created_at": "2026-10-16",
+  "stage1": {
+    "id": "stage1_same_semantics_iter2000_to_5000",
+    "mode": "exact_resume",
+    "source_iteration": 2000,
+    "target_iteration": 5000,
+    "source_completed_games": 8000,
+    "target_completed_games": 20000,
+    "additional_iterations": 3000,
+    "milestone_iterations": [3000, 4000, 5000],
+    "milestone_completed_games": [12000, 16000, 20000],
+    "algorithm": "ippo",
+    "training_distribution": {
+      "level_rank": "Rank.TWO",
+      "previous_result": null,
+      "semantic_contract": "inherited_from_iter2000_recovery"
+    },
+    "checkpoint_policy": {
+      "internal_checkpoint_interval": 500,
+      "internal_checkpoint_keep_last": 8,
+      "milestone_policy_exports": true,
+      "full_recovery_export": true
+    },
+    "selection_after_training": true,
+    "final_holdout": false
+  },
+  "stage2": {
+    "id": "stage2_context_coverage_warm_start",
+    "mode": "new_training_plan_warm_start",
+    "base_checkpoint": "selected_from_stage1_milestones",
+    "additional_iterations": 2000,
+    "training_distribution": {
+      "level_ranks": "all_supported_printed_ranks",
+      "leader_seats": [0, 1, 2, 3],
+      "previous_result": "explicit_context_schedule",
+      "tribute_contexts": true,
+      "opponent_pool": "versioned_context_coverage_pool"
+    },
+    "optimizer_policy": "new_optimizer_and_schedule",
+    "replay_buffer": "reset",
+    "selection_after_training": true,
+    "final_holdout": "new_one_shot_only_after_candidate_freeze"
+  },
+  "selection_policy": {
+    "primary": "rule_clustered_ci_and_point_estimate",
+    "secondary": ["seat_rotation_gap", "champion_clustered_ci", "random_floor", "legacy_floor"],
+    "health_required": ["illegal_zero", "truncated_zero", "nonfinite_zero"],
+    "old_final_holdout_reuse": false
+  },
+  "status": "stage1_delivery_ready_stage2_requires_stage1_selection_artifacts"
+}

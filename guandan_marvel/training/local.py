@@ -256,7 +256,34 @@ class LocalTrainerBase:
             data_domain=cfg.training_data_domain,
             data_manifest_hash=cfg.training_data_manifest_hash,
             data_generator_version=cfg.training_data_generator_version,
+            context_schedule=cfg.training_context_schedule,
         ))
+
+    def load_warm_start_policy(self, payload: Mapping[str, object]) -> dict[str, object]:
+        """Load policy weights only; optimizer, sampler, counters, and schedule remain fresh."""
+        self._require_healthy()
+        if payload.get("schema") != "guandan-marvel-evaluation-checkpoint-v1":
+            raise ValueError("warm start requires an evaluation-only checkpoint")
+        if payload.get("algorithm") != self.algorithm:
+            raise ValueError("warm-start algorithm mismatch")
+        if payload.get("architecture") != self.cfg.model.architecture:
+            raise ValueError("warm-start architecture mismatch")
+        if payload.get("protocol_version") != self.cfg.game.protocol_version:
+            raise ValueError("warm-start protocol mismatch")
+        state = payload.get("agent_state_dict")
+        if not isinstance(state, Mapping):
+            raise ValueError("warm-start checkpoint lacks agent_state_dict")
+        self.agent_resume.load_state_dict(state, strict=True)
+        self.agent_merged.load_state_dict(state, strict=True)
+        self.merge_updater.set_reference_iteration(0)
+        return {
+            "schema": "guandan-marvel-warm-start-load-v1",
+            "source_iteration": int(payload.get("iteration", -1)),
+            "source_hash": canonical_json_hash({key: payload.get(key) for key in ("algorithm", "architecture", "protocol_version", "iteration", "resolved_config_hash", "source_hash")}),
+            "optimizer_reset": True,
+            "sampler_reset": True,
+            "counters_reset": True,
+        }
 
     @property
     def merged_policy_identity(self) -> str:
