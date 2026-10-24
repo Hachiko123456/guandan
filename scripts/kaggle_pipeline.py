@@ -64,13 +64,17 @@ def main(argv: list[str] | None = None) -> int:
             if args.action == "run" and args.run_id and (args.build or args.delivery or args.current):
                 raise core.PipelineError("--run-id cannot be combined with new delivery/build/current")
             if args.dry_run:
-                delivery = core.current_delivery(config)[0] if args.current else args.delivery
-                emit(core.prepare(config, delivery, dry_run=True))
+                result = core.prepare_published(config, dry_run=True) if args.current else core.prepare(
+                    config, args.delivery, dry_run=True,
+                )
+                emit(result)
                 return 0
-            delivery = core.current_delivery(config)[0] if args.current else (
+            delivery = (
                 core.build_delivery(config) if args.build else args.delivery
             )
-            prepared = core.prepare(config, delivery) if delivery is not None or args.action == "prepare" else None
+            prepared = core.prepare_published(config) if args.current else (
+                core.prepare(config, delivery) if delivery is not None or args.action == "prepare" else None
+            )
             if args.action == "prepare":
                 emit(prepared)
                 return 0

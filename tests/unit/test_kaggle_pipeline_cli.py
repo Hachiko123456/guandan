@@ -122,3 +122,11 @@ def test_build_uses_training_python_not_upload_environment(tmp_path, monkeypatch
     assert command[0] == str(python)
     assert command[1].endswith("build_t4x2_serial_compare.py")
     assert "--model-dir" in command and "--base-inputs" in command
+
+
+def test_generic_upload_wrapper_has_no_delivery_version_and_safe_modes():
+    text = (core.ROOT / "scripts/upload_kaggle.ps1").read_text(encoding="utf-8")
+    assert "delivery_v12" not in text and "delivery_v13" not in text
+    for switch in ("$DryRun", "$NoWait", "$Watch", "$Status", "$Prune", "$ExecutePrune"):
+        assert switch in text
+    assert "run -Current" in text

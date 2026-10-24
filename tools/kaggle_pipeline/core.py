@@ -210,6 +210,12 @@ def publish_delivery(config: dict, delivery: Path, qa: Path) -> dict:
     return publish(ROOT, delivery, qa, config["registry_root"])
 
 
+def prepare_published(config: dict, *, dry_run: bool = False) -> dict:
+    delivery, record = current_delivery(config)
+    qa = read_json(ROOT / record["artifact_qa_path"])
+    return prepare(config, delivery, dry_run=dry_run, verifier=lambda _delivery: qa)
+
+
 def prune_deliveries(config: dict, *, keep_previous: int | None = None,
                      execute: bool = False) -> dict:
     from .delivery_registry import cleanup_plan

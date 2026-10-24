@@ -29,9 +29,11 @@ if ($ExecutePrune -and -not $Prune) {
 }
 
 if ($Prune) {
-    $Arguments = @('prune', '-KeepPrevious', $KeepPrevious)
-    if ($ExecutePrune) { $Arguments += '-Execute' }
-    & $Pipeline @Arguments
+    if ($ExecutePrune) {
+        & $Pipeline prune -KeepPrevious $KeepPrevious -Execute
+    } else {
+        & $Pipeline prune -KeepPrevious $KeepPrevious
+    }
     exit $LASTEXITCODE
 }
 if ($Watch) {
@@ -48,9 +50,21 @@ if (-not $DryRun) {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
-$Arguments = @('run')
-if ($Delivery) { $Arguments += @('-Delivery', $Delivery) } else { $Arguments += '-Current' }
-if ($DryRun) { $Arguments += '-DryRun' }
-if ($NoWait) { $Arguments += '-NoWait' }
-& $Pipeline @Arguments
+if ($Delivery) {
+    if ($DryRun) {
+        & $Pipeline run -Delivery $Delivery -DryRun
+    } elseif ($NoWait) {
+        & $Pipeline run -Delivery $Delivery -NoWait
+    } else {
+        & $Pipeline run -Delivery $Delivery
+    }
+} else {
+    if ($DryRun) {
+        & $Pipeline run -Current -DryRun
+    } elseif ($NoWait) {
+        & $Pipeline run -Current -NoWait
+    } else {
+        & $Pipeline run -Current
+    }
+}
 exit $LASTEXITCODE

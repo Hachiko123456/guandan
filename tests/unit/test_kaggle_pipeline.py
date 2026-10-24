@@ -239,6 +239,12 @@ def test_prepare_is_offline_without_history_or_secret_snapshots(sample, monkeypa
     }
     assert {p.name for p in (folder / "dataset").iterdir()} == {PAYLOAD}
     assert {p.name for p in (folder / "kernel").iterdir()} == {NOTEBOOK}
+    events = [json.loads(line) for line in (folder / "events.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert [(row["sequence"], row["stage"], row["event"]) for row in events] == [
+        (1, "prepare", "validated"),
+    ]
+    assert (folder / "console.log").is_file()
+    assert read_json(folder / "delivery.json")["hashes"] == state["hashes"]
     for path in folder.rglob("*"):
         if path.is_file():
             assert SECRET.encode() not in path.read_bytes(), str(path)
@@ -269,6 +275,20 @@ def test_repeat_prepare_and_submit_preserve_snapshot_and_submit_once(sample):
     assert repeated["kernel_version"] == submitted["kernel_version"] == 1
     assert before == {p.relative_to(backend.folder): p.read_bytes()
                       for p in backend.folder.rglob("*") if p.is_file()}
+    assert {p.name for p in (backend.folder / "dataset").iterdir()} == {
+        PAYLOAD, "dataset-metadata.json",
+    }
+    assert {p.name for p in (backend.folder / "kernel").iterdir()} == {
+        NOTEBOOK, "kernel-metadata.json",
+    }
+    assert (backend.folder / "records/dataset/upload.json").is_file()
+    assert (backend.folder / "records/dataset/processing.jsonl").is_file()
+    assert (backend.folder / "records/kernel/submission.json").is_file()
+    event_names = [
+        json.loads(line)["event"]
+        for line in (backend.folder / "events.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert "intent_persisted" in event_names and "remote_call_returned" in event_names
     submit(sample, backend, repeated)
     assert backend.count("create_dataset") == backend.count("push_kernel") == 1
     assert SECRET not in json.dumps(read_json(backend.folder / "run.json"))
@@ -408,6 +428,12 @@ def test_status_and_fetch_pin_saved_version_even_if_remote_latest_changes(sample
     assert len(downloads) == 1
     assert downloads[0][1:3] == expected
     assert read_json(Path(fetched["output_dir"]) / "PIPELINE_VERIFICATION.json")["status"] == "VERIFIED"
+    assert (backend.folder / "records/kernel/status.jsonl").is_file()
+    event_names = [
+        json.loads(line)["event"]
+        for line in (backend.folder / "events.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert "started" in event_names and "completed" in event_names
 
 
 @pytest.mark.parametrize("change,expected", [
