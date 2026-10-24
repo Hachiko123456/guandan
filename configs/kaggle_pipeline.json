@@ -1,0 +1,17 @@
+{
+  "schema": "guandan-kaggle-pipeline-config-v1",
+  "account_file": "configs/kaggle_account.local.json",
+  "output_root": "runs/kaggle_pipeline",
+  "registry_root": "runs/kaggle_delivery",
+  "delivery_parent": "runs/t4x2_serial_compare_delivery_20261023",
+  "experiment": "guandan",
+  "accelerator": "NvidiaTeslaT4",
+  "timeout_seconds": 15000,
+  "poll_seconds": 30,
+  "heartbeat_seconds": 300,
+  "dataset_wait_seconds": 1800,
+  "enable_internet": false,
+  "dataset_license": "other",
+  "keep_previous_deliveries": 1,
+  "build": null
+}

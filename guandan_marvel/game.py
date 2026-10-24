@@ -19,6 +19,7 @@ from guandan.cards import PRINTED_RANKS, Suit
 from guandan.environment import GuandanEnv
 from guandan.environment_types import GameConfig
 from guandan.state import EpisodeTerminatedError, Phase, TEAM_OF
+from guandan_marvel.context_schedule import previous_from_payload
 from guandan_marvel.config import GameSpec
 
 ACTION_VERSION = "GD-ACTION-0.2-MARVEL"
@@ -32,7 +33,7 @@ num_players = 4
 num_tokens = 320
 num_channels = 512
 pad_token = 0
-max_game_horizon = 4096
+max_game_horizon = 1024
 max_available_actions = 256
 max_observation_tokens = 48
 max_action_tokens = 8
@@ -449,10 +450,52 @@ class EnvBatch:
         self._events = tuple(((),) * num_players for _ in range(self.batch_size))
         self._trajectory_steps = np.zeros(self.batch_size, dtype=np.int64)
         self._is_reset = np.zeros(self.batch_size, dtype=np.bool_)
+        self._context_schedule: tuple[Mapping[str, object], ...] = ()
+        self._context_offset = 0
+        self._context_deal_counter = 0
 
     @property
     def envs(self) -> tuple[GuandanEnv, ...]:
         return self._envs
+
+    def configure_context_schedule(
+        self, configs: Sequence[Mapping[str, object]], *, offset: int = 0,
+    ) -> None:
+        """Install the ordered context list and the iteration offset.
+
+        Mirrors ``CppEnvBatch.configure_context_schedule``: consecutive slots
+        consume consecutive positions, the per-deal counter advances by one and
+        restarts at ``offset`` exactly once per collection.
+        """
+        rows = [dict(row) for row in configs]
+        if not rows:
+            raise ValueError("context schedule must be non-empty")
+        if int(offset) < 0:
+            raise ValueError("context offset must be non-negative")
+        self._context_schedule = tuple(rows)
+        self._context_offset = int(offset)
+        self._context_deal_counter = 0
+
+    def _next_context_row(self) -> Mapping[str, object] | None:
+        if not self._context_schedule:
+            return None
+        index = (self._context_offset + self._context_deal_counter) % len(self._context_schedule)
+        self._context_deal_counter += 1
+        return self._context_schedule[index]
+
+    @staticmethod
+    def _apply_context(env: GuandanEnv, row: Mapping[str, object] | None) -> None:
+        if row is None:
+            return
+        previous = row.get("previous_result")
+        previous_result = None if previous is None else previous_from_payload(previous)
+        env.config = GameConfig(
+            level_rank=int(row["level_rank"]),
+            seed=env.config.seed,
+            leader_seat=int(row["leader_seat"]),
+            previous_result=previous_result,
+            max_token_steps=env.config.max_token_steps,
+        )
 
     @classmethod
     def from_envs(cls, envs: Sequence[GuandanEnv], *, auto_reset: bool = False, **kwargs) -> "EnvBatch":
@@ -548,7 +591,11 @@ class EnvBatch:
             raise ValueError("seed must be an integer")
         trials = tuple(env.clone() for env in self._envs)
         trial_events = []
+        if self._context_schedule:
+            self._context_deal_counter = 0
         for index, env in enumerate(trials):
+            if self._context_schedule:
+                self._apply_context(env, self._next_context_row())
             env.reset(seed=int(seed) + index)
             trial_events.append(_reset_events(env._require_protocol()))
         output = self._build_output(trials, trial_events)
@@ -590,6 +637,8 @@ class EnvBatch:
             if result.done:
                 info["terminal_serialized_v1"] = env.serialize().decode("utf-8")
                 if self.auto_reset:
+                    if self._context_schedule:
+                        self._apply_context(env, self._next_context_row())
                     env.reset()
                     trial_events[index] = _reset_events(env._require_protocol())
                     trial_steps[index] = 0
@@ -613,6 +662,9 @@ class EnvBatch:
             "observation_capacity": self.observation_capacity,
             "trajectory_steps": self._trajectory_steps.tolist(),
             "events": [[[int(token) for token in event] for event in seat_events] for seat_events in self._events],
+            "context_schedule": [dict(row) for row in self._context_schedule],
+            "context_offset": int(self._context_offset),
+            "context_deal_counter": int(self._context_deal_counter),
             "envs": [json.loads(env.serialize()) for env in self._envs],
         }
         return json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
@@ -648,6 +700,16 @@ class EnvBatch:
         if steps.shape != (len(envs),) or bool(np.any(steps < 0)):
             raise ProtocolError("serialized trajectory counters are invalid")
         result._events, result._trajectory_steps = events, steps
+        schedule = tuple(dict(row) for row in data.get("context_schedule", []))
+        offset = int(data.get("context_offset", 0))
+        counter = int(data.get("context_deal_counter", 0))
+        if schedule and (offset < 0 or counter < 0):
+            raise ProtocolError("serialized context offset/counter is invalid")
+        if not schedule and (offset != 0 or counter != 0):
+            raise ProtocolError("serialized context offset/counter requires a context schedule")
+        result._context_schedule = schedule
+        result._context_offset = offset if schedule else 0
+        result._context_deal_counter = counter if schedule else 0
         result._is_reset.fill(True)
         result._build_output(result._envs, result._events)
         return result

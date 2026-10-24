@@ -1,0 +1,795 @@
+{
+  "created_at": "2026-10-18T00:00:00+00:00",
+  "generated_outputs": {
+    "macro_probe": {
+      "path": "../../runs/marvel_v14_phase1/macro_probe.json"
+    },
+    "manifest": {
+      "path": "phase1_baseline_manifest.json"
+    },
+    "note": "all paths are relative to this manifest's directory; output sha256 values are recorded by the external build result; the manifest never embeds its own, the report's or the result's hash",
+    "probe_inputs": {
+      "path": "../../runs/marvel_v14_phase1/probe_inputs.pt"
+    },
+    "probe_outputs": {
+      "path": "../../runs/marvel_v14_phase1/probe_outputs.pt"
+    },
+    "report": {
+      "path": "phase1_baseline_report.md"
+    },
+    "result": {
+      "path": "../../runs/marvel_v14_phase1/baseline_build_result.json"
+    }
+  },
+  "hash": "38704bb57238950e79f362f94790519467dda21c8300821a1e954fb0be8a007a",
+  "official_strict_load": {
+    "error": "checkpoint C++ backend/build identity mismatch",
+    "error_type": "ValueError",
+    "note": "official strict loader is intentionally NOT weakened; legacy checkpoint was built against a different native backend identity",
+    "official_strict_load": false,
+    "status": "rejected"
+  },
+  "probe": {
+    "checkpoint_state_dict_sha256": "b7c5954ba6383ddf55df6611fdd4513c2ab59ae2f387a9e2dcd49fe064acf39a",
+    "diagnostic_only": true,
+    "inputs_path": "../../runs/marvel_v14_phase1/probe_inputs.pt",
+    "inputs_sha256": "0f5f10aed4b6a5ea1725b0785eb53b6e52fca474de91c80797e7eac292b9f78e",
+    "macro_probe": {
+      "games": [
+        {
+          "diagnostics": {
+            "macro/commit_count": 47,
+            "macro/commit_step_match": 1,
+            "macro/committed_count": 127,
+            "macro/count": 127,
+            "macro/count_by_player/0": 35,
+            "macro/count_by_player/1": 35,
+            "macro/count_by_player/2": 34,
+            "macro/count_by_player/3": 23,
+            "macro/count_mean_per_trajectory": 127.0,
+            "macro/engine_committed_steps": 127,
+            "macro/incomplete_count": 0,
+            "macro/length_max": 10,
+            "macro/length_mean": 2.4409449100494385,
+            "macro/length_p50": 1.0,
+            "macro/length_p95": 9.0,
+            "macro/old_logprob_mean": null,
+            "macro/pass_count": 80,
+            "macro/player_switch_violation_count": 0,
+            "macro/schema": "guandan-marvel-macro-segmentation-v1",
+            "macro/tau_max": 30,
+            "macro/tau_mean": 9.040650367736816,
+            "macro/tau_p50": 8.0,
+            "macro/tau_p95": 20.0
+          },
+          "engine_committed_steps": 127,
+          "finish_token_step": 310,
+          "outcome_class": "DOUBLE_DOWN",
+          "seed": 90001,
+          "token_steps": 310
+        },
+        {
+          "diagnostics": {
+            "macro/commit_count": 48,
+            "macro/commit_step_match": 1,
+            "macro/committed_count": 132,
+            "macro/count": 132,
+            "macro/count_by_player/0": 33,
+            "macro/count_by_player/1": 33,
+            "macro/count_by_player/2": 33,
+            "macro/count_by_player/3": 33,
+            "macro/count_mean_per_trajectory": 132.0,
+            "macro/engine_committed_steps": 132,
+            "macro/incomplete_count": 0,
+            "macro/length_max": 10,
+            "macro/length_mean": 2.4242424964904785,
+            "macro/length_p50": 1.0,
+            "macro/length_p95": 9.0,
+            "macro/old_logprob_mean": null,
+            "macro/pass_count": 84,
+            "macro/player_switch_violation_count": 0,
+            "macro/schema": "guandan-marvel-macro-segmentation-v1",
+            "macro/tau_max": 28,
+            "macro/tau_mean": 9.40625,
+            "macro/tau_p50": 8.0,
+            "macro/tau_p95": 19.650001525878906
+          },
+          "engine_committed_steps": 132,
+          "finish_token_step": 320,
+          "outcome_class": "DOUBLE_DOWN",
+          "seed": 97920,
+          "token_steps": 320
+        },
+        {
+          "diagnostics": {
+            "macro/commit_count": 57,
+            "macro/commit_step_match": 1,
+            "macro/committed_count": 151,
+            "macro/count": 151,
+            "macro/count_by_player/0": 38,
+            "macro/count_by_player/1": 38,
+            "macro/count_by_player/2": 38,
+            "macro/count_by_player/3": 37,
+            "macro/count_mean_per_trajectory": 151.0,
+            "macro/engine_committed_steps": 151,
+            "macro/incomplete_count": 0,
+            "macro/length_max": 9,
+            "macro/length_mean": 2.298013210296631,
+            "macro/length_p50": 1.0,
+            "macro/length_p95": 7.5,
+            "macro/old_logprob_mean": null,
+            "macro/pass_count": 94,
+            "macro/player_switch_violation_count": 0,
+            "macro/schema": "guandan-marvel-macro-segmentation-v1",
+            "macro/tau_max": 22,
+            "macro/tau_mean": 9.020408630371094,
+            "macro/tau_p50": 8.0,
+            "macro/tau_p95": 19.699996948242188
+          },
+          "engine_committed_steps": 151,
+          "finish_token_step": 347,
+          "outcome_class": "DOUBLE_DOWN",
+          "seed": 105839,
+          "token_steps": 347
+        },
+        {
+          "diagnostics": {
+            "macro/commit_count": 57,
+            "macro/commit_step_match": 1,
+            "macro/committed_count": 141,
+            "macro/count": 141,
+            "macro/count_by_player/0": 37,
+            "macro/count_by_player/1": 30,
+            "macro/count_by_player/2": 37,
+            "macro/count_by_player/3": 37,
+            "macro/count_mean_per_trajectory": 141.0,
+            "macro/engine_committed_steps": 141,
+            "macro/incomplete_count": 0,
+            "macro/length_max": 10,
+            "macro/length_mean": 2.3758864402770996,
+            "macro/length_p50": 1.0,
+            "macro/length_p95": 8.0,
+            "macro/old_logprob_mean": null,
+            "macro/pass_count": 84,
+            "macro/player_switch_violation_count": 0,
+            "macro/schema": "guandan-marvel-macro-segmentation-v1",
+            "macro/tau_max": 21,
+            "macro/tau_mean": 9.226277351379395,
+            "macro/tau_p50": 8.0,
+            "macro/tau_p95": 16.399993896484375
+          },
+          "engine_committed_steps": 141,
+          "finish_token_step": 335,
+          "outcome_class": "DOUBLE_DOWN",
+          "seed": 113758,
+          "token_steps": 335
+        }
+      ],
+      "schema": "guandan-marvel-macro-probe-v1"
+    },
+    "macro_probe_path": "../../runs/marvel_v14_phase1/macro_probe.json",
+    "macro_probe_sha256": "1ab6c8aa4650d3348259dae7a9e704ecd6359bc227d84b972df85fd76dcbea71",
+    "model_output_content_sha256": "d9812f4e9e6289f9b15ed02ec40a7be511cbf77943a7c390a50b33ac4df6d06b",
+    "outputs_path": "../../runs/marvel_v14_phase1/probe_outputs.pt",
+    "outputs_sha256": "9a153eef13e6d5f7cd557ec04727487cbfe13c30fc815a740a774add1f740a0b",
+    "parameter_counts": {
+      "by_module": {
+        "action_mlp": 459776,
+        "action_tokens_embed": 81920,
+        "decoder": 722560,
+        "logit_head": 257,
+        "state_mlp": 754944,
+        "state_player_embed": 640,
+        "state_tokens_embed": 40960,
+        "value_head": 257
+      },
+      "total": 2061314
+    },
+    "status": "written"
+  },
+  "schema": "guandan-marvel-v14-phase1-baseline-manifest-v2",
+  "snapshot_inputs": {
+    "checkpoint": {
+      "agent_state_dict_key_count": 78,
+      "algorithm": "ippo",
+      "architecture": "v1.3",
+      "backend": "cpp",
+      "bytes": 8588181,
+      "checkpoint_backend_identity_hash": "5b8b7300f8bb32f0892959990ff9414dce67b51bd371e1063a8d9e78894c30de",
+      "checkpoint_backend_identity_implementation": {
+        "compiler": "13.3.0",
+        "cxx_standard": 202002,
+        "embedded_source_sha256": "2c5a26c8ca8b645f22caa40f2ec25c7bf94555d83e06d4d6fb4bc843cb275b60",
+        "extension_path": "/kaggle/working/guandan-marvel-source/nanopokerlib/_guandan_cpp.cpython-313-x86_64-linux-gnu.so",
+        "extension_sha256": "5b9a1fd71361c27cdecafe8d6612165e8cfbdddd948b47679cfb6956f6e17a83",
+        "python_version": "3.13.15",
+        "source_matches_loaded_binary": true
+      },
+      "frozen_candidate_manifest": {
+        "candidate_checkpoint_sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8",
+        "candidate_iteration": 2000,
+        "frozen_at": "2026-10-15T12:31:02.213427+00:00",
+        "path": "docs/marvel_migration/evidence/M09_unified_segment2000/final_candidate_freeze.json",
+        "sha256": "0b9ad9eb1ba6d5567ede40a1afe3f9b99a8e3d365f53e82fea2ad0d24e82a75f"
+      },
+      "iteration": 2000,
+      "matches_frozen_candidate_sha256": true,
+      "merged_policy": {
+        "beta": 0.0,
+        "identity": "current_policy_copy",
+        "not_smoothed_when_beta_zero": true
+      },
+      "mtime": "2026-10-16T01:39:35.647091+00:00",
+      "path": "runs/comparison_delivery/dataset/m09_candidate_iter002000.pt",
+      "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL",
+      "resolved_config": {
+        "agent_merging_beta": 0.0,
+        "algo_name": "ippo",
+        "amp_enabled": false,
+        "checkpoint_interval": 25,
+        "checkpoint_replay_buffer": true,
+        "collect_batch_size": 4,
+        "compile": {
+          "backend": "inductor",
+          "dynamic_shapes": false,
+          "enabled": false
+        },
+        "ddp": {
+          "backend": "nccl",
+          "enabled": true,
+          "find_unused_parameters": false,
+          "require_cuda": true
+        },
+        "debug": true,
+        "deterministic": false,
+        "deterministic_disable_tf32": false,
+        "device": "cuda",
+        "discount_gamma": 1.0,
+        "environment_rank_seed_stride": 1000003,
+        "evaluation_interval": 0,
+        "game": {
+          "identifier": "GuandanMARVELV2Cpp",
+          "max_action_tokens": 8,
+          "max_available_actions": 256,
+          "max_game_horizon": 4096,
+          "max_observation_tokens": 48,
+          "num_channels": 512,
+          "num_players": 4,
+          "num_tokens": 320,
+          "pad_token": 0,
+          "protocol_version": "GD-ACTION-0.2-MARVEL|GD-ENV-0.2-MARVEL|GD-ENCODING-0.2-MARVEL"
+        },
+        "logging_dir": "/kaggle/working/guandan-marvel-unified-output/runtime/segment2000/training_work/guandan-marvel-output/runs/20261015T090344Z-unified_segment2000-ef322cf8/ranks/rank000/rank-runtime",
+        "lr_stable_iterations": 500,
+        "max_sampler_bytes_per_rank": 4294967296,
+        "mini_batches": 2,
+        "model": {
+          "action_layers": 2,
+          "architecture": "v1.3",
+          "decoder_heads": 4,
+          "decoder_layers": 4,
+          "feature_dim": 256,
+          "ffn_ratio": 2,
+          "fuse_layers": 2,
+          "history_dim": 128,
+          "state_layers": 3
+        },
+        "optimizer": {
+          "adam_beta1": 0.9,
+          "adam_beta2": 0.999,
+          "grad_max_norm": 1.0,
+          "muon_beta1": 0.95,
+          "use_muon": false,
+          "weight_decay": 0.01
+        },
+        "param_stats_interval": 1,
+        "ppo": {
+          "agent_epoch": 4,
+          "base_clip_coef": 0.02,
+          "base_lr": 0.0004,
+          "base_reg_coef": 0.1,
+          "gae_lambda": 0.95
+        },
+        "project_name": "guandan-marvel",
+        "reg_stable_iterations": 500,
+        "replay_buffer_scale": 8,
+        "resume_from": "validated-ddp-recovery",
+        "resume_optimizer": true,
+        "rollout_batch_size": 4,
+        "run_name": "m07-resume-ippo",
+        "schedule": {
+          "agent_lr_decay_power": 1.0,
+          "clip_coef_decay_power": 1.0,
+          "critic_lr_decay_power": 0.5,
+          "reg_coef_decay_power": 0.5
+        },
+        "schema": "guandan-marvel-core-config-v1",
+        "seed": 470700,
+        "total_iterations": 2000,
+        "training_data_domain": "training",
+        "training_data_generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+        "training_data_manifest_hash": "88c2c4119f9533d1469e4136b9d5b5aeba6c822d075e221b260be04f43f04b56",
+        "value_loss_coef": 0.5,
+        "vrpo": {
+          "aux_epoch": 4,
+          "base_lr": 0.0004,
+          "gae_lambda": 0.95,
+          "replay_buffer_device": "cpu"
+        }
+      },
+      "resolved_config_hash_declared": "9dc92b6910ca900038724df31829377ab64e52ed615c89c6fc1d4ff0aaedc1bb",
+      "resolved_config_hash_recomputed": "9dc92b6910ca900038724df31829377ab64e52ed615c89c6fc1d4ff0aaedc1bb",
+      "resolved_config_matches": true,
+      "resolved_path": "D:\\project\\guandan\\runs\\comparison_delivery\\dataset\\m09_candidate_iter002000.pt",
+      "schema": "guandan-marvel-evaluation-checkpoint-v1",
+      "sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8",
+      "source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+      "source_parent_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+      "training_data_provenance": {
+        "complete": true,
+        "deal_count": 4002,
+        "domain": "training",
+        "hash": "91abe868339cbbb33f303ec372e03ca517a2bf35d4028ba1a1a2b59a279b2dca",
+        "schema": "guandan-marvel-training-data-provenance-v1"
+      },
+      "warm_start_identity": {
+        "bootcamp_warm_start_path": "runs/bootcamp_week1_delivery/datasets/session1_start/warm_start_policy.pt",
+        "bootcamp_warm_start_sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8",
+        "checkpoint_merged_policy": {
+          "beta": 0.0,
+          "identity": "current_policy_copy",
+          "not_smoothed_when_beta_zero": true
+        },
+        "checkpoint_source_hash": "fa171a4ccc376d56b8a2a972de2d7958dcce535b4ef8ab7c6f81b8d0ba120a53",
+        "checkpoint_source_parent_commit": "e5c82e7c27fb366800e9722c9e8e4720df7db01f",
+        "identical_to_checkpoint": true,
+        "resume_classification": "evaluation_only"
+      }
+    },
+    "delivery": {
+      "files": [
+        {
+          "bytes": 754929,
+          "exists": true,
+          "path": "runs/bootcamp_week1_delivery/datasets/session1_start/guandan-marvel-source.zip",
+          "sha256": "691d2633d84f95800412a162a340c903539202c520b7eecb2c409f13f92f3f1f"
+        },
+        {
+          "bytes": 3418,
+          "exists": true,
+          "path": "runs/bootcamp_week1_delivery/datasets/session1_start/marvel_bootcamp_week1_plan.json",
+          "sha256": "5602240e44b8c3ca40e25e198b70510c1c7b1094ac036112415cf95501c16952"
+        },
+        {
+          "bytes": 8588181,
+          "exists": true,
+          "path": "runs/bootcamp_week1_delivery/datasets/session1_start/warm_start_policy.pt",
+          "sha256": "af0df1eaeb67c88e467ee78bf6b0494c49d000f5733d655ee81b40351d4ca9c8"
+        },
+        {
+          "bytes": 7602,
+          "exists": true,
+          "path": "runs/bootcamp_week1_delivery/delivery_manifest.json",
+          "sha256": "dd8fc1c4490370b763f9a84156528cf76687ad6d0d999f8d11f866df5a5ab00e"
+        },
+        {
+          "bytes": 670971,
+          "exists": true,
+          "path": "runs/comparison_delivery/dataset/guandan-marvel-source.zip",
+          "sha256": "1a1ddf71642624d66524ff9b7696817dd8830ba29e6eb42f24c76bbd827f6b12"
+        },
+        {
+          "bytes": 8317,
+          "exists": true,
+          "path": "runs/comparison_delivery/dataset/comparison_control.json",
+          "sha256": "dec919fb176b191d2ec59ed5c61d11fb53da6c8fe74b4cf93a65ec3c2c89dd67"
+        },
+        {
+          "bytes": 8316529,
+          "exists": true,
+          "path": "runs/comparison_delivery/dataset/m09_champion_iter000100.pt",
+          "sha256": "b00a2c178e8b3e99d80418ae283a785285639b8172a0d96232beef7233b9d41c"
+        },
+        {
+          "bytes": 1080,
+          "exists": true,
+          "path": "runs/comparison_delivery/delivery_manifest.json",
+          "sha256": "676afbb41a9ea031f6ee9d6223649c95dba215c77ab8bf10a0e92f8c381251ee"
+        },
+        {
+          "bytes": 5627,
+          "exists": true,
+          "path": "configs/marvel_m09_full_plan.json",
+          "sha256": "163fc07b4415bb39253c8639d2a02d0147c2a8993ffdcc9d32465afdc613031b"
+        },
+        {
+          "bytes": 4869,
+          "exists": true,
+          "path": "configs/marvel_m09_main_training_plan.json",
+          "sha256": "04e4e9ee332481829b9d2d8c6fe510f3fdc4d444c44ad7ba5ee5dd30fa426c22"
+        },
+        {
+          "bytes": 1998,
+          "exists": true,
+          "path": "configs/marvel_m09_two_stage_continuation_plan.json",
+          "sha256": "d21e3b4f552ed9c7ce37a831bd7f27108e6029104d778dfe3e2710edf6cbf697"
+        }
+      ],
+      "manifests": {
+        "runs/bootcamp_week1_delivery/delivery_manifest.json": {
+          "declared_hash": null,
+          "hash_matches": false,
+          "recomputed_hash": "c15c5f192728a52e290693c5e348b5746cd9eb80cc2c069a4da41611e192f4f4"
+        },
+        "runs/comparison_delivery/delivery_manifest.json": {
+          "declared_hash": "80fb1f8d972eb87538551083e0a3a5cd1ca1388c39d2fc70f706f1854083aff6",
+          "hash_matches": true,
+          "recomputed_hash": "80fb1f8d972eb87538551083e0a3a5cd1ca1388c39d2fc70f706f1854083aff6"
+        }
+      }
+    },
+    "environment": {
+      "cpp_backend_identity_hash": "09907f0527c89ba4773b0d8cb0630ec0435ec4898015407c1d2f87fde09e33ec",
+      "cpp_backend_identity_trimmed": {
+        "compiler": "11.2.0",
+        "cxx_standard": 202002,
+        "embedded_source_sha256": "66c6621dd4cd6c48521d2588e9a55e487b926206b1776e837d04625dcdb0305c",
+        "extension_filename": "_guandan_cpp.cp312-win_amd64.pyd",
+        "extension_module": "nanopokerlib._guandan_cpp",
+        "extension_path": "D:\\project\\guandan\\nanopokerlib\\_guandan_cpp.cp312-win_amd64.pyd",
+        "extension_sha256": "927a06c837bbf110a23369c3fe2a5693316f9cb966a9e0ff0c5870b606e93930",
+        "python_cache_tag": "cpython-312",
+        "python_implementation": "CPython",
+        "python_version": "3.12.0",
+        "schema": "guandan-native-build-identity-v1",
+        "source_matches_loaded_binary": true
+      },
+      "cpp_source_manifest": {
+        "files": [
+          {
+            "bytes": 54904,
+            "path": "nanopokerlib/cpp/bindings.cpp",
+            "sha256": "1cde37e96cb2768c58bd707a39015501a869f31ba795986789b2585a84e8bd96"
+          },
+          {
+            "bytes": 1335,
+            "path": "nanopokerlib/cpp/core/types.hpp",
+            "sha256": "22d1c11274f4da56175bc3859e2e89731ce0e03e7640071ebbca66da566d51da"
+          },
+          {
+            "bytes": 84623,
+            "path": "nanopokerlib/cpp/guandan/guandan.cpp",
+            "sha256": "f76dc6ef216c560b889aa662c5bcebb0cbe7a3e3b7e49a3ec24dd1989147a14c"
+          },
+          {
+            "bytes": 10600,
+            "path": "nanopokerlib/cpp/guandan/guandan.hpp",
+            "sha256": "7501b4af2ef02053324b64868cbf368383be3f3548d944b35efa6aa2371f1ccd"
+          }
+        ],
+        "hash": "66c6621dd4cd6c48521d2588e9a55e487b926206b1776e837d04625dcdb0305c",
+        "schema": "guandan-native-build-identity-v1"
+      },
+      "cpp_source_manifest_hash": "66c6621dd4cd6c48521d2588e9a55e487b926206b1776e837d04625dcdb0305c",
+      "embedded_source_sha256": "66c6621dd4cd6c48521d2588e9a55e487b926206b1776e837d04625dcdb0305c",
+      "extension_bytes": 3919004,
+      "extension_path": "D:\\project\\guandan\\nanopokerlib\\_guandan_cpp.cp312-win_amd64.pyd",
+      "extension_sha256": "927a06c837bbf110a23369c3fe2a5693316f9cb966a9e0ff0c5870b606e93930",
+      "numpy_version": "2.3.5",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "python_implementation": "CPython",
+      "python_version": "3.12.0",
+      "source_matches_loaded_binary": true,
+      "strict_build_backend_identity_error": null,
+      "strict_build_backend_identity_hash": "538476e420e48081a9fd3bd580d4906f8e2cf42923d4180edc3a5dc721cf439b",
+      "torch_version": "2.13.0+cpu"
+    },
+    "git": {
+      "branch": "codex/marvel-guandan-migration",
+      "commit": "fa4a7af3227dd8d76663bd9cf2b0e3a659d70373",
+      "dirty": true,
+      "status_porcelain": [
+        " M guandan_marvel/config.py",
+        " M guandan_marvel/evaluation/checkpoints.py",
+        " M guandan_marvel/kaggle/checkpoints.py",
+        " M guandan_marvel/kaggle/profiles.py",
+        " M guandan_marvel/kaggle/worker.py",
+        " M guandan_marvel/model/agent.py",
+        " M guandan_marvel/model/types.py",
+        " M guandan_marvel/training/local.py",
+        " M guandan_marvel/training/losses.py",
+        " M tests/unit/test_two_stage_training.py",
+        "?? .opencode/",
+        "?? .workbuddy/",
+        "?? docs/bootcamp_week1_training_flow.md",
+        "?? docs/marvel_v14/",
+        "?? docs/marvel_v14_plan_verification.md",
+        "?? docs/marvel_v14_prompts/",
+        "?? guance_phase2_declaration_handoff/",
+        "?? guandan_marvel/comparison/",
+        "?? guandan_marvel/kaggle/bootcamp_delivery.py",
+        "?? guandan_marvel/training/legacy_gae.py",
+        "?? guandan_marvel/training/macro_actions.py",
+        "?? opencode.jsonc",
+        "?? scripts/build_bootcamp_week1_delivery.py",
+        "?? scripts/build_m09_fabledan_comparison_delivery.py",
+        "?? scripts/build_marvel_v14_phase1_baseline.py",
+        "?? scripts/compare_run_worker.py",
+        "?? scripts/compare_summarize.py",
+        "?? scripts/compare_validate_adapter.py",
+        "?? scripts/verify_marvel_v14_math.py",
+        "?? tests/acceptance/test_guance_declaration_handoff.py",
+        "?? tests/marvel_training/test_macro_actions.py",
+        "?? tests/marvel_training/test_macro_actions_cpp_env.py",
+        "?? tests/marvel_training/test_macro_actions_padding_fuzz.py",
+        "?? tests/marvel_training/test_marvel_v14_phase1_baseline.py",
+        "?? tests/unit/test_comparison_context.py",
+        "?? tests/unit/test_comparison_paired_integrity.py",
+        "?? tests/unit/test_comparison_pipeline.py",
+        "?? tests/unit/test_ntp_aux.py",
+        "?? tools/"
+      ],
+      "tracked_diff_bytes": 36093,
+      "tracked_diff_sha256": "f670a8dc68b253e72059e6c3e95c34fb130bced33b250d98467152c4e6cfd555",
+      "untracked_file_count": 53,
+      "untracked_source_files": [
+        {
+          "bytes": 1034,
+          "path": ".opencode/README.md",
+          "sha256": "3219f707b838fd0a82b15dfeed8703b0d1094ce9b3b9d20b3c869caed17b0662"
+        },
+        {
+          "bytes": 2546,
+          "path": ".opencode/agents/implementer.md",
+          "sha256": "77c6060f8e0319f426ca56f91f421727bac8ceb33017b9115429aa85cdbbe7df"
+        },
+        {
+          "bytes": 3491,
+          "path": ".opencode/agents/orchestrator.md",
+          "sha256": "e9f3e2d47c8bcedab5fa3c815478b5d0c9775258220f20e610b0b012ab3c92a5"
+        },
+        {
+          "bytes": 3373,
+          "path": ".opencode/agents/reviewer.md",
+          "sha256": "f43a98226720f1fa9c6d6e7e61c555bb863a0d8c5ecc2e1f6dcd0aec58e89ebe"
+        },
+        {
+          "bytes": 836,
+          "path": ".opencode/commands/agent-smoke.md",
+          "sha256": "ac37d706ad5b13029c4aecbe1da2ff4b632bf3e612d9d3abbbb32501f3eb7d79"
+        },
+        {
+          "bytes": 748,
+          "path": ".opencode/commands/phase.md",
+          "sha256": "1fce526c1af426e43a1bc2989796a26456d474a2ab63971b231c4996323d188b"
+        },
+        {
+          "bytes": 10370,
+          "path": ".workbuddy/memory/2026-10-16.md",
+          "sha256": "ca977347969083ec8bce0fe1f99c0f89ea7c6afeb868cd6a65797a6f22f43218"
+        },
+        {
+          "bytes": 4785,
+          "path": ".workbuddy/memory/2026-10-17.md",
+          "sha256": "111140d95df8c8c1fa835d412e40f6ad5d97da1cc424233d46bea7fdc2bdfd9b"
+        },
+        {
+          "bytes": 33972,
+          "path": "docs/bootcamp_week1_training_flow.md",
+          "sha256": "1c14bea4c02cef291ce5ef685f7e63f05391f8ffd45afa6d3d77d343426e7f3f"
+        },
+        {
+          "bytes": 39230,
+          "path": "docs/marvel_v14_plan_verification.md",
+          "sha256": "32a48e1f61ef7de008de558a43385f7d4d3b435491369a5b294b82ec56ad802c"
+        },
+        {
+          "bytes": 13113,
+          "path": "docs/marvel_v14_prompts/01A_phase1_repair.md",
+          "sha256": "2362f4581791abb5a6c30b0b9d71fafa134ec60da02319a49a0f98128b20d33f"
+        },
+        {
+          "bytes": 6963,
+          "path": "docs/marvel_v14_prompts/01_baseline_and_macro_infrastructure.md",
+          "sha256": "16ce0a20bfb52de4683c76c3155a1efb4bdfd07dd86af22d7a7058f193a84ea6"
+        },
+        {
+          "bytes": 34183,
+          "path": "docs/marvel_v14_prompts/02_macro_sequence_ppo_and_gae.md",
+          "sha256": "665ec6ccf64fa2e9cdd749f0174ad6796909675124e1998c0265fa1451c2b8a2"
+        },
+        {
+          "bytes": 5174,
+          "path": "docs/marvel_v14_prompts/03_actor_fuse_amp_checkpoint.md",
+          "sha256": "da5c0f6a7a9e5c1ad2708567ab95db0e4f83e29bb847d74e6c5e518dbe3e06e9"
+        },
+        {
+          "bytes": 5062,
+          "path": "docs/marvel_v14_prompts/04_reward_context_delivery.md",
+          "sha256": "7640840ee34337aa0e7c529d5fd661e248a56bcfa9a44058a34444d444075050"
+        },
+        {
+          "bytes": 3720,
+          "path": "docs/marvel_v14_prompts/05_symmetry_and_belief_conditional.md",
+          "sha256": "d251e439d6fb09871a73c5bd18c94c7b71d5e73dcc2f3f13689b164e1b8c4560"
+        },
+        {
+          "bytes": 4581,
+          "path": "docs/marvel_v14_prompts/06_opponent_pool_search_final_conditional.md",
+          "sha256": "0b3ef1e9b877a2d18e4bd9cfac4e92089248a5d370f24e59323aa90726130f25"
+        },
+        {
+          "bytes": 2768,
+          "path": "docs/marvel_v14_prompts/README.md",
+          "sha256": "30b0a3143bc7793d3b6535a0f89f1bf25ef29308aca7b01a63bcb95ed4df847f"
+        },
+        {
+          "bytes": 1464421,
+          "path": "guance_phase2_declaration_handoff/guandan_declaration_golden_vectors_v1.json",
+          "sha256": "e183a6e4a9cbf01dffe424d4054ebab433f6107704680eab6e783607c812c7ae"
+        },
+        {
+          "bytes": 721778,
+          "path": "guance_phase2_declaration_handoff/guandan_declaration_rules_v1.json",
+          "sha256": "29772a3ab8a61d9f603e8d57f2432abdec6f5e591927b94a7beb87fc74a77287"
+        },
+        {
+          "bytes": 8235,
+          "path": "guance_phase2_declaration_handoff/guandan_declaration_rules_v1.md",
+          "sha256": "5b88c995799ab8b7609b741615038725e4dd6d0e2c26bf8dd2a805cf0a351804"
+        },
+        {
+          "bytes": 169,
+          "path": "guandan_marvel/comparison/__init__.py",
+          "sha256": "7fc265f086f47f1f3f56b15e2f3a3c30732936d275a8508e0ae5c0ccabe35070"
+        },
+        {
+          "bytes": 2475,
+          "path": "guandan_marvel/comparison/cards_map.py",
+          "sha256": "247e3fbddaa64fc1b2d22b31a18e8f2cd829d282aca734ce31ada71834aae662"
+        },
+        {
+          "bytes": 10269,
+          "path": "guandan_marvel/comparison/driver.py",
+          "sha256": "06f8655f8df4127d885f0b8cc17d8f3b343ec161789552ea88310f4dc504dabd"
+        },
+        {
+          "bytes": 12329,
+          "path": "guandan_marvel/comparison/fabledan_guest.py",
+          "sha256": "8c6de977f62a26b38cf3872daf2a23fa069f1f1158427481278d412301220b1d"
+        },
+        {
+          "bytes": 7231,
+          "path": "guandan_marvel/comparison/loader.py",
+          "sha256": "4c37b27532748348cd150097b2d9065192abadf9da5bc357caec0b4b42ba88df"
+        },
+        {
+          "bytes": 5279,
+          "path": "guandan_marvel/comparison/plan.py",
+          "sha256": "07f18f5d71525de40ec346af35ef7cc0a1b5461d00331382298f2ff526546474"
+        },
+        {
+          "bytes": 10059,
+          "path": "guandan_marvel/comparison/runner.py",
+          "sha256": "79ea42c7087d65b4ac3de1f4890903dd0c2b8c3781f265e79cffbf7c561d6f66"
+        },
+        {
+          "bytes": 22221,
+          "path": "guandan_marvel/comparison/stats.py",
+          "sha256": "f949e1c689ee5fb9b003849dad72608ceab675fb5767d8d955772fa713917803"
+        },
+        {
+          "bytes": 5406,
+          "path": "guandan_marvel/comparison/summarize.py",
+          "sha256": "e3ea9b78672c7ec9c94960effb42b33d795909485b60bf509587e5099949944a"
+        },
+        {
+          "bytes": 8087,
+          "path": "guandan_marvel/comparison/validate.py",
+          "sha256": "73f470bf3c2a9afcbac5233896adcb5a06ef170f9b65dc399a67216d26141d34"
+        },
+        {
+          "bytes": 23522,
+          "path": "guandan_marvel/kaggle/bootcamp_delivery.py",
+          "sha256": "4c945f9e7a7d584abbaf017fddd27d271654ac5055853cca95b8ea1553f5320c"
+        },
+        {
+          "bytes": 10570,
+          "path": "guandan_marvel/training/legacy_gae.py",
+          "sha256": "4232091e71cc2049a3792cc2f5c4b97dc9212b0a63fb04a803c5beedea7f0d18"
+        },
+        {
+          "bytes": 24781,
+          "path": "guandan_marvel/training/macro_actions.py",
+          "sha256": "c9da777965a6df049fd8f7135de5823353aca4d928964fb2e83040e21d4fd543"
+        },
+        {
+          "bytes": 1691,
+          "path": "scripts/build_bootcamp_week1_delivery.py",
+          "sha256": "8ff679cc7e948606944fb264abdf6c7db330a69dbad10377eadae86513dbc5b1"
+        },
+        {
+          "bytes": 24445,
+          "path": "scripts/build_m09_fabledan_comparison_delivery.py",
+          "sha256": "243c972b36dfcae8d08e5e694820aacfc099163ab11ee25884704733da23a3da"
+        },
+        {
+          "bytes": 37146,
+          "path": "scripts/build_marvel_v14_phase1_baseline.py",
+          "sha256": "450d6024a0f4a28d810e992bc373d5d067a7ba278cb86f006fbe06c4c3e1ab5a"
+        },
+        {
+          "bytes": 522,
+          "path": "scripts/compare_run_worker.py",
+          "sha256": "f1a907cfc78990da81ddcb2033a0bd8b7708f73015ffcedfaab43edb247ef0eb"
+        },
+        {
+          "bytes": 521,
+          "path": "scripts/compare_summarize.py",
+          "sha256": "de92ab030eea102f59368b99abc68e42a8307b5546519f091d597db5f614cb08"
+        },
+        {
+          "bytes": 527,
+          "path": "scripts/compare_validate_adapter.py",
+          "sha256": "1ac03a32a29aaf4bdf4ee072b6961b8f206fd300d4693f418dd63a5e28365026"
+        },
+        {
+          "bytes": 26168,
+          "path": "scripts/verify_marvel_v14_math.py",
+          "sha256": "687520ff1f29f51a1f431999af3ea676d72b3b787c90e3a34815ba0f1158a5fe"
+        },
+        {
+          "bytes": 14494,
+          "path": "tests/acceptance/test_guance_declaration_handoff.py",
+          "sha256": "0d9715e78cc88fbf141a37191a47ac174a148d92050c3ef9860cb60c2358b55d"
+        },
+        {
+          "bytes": 42967,
+          "path": "tests/marvel_training/test_macro_actions.py",
+          "sha256": "f2349e60fdbd3ac63c7cfb4c4e56ed0865d6cb76c8416b621d177769692288b9"
+        },
+        {
+          "bytes": 7812,
+          "path": "tests/marvel_training/test_macro_actions_cpp_env.py",
+          "sha256": "83b0129dd0f8b4020492f9c4719e0ebf84df4efca93b4d7827d88658bbf4b35c"
+        },
+        {
+          "bytes": 9570,
+          "path": "tests/marvel_training/test_macro_actions_padding_fuzz.py",
+          "sha256": "94011f84be246848a5b661880785a002d24fe01d4cd46f44c20140321da801b8"
+        },
+        {
+          "bytes": 5335,
+          "path": "tests/marvel_training/test_marvel_v14_phase1_baseline.py",
+          "sha256": "2096a8254379178da6e8678b76d446787f953cbbf4b44efb331e3a299ba11c5c"
+        },
+        {
+          "bytes": 5187,
+          "path": "tests/unit/test_comparison_context.py",
+          "sha256": "e5e9b767f7999e02fdaec00ee256a21d2485adf69f480a0d4e09090490f53d2c"
+        },
+        {
+          "bytes": 7748,
+          "path": "tests/unit/test_comparison_paired_integrity.py",
+          "sha256": "76d57b2bfd07c9db0d770eb870cbaaefad61638ea9b7e198bae92751d6445424"
+        },
+        {
+          "bytes": 5308,
+          "path": "tests/unit/test_comparison_pipeline.py",
+          "sha256": "643655d5693b04ab5b2e00487ee78223faf7b11bae7c4a7fef8fcb7659c4995f"
+        },
+        {
+          "bytes": 13243,
+          "path": "tests/unit/test_ntp_aux.py",
+          "sha256": "fd3b32442295e5b902d9b4db453096c7e0e5fb76bac2b6796caf387b71248f13"
+        },
+        {
+          "bytes": 106688,
+          "path": "tools/export_guance_declaration_contract.py",
+          "sha256": "61cce080052ec4208fd86fac78e847b9a93fab88f9a7ae09a18d2d7ef05823d6"
+        }
+      ]
+    }
+  },
+  "snapshot_inputs_hash": "a47d92b3fa3b4037a8734ef9ab3843377074434b0b7e8ad2126a88b6b1467972"
+}

@@ -5,10 +5,14 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import json
+import math
 import os
 from pathlib import Path
+import shutil
 import time
-from typing import Mapping
+from typing import Mapping, Sequence
+
+import torch
 
 from guandan.cards import Rank
 from guandan_marvel.kaggle.bootstrap import validate_recovery_directory
@@ -35,6 +39,7 @@ from guandan_marvel.kaggle.profiles import (
 from guandan_marvel.kaggle.progress import LiveProgressHeartbeat
 from guandan_marvel.training.local import IPPOTrainer, VRPOTrainer
 from guandan_marvel.utils import configure_torch
+from guandan_marvel.kaggle.pilot_observability import PilotObserver
 
 
 def _timestamp() -> str:
@@ -42,6 +47,122 @@ def _timestamp() -> str:
 
 
 EVALUATION_RENDEZVOUS_SCHEMA = "guandan-marvel-ddp-evaluation-rendezvous-v1"
+PLATEAU_GATE_SCHEMA = "guandan-marvel-plateau-gate-v1"
+ANCHOR_HISTORY_SCHEMA = "guandan-marvel-anchor-history-v1"
+
+
+def _plateau_gate_config(profile: Mapping[str, object]) -> Mapping[str, object] | None:
+    value = profile.get("plateau_gate")
+    if value is None:
+        return None
+    if not isinstance(value, Mapping):
+        raise ValueError("plateau_gate must be an object")
+    if value.get("schema") != PLATEAU_GATE_SCHEMA:
+        raise ValueError("plateau_gate schema mismatch")
+    if not bool(value.get("enabled", True)):
+        return None
+    if int(value.get("min_evaluations", 3)) < 2:
+        raise ValueError("plateau_gate.min_evaluations must be >= 2")
+    if int(value.get("patience", 2)) < 1:
+        raise ValueError("plateau_gate.patience must be >= 1")
+    if float(value.get("min_delta", 0.01)) < 0.0:
+        raise ValueError("plateau_gate.min_delta must be non-negative")
+    metric = str(value.get("metric", "rule_win_rate"))
+    if not metric.endswith("_win_rate"):
+        raise ValueError("plateau_gate.metric must end with '_win_rate'")
+    if "stop_authority" in value:
+        raise ValueError("plateau gate is record-only; stop_authority is not supported")
+    return value
+
+
+def _anchor_win_rates(run_root: Path) -> dict[str, dict[str, float]]:
+    """Aggregate the latest bounded evaluation records per opponent."""
+    path = run_root / "evaluation_games.jsonl"
+    if not path.is_file():
+        return {}
+    totals: dict[str, dict[str, float]] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(row, Mapping) or row.get("status") != "complete":
+            continue
+        opponent = str(row.get("opponent_id", row.get("opponent_kind", "")) or "")
+        if not opponent:
+            continue
+        bucket = totals.setdefault(opponent, {"wins": 0.0, "games": 0.0})
+        bucket["games"] += 1.0
+        bucket["wins"] += float(bool(row.get("candidate_win")))
+    result: dict[str, dict[str, float]] = {}
+    for opponent, bucket in totals.items():
+        games = int(bucket["games"])
+        if games <= 0:
+            continue
+        result[opponent] = {
+            "wins": int(bucket["wins"]),
+            "games": games,
+            "win_rate": bucket["wins"] / games,
+        }
+    return result
+
+
+def _evaluate_plateau_gate(
+    run_root: Path, gate: Mapping[str, object], *, iteration: int,
+) -> tuple[bool, dict[str, object]]:
+    """Record the latest anchor win rates and report a stall as ``plateau_alert``.
+
+    The gate is permanently record-only: the returned boolean is the alert
+    (the legacy stall condition), never a stop order, and the worker never
+    terminates a session on it.  Sessions end only as ``complete`` or
+    ``budget_stopped``.
+    """
+    metric = str(gate.get("metric", "rule_win_rate"))
+    opponent = metric[: -len("_win_rate")]
+    rates = _anchor_win_rates(run_root)
+    history_path = run_root / "anchor_history.json"
+    payload: dict[str, object] = {}
+    if history_path.is_file():
+        try:
+            loaded = json.loads(history_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, Mapping) and loaded.get("schema") == ANCHOR_HISTORY_SCHEMA:
+                payload = dict(loaded)
+        except (OSError, json.JSONDecodeError):
+            payload = {}
+    entries = [dict(item) for item in payload.get("entries", []) if isinstance(item, Mapping)]
+    stale_count = int(payload.get("stale_count", 0))
+    alert = False
+    row = rates.get(opponent)
+    if row is not None and int(row["games"]) > 0:
+        value = float(row["win_rate"])
+        previous = [float(item["metric_value"]) for item in entries if item.get("metric") == metric]
+        best_before = max(previous) if previous else None
+        improved = best_before is None or value > best_before + float(gate.get("min_delta", 0.01))
+        stale_count = 0 if improved else stale_count + 1
+        entries.append({
+            "iteration": int(iteration),
+            "metric": metric,
+            "metric_value": value,
+            "win_rates": {name: item["win_rate"] for name, item in sorted(rates.items())},
+            "games": {name: int(item["games"]) for name, item in sorted(rates.items())},
+        })
+        alert = len(entries) >= int(gate.get("min_evaluations", 3)) and stale_count >= int(gate.get("patience", 2))
+    payload = {
+        "schema": ANCHOR_HISTORY_SCHEMA,
+        "metric": metric,
+        "min_delta": float(gate.get("min_delta", 0.01)),
+        "min_evaluations": int(gate.get("min_evaluations", 3)),
+        "patience": int(gate.get("patience", 2)),
+        "stale_count": stale_count,
+        "entries": entries,
+        "plateau_alert": bool(alert),
+        "updated_at": _timestamp(),
+    }
+    atomic_json(history_path, payload)
+    return bool(alert), payload
 
 
 def _publish_evaluation_rendezvous(
@@ -89,6 +210,107 @@ def _load_json(path: Path) -> dict[str, object]:
     return payload
 
 
+_MACRO_COUNT_SUM_SUFFIXES = ("/macro_count_local", "/token_count_local")
+_MACRO_TOKEN_WEIGHTED_SUFFIXES = ("/legacy_token_kl", "/token_value_loss", "/raw_entropy")
+
+
+def _macro_metric_weight_kind(key: str, row: Mapping[str, object]) -> str:
+    """Weighting unit of a macro metric key.
+
+    ``sum``
+        ``*/macro_count_local`` and ``*/token_count_local`` are counts: they add up
+        across ranks (the summed macro count equals ``macro_count_global``).
+    ``token``
+        token-unit diagnostics (legacy token KL, Profile B token value loss, raw
+        entropy) are weighted by ``token_count_local``; when that key is absent the
+        macro count is used as the documented fallback.
+    ``macro``
+        everything else (per-macro statistics and per-sample macro means) is
+        weighted by ``macro_count_local``.  ``value_loss`` is a token mean for the
+        sequence ablation and a macro-start mean for ``macro_decision_v1``, so the
+        row's ``macro/value_sample_unit`` discriminates those two cases.
+    """
+    if key.endswith(_MACRO_COUNT_SUM_SUFFIXES):
+        return "sum"
+    if key.endswith(_MACRO_TOKEN_WEIGHTED_SUFFIXES):
+        return "token"
+    if key.endswith("/value_loss") and str(row.get("macro/value_sample_unit", "")) == "token":
+        return "token"
+    return "macro"
+
+
+def _macro_metric_count_key(key: str, kind: str, row: Mapping[str, object]) -> str:
+    prefix = "macro_initial/" if key.startswith("macro_initial/") else "macro/"
+    if kind == "token":
+        token_key = f"{prefix}token_count_local"
+        raw = row.get(token_key)
+        if isinstance(raw, (int, float)) and not isinstance(raw, bool):
+            return token_key
+    return f"{prefix}macro_count_local"
+
+
+def _is_rank_consistent_macro_metric(key: str) -> bool:
+    """``*/adv_*_global`` metrics come from the all-reduce and are rank-identical."""
+    return (
+        key.startswith(("macro/", "macro_initial/"))
+        and "/adv_" in key
+        and key.endswith("_global")
+    )
+
+
+def _validate_macro_weight(key: str, count_key: str, raw: object) -> float:
+    if not isinstance(raw, (int, float)) or isinstance(raw, bool):
+        raise ValueError(
+            f"DDP macro metric {key!r} has no usable {count_key!r} weight on a rank; "
+            "refusing to silently drop that rank"
+        )
+    weight = float(raw)
+    if math.isnan(weight) or weight < 0.0:
+        raise ValueError(f"DDP macro metric {key!r} has an invalid weight {weight!r}")
+    return weight
+
+
+def _aggregate_macro_metric(key: str, rows: Sequence[Mapping[str, object]], values: list[float]) -> float:
+    """Sample-count-aware macro metric aggregate.
+
+    - ``*/adv_*_global`` keys are already global for every rank; their cross-rank
+      values are asserted identical (1e-9) and taken as-is.
+    - count keys (``*/macro_count_local``, ``*/token_count_local``) are summed.
+    - every other macro key is a per-sample statistic or per-sample mean; weighting
+      by the corresponding local count makes the aggregate equal the single-process
+      concatenated-batch reference.  Missing weights fail fast (a rank is never
+      silently dropped); an all-zero weight set falls back to the equal mean.
+    """
+    if _is_rank_consistent_macro_metric(key):
+        first = values[0]
+        for value in values[1:]:
+            if abs(value - first) > 1e-9:
+                raise ValueError(
+                    f"DDP macro global metric {key!r} differs across ranks: {values}"
+                )
+        return first
+    present = [
+        row for row in rows
+        if isinstance(row.get(key), (int, float)) and not isinstance(row.get(key), bool)
+    ]
+    kind = _macro_metric_weight_kind(key, present[0])
+    if kind == "sum":
+        total = 0.0
+        for row in present:
+            total += _validate_macro_weight(key, key, row.get(key))
+        return total
+    total_weight = 0.0
+    total_value = 0.0
+    for row in present:
+        count_key = _macro_metric_count_key(key, kind, row)
+        weight = _validate_macro_weight(key, count_key, row.get(count_key))
+        total_weight += weight
+        total_value += weight * float(row[key])
+    if total_weight <= 0.0:
+        return sum(float(row[key]) for row in present) / len(present)
+    return total_value / total_weight
+
+
 def _aggregate_metrics(context, local: Mapping[str, object]) -> dict[str, object]:
     rows = context.all_gather_object(dict(local))
     numeric_keys = sorted({key for row in rows for key, value in row.items() if isinstance(value, (int, float)) and not isinstance(value, bool)})
@@ -99,6 +321,7 @@ def _aggregate_metrics(context, local: Mapping[str, object]) -> dict[str, object
         "perf/env_steps_per_second", "perf/game_steps_per_second", "perf/completed_games_per_second",
     }
     maxima = {
+        "pilot/peak_allocated_bytes", "pilot/peak_reserved_bytes", "pilot/iteration_seconds",
         "statistics/iterations", "statistics/durable_updates", "statistics/learner_updates",
         "perf/rollout_seconds", "perf/learner_seconds", "perf/evaluation_seconds",
     }
@@ -111,6 +334,8 @@ def _aggregate_metrics(context, local: Mapping[str, object]) -> dict[str, object
             value = sum(values)
         elif key in maxima:
             value = max(values)
+        elif key.startswith("macro/") or key.startswith("macro_initial/"):
+            value = _aggregate_macro_metric(key, rows, values)
         else:
             value = sum(values) / len(values)
         aggregated[key] = int(value) if all(float(item).is_integer() for item in values) and key.startswith("statistics/") else value
@@ -118,6 +343,8 @@ def _aggregate_metrics(context, local: Mapping[str, object]) -> dict[str, object
     for key, value in primary.items():
         if key not in aggregated and not isinstance(value, (int, float)):
             aggregated[key] = value
+    if any("pilot/logit_weight_changed" in row for row in rows):
+        aggregated["pilot/ranks_with_parameter_change"] = sum(bool(row.get("pilot/logit_weight_changed")) for row in rows)
     aggregated.update({
         "runtime/ddp_aggregated": True,
         "runtime/world_size": context.world_size,
@@ -263,6 +490,22 @@ def _write_budget_observation(
     return atomic_json(run_root / "completed_game_budget.json", payload)
 
 
+def _restore_anchor_history(
+    recovery_root: Path, run_root: Path, *, recovery_payload: Mapping[str, object],
+) -> Path | None:
+    """Carry the plateau-gate history from a recovery bundle into a new run root."""
+    declared = {
+        str(row.get("path"))
+        for row in recovery_payload.get("files", [])
+        if isinstance(row, Mapping)
+    }
+    source = recovery_root / "artifacts" / "anchor_history.json"
+    target = run_root / "anchor_history.json"
+    if "artifacts/anchor_history.json" in declared and source.is_file() and not target.is_file():
+        shutil.copy2(source, target)
+    return target if target.is_file() else None
+
+
 def _primary_outcome(context, primary_event: Mapping[str, object] | None, *, stage: str) -> dict[str, object]:
     rows = context.all_gather_object(dict(primary_event) if context.is_primary and primary_event is not None else None)
     event = rows[0]
@@ -291,6 +534,64 @@ def _controls(profile: Mapping[str, object], mode: str) -> Mapping[str, object]:
     if not isinstance(value, Mapping):
         raise ValueError(f"{mode} profile controls are missing")
     return value
+
+
+def evaluation_parameters(
+    evaluation_cfg: Mapping[str, object], *, role: str | None = None,
+) -> dict[str, object]:
+    """Resolve the evaluation tier actually passed to the isolated evaluator.
+
+    Phase-4 profiles declare the tiers under ``selection``/``fast_anchor``; older
+    profiles keep the flat keys.  A nested ``selection`` block always wins so a
+    delivery can never silently fall back to the 8-deal anchor for its selection.
+    """
+    section = evaluation_cfg
+    resolved_role = role
+    if role is not None:
+        candidate = evaluation_cfg.get(role)
+        if isinstance(candidate, Mapping):
+            section = candidate
+        elif role == "selection":
+            raise ValueError("evaluation.selection must be declared for selection evaluation")
+    return {
+        "base_deals": int(section.get("base_deals", 1)),
+        "seed_base": int(section.get("seed_base", 870700)),
+        "opponents": tuple(section.get("opponents", ("random", "rule"))),
+        "seat_rotations": tuple(int(value) for value in section.get("seat_rotations", (0, 1, 2, 3))),
+        "level_ranks": tuple(int(value) for value in section.get("level_ranks", (int(Rank.TWO),))),
+        "leader_seats": tuple(int(value) for value in section.get("leader_seats", (0,))),
+        "previous_results": tuple(section.get("previous_results", (None,))),
+        "timeout_seconds": float(section.get("timeout_seconds", evaluation_cfg.get("timeout_seconds", 900))),
+        "cluster_by": str(section.get("cluster_by", "deal_id")),
+        "role": resolved_role or "flat",
+    }
+
+
+def run_due_evaluation(
+    evaluation_checkpoint, evaluation_cfg: Mapping[str, object], *, output_root, device: str,
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Run the due evaluation tier and return ``(summary, parameters)``.
+
+    A phase-4 profile with a nested ``selection`` block always runs the
+    selection tier (52 deals, 13 levels, 4 leaders, 4 rotations, deal-clustered).
+    Legacy flat profiles keep their existing behaviour.
+    """
+    evaluation_role = "selection" if isinstance(evaluation_cfg.get("selection"), Mapping) else None
+    parameters = evaluation_parameters(evaluation_cfg, role=evaluation_role)
+    summary = run_smoke_evaluation_isolated(
+        evaluation_checkpoint,
+        output_root=output_root,
+        base_deals=int(parameters["base_deals"]),
+        seed_base=int(parameters["seed_base"]),
+        device=device,
+        opponents=tuple(parameters["opponents"]),
+        seat_rotations=tuple(parameters["seat_rotations"]),
+        level_ranks=tuple(parameters["level_ranks"]),
+        leader_seats=tuple(parameters["leader_seats"]),
+        previous_results=tuple(parameters["previous_results"]),
+        timeout_seconds=float(parameters["timeout_seconds"]),
+    )
+    return summary, parameters
 
 
 def _fault_mapping(profile: Mapping[str, object]) -> Mapping[str, object]:
@@ -366,7 +667,17 @@ def main(argv: list[str] | None = None) -> int:
     if mode == "resume":
         if args.recovery_root is None:
             raise ValueError("resume mode requires --recovery-root")
-        checkpoint_root, recovery_payload = _resolve_recovery_checkpoint(args.recovery_root.resolve())
+        recovery_source = args.recovery_root.resolve()
+        checkpoint_root, recovery_payload = _resolve_recovery_checkpoint(recovery_source)
+        if rank == 0:
+            restored_history = _restore_anchor_history(
+                recovery_source, run_root, recovery_payload=recovery_payload,
+            )
+            if restored_history is not None:
+                append_jsonl(diagnostic_path, {
+                    "schema": "guandan-marvel-rank-diagnostic-v1", "event": "anchor_history_restored",
+                    "rank": rank, "path": str(restored_history), "timestamp": _timestamp(),
+                })
         if (
             recovery_payload.get("source_commit") != args.source_commit
             or recovery_payload.get("source_archive_sha256") != args.source_archive_sha256
@@ -385,10 +696,27 @@ def main(argv: list[str] | None = None) -> int:
     else:
         cfg = build_train_config(profile, game=game, run_root=rank_root, local_cpu_test=args.local_cpu_test)
 
+    if (profile.get("pilot_observability") or {}).get("enabled", False):
+        torch.set_num_threads(int((profile.get("pilot_observability") or {}).get("cpu_threads", 1)))
+        torch.set_num_interop_threads(1)
     configure_torch(cfg)
     trainer_cls = IPPOTrainer if cfg.algo_name == "ippo" else VRPOTrainer
     trainer = trainer_cls(cfg, game=game, run_dir=rank_root / "trainer")
     context = trainer.distributed
+    object_backend = profile.get("object_collectives_backend")
+    if object_backend is not None:
+        if object_backend != "gloo":
+            raise ValueError("only an explicit Gloo metadata side group is supported")
+        context = context.with_cpu_object_collectives()
+        trainer.distributed = context
+        trainer.distributed_runtime.context = context
+    io_options = profile.get("checkpoint_io") or {}
+    if set(io_options) - {"compression_level"}:
+        raise ValueError("unknown checkpoint_io controls")
+    compression_level = io_options.get("compression_level", 6)
+    if isinstance(compression_level, bool) or not isinstance(compression_level, int) or not 1 <= compression_level <= 9:
+        raise ValueError("invalid checkpoint compression level")
+    bundle_options = {"compresslevel": compression_level} if io_options else {}
     warm_start_load = None
     if args.warm_start_checkpoint is not None:
         if mode == "resume":
@@ -417,6 +745,7 @@ def main(argv: list[str] | None = None) -> int:
     budget_stopped = False
     failure_text: str | None = None
     faults = _fault_mapping(profile)
+    plateau_gate = _plateau_gate_config(profile)
     if faults and not args.local_cpu_test:
         raise ValueError("fault_injection is permitted only for explicit local CPU validation")
 
@@ -476,11 +805,15 @@ def main(argv: list[str] | None = None) -> int:
         write_empty_evaluation(run_root, reason="no evaluation has completed")
         if budget_observation is not None:
             _write_budget_observation(run_root, budget_observation, status="running")
+    observer = PilotObserver(profile, trainer, run_root, rank_root)
+    observer.export_initial(mode=mode)
     heartbeat.start()
     try:
         while trainer.iteration < target_iterations:
             heartbeat.set_phase("rollout")
+            observer.begin()
             local_metrics = trainer.train_iteration()
+            local_metrics.update(observer.finish(local_metrics))
             append_jsonl(diagnostic_path, {
                 "schema": "guandan-marvel-rank-diagnostic-v1", "event": "iteration_completed",
                 "rank": rank, "iteration": trainer.iteration, "metrics": local_metrics,
@@ -499,6 +832,7 @@ def main(argv: list[str] | None = None) -> int:
                 if budget_observation is not None:
                     _write_budget_observation(run_root, budget_observation, status="running")
             heartbeat.update(iteration=trainer.iteration, metrics=aggregated)
+            observer.console(aggregated, target=target_iterations)
 
             rank_delays = faults.get("rank_boundary_delay_seconds", {})
             if isinstance(rank_delays, Mapping):
@@ -530,12 +864,23 @@ def main(argv: list[str] | None = None) -> int:
             if checkpoint_due:
                 heartbeat.set_phase("checkpoint")
                 checkpoint_dir = run_root / "checkpoints" / f"iter{trainer.iteration:06d}"
+                checkpoint_started = time.perf_counter()
                 saved = save_distributed_checkpoint(trainer, checkpoint_dir, context=context)
+                io_timing = {"save_shards_seconds": time.perf_counter() - checkpoint_started}
                 primary_event = None
                 if context.is_primary:
                     try:
                         latest_checkpoint = saved
+                        verify_started = time.perf_counter()
                         ddp_manifest = load_ddp_manifest(checkpoint_dir, verify_shards=True)
+                        if observer.enabled:
+                            pilot_manifest = ddp_manifest
+                            freeze_distributed_policy(
+                                trainer, run_root / f"pilot_candidate_iter{trainer.iteration:06d}.pt",
+                                ddp_manifest=pilot_manifest,
+                            )
+                        io_timing["verify_and_policy_export_seconds"] = time.perf_counter() - verify_started
+                        index_started = time.perf_counter()
                         evaluation_due = evaluation_interval > 0 and (
                             trainer.iteration % evaluation_interval == 0 or trainer.iteration == target_iterations
                         )
@@ -550,6 +895,8 @@ def main(argv: list[str] | None = None) -> int:
                         )
                         if trainer.iteration in _fault_iterations(faults, "bundle_fail_iterations"):
                             raise RuntimeError(f"injected recovery bundle failure at iteration {trainer.iteration}")
+                        io_timing["index_and_retention_seconds"] = time.perf_counter() - index_started
+                        bundle_started = time.perf_counter()
                         bundle = build_recovery_bundle(
                             run_root=run_root,
                             destination=run_root / "guandan-marvel-recovery.zip",
@@ -561,7 +908,9 @@ def main(argv: list[str] | None = None) -> int:
                                 "partial" if trainer.iteration < target_iterations else "complete"
                             ),
                             native_extension=_native_extension(game),
+                            **bundle_options,
                         )
+                        io_timing["recovery_bundle_seconds"] = time.perf_counter() - bundle_started
                         primary_event = {
                             "status": "complete", "evaluation_due": evaluation_due,
                             "checkpoint": str(checkpoint_dir), "bundle": str(bundle),
@@ -570,7 +919,17 @@ def main(argv: list[str] | None = None) -> int:
                         }
                     except BaseException as error:
                         primary_event = {"status": "failed", "error": f"{type(error).__name__}: {error}"}
+                wait_started = time.perf_counter()
                 boundary = _primary_outcome(context, primary_event, stage="durable checkpoint publication")
+                io_timing.update({"publication_wait_seconds": time.perf_counter() - wait_started,
+                                  "checkpoint_total_seconds": time.perf_counter() - checkpoint_started})
+                append_jsonl(rank_root / "checkpoint_io.jsonl", {
+                    "schema": "guandan-marvel-checkpoint-io-v1", "rank": rank,
+                    "iteration": trainer.iteration, "timestamp": _timestamp(),
+                    "compression_level": compression_level,
+                    "object_collective_backend": context.object_collective_backend,
+                    **io_timing,
+                })
                 latest_checkpoint = checkpoint_dir
                 heartbeat.update(latest_checkpoint=checkpoint_dir.relative_to(run_root).as_posix())
 
@@ -585,20 +944,11 @@ def main(argv: list[str] | None = None) -> int:
                             if trainer.iteration in _fault_iterations(faults, "evaluation_fail_iterations"):
                                 raise RuntimeError(f"injected evaluation failure at iteration {trainer.iteration}")
                             evaluation_cfg = profile.get("evaluation") or {}
-                            evaluation_timeout_seconds = float(evaluation_cfg.get("timeout_seconds", 900))
-                            summary = run_smoke_evaluation_isolated(
-                                evaluation_checkpoint,
-                                output_root=run_root,
-                                base_deals=int(evaluation_cfg.get("base_deals", 1)),
-                                seed_base=int(evaluation_cfg.get("seed_base", 870700)),
-                                device=str(trainer.device),
-                                opponents=tuple(evaluation_cfg.get("opponents", ("random", "rule"))),
-                                seat_rotations=tuple(evaluation_cfg.get("seat_rotations", (0, 1, 2, 3))),
-                                level_ranks=tuple(evaluation_cfg.get("level_ranks", (int(Rank.TWO),))),
-                                leader_seats=tuple(evaluation_cfg.get("leader_seats", (0,))),
-                                previous_results=tuple(evaluation_cfg.get("previous_results", (None,))),
-                                timeout_seconds=evaluation_timeout_seconds,
+                            summary, parameters = run_due_evaluation(
+                                evaluation_checkpoint, evaluation_cfg,
+                                output_root=run_root, device=str(trainer.device),
                             )
+                            evaluation_timeout_seconds = float(parameters["timeout_seconds"])
                             expected_selection_hash = evaluation_cfg.get("expected_selection_dataset_hash")
                             if (
                                 expected_selection_hash is not None
@@ -625,11 +975,28 @@ def main(argv: list[str] | None = None) -> int:
                                 package_id=args.package_id,
                                 status="partial" if trainer.iteration < target_iterations else "complete",
                                 native_extension=_native_extension(game),
+                                **bundle_options,
                             )
                             eval_event = {
                                 "status": "complete", "evaluation_status": summary["status"],
                                 "evaluation_checkpoint": str(evaluation_checkpoint),
+                                "evaluation_parameters": {
+                                    key: (list(value) if isinstance(value, tuple) else value)
+                                    for key, value in parameters.items()
+                                },
                             }
+                            if plateau_gate is not None:
+                                gate_alert, gate_payload = _evaluate_plateau_gate(
+                                    run_root, plateau_gate, iteration=trainer.iteration,
+                                )
+                                # Record-only: the worker never stops on the gate and the
+                                # event carries the alert only (no stop semantics).
+                                eval_event["plateau_alert"] = bool(gate_alert)
+                                eval_event["plateau_gate"] = {
+                                    "stale_count": int(gate_payload.get("stale_count", 0)),
+                                    "evaluations": len(gate_payload.get("entries", [])),
+                                    "metric": gate_payload.get("metric"),
+                                }
                         except BaseException as error:
                             message = f"{type(error).__name__}: {error}"
                             write_failed_evaluation(
@@ -657,6 +1024,7 @@ def main(argv: list[str] | None = None) -> int:
                                     package_id=args.package_id,
                                     status="evaluation_failed",
                                     native_extension=_native_extension(game),
+                                    **bundle_options,
                                 )
                             except Exception:
                                 # The pre-evaluation durable bundle remains atomically intact.
@@ -683,6 +1051,9 @@ def main(argv: list[str] | None = None) -> int:
                     )
                     if shared_eval.get("status") != "complete":
                         raise RuntimeError(f"evaluation failed on rank 0: {shared_eval.get('error')}")
+                    # Plateau gate is record-only for this delivery: a stall alert is
+                    # logged in anchor_history.json / evaluation events but never
+                    # terminates the session.
             if budget_reached:
                 budget_stopped = True
                 break

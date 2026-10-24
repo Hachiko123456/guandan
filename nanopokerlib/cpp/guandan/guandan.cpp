@@ -714,6 +714,13 @@ std::vector<int> return_cards_for(const RoundState& state, int recipient) {
     return result;
 }
 
+static int outcome_rank_points(const std::string& outcome_class) {
+    if (outcome_class == "DOUBLE_DOWN") return 3;
+    if (outcome_class == "HEAD_THIRD") return 2;
+    if (outcome_class == "HEAD_LAST") return 1;
+    throw StateInvariantError("unknown outcome class");
+}
+
 void terminalize(RoundState& state) {
     state.done = true;
     state.phase = Phase::TERMINAL;
@@ -724,8 +731,13 @@ void terminalize(RoundState& state) {
     if (TEAM_OF[state.finished_ranks[0]] == TEAM_OF[state.finished_ranks[1]]) state.outcome_class = "DOUBLE_DOWN";
     else if (TEAM_OF[state.finished_ranks[0]] == TEAM_OF[state.finished_ranks[2]]) state.outcome_class = "HEAD_THIRD";
     else state.outcome_class = "HEAD_LAST";
-    for (int seat = 0; seat < 4; ++seat) state.rewards[seat] = TEAM_OF[seat] == state.winner_team ? 1.0f : -1.0f;
-    for (int team = 0; team < 2; ++team) state.team_rewards[team] = team == state.winner_team ? 1.0f : -1.0f;
+    // MARVEL v14 phase-4 rank-point reward: the winning team receives
+    // +3/+2/+1 for DOUBLE_DOWN/HEAD_THIRD/HEAD_LAST and the losing team the
+    // negation.  Every seat receives its team's raw reward; training scales
+    // this by 1/3 downstream (guandan_marvel.reward.TRAINING_REWARD_SCALE).
+    const float points = static_cast<float>(outcome_rank_points(state.outcome_class));
+    for (int seat = 0; seat < 4; ++seat) state.rewards[seat] = TEAM_OF[seat] == state.winner_team ? points : -points;
+    for (int team = 0; team < 2; ++team) state.team_rewards[team] = team == state.winner_team ? points : -points;
     state.finish_committed_step = state.committed_step;
     state.finish_token_step = state.committed_step;
 }
@@ -1135,9 +1147,14 @@ void RoundState::check_invariants() const {
             winner_team < 0 || winner_team > 1 || finish_committed_step < 0 || finish_token_step < 0) {
             throw StateInvariantError("invalid terminal state");
         }
+        const float points = static_cast<float>(outcome_rank_points(outcome_class));
         for (int seat = 0; seat < 4; ++seat) {
-            const float expected = TEAM_OF[seat] == winner_team ? 1.0f : -1.0f;
-            if (rewards[seat] != expected) throw StateInvariantError("terminal reward disagrees with winner team");
+            const float expected = TEAM_OF[seat] == winner_team ? points : -points;
+            if (rewards[seat] != expected) throw StateInvariantError("terminal reward disagrees with outcome class");
+        }
+        for (int team = 0; team < 2; ++team) {
+            const float expected = team == winner_team ? points : -points;
+            if (team_rewards[team] != expected) throw StateInvariantError("terminal team reward disagrees with outcome class");
         }
     } else {
         if (phase == Phase::TERMINAL) throw StateInvariantError("invalid nonterminal phase");

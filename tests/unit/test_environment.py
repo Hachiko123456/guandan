@@ -92,7 +92,7 @@ def test_terminal_metadata_token_clock_and_no_reward_replay():
     assert result.info['ranking'] == (1, 4, 2, 3)
     assert result.info['finish_token_step'] == 7
     assert result.info['finish_committed_step'] == 3
-    np.testing.assert_array_equal(result.rewards, [1, -1, 1, -1])
+    np.testing.assert_array_equal(result.rewards, [3, -3, 3, -3])
     assert env.full_state()['round_state']['finish_token_step'] == 7
     restored = GuandanEnv.deserialize(env.serialize())
     assert restored.done and restored.observe() is None and restored.serialize() == env.serialize()

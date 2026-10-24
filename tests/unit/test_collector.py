@@ -105,8 +105,8 @@ def test_true_terminal_is_captured_before_reset_and_reward_does_not_leak():
             break
     assert terminal is not None
     assert terminal.done.item() and not terminal.truncated.item()
-    torch.testing.assert_close(terminal.rewards, torch.tensor([[1.0, -1.0, 1.0, -1.0]]))
-    assert terminal.acting_player_rewards.item() == 1
+    torch.testing.assert_close(terminal.rewards, torch.tensor([[3.0, -3.0, 3.0, -3.0]]))
+    assert terminal.acting_player_rewards.item() == 3
     assert not terminal.next_observation.present[0]
     assert terminal.next_observation.phase[0] == "TERMINAL"
     assert not terminal.bootstrap_observation.present[0]
@@ -117,7 +117,7 @@ def test_true_terminal_is_captured_before_reset_and_reward_does_not_leak():
     assert collector.reset_counts.tolist() == [1]
     record = rollout.terminal_snapshots()[0]
     assert record["episode_index"] == 0 and record["actor"] == 0
-    assert record["ranking"][0] == 2 and record["rewards"] == [1, -1, 1, -1]
+    assert record["ranking"][0] == 2 and record["rewards"] == [3, -3, 3, -3]
     snapshot = deepcopy(terminal.next_observation)
     next_row = collector.collect(1).transitions[0]
     assert next_row.episode_indices.tolist() == [1]

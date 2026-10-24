@@ -41,9 +41,10 @@ def test_each_pairing_completes_profile_games(actual_evaluation, opponent):
         assert r.done is True and r.truncated is False and r.terminal
         assert sorted(r.ranking) == [1,2,3,4]
         assert r.ranking.index(1)%2 == r.winner_team
-        assert r.rewards == [1.0 if seat%2 == r.winner_team else -1.0 for seat in range(4)]
+        points = {"DOUBLE_DOWN": 3.0, "HEAD_THIRD": 2.0, "HEAD_LAST": 1.0}[r.outcome_class]
+        assert r.rewards == [points if seat%2 == r.winner_team else -points for seat in range(4)]
         assert sum(r.rewards) == 0
-        assert r.team_rewards == [1.0 if team == r.winner_team else -1.0 for team in range(2)]
+        assert r.team_rewards == [points if team == r.winner_team else -points for team in range(2)]
         assert sum(r.decisions_by_seat) == r.token_steps >= r.committed_steps > 0
         assert r.initial_leader == 0
         assert r.logical_to_physical == [(seat+r.seat_rotation)%4 for seat in range(4)]
@@ -93,9 +94,20 @@ def test_statistics_use_actual_completed_records_and_correlated_group_metadata(a
     expected = summarize_games([asdict(r) for r in result.records])
     assert result.summary == expected
     assert expected['overall']['completed'] == result.total_games
+    # Rank-point identity: the candidate team's reward is +points on a win and
+    # -points on a loss, so the candidate edge is recoverable from the reward.
+    points = {"DOUBLE_DOWN": 3, "HEAD_THIRD": 2, "HEAD_LAST": 1}
+    for record in result.records:
+        data = asdict(record)
+        seat_team = data['candidate_team']
+        expected_reward = points[data['outcome_class']]
+        assert data['team_rewards'][seat_team] == (
+            expected_reward if seat_team == data['winner_team'] else -expected_reward
+        )
     for opponent, summary in expected['per_opponent'].items():
         assert summary['wins']+summary['losses'] == summary['completed']
-        assert summary['mean_team_reward'] == 2*summary['win_rate']-1
+        if summary['mean_team_reward'] is not None:
+            assert -3.0 <= summary['mean_team_reward'] <= 3.0
         for rotation in profile['config']['evaluation']['seat_rotations']:
             assert summary['by_rotation'][str(rotation)]['completed'] == profile['config']['evaluation']['deal_groups_per_pairing']
         assert summary['confidence']['cluster_adjusted'] is False

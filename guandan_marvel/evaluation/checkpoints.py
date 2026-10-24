@@ -12,7 +12,7 @@ import torch
 
 from guandan.training.snapshot import load_policy_snapshot
 from guandan_marvel import cpp_game
-from guandan_marvel.config import deserialize_train_config
+from guandan_marvel.config import MACRO_FUSE_MODEL_ARCHITECTURE, deserialize_train_config
 from guandan_marvel.model import Agent
 from guandan_marvel.training.checkpoints import (
     BACKEND_IDENTITY_SCHEMA,
@@ -29,6 +29,11 @@ EVALUATION_CHECKPOINT_SCHEMA = "guandan-marvel-evaluation-checkpoint-v1"
 LEGACY_V1_ACTION = "GD-ACTION-0.1"
 LEGACY_V1_ENV = "GD-ENV-0.1"
 SUPPORTED_ALGORITHMS = {"ippo", "vrpo"}
+# MARVEL V2 policy architectures the strict evaluation loader accepts.  Each
+# architecture is reconstructed from the checkpoint's own ``resolved_config`` and
+# loaded with ``strict=True``, so a checkpoint that claims a fuse architecture but
+# omits ``actor_fuse.*`` fails on the missing keys instead of being whitelisted.
+SUPPORTED_POLICY_ARCHITECTURES = ("v1.3", MACRO_FUSE_MODEL_ARCHITECTURE)
 
 
 @dataclass(frozen=True)
@@ -113,8 +118,11 @@ def _validate_v2_payload(payload: Mapping[str, object], *, expected_algorithm: s
         raise ValueError(f"unsupported checkpoint algorithm {algorithm!r}")
     if expected_algorithm is not None and algorithm != expected_algorithm:
         raise ValueError(f"checkpoint algorithm mismatch: expected {expected_algorithm!r}, got {algorithm!r}")
-    if payload.get("architecture") != "v1.3":
-        raise ValueError("evaluation requires MARVEL V2 architecture v1.3")
+    if payload.get("architecture") not in SUPPORTED_POLICY_ARCHITECTURES:
+        raise ValueError(
+            "evaluation requires a MARVEL V2 architecture in "
+            f"{SUPPORTED_POLICY_ARCHITECTURES}; got {payload.get('architecture')!r}"
+        )
     if payload.get("protocol_version") != cpp_game.protocol_version:
         raise ValueError("checkpoint protocol mismatch")
     if payload.get("backend") != "cpp":
@@ -170,7 +178,8 @@ def load_v2_policy(
         raise ValueError("checkpoint train config could not be decoded")
     cfg.device = str(torch.device(device))
     algorithm = str(payload["algorithm"])
-    model = Agent(cfg, enable_value_head=algorithm == "ippo").to(torch.device(device))
+    enable_ntp = Agent.ntp_enabled_for_config(cfg) and algorithm == "ippo"
+    model = Agent(cfg, enable_value_head=algorithm == "ippo", enable_ntp_head=enable_ntp).to(torch.device(device))
     model.load_state_dict(payload["agent_state_dict"], strict=True)
     model.eval()
     backend_identity = payload["backend_identity"]
@@ -194,6 +203,11 @@ def load_v2_policy(
             "selection_identity": deepcopy(payload.get("selection_identity")),
             "champion_identity": deepcopy(payload.get("champion_identity")),
             "training_seed": payload["resolved_config"].get("seed"),
+            # A frozen opponent may only come from an artifact that cannot be
+            # used to resume training.  ``None`` is the legacy training-checkpoint
+            # shape; the phase-6 pool rejects that schema outright.
+            "training_resume_allowed": payload.get("training_resume_allowed"),
+            "resume_classification": payload.get("resume_classification"),
         },
     )
 

@@ -12,6 +12,9 @@ from guandan.action_state import (
 )
 from guandan.combos import CombinationKind
 from guandan_marvel.model.tensordict import TensorDict
+from guandan_marvel.reward import (
+    RAW_REWARD_MAX, RAW_REWARD_MIN, REWARD_SEMANTICS, TRAINING_REWARD_SCALE,
+)
 from guandan_marvel.utils import compute_commit_step_counts
 
 
@@ -61,8 +64,18 @@ def rollout_metrics(
                     family_counts[pending_family] += 1
                 pending_family = None
     outcomes = Counter(str(info.get("outcome_class", "UNKNOWN")) for info in terminal_infos)
+    raw_team0 = [float(info["team_reward"][0]) for info in terminal_infos if info.get("team_reward") is not None]
+    raw_team1 = [float(info["team_reward"][1]) for info in terminal_infos if info.get("team_reward") is not None]
+    rank_point_rewards = [abs(value) for value in raw_team0]
     duration = max(float(rollout_seconds), 1e-9)
     metrics: dict[str, float | int | None] = {
+        "reward/semantics": REWARD_SEMANTICS,
+        "reward/training_scale": TRAINING_REWARD_SCALE,
+        "reward/raw_range_min": RAW_REWARD_MIN,
+        "reward/raw_range_max": RAW_REWARD_MAX,
+        "guandan/raw_team0_reward_mean": (sum(raw_team0) / len(raw_team0)) if raw_team0 else None,
+        "guandan/raw_team1_reward_mean": (sum(raw_team1) / len(raw_team1)) if raw_team1 else None,
+        "guandan/mean_rank_point_reward": (sum(rank_point_rewards) / len(rank_point_rewards)) if rank_point_rewards else None,
         "statistics/env_steps_total": int(env_steps_total),
         "statistics/game_steps_total": int(game_steps_total),
         "statistics/completed_games_total": int(completed_games_total),

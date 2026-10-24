@@ -31,7 +31,13 @@ class EnvStepBatch:
     def from_env_step(cls, envs_step, cfg) -> "EnvStepBatch":
         batch = int(envs_step.rewards.shape[0])
         device = torch.device(cfg.device)
-        rewards = torch.as_tensor(envs_step.rewards, dtype=torch.float32, device=device)
+        # The environment emits the raw rank-point reward (DOUBLE_DOWN +-3,
+        # HEAD_THIRD +-2, HEAD_LAST +-1 per team).  Training consumes
+        # R_train = R_raw * reward_scale (fixed at 1/3).  This conversion is the
+        # single choke point between the raw environment reward seen by
+        # comparison/evaluation and the normalised reward seen by the learner.
+        scale = float(cfg.reward_scale)
+        rewards = torch.as_tensor(envs_step.rewards, dtype=torch.float32, device=device) * scale
         terminal = torch.as_tensor(envs_step.is_terminal, dtype=torch.bool, device=device)
         outcome = EnvOutcome(TensorDict(
             {"rewards": rewards, "is_terminal": terminal},

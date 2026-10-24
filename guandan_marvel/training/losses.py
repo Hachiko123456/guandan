@@ -27,6 +27,13 @@ class ValueLossOutput:
 
 
 @dataclass(frozen = True)
+class NextObservationLossOutput:
+    ntp_loss_mean: torch.Tensor
+    ntp_pos_rate: torch.Tensor
+    ntp_step_count: int
+
+
+@dataclass(frozen = True)
 class QValueLossOutput:
     qv_lbd_loss_mean: torch.Tensor
     qv_td1_loss_mean: torch.Tensor
@@ -159,6 +166,107 @@ def compute_clipped_pg_loss(
     )
 
 
+def compute_next_observation_token_loss(
+    rollout: TensorDict,
+    *,
+    ntp_logits: torch.Tensor,
+    pad_token: int,
+    pos_weight: float = 10.0,
+) -> NextObservationLossOutput:
+    """Auxiliary next-observation token-prediction loss (DanLM-style NTP).
+
+    At every acting-player step ``t`` the model predicts which observation
+    tokens become newly visible to that player at step ``t + 1``.  Tokens that
+    were already visible at step ``t`` are excluded from the loss entirely so
+    that copying the current observation bag is not a valid solution; the
+    remaining vocabulary entries form the negative set.
+
+    Loss terms
+    ----------
+    ntp_loss_mean:
+        BCE-with-logits over ``delta = next_bag \\ current_bag`` positives and
+        all never-seen vocabulary tokens as negatives, averaged over valid
+        acting-player steps.
+    ntp_pos_rate:
+        Fraction of positive (delta) labels among scored vocabulary entries.
+    ntp_step_count:
+        Number of acting-player steps that contributed to the loss.
+    """
+    obs_tokens = rollout["obs_tokens"]
+    player_ids = rollout["player_ids"]
+    num_steps = rollout["num_steps"]
+
+    B, T, P, L = obs_tokens.shape
+    if ntp_logits.dim() != 3 or ntp_logits.shape[:2] != (B, T):
+        raise ValueError("ntp_logits must have shape [B, T, V] matching the rollout.")
+    V = int(ntp_logits.shape[-1])
+    if obs_tokens.dtype != torch.long:
+        raise TypeError("rollout['obs_tokens'] must use torch.long dtype.")
+    if pad_token < 0 or pad_token >= V:
+        raise ValueError("pad_token must be within the NTP vocabulary range.")
+
+    next_obs = torch.zeros_like(obs_tokens)
+    if T > 1:
+        next_obs[:, :-1] = obs_tokens[:, 1:]
+
+    players = player_ids.clamp(min = 0)
+    gather_index = players.view(B, T, 1, 1).expand(B, T, 1, L)
+    bag_current = obs_tokens.gather(2, gather_index).squeeze(2)
+    bag_next = next_obs.gather(2, gather_index).squeeze(2)
+
+    time_range = torch.arange(T, device = player_ids.device).unsqueeze(0)
+    history_mask = time_range < num_steps.unsqueeze(1)
+    has_next = (time_range + 1) < num_steps.unsqueeze(1)
+    step_mask = history_mask & (player_ids >= 0) & has_next
+
+    flat_steps = B * T
+    rows = torch.arange(flat_steps, device = player_ids.device).unsqueeze(1).expand(flat_steps, L)
+
+    def _token_presence_mask(bag: torch.Tensor) -> torch.Tensor:
+        flat = bag.reshape(flat_steps, L)
+        valid = flat != int(pad_token)
+        if bool(valid.any()) and int(flat[valid].max().item()) >= V:
+            raise ValueError("observation token exceeds the NTP vocabulary range.")
+        safe = torch.where(valid, flat, torch.full_like(flat, V))
+        mask = torch.zeros((flat_steps, V + 1), dtype = torch.bool, device = flat.device)
+        mask[rows[valid], safe[valid]] = True
+        return mask[:, :V]
+
+    mask_current = _token_presence_mask(bag_current)
+    mask_next = _token_presence_mask(bag_next)
+
+    selected = step_mask.reshape(-1).nonzero(as_tuple = True)[0]
+    if selected.numel() == 0:
+        zero = ntp_logits.sum() * 0.0
+        return NextObservationLossOutput(
+            ntp_loss_mean = zero,
+            ntp_pos_rate = zero.detach(),
+            ntp_step_count = 0,
+        )
+
+    logits_selected = ntp_logits.reshape(flat_steps, V).float()[selected]
+    known = mask_current[selected]
+    labels = mask_next[selected].to(dtype = logits_selected.dtype)
+    keep = ~known
+    weights = torch.full_like(labels, float(pos_weight))
+    elementwise = F.binary_cross_entropy_with_logits(
+        logits_selected, labels, pos_weight = weights, reduction = "none",
+    )
+    kept = elementwise[keep]
+    if kept.numel() == 0:
+        zero = ntp_logits.sum() * 0.0
+        return NextObservationLossOutput(
+            ntp_loss_mean = zero,
+            ntp_pos_rate = zero.detach(),
+            ntp_step_count = int(selected.numel()),
+        )
+    return NextObservationLossOutput(
+        ntp_loss_mean = kept.mean(),
+        ntp_pos_rate = labels[keep].mean().detach(),
+        ntp_step_count = int(selected.numel()),
+    )
+
+
 def compute_value_loss(
     rollout: TensorDict,
     *,
@@ -184,6 +292,19 @@ def compute_value_loss(
     time_range = torch.arange(T, device = player_ids.device).unsqueeze(0)
     history_mask = time_range < num_steps.unsqueeze(1)
     player_mask = history_mask & (player_ids >= 0)
+    train_mask = (
+        rollout.get("policy_train_mask")
+        if isinstance(rollout, TensorDict) else rollout.get("policy_train_mask")
+    )
+    if isinstance(train_mask, torch.Tensor):
+        # Phase-6 opponent pool: a frozen-opponent acting token is part of the
+        # timeline but never a current value-regression sample.  The default
+        # (no field) path is unchanged.
+        if tuple(train_mask.shape) != (B, T):
+            raise ValueError("rollout['policy_train_mask'] must have shape [B, T].")
+        if train_mask.dtype != torch.bool:
+            raise TypeError("rollout['policy_train_mask'] must be bool.")
+        player_mask = player_mask & train_mask
 
     flat_player_mask = player_mask.reshape(-1)
     mask_pred = player_state_value_pred.reshape(-1)[flat_player_mask]
@@ -250,7 +371,9 @@ __all__ = [
     "ClippedPGLossOutput",
     "ValueLossOutput",
     "QValueLossOutput",
+    "NextObservationLossOutput",
     "compute_clipped_pg_loss",
     "compute_value_loss",
     "compute_qvalue_loss",
+    "compute_next_observation_token_loss",
 ]

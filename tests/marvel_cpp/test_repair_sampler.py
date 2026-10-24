@@ -52,7 +52,10 @@ def _assert_complete_trajectory(trajectory, index: int) -> int:
     terminal = trajectory["is_terminal"][index, :steps]
     assert int(terminal.sum()) == 1
     assert bool(terminal[-1])
-    assert set(trajectory["rewards"][index, steps - 1].tolist()) == {-1.0, 1.0}
+    terminal_rewards = set(trajectory["rewards"][index, steps - 1].tolist())
+    magnitude = max(abs(value) for value in terminal_rewards)
+    assert round(magnitude * 3) in (1, 2, 3)
+    assert terminal_rewards == {-magnitude, magnitude}
     assert torch.isfinite(trajectory["policy_probs"][index, :steps]).all()
     assert torch.isfinite(trajectory["behavior_action_prob"][index, :steps]).all()
     assert bool(trajectory["on_policy_valid"][index, :steps].all())

@@ -102,6 +102,6 @@ def test_nonfinite_and_out_of_range_records_never_form_valid_summary():
     summary=summarize_records(malformed,plan=plan)
     assert summary["overall"]["complete"] is False
     assert any("finite" in error for error in summary["seat_rotation_coverage"]["errors"])
-    malformed=[dict(row) for row in records];malformed[0]["candidate_team_reward"]=2.0
+    malformed=[dict(row) for row in records];malformed[0]["candidate_team_reward"]=4.0
     summary=summarize_records(malformed,plan=plan)
     assert summary["overall"]["complete"] is False

@@ -35,7 +35,12 @@ def _settlement_checks(state: RoundState, previous_result: PreviousHandResult | 
         tribute_ok = len(tribute_actions) == expected and len(return_actions) == expected and len(state.tribute_transfers) == expected and len(state.return_transfers) == expected and not state.tribute_escrow
     ranking_ok = state.done and sorted(state.ranking) == [1, 2, 3, 4]
     winner_ok = ranking_ok and state.winner_team == TEAM_OF[state.ranking.index(1)]
-    reward_ok = winner_ok and list(state.rewards) == [1.0 if TEAM_OF[seat] == state.winner_team else -1.0 for seat in range(4)] and list(state.team_rewards) == [1.0 if team == state.winner_team else -1.0 for team in range(2)]
+    rank_points = {"DOUBLE_DOWN": 3.0, "HEAD_THIRD": 2.0, "HEAD_LAST": 1.0}.get(state.outcome_class)
+    reward_ok = (
+        winner_ok and rank_points is not None
+        and list(state.rewards) == [rank_points if TEAM_OF[seat] == state.winner_team else -rank_points for seat in range(4)]
+        and list(state.team_rewards) == [rank_points if team == state.winner_team else -rank_points for team in range(2)]
+    )
     return {"tribute_return_ok": tribute_ok, "ranking_ok": ranking_ok, "reward_ok": reward_ok}
 
 

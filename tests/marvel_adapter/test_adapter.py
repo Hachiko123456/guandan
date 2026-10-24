@@ -346,7 +346,8 @@ def test_complete_games_have_real_terminal_rewards_ranking_and_card_conservation
         terminal, steps = _play_to_terminal(batch, batch.reset(seed))
         assert 0 < steps < game.max_game_horizon
         assert terminal.is_terminal.tolist() == [True]
-        assert set(terminal.rewards[0].tolist()) == {-1.0, 1.0}
+        points = {"DOUBLE_DOWN": 3.0, "HEAD_THIRD": 2.0, "HEAD_LAST": 1.0}[terminal.infos[0]["outcome_class"]]
+        assert set(terminal.rewards[0].tolist()) == {-points, points}
         state = batch.envs[0]._require_protocol().round_state
         assert state.done and state.phase is Phase.TERMINAL
         assert set(state.ranking) == {1, 2, 3, 4}
@@ -414,7 +415,13 @@ def test_marvel_sampler_consumes_minimal_complete_python_adapter_trajectory() ->
     assert 0 < steps < _SmallHorizonGame.max_game_horizon
     assert int(trajectory["is_terminal"][0, :steps].sum()) == 1
     assert trajectory["is_terminal"][0, steps - 1]
-    assert set(trajectory["rewards"][0, steps - 1].tolist()) == {-1.0, 1.0}
+    # auto_reset has already dealt a fresh round, so the terminal outcome is only
+    # recoverable from the reward vector: it is a scaled rank-point reward
+    # (-1/3, -2/3 or -1 versus the mirrored positive value).
+    terminal_rewards = set(trajectory["rewards"][0, steps - 1].tolist())
+    magnitude = max(abs(value) for value in terminal_rewards)
+    assert round(magnitude * 3) in (1, 2, 3)
+    assert terminal_rewards == {-magnitude, magnitude}
     assert trajectory["obs_tokens"].shape[2:] == (4, game.max_observation_tokens)
     assert trajectory["avail_tokens"].shape[2:] == (game.max_available_actions, game.max_action_tokens)
 

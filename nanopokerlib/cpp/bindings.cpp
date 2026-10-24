@@ -411,23 +411,35 @@ public:
     int observation_capacity() const { return observation_capacity_; }
     std::string backend() const { return BACKEND; }
 
-    void configure_context_schedule(const py::sequence& configs) {
+    void configure_context_schedule(const py::sequence& configs, std::uint64_t offset = 0) {
         if (py::len(configs) <= 0) throw std::invalid_argument("context schedule must be non-empty");
         context_schedule_.clear();
         for (const py::handle value : configs) context_schedule_.push_back(config_from_object(value));
         for (auto& config : context_schedule_) config.max_token_steps = max_horizon_;
-        context_cursor_.assign(batch_size_, 0);
+        // The iteration offset is a pure function of the sampler's iteration and
+        // collect size.  The per-deal counter restarts at the configured offset
+        // exactly once per collection, so an uninterrupted run and an exact
+        // resume consume the identical context sequence.
+        context_offset_ = offset;
+        context_deal_counter_ = 0;
+    }
+
+    std::size_t next_context_index() {
+        const std::size_t size = context_schedule_.size();
+        const std::uint64_t selected = (context_offset_ + context_deal_counter_) % static_cast<std::uint64_t>(size);
+        ++context_deal_counter_;
+        return static_cast<std::size_t>(selected);
     }
 
     PyEnvStep reset(std::uint64_t seed = 0) {
         auto trials = games_;
         auto trial_events = events_;
-        if (!context_schedule_.empty()) context_cursor_.assign(batch_size_, 0);
+        if (!context_schedule_.empty()) context_deal_counter_ = 0;
         for (int index = 0; index < batch_size_; ++index) {
             if (!context_schedule_.empty()) {
-                const std::size_t selected = (static_cast<std::size_t>(seed) + static_cast<std::size_t>(index)) % context_schedule_.size();
-                trials[index].config = context_schedule_[selected];
-                context_cursor_[index] = (selected + static_cast<std::size_t>(batch_size_)) % context_schedule_.size();
+                // Consecutive slots consume consecutive schedule positions, so no
+                // two slots in one step ever share a context.
+                trials[index].config = context_schedule_[next_context_index()];
             }
             trials[index].reset(seed + static_cast<std::uint64_t>(index));
             trial_events[index] = reset_events(trials[index]);
@@ -521,8 +533,7 @@ public:
                 info["terminal_state"] = game_to_dict(game);
                 if (auto_reset_) {
                     if (!context_schedule_.empty()) {
-                        game.config = context_schedule_[context_cursor_[index]];
-                        context_cursor_[index] = (context_cursor_[index] + static_cast<std::size_t>(batch_size_)) % context_schedule_.size();
+                        game.config = context_schedule_[next_context_index()];
                     }
                     game.reset_auto();
                     trial_events[index] = reset_events(game);
@@ -600,7 +611,8 @@ public:
             raw_schedule.append(row);
         }
         payload["context_schedule"] = raw_schedule;
-        payload["context_cursor"] = context_cursor_;
+        payload["context_offset"] = context_offset_;
+        payload["context_deal_counter"] = context_deal_counter_;
         py::list raw_events;
         for (const auto& event : events_) raw_events.append(event);
         payload["events"] = raw_events;
@@ -630,11 +642,13 @@ public:
         result->trajectory_steps_ = data["trajectory_steps"].cast<std::vector<int>>();
         if (data.contains("context_schedule")) {
             for (const py::handle item : data["context_schedule"].cast<py::list>()) result->context_schedule_.push_back(result->config_from_object(item));
-            result->context_cursor_ = data["context_cursor"].cast<std::vector<std::size_t>>();
+            result->context_offset_ = data["context_offset"].cast<std::uint64_t>();
+            result->context_deal_counter_ = data["context_deal_counter"].cast<std::uint64_t>();
         }
         if (result->events_.size() != result->games_.size() || result->trajectory_steps_.size() != result->games_.size()) throw ProtocolError("serialized batch shape mismatch");
-        if ((!result->context_schedule_.empty() && result->context_cursor_.size() != result->games_.size()) ||
-            (result->context_schedule_.empty() && !result->context_cursor_.empty())) throw ProtocolError("serialized context schedule shape mismatch");
+        if (result->context_schedule_.empty() && (result->context_offset_ != 0 || result->context_deal_counter_ != 0)) {
+            throw ProtocolError("serialized context offset/counter requires a context schedule");
+        }
         for (int index = 0; index < result->batch_size_; ++index) {
             const Game& game = result->games_[index];
             const int trajectory_step = result->trajectory_steps_[index];
@@ -660,7 +674,8 @@ private:
     std::vector<int> trajectory_steps_;
     std::vector<bool> is_reset_;
     std::vector<GameConfig> context_schedule_;
-    std::vector<std::size_t> context_cursor_;
+    std::uint64_t context_offset_{0};
+    std::uint64_t context_deal_counter_{0};
 
     GameConfig config_from_object(const py::handle& value) const {
         GameConfig config;
@@ -847,7 +862,7 @@ PYBIND11_MODULE(_guandan_cpp, module) {
         .def_property_readonly("max_horizon", &CppEnvBatch::max_horizon)
         .def_property_readonly("action_capacity", &CppEnvBatch::action_capacity)
         .def_property_readonly("observation_capacity", &CppEnvBatch::observation_capacity)
-        .def("configure_context_schedule", &CppEnvBatch::configure_context_schedule, py::arg("configs"))
+        .def("configure_context_schedule", &CppEnvBatch::configure_context_schedule, py::arg("configs"), py::arg("offset") = 0)
         .def("reset", &CppEnvBatch::reset, py::arg("seed") = 0)
         .def("reset_from_deals", &CppEnvBatch::reset_from_deals, py::arg("deals"), py::arg("level_ranks") = py::none(), py::arg("leader_seats") = py::none(), py::arg("previous_results") = py::none())
         .def("observe", &CppEnvBatch::observe)

@@ -23,8 +23,8 @@ CORRELATION_WARNING = (
 )
 _REQUIRED = (
     "opponent", "deal_group", "seat_rotation", "policy_seat", "candidate_team",
-    "done", "truncated", "ranking", "winner_team", "rewards", "team_rewards",
-    "token_steps", "committed_steps", "base_deal_sha256", "seed",
+    "done", "truncated", "ranking", "winner_team", "outcome_class", "rewards",
+    "team_rewards", "token_steps", "committed_steps", "base_deal_sha256", "seed",
 )
 
 
@@ -63,13 +63,13 @@ def _integer(record: dict, name: str, allowed=None) -> int:
     return value
 
 
-def _rewards(record: dict, name: str, expected: list[int]) -> None:
+def _rewards(record: dict, name: str, expected: list[float]) -> None:
     values = record[name]
     if not isinstance(values, list) or len(values) != len(expected):
         raise ValueError(f"{name} must be a list of length {len(expected)}")
     for value, wanted in zip(values, expected):
         if isinstance(value, bool) or not isinstance(value, Real) or value != wanted:
-            raise ValueError(f"{name} must be finite +/-1 and match winner_team")
+            raise ValueError(f"{name} must be the finite rank-point reward and match outcome_class")
 
 
 def _validate_record(record: dict) -> None:
@@ -99,8 +99,15 @@ def _validate_record(record: dict) -> None:
         raise ValueError("ranking must contain each rank 1..4 once, indexed by seat")
     if ranking.index(1) % 2 != winner:
         raise ValueError("winner_team must match the rank-1 seat's team")
-    _rewards(record, "rewards", [1 if seat % 2 == winner else -1 for seat in range(4)])
-    _rewards(record, "team_rewards", [1 if team_id == winner else -1 for team_id in range(2)])
+    outcome = record.get("outcome_class")
+    if outcome not in {"DOUBLE_DOWN", "HEAD_THIRD", "HEAD_LAST"}:
+        raise ValueError("outcome_class must be DOUBLE_DOWN, HEAD_THIRD or HEAD_LAST")
+    teammate_rank = {"DOUBLE_DOWN": 2, "HEAD_THIRD": 3, "HEAD_LAST": 4}[outcome]
+    if ranking.index(teammate_rank) % 2 != winner:
+        raise ValueError("outcome_class must match the ranking")
+    points = {"DOUBLE_DOWN": 3.0, "HEAD_THIRD": 2.0, "HEAD_LAST": 1.0}[outcome]
+    _rewards(record, "rewards", [points if seat % 2 == winner else -points for seat in range(4)])
+    _rewards(record, "team_rewards", [points if team_id == winner else -points for team_id in range(2)])
     token_steps = _integer(record, "token_steps")
     committed_steps = _integer(record, "committed_steps")
     if not 0 <= committed_steps <= token_steps:

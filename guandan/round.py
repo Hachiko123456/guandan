@@ -5,7 +5,7 @@ from typing import Iterable, Iterator
 import numpy as np
 from .cards import Card, Rank, effective_rank_value, sort_cards
 from .combos import Combination, CombinationKind, can_beat, recognize_combinations, require_combination
-from .state import CommittedAction, EpisodeTerminatedError, GuandanError, IllegalActionError, Phase, RoundState, StateInvariantError, TEAM_OF
+from .state import CommittedAction, EpisodeTerminatedError, GuandanError, IllegalActionError, Phase, RoundState, StateInvariantError, TEAM_OF, rank_point_reward
 _BOMBS={CombinationKind.RANK_BOMB,CombinationKind.STRAIGHT_FLUSH,CombinationKind.FOUR_KINGS}
 def _active(s):return tuple(x for x in range(4) if x not in s.finished_ranks)
 def _next(s,seat):
@@ -126,7 +126,7 @@ def _held(s,a):
     if len(ids)!=len(set(ids)) or not set(ids).issubset(have):raise IllegalActionError("action selects a missing or duplicated physical card")
 def _valid(s,a,d):return d.level_rank is s.level_rank and d.kind is a.kind and tuple(sorted(c.card_id for c in d.cards))==tuple(sorted(c.card_id for c in a.cards)) and any(_dk(x)==_dk(d) for x in recognize_combinations(a.cards,level_rank=s.level_rank))
 def _term(s):
-    s.done=True;s.phase=Phase.TERMINAL;s.current_winning=None;s.current_winner_seat=None;s.consecutive_passes=0;s.winner_team=TEAM_OF[s.finished_ranks[0]];s.outcome_class="DOUBLE_DOWN" if TEAM_OF[s.finished_ranks[0]]==TEAM_OF[s.finished_ranks[1]] else ("HEAD_THIRD" if TEAM_OF[s.finished_ranks[0]]==TEAM_OF[s.finished_ranks[2]] else "HEAD_LAST");s.rewards=np.asarray([1.0 if TEAM_OF[x]==s.winner_team else -1.0 for x in range(4)],dtype=np.float32);s.team_rewards=np.asarray([1.0 if x==s.winner_team else -1.0 for x in range(2)],dtype=np.float32);s.finish_committed_step=s.committed_step;s.finish_token_step=s.committed_step
+    s.done=True;s.phase=Phase.TERMINAL;s.current_winning=None;s.current_winner_seat=None;s.consecutive_passes=0;s.winner_team=TEAM_OF[s.finished_ranks[0]];s.outcome_class="DOUBLE_DOWN" if TEAM_OF[s.finished_ranks[0]]==TEAM_OF[s.finished_ranks[1]] else ("HEAD_THIRD" if TEAM_OF[s.finished_ranks[0]]==TEAM_OF[s.finished_ranks[2]] else "HEAD_LAST");tp=rank_point_reward(s.outcome_class,s.winner_team);s.rewards=np.asarray([tp[TEAM_OF[x]] for x in range(4)],dtype=np.float32);s.team_rewards=np.asarray([tp[0],tp[1]],dtype=np.float32);s.finish_committed_step=s.committed_step;s.finish_token_step=s.committed_step
 def _append(s,a):
     for i in range(1,5):
         x=(a+i)%4

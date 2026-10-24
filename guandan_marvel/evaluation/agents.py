@@ -68,6 +68,16 @@ class V2PolicySession:
 
     @torch.inference_mode()
     def observe_and_score(self, step) -> torch.Tensor:
+        return self.observe_score_and_value(step)[0]
+
+    @torch.inference_mode()
+    def observe_score_and_value(self, step) -> tuple[torch.Tensor, torch.Tensor | None]:
+        """Return policy probabilities and the acting player's value head output.
+
+        The value is the IPPO state value for the acting player at this state;
+        it is exactly what the phase-6 value qualification target is compared
+        against (same player, same state, same checkpoint).
+        """
         rollout = TensorDict({
             "num_steps": torch.ones(1, dtype=torch.long, device=self.device),
             "player_ids": torch.as_tensor(step.player_ids, dtype=torch.long, device=self.device).unsqueeze(1),
@@ -83,8 +93,13 @@ class V2PolicySession:
             raise FloatingPointError("V2 policy returned invalid probabilities")
         if not bool((probabilities[~legal] == 0).all()):
             raise RuntimeError("V2 policy assigned probability to an illegal action")
+        value = None
+        if output.player_state_value is not None:
+            value = output.player_state_value[0, 0].float()
+            if not bool(torch.isfinite(value).all()):
+                raise FloatingPointError("V2 policy returned a non-finite state value")
         self.steps += 1
-        return probabilities
+        return probabilities, value
 
     def select_index(self, probabilities: torch.Tensor, step) -> int:
         weights = torch.as_tensor(step.available_actions.weights[0], dtype=torch.float32, device=self.device)

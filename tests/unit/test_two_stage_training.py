@@ -1,4 +1,6 @@
 from __future__ import annotations
+import hashlib
+import json
 from types import SimpleNamespace
 
 from guandan_marvel.config import GameSpec
@@ -26,6 +28,60 @@ def _schedule():
     }
 
 
+def _profile(*, schedule=None):
+    training = {
+        "target_iterations": 100, "checkpoint_interval": 50, "evaluation_interval": 0,
+        "rollout_batch_size": 4, "collect_batch_size": 20, "replay_buffer_scale": 8,
+        "mini_batches": 8, "max_sampler_bytes_per_rank": 4294967296, "seed": 570700,
+        "agent_epoch": 4, "critic_aux_epoch": 4, "base_lr": 4e-4,
+        "base_clip_coef": 0.02, "base_reg_coef": 0.1,
+        "training_semantics_profile": "legacy_token_v1",
+        "policy_regularizer_mode": "legacy_token_kl_uniform_v1",
+        "model": {"architecture": "v1.3", "history_dim": 128, "feature_dim": 256,
+                  "decoder_layers": 4, "decoder_heads": 4, "state_layers": 3,
+                  "action_layers": 2, "fuse_layers": 2},
+    }
+    if schedule is not None:
+        training["training_context_schedule"] = schedule
+    return {
+        "schema": "guandan-marvel-kaggle-profile-v1", "mode": "full", "algorithm": "ippo",
+        "ddp": {"launcher": "torchrun", "world_size": 2, "backend": "nccl", "require_cuda": True},
+        "training": training,
+    }
+
+
+def _expected_manifest_hash(schedule):
+    source = {
+        "schema": "guandan-marvel-training-source-manifest-v1",
+        "domain": "training",
+        "generator_version": "guandan-marvel-env-batch-continuous-prng-v1",
+        "seed_semantics": "EnvBatch initial seed plus slot, then continuous per-slot PRNG reset stream",
+        "initial_seed": 570700,
+        "environment_rank_seed_stride": 1_000_003,
+        "rollout_batch_size": 4,
+        "reward_semantics": "guandan_rank_points",
+        "reward_scale": 1.0 / 3.0,
+    }
+    if schedule is not None:
+        source["training_context_schedule"] = schedule
+    return hashlib.sha256(
+        json.dumps(source, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+
+
+def test_training_manifest_hash_covers_context_schedule(tmp_path):
+    plain = build_train_config(_profile(), game=_game(), run_root=tmp_path / "plain")
+    scheduled = build_train_config(_profile(schedule=_schedule()), game=_game(), run_root=tmp_path / "sched")
+    assert plain.training_context_schedule is None
+    assert plain.training_data_manifest_hash == _expected_manifest_hash(None)
+    assert scheduled.training_data_manifest_hash == _expected_manifest_hash(_schedule())
+    assert plain.training_data_manifest_hash != scheduled.training_data_manifest_hash
+    weight_changed = _schedule()
+    weight_changed["contexts"][0]["weight"] = 3
+    changed = build_train_config(_profile(schedule=weight_changed), game=_game(), run_root=tmp_path / "changed")
+    assert changed.training_data_manifest_hash != scheduled.training_data_manifest_hash
+
+
 def test_full_profile_freezes_context_schedule_and_warm_start_hyperparameters(tmp_path):
     profile = {
         "schema": "guandan-marvel-kaggle-profile-v1", "mode": "full", "algorithm": "ippo",
@@ -36,6 +92,8 @@ def test_full_profile_freezes_context_schedule_and_warm_start_hyperparameters(tm
             "mini_batches": 2, "max_sampler_bytes_per_rank": 4294967296, "seed": 470700,
             "agent_epoch": 4, "critic_aux_epoch": 4, "base_lr": 1e-4,
             "base_clip_coef": 0.01, "base_reg_coef": 0.05,
+            "training_semantics_profile": "legacy_token_v1",
+            "policy_regularizer_mode": "legacy_token_kl_uniform_v1",
             "lr_stable_iterations": 500, "reg_stable_iterations": 500,
             "training_context_schedule": _schedule(),
             "model": {"architecture": "v1.3", "history_dim": 128, "feature_dim": 256, "decoder_layers": 4, "decoder_heads": 4, "state_layers": 3, "action_layers": 2, "fuse_layers": 2},
@@ -52,7 +110,9 @@ def test_full_profile_freezes_context_schedule_and_warm_start_hyperparameters(tm
 
 class _Module:
     def __init__(self): self.loaded = None
-    def load_state_dict(self, state, strict=True): self.loaded = (state, strict)
+    def load_state_dict(self, state, strict=True):
+        self.loaded = (state, strict)
+        return [], []
 
 
 class _Merge:
@@ -73,8 +133,8 @@ def test_warm_start_loads_policy_only_and_resets_training_state():
         "resolved_config_hash": "a" * 64, "source_hash": "b" * 64,
     }
     result = LocalTrainerBase.load_warm_start_policy(fake, payload)
-    assert fake.agent_resume.loaded == ({"weight": 1}, True)
-    assert fake.agent_merged.loaded == ({"weight": 1}, True)
+    assert fake.agent_resume.loaded == ({"weight": 1}, False)
+    assert fake.agent_merged.loaded == ({"weight": 1}, False)
     assert fake.merge_updater.iteration == 0
     assert result["source_iteration"] == 5000
     assert result["optimizer_reset"] is True

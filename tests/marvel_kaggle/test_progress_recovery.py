@@ -179,7 +179,10 @@ def test_worker_publishes_recovery_before_entering_evaluation():
     checkpoint = source.index("save_distributed_checkpoint(")
     index = source.index("update_checkpoint_index(", checkpoint)
     bundle = source.index("build_recovery_bundle(", index)
-    evaluation = source.index("run_smoke_evaluation_isolated(", bundle)
+    # Phase-4 repair centralises the evaluator call in run_due_evaluation(); the
+    # ordering guarantee (durable recovery published before any evaluation) is
+    # unchanged.
+    evaluation = source.index("run_due_evaluation(", bundle)
     assert checkpoint < index < bundle < evaluation
 
 

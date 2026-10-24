@@ -13,8 +13,15 @@ import torch
 from guandan_marvel.model.tensordict import TensorDict
 
 from guandan_marvel.buffer import BufferConfig, FieldSpecLike, TrajectoryBuffer, trajectory_field_specs
+from guandan_marvel.context_schedule import (
+    context_hash, curriculum_expanded_contexts, curriculum_provenance,
+    expand_context_schedule, schedule_coverage, validate_context_curriculum,
+    validate_context_schedule,
+)
 from guandan_marvel.env_batch import EnvStepBatch
 from guandan_marvel.model import KVCache
+from guandan_marvel.reward import TRAINING_REWARD_SCALE
+from guandan_marvel.runtime.trajectory_layout import trim_completed_trajectory_padding
 from guandan_marvel.utils import unwrap_distributed_module
 
 SAMPLER_CONTRACT_SCHEMA = "guandan-marvel-sampler-contract-v2"
@@ -47,8 +54,13 @@ class SamplerConfig:
     data_manifest_hash: str | None = None
     data_generator_version: str = "guandan-marvel-env-batch-continuous-prng-v1"
     context_schedule: Mapping[str, object] | None = None
+    context_curriculum: Mapping[str, object] | None = None
+    reward_scale: float = TRAINING_REWARD_SCALE
+    trim_completed_padding: bool = False
 
     def __post_init__(self) -> None:
+        if not isinstance(self.trim_completed_padding, bool):
+            raise TypeError("trim_completed_padding must be bool")
         object.__setattr__(self, "device", torch.device(self.device))
         temperature = float(self.sampling_temperature)
         purpose = str(self.purpose).strip().lower()
@@ -69,6 +81,12 @@ class SamplerConfig:
             object.__setattr__(self, "data_manifest_hash", value.lower())
         if not str(self.data_generator_version).strip():
             raise ValueError("data_generator_version must be non-empty")
+        scale = float(self.reward_scale)
+        if not math.isfinite(scale) or scale != TRAINING_REWARD_SCALE:
+            raise ValueError(
+                "reward_scale must be exactly the rank-point training scale 1/3"
+            )
+        object.__setattr__(self, "reward_scale", scale)
         if self.field_specs is None:
             specs = trajectory_field_specs(self.game)
             object.__setattr__(self, "field_specs", specs)
@@ -84,6 +102,7 @@ class Sampler:
         envs: Any | None = None,
         rollout_buffer: TrajectoryBuffer | None = None,
         parsed_envs_step: EnvStepBatch | None = None,
+        policy_router: Any | None = None,
     ) -> None:
         self.config = config
         self.game = config.game
@@ -91,6 +110,15 @@ class Sampler:
         self._cache_dtype = config.cache_dtype
         self._sampling_temperature = float(config.sampling_temperature)
         self.purpose = config.purpose
+        if policy_router is not None:
+            # The pool router consumes the same on-policy temperature-1 path and
+            # emits explicit owner/train masks.  No other purpose is supported.
+            if config.purpose != "on_policy":
+                raise ValueError("a policy router is supported only for on_policy sampling")
+            for method in ("prepare", "policy_probabilities", "on_commit", "state_dict"):
+                if not callable(getattr(policy_router, method, None)):
+                    raise TypeError(f"policy router must define {method}()")
+        self.policy_router = policy_router
         self._env_seed = config.env_seed
         self._data_domain = config.data_domain
         self._data_manifest_hash = config.data_manifest_hash
@@ -123,27 +151,28 @@ class Sampler:
         self._buffer_config = buffer_config
 
         self.envs = envs if envs is not None else self.game.EnvBatch(self.rollout_batch_size)
-        if envs is None and config.context_schedule is not None:
-            contexts = config.context_schedule.get("contexts") if isinstance(config.context_schedule, Mapping) else None
-            if not isinstance(contexts, list) or not contexts:
-                raise ValueError("context_schedule must contain a non-empty contexts list")
-            configure = getattr(self.envs, "configure_context_schedule", None)
-            if not callable(configure):
-                raise TypeError("runtime EnvBatch does not support context schedules")
-            expanded = []
-            for context in contexts:
-                if not isinstance(context, Mapping):
-                    raise TypeError("context schedule rows must be mappings")
-                row = {key: value for key, value in context.items() if key != "weight"}
-                expanded.extend(dict(row) for _ in range(int(context.get("weight", 1))))
-            configure(expanded)
+        self._context_schedule = config.context_schedule
+        self._context_curriculum = config.context_curriculum
+        self._curriculum_iteration = 0
+        self._last_context_configuration: tuple[int, str] | None = None
+        if self._context_schedule is not None:
+            validate_context_schedule(dict(self._context_schedule))
+        if self._context_curriculum is not None:
+            validate_context_curriculum(dict(self._context_curriculum))
+            if self._context_schedule is None:
+                raise ValueError("a context curriculum requires a target context schedule")
+        if envs is None and self._context_schedule is not None:
+            self._configure_contexts(0)
         if parsed_envs_step is None:
             seed = self._env_seed if self._env_seed is not None else 0
             reset_result = self.envs.reset(seed)
             parsed_envs_step = EnvStepBatch.from_env_step(reset_result, config)
         self.parsed_envs_step = parsed_envs_step
+        self._episode_identities: dict[int, dict[str, object]] = {}
         if self.purpose == "on_policy" and self._data_domain == "training":
-            self._record_training_deals(range(self.rollout_batch_size))
+            # Capture the in-flight deals now; each is recorded once, at the
+            # moment it completes (see _record_training_deals).
+            self._capture_episode_identities(range(self.rollout_batch_size))
 
         self.rollout_buffer = rollout_buffer or TrajectoryBuffer(
             self.rollout_batch_size,
@@ -179,6 +208,50 @@ class Sampler:
     @property
     def failed(self) -> bool:
         return self._failed
+
+    def _expanded_contexts(self, iteration: int) -> list[dict[str, object]]:
+        if self._context_curriculum is not None:
+            return curriculum_expanded_contexts(
+                self._context_curriculum, self._context_schedule, iteration,
+            )
+        return expand_context_schedule(self._context_schedule)
+
+    def _configure_contexts(self, iteration: int) -> None:
+        """Install the iteration's context mixture and deterministic offset.
+
+        The environment consumes a global per-deal counter that restarts at
+        ``offset = (iteration * collect_batch_size) % len(expanded)`` exactly
+        once per collection.  Consecutive slots consume consecutive positions,
+        the counter advances by one per deal, and the offset is a pure function
+        of the iteration and collect size (never wall-clock time).  The
+        configuration is applied only when ``(offset, expanded hash)`` changes,
+        so a repeated collect in the same iteration never clears the counter.
+        """
+        configure = getattr(self.envs, "configure_context_schedule", None)
+        if not callable(configure):
+            raise TypeError("runtime EnvBatch does not support context schedules")
+        expanded = [dict(row) for row in self._expanded_contexts(int(iteration))]
+        offset = (int(iteration) * int(self.collect_batch_size)) % len(expanded)
+        configuration = (offset, self._canonical_hash(expanded))
+        if configuration == self._last_context_configuration:
+            return
+        try:
+            configure(expanded, offset=offset)
+        except TypeError:
+            # Backend without offset support is rejected rather than silently
+            # falling back to a non-deterministic assignment.
+            raise TypeError("runtime EnvBatch.configure_context_schedule must accept offset=")
+        self._last_context_configuration = configuration
+        self._curriculum_iteration = int(iteration)
+
+    def set_curriculum_iteration(self, iteration: int) -> None:
+        """Record the upcoming iteration; the mixture is installed in collect()."""
+        if self._context_schedule is None:
+            return
+        value = int(iteration)
+        if value < 0:
+            raise ValueError("curriculum iteration must be non-negative")
+        self._curriculum_iteration = value
 
     @property
     def failure_info(self) -> dict[str, object] | None:
@@ -220,6 +293,8 @@ class Sampler:
         with torch.inference_mode():
             self._ensure_agent_cache(agent_model)
             self._rebuild_agent_cache(agent_model)
+            if self.policy_router is not None:
+                self.policy_router.prepare(rollout_buffer=self.rollout_buffer)
 
     def collect(
         self,
@@ -233,12 +308,25 @@ class Sampler:
                 "Sampler.collect() requires collect_batch_size > 0 (commit mode). "
                 "Use rollout_step() and read sampler.envs/parsed_envs_step directly in no-commit mode."
             )
+        if self._context_schedule is not None:
+            self._configure_contexts(self._curriculum_iteration)
+        # Inference performs no gradient synchronization. Bypass DDP's forward
+        # bookkeeping for independently progressing environment streams; learner
+        # forwards/backwards still use the synchronized DDP module.
+        if self.config.trim_completed_padding:
+            agent_model = unwrap_distributed_module(agent_model)
         with torch.inference_mode():
+            cache_started = time.perf_counter() if self.config.timing_callback is not None else None
             self.prepare_agent_cache(agent_model = agent_model)
+            if cache_started is not None:
+                self.config.timing_callback("cache_prefill_and_allocation", time.perf_counter() - cache_started)
             while self.commit_buffer_size < self.collect_batch_size:
                 self.rollout_step(agent_model = agent_model)
 
-        collect_batch = self.commit_buffer[: self.collect_batch_size].clone()
+        collect_batch = self.commit_buffer[: self.collect_batch_size]
+        if self.config.trim_completed_padding:
+            collect_batch = trim_completed_trajectory_padding(collect_batch)
+        collect_batch = collect_batch.clone()
         self.consume(self.collect_batch_size)
         return collect_batch
 
@@ -256,44 +344,84 @@ class Sampler:
         if env_values is not None:
             env = env_values[int(index)]
             full = env.full_state()
+            state = full["round_state"]
             return {
                 "config": {
                     "seed": getattr(env.config, "seed", None),
-                    "level_rank": getattr(env.config, "level_rank", None),
-                    "leader_seat": getattr(env.config, "leader_seat", None),
-                    "previous_result": None,
+                    "level_rank": state.get("level_rank", getattr(env.config, "level_rank", None)),
+                    "leader_seat": state.get("leader_seat", getattr(env.config, "leader_seat", None)),
+                    "previous_result": state.get("previous_result"),
                 },
-                "state": full["round_state"],
+                "state": state,
                 "reset_count": int(getattr(env, "_reset_count", 0)),
             }
         raise TypeError("training provenance requires an environment debug/full-state API")
 
-    def _record_training_deals(self, indices) -> None:
+    def _episode_identity(self, index: int) -> dict[str, object]:
+        payload = self._debug_game_state(int(index))
+        state = payload["state"]
+        config = payload.get("config", {})
+        previous = state.get("previous_result")
+        level = int(state["level_rank"])
+        leader = int(state["leader_seat"])
+        hands = [sorted(int(card) for card in hand) for hand in state["hands"]]
+        identity = {"hands": hands, "level_rank": level, "leader_seat": leader, "previous_result": previous}
+        return {
+            "deal_sha256": self._canonical_hash(identity),
+            "context_sha256": context_hash(
+                {"level_rank": level, "leader_seat": leader, "previous_result": previous},
+            ),
+            "level_rank": level,
+            "leader_seat": leader,
+            "previous_result": previous,
+            "source_seed": config.get("seed", self._env_seed),
+            "reset_count": int(payload.get("reset_count", 0)),
+        }
+
+    def _capture_episode_identities(self, indices) -> None:
+        """Record the identity of each slot's *current* (post-reset) game."""
         for index in indices:
-            payload = self._debug_game_state(int(index))
-            state = payload["state"]
-            config = payload.get("config", {})
-            hands = [sorted(int(card) for card in hand) for hand in state["hands"]]
-            identity = {
-                "hands": hands,
-                "level_rank": int(state["level_rank"]),
-                "leader_seat": int(state["leader_seat"]),
-                "previous_result": state.get("previous_result"),
-            }
-            digest = self._canonical_hash(identity)
+            self._episode_identities[int(index)] = self._episode_identity(int(index))
+
+    def _record_training_deals(self, indices) -> None:
+        """Emit one provenance record per just-completed game.
+
+        ``rollout_step`` calls this after ``envs.step``; with auto-reset the
+        environment has already dealt the *next* game, so the completed game's
+        identity is taken from the per-slot store captured when it started, and
+        the store is then refreshed from the new post-reset state.
+        """
+        for index in indices:
+            index = int(index)
+            identity = self._episode_identities.get(index)
+            if identity is None:
+                identity = self._episode_identity(index)
             record = {
-                "slot": int(index),
-                "reset_count": int(payload.get("reset_count", len(self._training_deal_records) + 1)),
-                "deal_sha256": digest,
-                "source_seed": config.get("seed", self._env_seed),
-                "level_rank": int(state["level_rank"]),
-                "leader_seat": int(state["leader_seat"]),
-                "previous_result": state.get("previous_result"),
+                "slot": index,
+                "reset_count": int(identity["reset_count"]),
+                "deal_sha256": identity["deal_sha256"],
+                "context_sha256": identity["context_sha256"],
+                "source_seed": identity["source_seed"],
+                "level_rank": int(identity["level_rank"]),
+                "leader_seat": int(identity["leader_seat"]),
+                "previous_result": identity["previous_result"],
             }
             self._training_deal_records.append(record)
-            self._training_deal_hashes.add(digest)
+            self._training_deal_hashes.add(str(record["deal_sha256"]))
+        self._capture_episode_identities(indices)
 
     def training_data_provenance(self) -> dict[str, object]:
+        observed_levels = sorted({int(row["level_rank"]) for row in self._training_deal_records})
+        observed_leaders = sorted({int(row["leader_seat"]) for row in self._training_deal_records})
+        observed_modes = sorted({
+            "none" if row.get("previous_result") is None else (
+                "cancelled" if row["previous_result"].get("tribute_cancelled") else str(row["previous_result"]["outcome_class"]).lower()
+            )
+            for row in self._training_deal_records
+        })
+        declared_coverage = None
+        if self._context_schedule is not None:
+            declared_coverage = schedule_coverage(self._context_schedule)
         base = {
             "schema": TRAINING_DATA_PROVENANCE_SCHEMA,
             "domain": self._data_domain,
@@ -305,6 +433,17 @@ class Sampler:
             "deal_count": len(self._training_deal_records),
             "deal_hashes": sorted(self._training_deal_hashes),
             "records_hash": self._canonical_hash(self._training_deal_records),
+            "declared_context_coverage": declared_coverage,
+            "observed_context_coverage": {
+                "level_ranks": observed_levels,
+                "leader_seats": observed_leaders,
+                "tribute_modes": observed_modes,
+                "deal_count": len(self._training_deal_records),
+                "context_hashes": sorted({str(row["context_sha256"]) for row in self._training_deal_records}),
+            },
+            "curriculum": curriculum_provenance(
+                self._context_curriculum, self._context_schedule, self._curriculum_iteration,
+            ),
             "complete": bool(
                 self.purpose == "on_policy"
                 and self._data_domain == "training"
@@ -355,7 +494,10 @@ class Sampler:
             "rejected_rollout_steps": self.rejected_rollout_steps,
             "terminal_info_queue": [dict(item) for item in self._terminal_info_queue],
             "training_deal_records": [dict(item) for item in self._training_deal_records],
+            "episode_identities": {str(key): dict(value) for key, value in sorted(self._episode_identities.items())},
+            "curriculum_iteration": int(self._curriculum_iteration),
             "training_data_provenance": self.training_data_provenance(),
+            "policy_router": None if self.policy_router is None else self.policy_router.state_dict(),
         }
 
     def load_state_dict(self, state: Mapping[str, object]) -> None:
@@ -403,6 +545,26 @@ class Sampler:
             raise ValueError("sampler training_deal_records must be a list")
         self._training_deal_records = [dict(item) for item in records]
         self._training_deal_hashes = {str(item["deal_sha256"]) for item in self._training_deal_records}
+        raw_identities = state.get("episode_identities", {})
+        if not isinstance(raw_identities, Mapping):
+            raise ValueError("sampler episode_identities must be a mapping")
+        self._episode_identities = {
+            int(key): dict(value) for key, value in raw_identities.items()
+        }
+        self._last_context_configuration = None
+        self._curriculum_iteration = int(state.get("curriculum_iteration", 0))
+        raw_router = state.get("policy_router")
+        if self.policy_router is None:
+            if raw_router is not None:
+                raise ValueError(
+                    "checkpoint contains opponent-pool router state but the sampler is pool-disabled"
+                )
+        else:
+            if not isinstance(raw_router, Mapping):
+                raise ValueError(
+                    "sampler is pool-enabled but the checkpoint lacks opponent-pool router state"
+                )
+            self.policy_router.load_state_dict(raw_router)
         declared_provenance = state.get("training_data_provenance")
         if declared_provenance != self.training_data_provenance():
             raise ValueError("sampler training data provenance mismatch")
@@ -481,6 +643,15 @@ class Sampler:
             batch_size = [self.rollout_batch_size],
             device = self.device,
         )
+        if self.config.trim_completed_padding:
+            # Cache capacity and real histories stay unchanged. Only avoid prefill
+            # computation on a globally padded suffix (compile is off in this pilot).
+            end = int(num_steps.max().item())
+            rollout = TensorDict(
+                {name: (value[:, :end] if value.dim() >= 2 else value)
+                 for name, value in rollout.items()},
+                batch_size=rollout.batch_size, device=rollout.device,
+            )
         agent_model(
             rollout = rollout,
             use_cache = True,
@@ -501,6 +672,8 @@ class Sampler:
 
         self.rollout_buffer.reset(mask)
         self.agent_kv.reset(mask.repeat_interleave(self.P))
+        if self.policy_router is not None:
+            self.policy_router.on_commit(mask)
 
     @torch.inference_mode()
     def rollout_step(
@@ -549,6 +722,8 @@ class Sampler:
 
         self.attempted_env_steps += self.rollout_batch_size
         stage = "agent_forward"
+        step_fields: dict[str, torch.Tensor] | None = None
+        router_on_policy: torch.Tensor | None = None
         try:
             agent_started = time.perf_counter()
             step_rollout = TensorDict(
@@ -569,6 +744,12 @@ class Sampler:
                 past_key_values=self.agent_kv,
             )
             policy_probs = per_env_output.avail_probs.squeeze(1).float()
+            if self.policy_router is not None:
+                policy_probs, router_on_policy, step_fields = self.policy_router.policy_probabilities(
+                    step_rollout=step_rollout,
+                    parsed_envs_step=self.parsed_envs_step,
+                    current_probabilities=policy_probs,
+                )
             if self.config.timing_callback is not None:
                 self.config.timing_callback(
                     "model_forward_with_cache", time.perf_counter() - agent_started,
@@ -622,6 +803,8 @@ class Sampler:
                 dtype=torch.bool,
                 device=self.device,
             )
+            if router_on_policy is not None:
+                on_policy_valid = on_policy_valid & router_on_policy.to(torch.bool)
             action_is_commit = self.parsed_envs_step["avail_is_commit"][
                 self._micro_buffer_range, action_taken
             ].to(torch.bool)
@@ -634,6 +817,7 @@ class Sampler:
                 behavior_action_prob=behavior_action_prob,
                 on_policy_valid=on_policy_valid,
                 action_taken=action_taken,
+                step_fields=step_fields,
             )
 
             if self.config.timing_callback is not None:

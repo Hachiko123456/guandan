@@ -478,7 +478,7 @@ def test_terminal_slot_noop_and_terminal_rewards(terminal_fixture: bytes) -> Non
             break
     assert result.done[0] and result.is_commit[0]
     assert result.committed_action[0] is not None
-    np.testing.assert_array_equal(result.rewards[0], [1, -1, 1, -1])
+    np.testing.assert_array_equal(result.rewards[0], [3, -3, 3, -3])
     saved, ended = batch.envs[0].serialize(), batch.envs[0]
     counters = (result.token_step[0], result.committed_step[0])
     for _ in range(3):
@@ -757,6 +757,6 @@ def test_terminal_auto_reset_matches_single_with_already_truncated_neighbor(
             assert actual.info[0] == expected.info
             assert_row(actual.observation, 0, expected.observation)
     assert expected.done and reset_calls == [CONFIGS[0]]
-    np.testing.assert_array_equal(actual.rewards[0], [1, -1, 1, -1])
+    np.testing.assert_array_equal(actual.rewards[0], [3, -3, 3, -3])
     assert_row(actual.observation, 0, standalone.reset())
     assert batch.serialize() == [standalone.serialize(), inactive_payload]

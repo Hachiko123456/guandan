@@ -5,8 +5,9 @@ from pathlib import Path
 from typing import Mapping
 
 from guandan_marvel.config import (
-    DDPConfig, GameSpec, ModelConfig, TrainConfig, deserialize_train_config,
+    DDPConfig, GameSpec, ModelConfig, PPOConfig, TrainConfig, deserialize_train_config,
 )
+from guandan_marvel.reward import REWARD_SEMANTICS, TRAINING_REWARD_SCALE
 from guandan_marvel.training.checkpoints import NON_SEMANTIC_CONFIG_PATHS, ResumeDecision
 
 RESUME_CONTROL_FIELDS = frozenset({
@@ -40,9 +41,28 @@ def build_train_config(
     algorithm = str(profile.get("algorithm", ""))
     if algorithm not in {"ippo", "vrpo"}:
         raise ValueError(f"unsupported training algorithm {algorithm!r}")
+    ntp_weight = float(training.get("ntp_weight", 0.0) or 0.0)
+    if ntp_weight > 0.0 and algorithm != "ippo":
+        raise ValueError("ntp_weight is supported only for the ippo algorithm")
     device = "cpu" if local_cpu_test else "cuda"
     backend = "gloo" if local_cpu_test else str(ddp.get("backend", "nccl"))
     require_cuda = False if local_cpu_test else bool(ddp.get("require_cuda", True))
+    macro_gae_lambda = training.get("macro_gae_lambda")
+    # Never silently fall back to the legacy token semantics: a training profile
+    # must state its estimator/regularizer explicitly.  An explicit legacy
+    # declaration is still accepted (it is an intentional, audited choice).
+    for key in ("training_semantics_profile", "policy_regularizer_mode"):
+        if key not in training:
+            raise ValueError(f"training.{key} must be declared explicitly in the profile")
+    ppo = PPOConfig(
+        agent_epoch=int(training.get("agent_epoch", 1)),
+        base_lr=float(training.get("base_lr", PPOConfig.base_lr)),
+        base_clip_coef=float(training.get("base_clip_coef", PPOConfig.base_clip_coef)),
+        base_reg_coef=float(training.get("base_reg_coef", PPOConfig.base_reg_coef)),
+        training_semantics_profile=str(training["training_semantics_profile"]),
+        policy_regularizer_mode=str(training["policy_regularizer_mode"]),
+        macro_gae_lambda=None if macro_gae_lambda is None else float(macro_gae_lambda),
+    )
     config = TrainConfig(
         game=GameSpec.from_game(game),
         device=device,
@@ -55,6 +75,9 @@ def build_train_config(
             "training_data_generator_version", "guandan-marvel-env-batch-continuous-prng-v1",
         )),
         training_context_schedule=None if training.get("training_context_schedule") is None else dict(training["training_context_schedule"]),
+        training_context_curriculum=None if training.get("training_context_curriculum") is None else dict(training["training_context_curriculum"]),
+        reward_semantics=str(training.get("reward_semantics", REWARD_SEMANTICS)),
+        reward_scale=float(training.get("reward_scale", TRAINING_REWARD_SCALE)),
         rollout_batch_size=int(training["rollout_batch_size"]),
         collect_batch_size=int(training["collect_batch_size"]),
         replay_buffer_scale=int(training["replay_buffer_scale"]),
@@ -64,8 +87,12 @@ def build_train_config(
         evaluation_interval=int(training["evaluation_interval"]),
         max_sampler_bytes_per_rank=int(training["max_sampler_bytes_per_rank"]),
         amp_enabled=bool(training.get("amp_enabled", False)),
+        trim_completed_padding=training.get("trim_completed_padding", False),
         checkpoint_replay_buffer=True,
+        ntp_weight=ntp_weight,
+        ntp_pos_weight=float(training.get("ntp_pos_weight", 10.0)),
         model=ModelConfig(**dict(model_payload)),
+        ppo=ppo,
         ddp=DDPConfig(
             enabled=int(ddp.get("world_size", 0)) > 1,
             backend=backend,
@@ -73,13 +100,12 @@ def build_train_config(
             find_unused_parameters=bool(ddp.get("find_unused_parameters", False)),
         ),
     )
-    config.ppo.agent_epoch = int(training.get("agent_epoch", 1))
-    config.ppo.base_lr = float(training.get("base_lr", config.ppo.base_lr))
-    config.ppo.base_clip_coef = float(training.get("base_clip_coef", config.ppo.base_clip_coef))
-    config.ppo.base_reg_coef = float(training.get("base_reg_coef", config.ppo.base_reg_coef))
     config.lr_stable_iterations = int(training.get("lr_stable_iterations", config.lr_stable_iterations))
     config.reg_stable_iterations = int(training.get("reg_stable_iterations", config.reg_stable_iterations))
     config.vrpo.aux_epoch = int(training.get("critic_aux_epoch", 1))
+    if "schedule" in training:
+        from guandan_marvel.config import ScheduleConfig
+        config.schedule = ScheduleConfig(**dict(training["schedule"]))
     config.agent_merging_beta = float(training.get("agent_merging_beta", 0.0))
     config.optimizer.use_muon = bool(training.get("use_muon", False))
     config.compile.enabled = bool(training.get("compile_enabled", False))

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 import torch
@@ -21,6 +21,7 @@ class DistributedContext:
     rank: int
     local_rank: int
     device: torch.device
+    object_group: Any = field(default=None, repr=False, compare=False)
 
     @property
     def enabled(self) -> bool:
@@ -67,11 +68,32 @@ class DistributedContext:
         if self.enabled:
             dist.barrier()
 
+    def with_cpu_object_collectives(self) -> "DistributedContext":
+        """Use a Gloo side group for metadata only; DDP tensors stay on NCCL.
+
+        Every rank must call in the same order, before any metadata exchange.
+        The default group/model device are deliberately not changed.
+        """
+        if not self.enabled or self.object_group is not None:
+            return self
+        if not dist.is_gloo_available():
+            raise RuntimeError("Gloo metadata backend unavailable; refusing implicit fallback")
+        return replace(self, object_group=dist.new_group(backend="gloo"))
+
+    @property
+    def object_collective_backend(self) -> str:
+        if not self.enabled:
+            return "disabled"
+        return str(dist.get_backend(self.object_group)) if self.object_group is not None else str(dist.get_backend())
+
     def all_gather_object(self, value: object) -> list[object]:
         if not self.enabled:
             return [value]
         gathered: list[object] = [None for _ in range(self.world_size)]
-        dist.all_gather_object(gathered, value)
+        if self.object_group is None:
+            dist.all_gather_object(gathered, value)
+        else:
+            dist.all_gather_object(gathered, value, group=self.object_group)
         return gathered
 
 
@@ -151,6 +173,8 @@ class DistributedRuntime:
 
     def close(self) -> None:
         if dist.is_initialized():
+            if self.context.object_group is not None:
+                dist.destroy_process_group(self.context.object_group)
             dist.destroy_process_group()
 
 

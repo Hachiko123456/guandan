@@ -73,7 +73,7 @@ def play_game(
     legacy: LegacyV1OpponentArtifact | None = None,
     temperature: float = 0.0,
     device: str = "cpu",
-    max_steps: int = 4096,
+    max_steps: int | None = None,
 ) -> dict[str, object]:
     if opponent_kind not in OPPONENT_KINDS:
         raise ValueError(f"unsupported opponent kind {opponent_kind!r}")
@@ -81,6 +81,11 @@ def play_game(
         raise ValueError("v2 opponent requires a checkpoint")
     if opponent_kind == "legacy_v1" and legacy is None:
         raise ValueError("legacy_v1 opponent requires a dedicated legacy artifact")
+    native_horizon = int(cpp_game.GAME_SPEC.max_game_horizon)
+    if max_steps is None:
+        max_steps = native_horizon
+    if isinstance(max_steps, bool) or not isinstance(max_steps, int) or not 1 <= max_steps <= native_horizon:
+        raise ValueError(f"evaluation max_steps must be in [1,{native_horizon}], got {max_steps!r}")
     config = deal_game_config(deal)
     env = cpp_game.EnvBatch(1, configs=[config], auto_reset=False, max_horizon=max_steps)
     step = env.reset(int(deal["seed"]))
@@ -156,13 +161,19 @@ def play_game(
             break
     runtime_seconds = time.perf_counter() - started
     if terminal_step is None:
+        # A truncated game is *auditable*: it carries the same physical deal
+        # identity, the action trace of everything that did happen and the
+        # committed-step counter.  Without these the evaluator worker could not
+        # persist it at all (the shard would be lost with a confusing error).
         return {
             "schema": GAME_RECORD_SCHEMA,
             "status": "incomplete",
             "opponent_id": opponent_id,
             "opponent_kind": opponent_kind,
             "deal_id": deal["deal_id"],
-            "deal_seed": deal["seed"],
+            "deal_seed": int(deal["seed"]),
+            "level_rank": int(deal["level_rank"]),
+            "leader_seat": int(deal["leader_seat"]),
             "base_deal_sha256": deal_hash,
             "seat_rotation": rotation,
             "candidate_team": candidate_team,
@@ -170,6 +181,11 @@ def play_game(
             "truncated_count": 1,
             "runtime_seconds": runtime_seconds,
             "token_steps": max_steps,
+            "committed_steps": committed_steps,
+            "action_trace_sha256": action_digest.hexdigest(),
+            "decisions_by_seat": decisions,
+            "candidate_checkpoint_sha256": candidate.sha256,
+            "opponent_checkpoint_sha256": opponent_v2.sha256 if opponent_v2 is not None else (legacy.sha256 if legacy is not None else None),
         }
     info = dict(step.infos[0])
     terminal_debug = env.debug_state(0)["state"]
@@ -186,6 +202,12 @@ def play_game(
     ranking = [int(value) for value in info["ranking"]]
     winner_team = ranking.index(1) % 2
     rewards = [float(value) for value in np.asarray(step.rewards[0]).tolist()]
+    candidate_team_reward = float(rewards[candidate_team])
+    # Sign-based win criterion: the phase-4 raw reward is +3/+2/+1 per outcome,
+    # so an exact +/-1 comparison would silently misclassify every game.
+    candidate_win = candidate_team_reward > 0.0
+    if candidate_win != (winner_team == candidate_team):
+        raise RuntimeError("candidate_win sign disagrees with winner_team")
     if mirror is not None:
         if not mirror.done or mirror.truncated:
             raise RuntimeError("legacy mirror did not reach terminal with C++ host")
@@ -207,11 +229,11 @@ def play_game(
         "policies_by_seat": policies,
         "candidate_team": candidate_team,
         "winner_team": winner_team,
-        "candidate_win": winner_team == candidate_team,
+        "candidate_win": candidate_win,
         "ranking": ranking,
         "outcome_class": str(info["outcome_class"]),
         "rewards": rewards,
-        "candidate_team_reward": float(rewards[candidate_team]),
+        "candidate_team_reward": candidate_team_reward,
         "token_steps": terminal_step,
         "committed_steps": committed_steps,
         "engine_finish_token_step": finish_token_step,

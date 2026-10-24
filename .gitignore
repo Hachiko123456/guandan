@@ -2,6 +2,8 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .venv/
+.venv-kaggle/
+configs/kaggle_account.local.json
 runs/
 logs/**/*.log
 logs/**/*.jsonl
@@ -22,3 +24,12 @@ build/
 *.def
 
 *.egg-info/
+
+# 本地 agent 工作区与大体积分析产物（含 tmp_analysis 下的 recovery zip）
+.workbuddy/
+
+# 本地 GPU 训练虚拟环境（原先仅在 .git/info/exclude 中排除）
+.venv-gpu/
+
+# Claude Code 本机覆盖配置（.claude/ 其余项目配置保持跟踪）
+.claude/settings.local.json

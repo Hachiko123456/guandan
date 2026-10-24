@@ -56,7 +56,7 @@ def test_follow_pass_bombs_and_finished_skip():
     assert any(a.is_pass for a in enumerate_legal_actions(state))
     apply_action(state,CommittedAction(1,"pass"));apply_action(state,CommittedAction(2,CombinationKind.SINGLE,(high,)))
     assert state.done and state.outcome_class=="DOUBLE_DOWN" and state.finished_ranks==[0,2,3,1]
-    assert state.ranking==(1,4,2,3) and state.rewards.tolist()==[1.0,-1.0,1.0,-1.0] and state.team_rewards.tolist()==[1.0,-1.0]
+    assert state.ranking==(1,4,2,3) and state.rewards.tolist()==[3.0,-3.0,3.0,-3.0] and state.team_rewards.tolist()==[3.0,-3.0]
     with pytest.raises(EpisodeTerminatedError):apply_action(state,CommittedAction(0,"pass"))
 
 def previous(outcome,ranking=(1,2,3,4)):return PreviousHandResult(ranking,ranking.index(1)%2,outcome)

@@ -7,7 +7,9 @@ from typing import Any, Mapping, Optional, Tuple
 import torch
 import torch.nn as nn
 
-from guandan_marvel.config import TrainConfig, deserialize_train_config
+from guandan_marvel.config import (
+    MACRO_FUSE_MODEL_ARCHITECTURE, TrainConfig, deserialize_train_config,
+)
 from guandan_marvel.utils import get_game_attr
 from .cache import KVCache
 from .checkpointable import CheckpointableModule
@@ -27,24 +29,52 @@ def _dynamo_disable():
     return decorator
 
 
-class _FallbackRMSNorm(nn.Module):
-    def __init__(self, dim: int, eps: float = 1e-6) -> None:
+class _UpcastRMSNorm(nn.Module):
+    """RMSNorm over the last dimension whose statistics are always computed in FP32.
+
+    ``torch.nn.RMSNorm`` is deliberately *not* used here even where it is
+    available.  Its CPU kernel accumulates the variance in FP32
+    (``acc_type<BFloat16> == float``) but it then stores its result in the *input*
+    dtype: under ``torch.autocast`` a bf16 activation therefore leaves the module
+    still bf16 and the FP32 statistics are thrown away at the module boundary
+    (measured error vs an fp64 ground truth 0.0489 bf16 vs 0.0256 fp32 for a
+    ``N(0, 1)`` activation of width 64).
+
+    This implementation upcasts the activation to FP32, computes the mean of
+    squares *and* the normalisation there, and returns ``weight * normalised``.
+    ``weight`` is FP32, so the module emits an FP32 activation exactly like
+    ``TransformerRMSNorm`` (``transformer.py``) and the transformer decoder path.
+
+    ``eps`` keeps ``torch.nn.RMSNorm``'s ``None`` default, which means "use
+    ``finfo(input_dtype).eps``": because the statistics are now always evaluated
+    in FP32, ``None`` resolves to ``finfo(float32).eps``.  That makes the FP32 path
+    bitwise identical to the previous ``torch.nn.RMSNorm`` implementation, while
+    the reduced-precision path no longer inherits bf16's far larger
+    ``finfo(bfloat16).eps = 7.8e-3``.
+
+    It keeps the single ``weight`` parameter, so v1.3/v1.4 checkpoints still load
+    with ``strict=True``.
+    """
+
+    def __init__(self, dim: int, eps: float | None = None) -> None:
         super().__init__()
         self.weight = nn.Parameter(torch.ones(dim))
-        self.eps = float(eps)
+        self.eps = eps
 
     def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
         input_dtype = hidden_states.dtype
         hidden_states = hidden_states.to(torch.float32)
+        eps = torch.finfo(torch.float32).eps if self.eps is None else float(self.eps)
         variance = hidden_states.pow(2).mean(dim = -1, keepdim = True)
-        hidden_states = hidden_states * torch.rsqrt(variance + self.eps)
+        hidden_states = hidden_states * torch.rsqrt(variance + eps)
         return self.weight * hidden_states.to(input_dtype)
 
 
-if getattr(nn, "RMSNorm", None) is not None:
-    RMSNorm = nn.RMSNorm
-else:
-    RMSNorm = _FallbackRMSNorm
+# Backwards-compatible alias for the previous fallback-only name.
+_FallbackRMSNorm = _UpcastRMSNorm
+# Used unconditionally (never as a fallback): the reduced-precision-preserving
+# ``torch.nn.RMSNorm`` fast path is not wanted here.
+RMSNorm = _UpcastRMSNorm
 
 
 # ---------------------------------------------------------------------------
@@ -81,6 +111,69 @@ class ResGatedMLP(nn.Module):
             hidden_states = layer["mlp"](hidden_states)
             hidden_states = residual + hidden_states
         return self.output_norm(hidden_states)
+
+
+class ActorFuse(nn.Module):
+    """MARVEL v1.4 residual actor fuse.
+
+    Implements the additive residual branch
+
+    .. code-block:: text
+
+        z      = s * a                                   # legacy multiply path
+        u      = [s, a, s * a, |s - a|]
+        h      = ResGatedMLP(W_in u)
+        z_new  = z + W_out h                             # residual add
+        logits = logit_head(z_new)
+
+    with ``feature_dim`` hidden width and four-way concatenated input.  The zero
+    residual is produced by an *independent* zero-initialised output projection
+    ``W_out`` (``Linear(dim, dim, bias=False)``) rather than by zeroing the final
+    SwiGLU/down projection of the residual trunk: the trunk's identity path
+    (``x = x + MLP(norm(x))`` followed by ``output_norm``) would still emit a
+    non-zero activation even with a zeroed down projection, because the residual
+    shortcut carries the un-normalised input through.  Only ``W_out`` guarantees
+    ``W_out h == 0`` for arbitrary ``h``.
+    """
+
+    def __init__(
+        self,
+        dim: int,
+        *,
+        n_layers: int,
+        expansion_ratio: int = 1,
+    ) -> None:
+        super().__init__()
+        self.dim = int(dim)
+        # Normal (orthogonal, zero-bias) initialisation for the input projection.
+        #
+        # Weight-decay decision (explicit): ``input_proj.weight`` KEEPS the normal
+        # weight decay.  The stage-3 specification exempts only ``output_proj``
+        # ("output_proj 标记 no weight decay") and requires the trunk's large
+        # matrices to take the normal weight decay ("trunk 大矩阵正常 weight decay");
+        # this projection is a hidden 4D x D matrix belonging to that trunk.
+        # ``BaseMarvelModule._build_input_proj`` marks *its* projections no-decay,
+        # but that is a legacy quirk of the state/action MLP builders rather than a
+        # stated rule, and it is deliberately not copied here.  The chosen group is
+        # pinned by tests/marvel_training/test_macro_fuse.py::
+        # test_optimizer_places_every_fuse_parameter_and_exempts_output_proj and
+        # ::test_optimizer_muon_path_keeps_the_fuse_grouped_and_covered.
+        self.input_proj = TrainableModule._init_module(nn.Linear(4 * self.dim, self.dim))
+        self.trunk = ResGatedMLP(
+            self.dim,
+            n_layers = n_layers,
+            expansion_ratio = expansion_ratio,
+        )
+        output_proj = nn.Linear(self.dim, self.dim, bias = False)
+        # Strict zero initialisation *and* no weight decay: the residual gate must
+        # stay exactly zero at migration time and must not be pulled off zero by
+        # decoupled weight decay before it has received any gradient.
+        torch.nn.init.zeros_(output_proj.weight)
+        TrainableModule._mark_no_weight_decay(output_proj)
+        self.output_proj = output_proj
+
+    def forward(self, features: torch.Tensor) -> torch.Tensor:
+        return self.output_proj(self.trunk(self.input_proj(features)))
 
 
 class BaseMarvelModule(CheckpointableModule, TrainableModule):
@@ -161,6 +254,15 @@ class BaseMarvelModule(CheckpointableModule, TrainableModule):
         return ResGatedMLP(dim, n_layers = n_layers, expansion_ratio = expansion_ratio)
 
     @staticmethod
+    def _build_actor_fuse(
+        dim: int,
+        *,
+        n_layers: int,
+        expansion_ratio: int = 1,
+    ) -> ActorFuse:
+        return ActorFuse(dim, n_layers = n_layers, expansion_ratio = expansion_ratio)
+
+    @staticmethod
     def _build_input_proj(input_dim: int, output_dim: int) -> nn.Linear:
         layer = BaseMarvelModule._init_module(nn.Linear(input_dim, output_dim))
         BaseMarvelModule._mark_no_weight_decay(layer)
@@ -191,13 +293,19 @@ class BaseMarvelModule(CheckpointableModule, TrainableModule):
             self.model_architecture_version = (1, 2)
         elif architecture_raw == "v1.3":
             self.model_architecture_version = (1, 3)
+        elif architecture_raw == MACRO_FUSE_MODEL_ARCHITECTURE:
+            self.model_architecture_version = (1, 4)
         else:
             raise ValueError(
                 "Unsupported model architecture "
-                f"'{architecture_raw}'. Expected 'v1', 'v1.1', 'v1.2', 'v1.3', or a (major, minor) tuple."
+                f"'{architecture_raw}'. Expected 'v1', 'v1.1', 'v1.2', 'v1.3', "
+                f"'{MACRO_FUSE_MODEL_ARCHITECTURE}', or a (major, minor) tuple."
             )
         game = cfg.game
         self.max_game_horizon = int(get_game_attr(game, "max_game_horizon"))
+        # v1.4: the residual actor fuse is a genuine architectural addition.  It is
+        # enabled exactly by the explicit architecture version, never by a flag.
+        self.actor_fuse_enabled = self.model_architecture_version >= (1, 4)
 
         self._wd_param_names: Optional[Tuple[str, ...]] = None
 
@@ -293,10 +401,10 @@ class BaseMarvelModule(CheckpointableModule, TrainableModule):
             return None
         model_cfg = getattr(cfg, "model", None)
         raw = str(getattr(model_cfg, "architecture", "v1"))
-        if raw not in {"v1", "v1.1", "v1.2", "v1.3"}:
+        if raw not in {"v1", "v1.1", "v1.2", "v1.3", MACRO_FUSE_MODEL_ARCHITECTURE}:
             raise ValueError(
                 "Unsupported model architecture "
-                f"'{raw}'. Expected one of: v1, v1.1, v1.2, v1.3."
+                f"'{raw}'. Expected one of: v1, v1.1, v1.2, v1.3, {MACRO_FUSE_MODEL_ARCHITECTURE}."
             )
         return raw
 
@@ -658,4 +766,4 @@ class BaseMarvelModule(CheckpointableModule, TrainableModule):
         return encoded, avail_mask
 
 
-__all__ = ["BaseMarvelModule"]
+__all__ = ["ActorFuse", "BaseMarvelModule"]

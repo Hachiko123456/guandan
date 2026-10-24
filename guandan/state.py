@@ -12,6 +12,17 @@ class EpisodeTerminatedError(GuandanError): pass
 class StateInvariantError(GuandanError): pass
 class Phase(str,Enum): PLAY="play"; TRIBUTE="tribute"; RETURN="return"; TERMINAL="terminal"
 TEAM_OF=(0,1,0,1)
+# MARVEL v14 phase-4 rank-point reward.  The winning team receives +3 for a
+# double down, +2 for a head-third finish and +1 for a head-last finish; the
+# losing team receives the negative of the same value.  Every seat receives the
+# reward of the team it belongs to.  Training scales this raw reward by 1/3
+# (guandan_marvel.reward.TRAINING_REWARD_SCALE); the engine always exposes the
+# raw rank points so comparison/evaluation records remain interpretable.
+RANK_POINTS={"DOUBLE_DOWN":3,"HEAD_THIRD":2,"HEAD_LAST":1}
+def rank_point_reward(outcome_class,winner_team):
+    points=RANK_POINTS[str(outcome_class)];winner=int(winner_team)
+    if winner not in (0,1):raise ValueError("winner_team must be 0 or 1")
+    return (float(points) if winner==0 else -float(points)),(float(points) if winner==1 else -float(points))
 @dataclass(frozen=True,slots=True)
 class PreviousHandResult:
     ranking:tuple[int,int,int,int]; winner_team:int; outcome_class:str; tribute_cancelled:bool=False
@@ -87,8 +98,11 @@ class RoundState:
         if len(self.emptied_seats)!=len(set(self.emptied_seats)) or not set(self.emptied_seats).issubset(self.finished_ranks) or any(self.hands[s] for s in self.emptied_seats):raise StateInvariantError("invalid emptied seats")
         if self.done and (self.phase is not Phase.TERMINAL or len(self.finished_ranks)!=4 or self.outcome_class not in {"DOUBLE_DOWN","HEAD_THIRD","HEAD_LAST"} or self.winner_team not in (0,1) or self.finish_committed_step is None or self.finish_token_step is None):raise StateInvariantError("invalid terminal state")
         if self.done:
-            expected=np.asarray([1.0 if TEAM_OF[x]==self.winner_team else -1.0 for x in range(4)],dtype=np.float32)
-            if not np.array_equal(self.rewards,expected):raise StateInvariantError("terminal player reward disagrees with winner team")
+            team_points=rank_point_reward(self.outcome_class,self.winner_team)
+            expected=np.asarray([team_points[TEAM_OF[x]] for x in range(4)],dtype=np.float32)
+            if not np.array_equal(self.rewards,expected):raise StateInvariantError("terminal player reward disagrees with outcome class")
+            expected_team=np.asarray([team_points[0],team_points[1]],dtype=np.float32)
+            if not np.array_equal(self.team_rewards,expected_team):raise StateInvariantError("terminal team reward disagrees with outcome class")
         if not self.done and (self.phase is Phase.TERMINAL or np.any(self.rewards!=0) or np.any(self.team_rewards!=0)):raise StateInvariantError("invalid nonterminal state")
         if self.previous_result is None and (self.phase in {Phase.TRIBUTE,Phase.RETURN} or self.tribute_donors):raise StateInvariantError("tribute without previous result")
         if self.previous_result is not None:
@@ -116,4 +130,4 @@ class RoundState:
         for x in p.get("history",[]):
             k=x["kind"];k=CombinationKind(k) if k in {q.value for q in CombinationKind} else k;hist.append(CommittedAction(x["player_id"],k,decode_cards(x.get("cards",[])),cls._undec(x.get("declaration"))))
         return cls([list(decode_cards(h)) for h in p["hands"]],level_rank=Rank(p["level_rank"]),active_seat=p["active_seat"],leader_seat=p["leader_seat"],phase=Phase(p["phase"]),current_winning=cls._undec(p.get("current_winning")),current_winner_seat=p.get("current_winner_seat"),consecutive_passes=p.get("consecutive_passes",0),finished_ranks=list(p.get("finished_ranks",[])),done=p.get("done",False),rewards=np.asarray(p.get("rewards",[0,0,0,0]),dtype=np.float32),committed_step=p.get("committed_step",0),history=hist,previous_result=prev,tribute_donors=list(p.get("tribute_donors",[])),tribute_order=list(p.get("tribute_order",[])),tribute_selections={int(k):by[int(v)] for k,v in p.get("tribute_selections",{}).items()},tribute_escrow=list(decode_cards(p.get("tribute_escrow",[]))),tribute_transfers=[(x["donor"],x["recipient"],by[x["card"]]) for x in p.get("tribute_transfers",[])],return_obligations=[tuple(x) for x in p.get("return_obligations",[])],return_transfers=[(x["recipient"],x["donor"],by[x["card"]]) for x in p.get("return_transfers",[])],anti_tribute=p.get("anti_tribute",False),emptied_seats=list(p.get("emptied_seats",[])),outcome_class=p.get("outcome_class"),winner_team=p.get("winner_team"),team_rewards=np.asarray(p.get("team_rewards",[0,0]),dtype=np.float32),finish_committed_step=p.get("finish_committed_step"),finish_token_step=p.get("finish_token_step"))
-__all__=["CommittedAction","EpisodeTerminatedError","GuandanError","IllegalActionError","Phase","PreviousHandResult","RoundState","StateInvariantError","TEAM_OF"]
+__all__=["CommittedAction","EpisodeTerminatedError","GuandanError","IllegalActionError","Phase","PreviousHandResult","RANK_POINTS","RoundState","StateInvariantError","TEAM_OF","rank_point_reward"]

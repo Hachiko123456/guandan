@@ -40,7 +40,7 @@ def test_batch_shapes_independence_and_marvel_tensor_conversion():
     assert step.available_actions.weights.shape == (3, 256)
     assert step.available_actions.is_commit.shape == (3, 256)
 
-    cfg = SimpleNamespace(device="cpu")
+    cfg = SimpleNamespace(device="cpu", reward_scale=1.0 / 3.0)
     parsed = EnvStepBatch.from_env_step(step, cfg)
     assert tuple(parsed["obs_tokens"].shape) == (3, 4, 48)
     assert tuple(parsed["avail_tokens"].shape) == (3, 256, 8)
@@ -93,7 +93,8 @@ def test_real_batch_games_reach_terminal_independently_and_auto_reset():
     for _slot, ranking, outcome, rewards in terminal_records:
         assert sorted(ranking) == [1, 2, 3, 4]
         assert outcome in {"DOUBLE_DOWN", "HEAD_THIRD", "HEAD_LAST"}
-        assert set(rewards) == {-1.0, 1.0}
+        points = {"DOUBLE_DOWN": 3.0, "HEAD_THIRD": 2.0, "HEAD_LAST": 1.0}[outcome]
+        assert set(rewards) == {-points, points}
     # Auto-reset slots expose a new playable frame while preserving terminal
     # rewards/is_terminal in the returned outcome.
     assert np.all(step.player_ids >= 0)

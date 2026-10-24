@@ -42,7 +42,8 @@ def synthetic_evaluation(profile, algorithm, candidate, snapshot):
                 records.append(dict(opponent=op, deal_group=group, seed=900000+group,
                     seat_rotation=rotation, policy_seat=rotation, candidate_team=rotation % 2,
                     winner_team=0, done=True, truncated=False, ranking=[1, 2, 3, 4],
-                    rewards=[1, -1, 1, -1], team_rewards=[1, -1], token_steps=4,
+                    outcome_class="HEAD_THIRD",
+                    rewards=[2, -2, 2, -2], team_rewards=[2, -2], token_steps=4,
                     committed_steps=1, base_deal_sha256=f'{group:064x}', terminal=True))
     target = cfg['deal_groups_per_pairing'] * len(cfg['seat_rotations'])
     return dict(status='complete', profile='remote_full', target_games_per_opponent=target, total_games=len(records), records=records,

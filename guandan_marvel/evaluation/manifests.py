@@ -65,6 +65,28 @@ def _dataset_hash(generator_version: str, domain: str, rows: Sequence[Mapping[st
     })
 
 
+def _tribute_mode(previous_payload: Mapping[str, object] | None) -> str:
+    if previous_payload is None:
+        return "none"
+    if bool(previous_payload.get("tribute_cancelled", False)):
+        return "cancelled"
+    return str(previous_payload["outcome_class"]).lower()
+
+
+def _coverage_from_rows(rows: Sequence[Mapping[str, object]]) -> dict[str, object]:
+    """Coverage is derived from the *actually generated* deal rows.
+
+    A manifest may never claim a level/leader/tribute coverage that its own
+    deal rows do not realize (for example eight selection deals may not claim
+    to cover thirteen levels via request metadata alone).
+    """
+    return {
+        "level_ranks": sorted({int(row["level_rank"]) for row in rows}),
+        "leader_seats": sorted({int(row["leader_seat"]) for row in rows}),
+        "tribute_modes": sorted({_tribute_mode(row.get("previous_result")) for row in rows}),
+    }
+
+
 def build_deals_manifest(
     *,
     counts: Mapping[str, int],
@@ -108,15 +130,8 @@ def build_deals_manifest(
             domain: _dataset_hash(DEAL_GENERATOR_VERSION, domain, datasets[domain], DOMAIN_SEMANTICS[domain])
             for domain in DOMAINS
         },
-        "coverage": {
-            "level_ranks": sorted({int(value) for value in level_ranks}),
-            "leader_seats": sorted({int(value) for value in leader_seats}),
-            "tribute_modes": sorted({
-                "none" if value is None else (
-                    "cancelled" if value.tribute_cancelled else value.outcome_class.lower()
-                ) for value in previous_results
-            }),
-        },
+        "coverage": _coverage_from_rows([row for domain in DOMAINS for row in datasets[domain]]),
+        "deal_counts": {domain: len(datasets[domain]) for domain in DOMAINS},
     }
     payload["hash"] = payload_hash(payload)
     validate_deals_manifest(payload)
@@ -170,6 +185,11 @@ def validate_deals_manifest(payload: Mapping[str, object]) -> None:
             expected = _dataset_hash(str(payload["generator_version"]), domain, datasets[domain], str(semantics[domain]))
             if declared.get(domain) != expected:
                 raise ValueError(f"{domain} dataset identity hash mismatch")
+        rows_all = [row for domain in DOMAINS for row in datasets[domain]]
+        if payload.get("coverage") != _coverage_from_rows(rows_all):
+            raise ValueError("declared coverage does not match the actually generated deal rows")
+        if payload.get("deal_counts") != {domain: len(datasets[domain]) for domain in DOMAINS}:
+            raise ValueError("declared deal counts do not match the actually generated deal rows")
 
 
 def dataset_identity(payload: Mapping[str, object], domain: str) -> str:

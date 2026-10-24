@@ -26,6 +26,8 @@ class ActiveAgentOutput:
     past_key_values: Optional[KVCache] = None
     state_values: torch.Tensor | None = None  # [B, T, P] aligned to acting player
     player_state_value: torch.Tensor | None = None  # [B, T] gathered acting-player values
+    ntp_logits: torch.Tensor | None = None  # [B, T, V] next-observation token logits
+    avail_log_probs: torch.Tensor | None = None  # [B, T, A] FP32 log_softmax of masked logits
 
 
 @dataclass

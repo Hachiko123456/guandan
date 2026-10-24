@@ -6,6 +6,8 @@ import math
 from statistics import mean, variance
 from typing import Iterable, Mapping, Sequence
 
+from guandan_marvel.reward import RAW_REWARD_MAX, RAW_REWARD_MIN
+
 CLUSTER_STATS_SCHEMA = "guandan-marvel-clustered-summary-v2"
 CLUSTER_CI_POLICY_SCHEMA = "guandan-marvel-bounded-cluster-ci-v1"
 
@@ -66,7 +68,7 @@ def _validate_complete_record(record: Mapping[str, object]) -> None:
             raise ValueError(f"{name} must be int")
     if int(record["candidate_team"]) not in (0, 1) or int(record["winner_team"]) not in (0, 1):
         raise ValueError("team IDs must be 0 or 1")
-    _finite(record.get("candidate_team_reward"), "candidate_team_reward", minimum=-1.0, maximum=1.0)
+    _finite(record.get("candidate_team_reward"), "candidate_team_reward", minimum=RAW_REWARD_MIN, maximum=RAW_REWARD_MAX)
     _finite(record.get("runtime_seconds"), "runtime_seconds", minimum=0.0)
     for name in ("token_steps", "committed_steps", "illegal_count", "truncated_count"):
         value = record.get(name)

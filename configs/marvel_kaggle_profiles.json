@@ -1,58 +1,172 @@
 {
-  "schema": "guandan-marvel-kaggle-profiles-v1",
   "profiles": {
-    "preflight": {
-      "schema": "guandan-marvel-kaggle-profile-v1",
-      "mode": "preflight",
+    "dual_gpu_control": {
+      "algorithm": "ippo",
+      "benchmark": {
+        "comparison_id": "m08-t4x2-baseline-v1",
+        "control": "dual_gpu_ddp",
+        "emit_recovery": false,
+        "measured_iterations": 2,
+        "persist_checkpoint": false,
+        "same_t4x2_environment_required": true,
+        "schema": "guandan-marvel-m08-benchmark-contract-v1",
+        "speedup_target": 1.5,
+        "warmup_iterations": 1,
+        "workload_hash": "ddd09de83569e0238d0df1f8cf7f7d2057972465a780b3b63842a21d87e5bd54"
+      },
+      "ddp": {
+        "backend": "nccl",
+        "launcher": "torchrun",
+        "require_cuda": true,
+        "world_size": 2
+      },
+      "heartbeat_interval_seconds": 2,
+      "mode": "dual_gpu_control",
       "required_gpu_count": 2,
       "required_gpu_name_contains": "T4",
+      "schema": "guandan-marvel-kaggle-profile-v1",
+      "telemetry_interval_seconds": 1,
+      "training": {
+        "agent_epoch": 4,
+        "amp_enabled": false,
+        "checkpoint_interval": 3,
+        "collect_batch_size": 4,
+        "compile_enabled": false,
+        "critic_aux_epoch": 4,
+        "environment_rank_seed_stride": 2,
+        "evaluation_interval": 0,
+        "max_sampler_bytes_per_rank": 4294967296,
+        "max_wall_seconds": 1800,
+        "mini_batches": 2,
+        "model": {
+          "action_layers": 2,
+          "architecture": "v1.3",
+          "decoder_heads": 4,
+          "decoder_layers": 4,
+          "feature_dim": 256,
+          "fuse_layers": 2,
+          "history_dim": 128,
+          "state_layers": 3
+        },
+        "policy_regularizer_mode": "legacy_token_kl_uniform_v1",
+        "replay_buffer_scale": 8,
+        "rollout_batch_size": 4,
+        "seed": 580800,
+        "target_iterations": 3,
+        "training_data_generator_version": "guandan-marvel-m08-partitioned-prng-v1",
+        "training_semantics_profile": "legacy_token_v1"
+      }
+    },
+    "eval_only": {
+      "evaluation": {
+        "base_deals": 4,
+        "seed_base": 870700
+      },
+      "mode": "eval_only",
+      "required_gpu_count": 2,
+      "required_gpu_name_contains": "T4",
+      "schema": "guandan-marvel-kaggle-profile-v1",
       "telemetry_interval_seconds": 5
     },
-    "pilot": {
-      "schema": "guandan-marvel-kaggle-profile-v1",
-      "mode": "pilot",
+    "full": {
       "algorithm": "ippo",
       "ddp": {
-        "launcher": "torchrun",
-        "world_size": 2,
         "backend": "nccl",
-        "require_cuda": true
+        "launcher": "torchrun",
+        "require_cuda": true,
+        "world_size": 2
       },
+      "evaluation": {
+        "base_deals": 4,
+        "seed_base": 870700
+      },
+      "mode": "full",
+      "schema": "guandan-marvel-kaggle-profile-v1",
+      "telemetry_interval_seconds": 5,
       "training": {
-        "target_iterations": 2,
-        "checkpoint_interval": 1,
-        "evaluation_interval": 1,
-        "rollout_batch_size": 2,
-        "collect_batch_size": 2,
-        "replay_buffer_scale": 2,
-        "mini_batches": 1,
-        "max_sampler_bytes_per_rank": 2147483648,
-        "seed": 470700,
-        "agent_epoch": 1,
-        "critic_aux_epoch": 1,
+        "agent_epoch": 4,
         "amp_enabled": false,
+        "checkpoint_interval": 25,
+        "checkpoint_keep_last": 2,
+        "collect_batch_size": 4,
         "compile_enabled": false,
+        "critic_aux_epoch": 4,
+        "evaluation_interval": 100,
+        "evaluation_keep_last": 2,
+        "max_sampler_bytes_per_rank": 4294967296,
+        "max_wall_seconds": 42000,
+        "mini_batches": 2,
         "model": {
+          "action_layers": 2,
           "architecture": "v1.3",
-          "history_dim": 32,
-          "feature_dim": 64,
-          "decoder_layers": 1,
           "decoder_heads": 4,
-          "state_layers": 1,
-          "action_layers": 1,
-          "fuse_layers": 1
+          "decoder_layers": 4,
+          "feature_dim": 256,
+          "fuse_layers": 2,
+          "history_dim": 128,
+          "state_layers": 3
         },
-        "max_wall_seconds": 1800
+        "policy_regularizer_mode": "legacy_token_kl_uniform_v1",
+        "replay_buffer_scale": 8,
+        "rollout_batch_size": 4,
+        "seed": 470700,
+        "target_iterations": 2000,
+        "training_semantics_profile": "legacy_token_v1"
+      },
+      "user_selected_full_manifest_required": true
+    },
+    "pilot": {
+      "algorithm": "ippo",
+      "ddp": {
+        "backend": "nccl",
+        "launcher": "torchrun",
+        "require_cuda": true,
+        "world_size": 2
       },
       "evaluation": {
         "base_deals": 1,
         "seed_base": 870700
       },
+      "mode": "pilot",
+      "schema": "guandan-marvel-kaggle-profile-v1",
+      "telemetry_interval_seconds": 5,
+      "training": {
+        "agent_epoch": 1,
+        "amp_enabled": false,
+        "checkpoint_interval": 1,
+        "collect_batch_size": 2,
+        "compile_enabled": false,
+        "critic_aux_epoch": 1,
+        "evaluation_interval": 1,
+        "max_sampler_bytes_per_rank": 2147483648,
+        "max_wall_seconds": 1800,
+        "mini_batches": 1,
+        "model": {
+          "action_layers": 1,
+          "architecture": "v1.3",
+          "decoder_heads": 4,
+          "decoder_layers": 1,
+          "feature_dim": 64,
+          "fuse_layers": 1,
+          "history_dim": 32,
+          "state_layers": 1
+        },
+        "policy_regularizer_mode": "legacy_token_kl_uniform_v1",
+        "replay_buffer_scale": 2,
+        "rollout_batch_size": 2,
+        "seed": 470700,
+        "target_iterations": 2,
+        "training_semantics_profile": "legacy_token_v1"
+      }
+    },
+    "preflight": {
+      "mode": "preflight",
+      "required_gpu_count": 2,
+      "required_gpu_name_contains": "T4",
+      "schema": "guandan-marvel-kaggle-profile-v1",
       "telemetry_interval_seconds": 5
     },
     "resume": {
-      "schema": "guandan-marvel-kaggle-profile-v1",
-      "mode": "resume",
       "ddp": {
         "launcher": "torchrun",
         "world_size": 2
@@ -61,179 +175,73 @@
         "base_deals": 1,
         "seed_base": 870700
       },
-      "telemetry_interval_seconds": 5,
+      "mode": "resume",
       "resume": {
         "additional_iterations": 2,
         "checkpoint_interval": 1,
         "evaluation_interval": 1,
         "max_wall_seconds": 1800
-      }
-    },
-    "full": {
+      },
       "schema": "guandan-marvel-kaggle-profile-v1",
-      "mode": "full",
-      "algorithm": "ippo",
-      "user_selected_full_manifest_required": true,
-      "ddp": {
-        "launcher": "torchrun",
-        "world_size": 2,
-        "backend": "nccl",
-        "require_cuda": true
-      },
-      "training": {
-        "target_iterations": 2000,
-        "checkpoint_interval": 25,
-        "evaluation_interval": 100,
-        "rollout_batch_size": 4,
-        "collect_batch_size": 4,
-        "replay_buffer_scale": 8,
-        "mini_batches": 2,
-        "max_sampler_bytes_per_rank": 4294967296,
-        "seed": 470700,
-        "agent_epoch": 4,
-        "critic_aux_epoch": 4,
-        "amp_enabled": false,
-        "compile_enabled": false,
-        "model": {
-          "architecture": "v1.3",
-          "history_dim": 128,
-          "feature_dim": 256,
-          "decoder_layers": 4,
-          "decoder_heads": 4,
-          "state_layers": 3,
-          "action_layers": 2,
-          "fuse_layers": 2
-        },
-        "max_wall_seconds": 42000,
-        "checkpoint_keep_last": 2,
-        "evaluation_keep_last": 2
-      },
-      "evaluation": {
-        "base_deals": 4,
-        "seed_base": 870700
-      },
-      "telemetry_interval_seconds": 5
-    },
-    "eval_only": {
-      "schema": "guandan-marvel-kaggle-profile-v1",
-      "mode": "eval_only",
-      "required_gpu_count": 2,
-      "required_gpu_name_contains": "T4",
-      "evaluation": {
-        "base_deals": 4,
-        "seed_base": 870700
-      },
       "telemetry_interval_seconds": 5
     },
     "single_gpu_control": {
-      "schema": "guandan-marvel-kaggle-profile-v1",
-      "mode": "single_gpu_control",
       "algorithm": "ippo",
-      "required_gpu_count": 2,
-      "required_gpu_name_contains": "T4",
-      "ddp": {
-        "launcher": "torchrun",
-        "world_size": 1,
-        "backend": "nccl",
-        "require_cuda": true
-      },
-      "training": {
-        "target_iterations": 3,
-        "checkpoint_interval": 3,
-        "evaluation_interval": 0,
-        "rollout_batch_size": 4,
-        "collect_batch_size": 4,
-        "replay_buffer_scale": 8,
-        "mini_batches": 2,
-        "max_sampler_bytes_per_rank": 4294967296,
-        "seed": 580800,
-        "environment_rank_seed_stride": 2,
-        "training_data_generator_version": "guandan-marvel-m08-partitioned-prng-v1",
-        "agent_epoch": 4,
-        "critic_aux_epoch": 4,
-        "amp_enabled": false,
-        "compile_enabled": false,
-        "model": {
-          "architecture": "v1.3",
-          "history_dim": 128,
-          "feature_dim": 256,
-          "decoder_layers": 4,
-          "decoder_heads": 4,
-          "state_layers": 3,
-          "action_layers": 2,
-          "fuse_layers": 2
-        },
-        "max_wall_seconds": 1800
-      },
       "benchmark": {
-        "schema": "guandan-marvel-m08-benchmark-contract-v1",
         "comparison_id": "m08-t4x2-baseline-v1",
         "control": "single_gpu",
-        "warmup_iterations": 1,
+        "emit_recovery": false,
         "measured_iterations": 2,
-        "workload_hash": "de4f2671fba5781db49ca7ab0f6ca9d02929295acf79c79221eed6e22a23acba",
-        "speedup_target": 1.5,
-        "same_t4x2_environment_required": true,
         "persist_checkpoint": false,
-        "emit_recovery": false
+        "same_t4x2_environment_required": true,
+        "schema": "guandan-marvel-m08-benchmark-contract-v1",
+        "speedup_target": 1.5,
+        "warmup_iterations": 1,
+        "workload_hash": "ddd09de83569e0238d0df1f8cf7f7d2057972465a780b3b63842a21d87e5bd54"
       },
-      "telemetry_interval_seconds": 1,
-      "heartbeat_interval_seconds": 2
-    },
-    "dual_gpu_control": {
-      "schema": "guandan-marvel-kaggle-profile-v1",
-      "mode": "dual_gpu_control",
-      "algorithm": "ippo",
+      "ddp": {
+        "backend": "nccl",
+        "launcher": "torchrun",
+        "require_cuda": true,
+        "world_size": 1
+      },
+      "heartbeat_interval_seconds": 2,
+      "mode": "single_gpu_control",
       "required_gpu_count": 2,
       "required_gpu_name_contains": "T4",
-      "ddp": {
-        "launcher": "torchrun",
-        "world_size": 2,
-        "backend": "nccl",
-        "require_cuda": true
-      },
-      "training": {
-        "target_iterations": 3,
-        "checkpoint_interval": 3,
-        "evaluation_interval": 0,
-        "rollout_batch_size": 4,
-        "collect_batch_size": 4,
-        "replay_buffer_scale": 8,
-        "mini_batches": 2,
-        "max_sampler_bytes_per_rank": 4294967296,
-        "seed": 580800,
-        "environment_rank_seed_stride": 2,
-        "training_data_generator_version": "guandan-marvel-m08-partitioned-prng-v1",
-        "agent_epoch": 4,
-        "critic_aux_epoch": 4,
-        "amp_enabled": false,
-        "compile_enabled": false,
-        "model": {
-          "architecture": "v1.3",
-          "history_dim": 128,
-          "feature_dim": 256,
-          "decoder_layers": 4,
-          "decoder_heads": 4,
-          "state_layers": 3,
-          "action_layers": 2,
-          "fuse_layers": 2
-        },
-        "max_wall_seconds": 1800
-      },
-      "benchmark": {
-        "schema": "guandan-marvel-m08-benchmark-contract-v1",
-        "comparison_id": "m08-t4x2-baseline-v1",
-        "control": "dual_gpu_ddp",
-        "warmup_iterations": 1,
-        "measured_iterations": 2,
-        "workload_hash": "de4f2671fba5781db49ca7ab0f6ca9d02929295acf79c79221eed6e22a23acba",
-        "speedup_target": 1.5,
-        "same_t4x2_environment_required": true,
-        "persist_checkpoint": false,
-        "emit_recovery": false
-      },
+      "schema": "guandan-marvel-kaggle-profile-v1",
       "telemetry_interval_seconds": 1,
-      "heartbeat_interval_seconds": 2
+      "training": {
+        "agent_epoch": 4,
+        "amp_enabled": false,
+        "checkpoint_interval": 3,
+        "collect_batch_size": 4,
+        "compile_enabled": false,
+        "critic_aux_epoch": 4,
+        "environment_rank_seed_stride": 2,
+        "evaluation_interval": 0,
+        "max_sampler_bytes_per_rank": 4294967296,
+        "max_wall_seconds": 1800,
+        "mini_batches": 2,
+        "model": {
+          "action_layers": 2,
+          "architecture": "v1.3",
+          "decoder_heads": 4,
+          "decoder_layers": 4,
+          "feature_dim": 256,
+          "fuse_layers": 2,
+          "history_dim": 128,
+          "state_layers": 3
+        },
+        "policy_regularizer_mode": "legacy_token_kl_uniform_v1",
+        "replay_buffer_scale": 8,
+        "rollout_batch_size": 4,
+        "seed": 580800,
+        "target_iterations": 3,
+        "training_data_generator_version": "guandan-marvel-m08-partitioned-prng-v1",
+        "training_semantics_profile": "legacy_token_v1"
+      }
     }
-  }
+  },
+  "schema": "guandan-marvel-kaggle-profiles-v1"
 }

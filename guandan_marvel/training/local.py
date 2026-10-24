@@ -18,9 +18,16 @@ from guandan_marvel.buffer import (
     BUFFER_STATE_SCHEMA, BufferConfig, TrajectoryBuffer,
     require_trajectory_memory_budget, trajectory_memory_budget,
 )
-from guandan_marvel.config import TrainConfig
+from guandan_marvel.config import (
+    LEGACY_POLICY_REGULARIZER_MODE, LEGACY_TRAINING_SEMANTICS_PROFILE,
+    MACRO_DECISION_TRAINING_SEMANTICS_PROFILE, MACRO_FUSE_MODEL_ARCHITECTURE,
+    MACRO_NORMALIZED_POLICY_REGULARIZER_MODE,
+    MACRO_TRAINING_SEMANTICS_PROFILES, TrainConfig, validate_training_semantics,
+)
 from guandan_marvel.model import Agent, CentralCritic
-from guandan_marvel.optim.common import ExponentialMovingAverageUpdater, apply_learning_rate
+from guandan_marvel.optim.common import (
+    ExponentialMovingAverageUpdater, MultiOptimizer, apply_learning_rate,
+)
 from guandan_marvel.runtime.compilation import ModuleCompiler
 from guandan_marvel.runtime.distributed import DistributedRuntime
 from guandan_marvel.runtime.logger import MetricSinks
@@ -35,7 +42,16 @@ from guandan_marvel.training.checkpoints import (
 )
 from guandan_marvel.training.gae import compute_gae_from_qvalue, compute_gae_from_value
 from guandan_marvel.training.losses import (
-    compute_clipped_pg_loss, compute_qvalue_loss, compute_value_loss,
+    compute_clipped_pg_loss, compute_next_observation_token_loss, compute_qvalue_loss,
+    compute_value_loss,
+)
+from guandan_marvel.training.macro_actions import macro_diagnostics, segment_rollout_macros
+from guandan_marvel.training.macro_gae import compute_macro_decision_gae
+from guandan_marvel.training.macro_ppo import (
+    build_macro_batch_view, compute_macro_normalized_kl_mean, compute_macro_pg_loss,
+    compute_macro_value_loss, explain_macro_value, macro_sample_kl_control,
+    macro_trainable_mask, macro_regularizer_diagnostics, model_connected_zero,
+    parameter_group_gradient_norms,
 )
 from guandan_marvel.training.metrics import rollout_metrics
 from guandan_marvel.training.schedules import compute_agent_schedule
@@ -45,7 +61,13 @@ from guandan_marvel.training.validation import (
 from guandan_marvel.utils import set_global_seed
 
 M03_RUNTIME_SCHEMA = "guandan-marvel-m03-local-runtime-v2"
+OPPONENT_POOL_CHECKPOINT_SCHEMA = "guandan-marvel-phase6-opponent-pool-checkpoint-v1"
 VRPO_Q_TARGET_CONTRACT = "guandan-marvel-vrpo-q-lambda-td1-v1"
+# Explicit, closed set of policy-warm-start architecture transitions.  Anything
+# not listed here (including the reverse v1.4 -> v1.3 direction) is rejected.
+WARM_START_ALLOWED_ARCHITECTURE_TRANSITIONS = frozenset({
+    ("v1.3", MACRO_FUSE_MODEL_ARCHITECTURE),
+})
 COMMON_RUNTIME_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
     "guandan_rules": (
         "guandan/cards.py", "guandan/combos.py", "guandan/round.py",
@@ -71,22 +93,34 @@ COMMON_RUNTIME_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
         "guandan_marvel/config.py", "guandan_marvel/runtime/__init__.py",
         "guandan_marvel/runtime/compilation.py", "guandan_marvel/runtime/distributed.py",
         "guandan_marvel/runtime/logger.py", "guandan_marvel/runtime/sampler.py",
+        "guandan_marvel/runtime/trajectory_layout.py",
         "guandan_marvel/utils.py",
     ),
     "training": (
         "guandan_marvel/training/__init__.py", "guandan_marvel/training/checkpoints.py",
         "guandan_marvel/training/gae.py", "guandan_marvel/training/ippo.py",
         "guandan_marvel/training/local.py", "guandan_marvel/training/losses.py",
+        "guandan_marvel/training/macro_actions.py", "guandan_marvel/training/macro_gae.py",
+        "guandan_marvel/training/macro_ppo.py",
         "guandan_marvel/training/metrics.py", "guandan_marvel/training/schedules.py",
         "guandan_marvel/training/smoke.py", "guandan_marvel/training/validation.py",
         "guandan_marvel/training/vrpo.py",
+    ),
+    # Phase-6 conditional features are part of the training source identity: a
+    # changed pool/value/search/gate implementation must never be an "exact
+    # resume" of a checkpoint produced by different phase-6 code.
+    "phase6_conditionals": (
+        "guandan_marvel/phase6/__init__.py", "guandan_marvel/phase6/config_types.py",
+        "guandan_marvel/phase6/design.py", "guandan_marvel/phase6/opponent_pool.py",
+        "guandan_marvel/phase6/policy_owner.py", "guandan_marvel/phase6/search.py",
+        "guandan_marvel/phase6/training_gates.py", "guandan_marvel/phase6/value_gate.py",
     ),
     "distributed_orchestration": (
         "guandan_marvel/kaggle/bootstrap.py", "guandan_marvel/kaggle/checkpoints.py",
         "guandan_marvel/kaggle/common.py", "guandan_marvel/kaggle/discovery.py",
         "guandan_marvel/kaggle/evaluation.py", "guandan_marvel/kaggle/profiles.py",
         "guandan_marvel/kaggle/progress.py", "guandan_marvel/kaggle/runner.py",
-        "guandan_marvel/kaggle/worker.py",
+        "guandan_marvel/kaggle/worker.py", "guandan_marvel/kaggle/pilot_observability.py",
     ),
 }
 PYTHON_BACKEND_SOURCE_COMPONENTS: dict[str, tuple[str, ...]] = {
@@ -151,10 +185,57 @@ def _load_optimizer_state(optimizer, state: Mapping[str, object]) -> None:
     optimizer.load_state_dict(state)
 
 
+def _scaler_optimizers(optimizer) -> list:
+    """The concrete torch optimizers a single GradScaler must step/unscale."""
+    if isinstance(optimizer, MultiOptimizer):
+        return list(optimizer.optimizers.values())
+    return [optimizer]
+
+
 def _finite_metrics(metrics: Mapping[str, object]) -> None:
     for key, value in metrics.items():
         if isinstance(value, float) and not math.isfinite(value):
             raise FloatingPointError(f"metric {key!r} is non-finite")
+
+
+def _per_sample_macro_metric(
+    loss_value: float,
+    *,
+    global_count: int,
+    local_count: int,
+    world_size: int,
+) -> float:
+    """Convert a DDP-scaled local macro loss into this rank's per-sample mean.
+
+    The differentiable local loss is ``L_k = (world_size / N) * sum_{i in k} l_i``.
+    Logging is *not* allowed to keep that scale: count-weighted metric aggregation
+    over per-sample means must reproduce the single-process concatenated-batch
+    reference ``(1/N) * sum_i l_i``.  With ``world_size == 1`` the factor is exactly
+    ``1.0`` (``global_count == local_count``), so single-process logs are bitwise
+    unchanged.
+    """
+    if local_count <= 0:
+        return 0.0
+    return float(loss_value) * (float(global_count) / (float(world_size) * float(local_count)))
+
+
+def _explained_variance(
+    prediction: torch.Tensor,
+    target: torch.Tensor,
+    mask: torch.Tensor,
+    *,
+    degenerate_threshold: float = 1e-12,
+) -> tuple[float | None, int]:
+    """EV on the masked sample unit; degenerate target variance is undefined."""
+    selected = mask.to(torch.bool)
+    if int(selected.sum().item()) == 0:
+        return None, 0
+    y = target[selected].detach().to(torch.float64)
+    y_hat = prediction[selected].detach().to(torch.float64)
+    variance = float(y.var(unbiased=False).item())
+    if not math.isfinite(variance) or variance < float(degenerate_threshold):
+        return None, 1
+    return 1.0 - float((y - y_hat).var(unbiased=False).item()) / variance, 0
 
 
 class LocalTrainerBase:
@@ -163,6 +244,11 @@ class LocalTrainerBase:
 
     def __init__(self, cfg: TrainConfig, *, game: object, run_dir: str | Path) -> None:
         self.cfg = cfg
+        self.training_semantics_profile = str(cfg.ppo.training_semantics_profile)
+        self.policy_regularizer_mode = str(cfg.ppo.policy_regularizer_mode)
+        self.macro_gae_lambda = cfg.ppo.macro_gae_lambda
+        self.macro_semantics = self.training_semantics_profile in MACRO_TRAINING_SEMANTICS_PROFILES
+        validate_training_semantics(cfg.ppo, algorithm=self.algorithm)
         self.game = game
         self.distributed_runtime = DistributedRuntime.from_config(cfg.ddp, device=cfg.device)
         self.distributed = self.distributed_runtime.context
@@ -173,8 +259,22 @@ class LocalTrainerBase:
         self.is_primary = bool(self.distributed.is_primary)
         if self.device.type not in {"cpu", "cuda"}:
             raise ValueError("MARVEL runtime supports cpu/cuda devices only")
-        if cfg.amp_enabled:
-            raise ValueError("AMP is explicitly disabled for the first M03 smoke profile")
+        # Mixed precision.  CUDA uses fp16 autocast driven by a real GradScaler;
+        # CPU (this project's torch build has no CUDA) uses bfloat16 autocast,
+        # whose wide exponent range needs no loss scaling, so the scaler stays
+        # disabled there.  The scaler object exists in both cases so its state is
+        # always checkpointed and restored.
+        self.amp_enabled = bool(cfg.amp_enabled)
+        self.amp_device_type = self.device.type
+        self.amp_dtype = torch.float16 if self.device.type == "cuda" else torch.bfloat16
+        self.amp_scaler_enabled = bool(self.amp_enabled and self.device.type == "cuda")
+        scaler_kwargs = {}
+        if getattr(cfg, "amp_init_scale", None) is not None:
+            scaler_kwargs["init_scale"] = float(cfg.amp_init_scale)
+        self.grad_scaler = torch.amp.GradScaler(
+            self.amp_device_type, enabled = self.amp_scaler_enabled, **scaler_kwargs,
+        )
+        self.amp_skipped_steps = 0
         if cfg.max_sampler_bytes_per_rank is None:
             raise ValueError("max_sampler_bytes_per_rank is required before sampler allocation")
         if cfg.game.identifier != getattr(game, "identifier"):
@@ -208,6 +308,10 @@ class LocalTrainerBase:
         self.learner_updates = 0
         self.durable_learner_updates = 0
         self.completed_games_total = 0
+        # Explicit logical curriculum origin for a fresh-initialization import.
+        # ``0`` is the production default and reproduces the historical
+        # ``set_curriculum_iteration(self.iteration)`` behaviour exactly.
+        self.curriculum_offset = 0
         self.failed = False
         self.failure: dict[str, object] | None = None
         self.iteration_status = "idle"
@@ -218,6 +322,9 @@ class LocalTrainerBase:
         self.last_trajectory_num_steps: tuple[int, ...] = ()
         self.last_policy_epochs = 0
         self.last_critic_batch_sources: tuple[str, ...] = ()
+        # Phase-5 consistency branch.  ``None`` on the phase-4 path: zero extra
+        # forward passes, parameters, file reads or RNG draws.
+        self.symmetry = None
         self.evaluation_hook = None
         self.phase_callback = None
         self.evaluation_result_history: list[dict[str, object]] = []
@@ -245,36 +352,146 @@ class LocalTrainerBase:
             buffer_schema=BUFFER_STATE_SCHEMA,
             q_target_contract=self.q_target_contract,
         )
-        self.sampler = Sampler(config=SamplerConfig(
-            game=game,
-            device=self.device,
-            rollout_batch_size=self.local_rollout_batch_size,
-            collect_batch_size=self.local_collect_batch_size,
-            sampling_temperature=1.0,
-            purpose="on_policy",
-            env_seed=cfg.seed + self.rank * int(cfg.environment_rank_seed_stride),
-            data_domain=cfg.training_data_domain,
-            data_manifest_hash=cfg.training_data_manifest_hash,
-            data_generator_version=cfg.training_data_generator_version,
-            context_schedule=cfg.training_context_schedule,
-        ))
+        # Phase-6 opponent pool (default off).  Loading pool checkpoints must
+        # not consume the global RNG stream that initializes the current model,
+        # so the complete RNG state is captured and restored around loading.
+        self.opponent_pool: OpponentPool | None = None
+        self.policy_router: PoolPolicyRouter | None = None
+        self.opponent_pool_manifest_path: Path | None = None
+        self.last_pool_stats = None
+        self._frozen_hashes: dict[str, str] | None = None
+        pool_field_specs_value: dict[str, object] = {}
+        if cfg.opponent_pool.enabled:
+            from guandan_marvel.phase6.opponent_pool import (
+                OpponentPool, PoolPolicyRouter, write_manifest,
+            )
+            from guandan_marvel.phase6.policy_owner import pool_field_specs
+
+            rng_snapshot = capture_rng_state()
+            try:
+                self.opponent_pool = OpponentPool.from_config(
+                    cfg.opponent_pool,
+                    device=self.device,
+                    expected_architecture=str(cfg.model.architecture),
+                    expected_protocol_version=str(cfg.game.protocol_version),
+                    expected_backend=self.backend_name,
+                    expected_backend_identity_hash=str(self.backend_identity["hash"]),
+                    model_feature_identity={
+                        "history_dim": int(cfg.model.history_dim),
+                        "feature_dim": int(cfg.model.feature_dim),
+                        "decoder_layers": int(cfg.model.decoder_layers),
+                        "decoder_heads": int(cfg.model.decoder_heads),
+                        "state_layers": int(cfg.model.state_layers),
+                        "action_layers": int(cfg.model.action_layers),
+                        "fuse_layers": int(cfg.model.fuse_layers),
+                    },
+                    batch_slots=self.local_rollout_batch_size,
+                )
+            finally:
+                restore_rng_state(rng_snapshot)
+            self.opponent_pool_manifest_path = write_manifest(
+                self.opponent_pool.manifest, self.run_dir / "opponent_pool_manifest.json",
+            )
+            self.policy_router = PoolPolicyRouter(
+                pool=self.opponent_pool,
+                batch_size=self.local_rollout_batch_size,
+                num_players=int(cfg.game.num_players),
+                max_ctx_len=int(cfg.game.max_game_horizon),
+                device=self.device,
+                max_resident_policies=int(cfg.opponent_pool.max_resident_policies),
+            )
+            pool_field_specs_value = pool_field_specs(
+                max_game_horizon=int(cfg.game.max_game_horizon),
+                num_players=int(cfg.game.num_players),
+            )
+        self.sampler = Sampler(
+            config=SamplerConfig(
+                game=game,
+                device=self.device,
+                rollout_batch_size=self.local_rollout_batch_size,
+                collect_batch_size=self.local_collect_batch_size,
+                sampling_temperature=1.0,
+                trim_completed_padding=bool(cfg.trim_completed_padding),
+                purpose="on_policy",
+                env_seed=cfg.seed + self.rank * int(cfg.environment_rank_seed_stride),
+                data_domain=cfg.training_data_domain,
+                data_manifest_hash=cfg.training_data_manifest_hash,
+                data_generator_version=cfg.training_data_generator_version,
+                context_schedule=cfg.training_context_schedule,
+                context_curriculum=cfg.training_context_curriculum,
+                reward_scale=cfg.reward_scale,
+                field_specs=pool_field_specs_value or None,
+            ),
+            policy_router=self.policy_router,
+        )
 
     def load_warm_start_policy(self, payload: Mapping[str, object]) -> dict[str, object]:
-        """Load policy weights only; optimizer, sampler, counters, and schedule remain fresh."""
+        """Load policy weights only; optimizer, sampler, counters, and schedule remain fresh.
+
+        Auxiliary heads introduced by the current configuration (for example the
+        NTP head) may be absent from the source checkpoint; they are then left
+        at their fresh initialization.  All other parameters must match exactly.
+
+        The only permitted *architecture* transition is the explicit
+        ``v1.3 -> v1.4-macro-fuse`` policy-warm start: the new ``actor_fuse.*``
+        branch is left at its fresh (zero-residual) initialization while every
+        legacy backbone/state/action/logit/value key must still be present and no
+        unexpected key of any kind is tolerated.
+        """
         self._require_healthy()
+        if getattr(self, "policy_router", None) is not None:
+            raise ValueError(
+                "policy-only warm start cannot reconstruct opponent-pool assignments; "
+                "use an exact checkpoint resume with the same pool manifest"
+            )
         if payload.get("schema") != "guandan-marvel-evaluation-checkpoint-v1":
             raise ValueError("warm start requires an evaluation-only checkpoint")
         if payload.get("algorithm") != self.algorithm:
             raise ValueError("warm-start algorithm mismatch")
-        if payload.get("architecture") != self.cfg.model.architecture:
-            raise ValueError("warm-start architecture mismatch")
+        source_architecture = str(payload.get("architecture"))
+        target_architecture = str(self.cfg.model.architecture)
+        migrating_to_fuse = (
+            source_architecture, target_architecture,
+        ) in WARM_START_ALLOWED_ARCHITECTURE_TRANSITIONS
+        if source_architecture != target_architecture and not migrating_to_fuse:
+            raise ValueError(
+                "warm-start architecture mismatch: "
+                f"{source_architecture!r} -> {target_architecture!r} is not a permitted transition"
+            )
         if payload.get("protocol_version") != self.cfg.game.protocol_version:
             raise ValueError("warm-start protocol mismatch")
         state = payload.get("agent_state_dict")
         if not isinstance(state, Mapping):
             raise ValueError("warm-start checkpoint lacks agent_state_dict")
-        self.agent_resume.load_state_dict(state, strict=True)
-        self.agent_merged.load_state_dict(state, strict=True)
+
+        # The fuse branch may only be *absent* when the source is a pre-fuse
+        # policy; a same-architecture warm start that drops ``actor_fuse.*`` is a
+        # genuine incompatibility and must fail.
+        allowed_missing_prefixes = ("ntp_head.",) + (
+            ("actor_fuse.",) if migrating_to_fuse else ()
+        )
+
+        def _load_compatible(module, name: str) -> None:
+            missing, unexpected = module.load_state_dict(state, strict=False)
+            allowed_missing = {key for key in missing if key.startswith(allowed_missing_prefixes)}
+            disallowed = sorted(set(missing) - allowed_missing)
+            if disallowed or unexpected:
+                raise ValueError(
+                    f"warm-start state incompatible with {name}: "
+                    f"missing={disallowed}, unexpected={sorted(unexpected)}"
+                )
+
+        _load_compatible(self.agent_resume, "agent_resume")
+        _load_compatible(self.agent_merged, "agent_merged")
+        if migrating_to_fuse:
+            # The migrated residual gate must still be *exactly* zero: nothing in
+            # this load is allowed to have disturbed the fresh fuse branch.
+            for module in (self.agent_resume, self.agent_merged):
+                fuse = getattr(module, "actor_fuse", None)
+                if fuse is None:
+                    raise ValueError("warm-start migration requires a fuse-enabled target")
+                if not bool(torch.equal(fuse.output_proj.weight.detach(), torch.zeros_like(fuse.output_proj.weight))):
+                    raise ValueError("migrated actor_fuse.output_proj is not bitwise zero")
         self.merge_updater.set_reference_iteration(0)
         return {
             "schema": "guandan-marvel-warm-start-load-v1",
@@ -283,6 +500,14 @@ class LocalTrainerBase:
             "optimizer_reset": True,
             "sampler_reset": True,
             "counters_reset": True,
+            "migration": {
+                "schema": "guandan-marvel-policy-warm-start-migration-v1",
+                "source_architecture": source_architecture,
+                "target_architecture": target_architecture,
+                "permitted_missing_prefixes": sorted(allowed_missing_prefixes),
+                "fuse_migrated": bool(migrating_to_fuse),
+                "output_proj_zero_verified": bool(migrating_to_fuse),
+            },
         }
 
     @property
@@ -344,6 +569,39 @@ class LocalTrainerBase:
     def _activate_rank_rng(self) -> None:
         set_global_seed(self.cfg.seed, offset=self.rank * 1_000_003)
 
+    def _build_symmetry(self, agent: nn.Module) -> None:
+        """Attach the sealed phase-5 consistency branch (disabled by default).
+
+        The artifact and initial checkpoint are re-verified inside
+        :class:`SymmetryConsistency`; a mismatch fails trainer construction
+        before any rollout or optimisation step.
+        """
+        if float(self.cfg.symmetry.symmetry_weight) <= 0.0:
+            self.symmetry = None
+            return
+        from guandan_marvel.phase5.symmetry_training import SymmetryConsistency
+
+        self.symmetry = SymmetryConsistency.from_config(
+            self.cfg.symmetry,
+            agent=agent,
+            architecture=str(self.cfg.model.architecture),
+            algorithm=self.algorithm,
+            history_dim=int(self.cfg.model.history_dim),
+            feature_dim=int(self.cfg.model.feature_dim),
+            device=self.device,
+        )
+
+    def _symmetry_loss(self, mb, output):
+        """Return the weighted consistency tensor, or ``None`` when disabled."""
+        if self.symmetry is None:
+            return None
+        return self.symmetry.loss(
+            mb,
+            base_log_probs=output.avail_log_probs,
+            forward=self._forward_agent,
+            world_size=self.world_size,
+        )
+
     def close(self) -> None:
         self.distributed_runtime.close()
 
@@ -353,6 +611,39 @@ class LocalTrainerBase:
         if self.sampler.failed:
             raise RuntimeError(f"trainer sampler is unusable: {self.sampler.failure_info}")
 
+    def _assert_frozen_opponents_unchanged(self) -> None:
+        """A frozen opponent must be bitwise identical before/after training."""
+        if self.policy_router is None:
+            return
+        hashes = self.policy_router.frozen_parameter_hashes()
+        if self._frozen_hashes is None:
+            self._frozen_hashes = dict(hashes)
+            return
+        if hashes != self._frozen_hashes:
+            raise RuntimeError(
+                "a frozen opponent's parameters changed during training; the pool contract "
+                "requires eval-mode, requires_grad=False and optimizer exclusion"
+            )
+
+    def _verify_frozen_excluded_from_optimizer(self, optimizer) -> None:
+        if self.opponent_pool is None:
+            return
+        frozen_ids = {
+            id(parameter)
+            for entry in self.opponent_pool.entries
+            for parameter in entry.artifact.model.parameters()
+        }
+        for target in _scaler_optimizers(optimizer):
+            for group in target.param_groups:
+                leaked = sorted(
+                    str(index) for index, parameter in enumerate(group["params"])
+                    if id(parameter) in frozen_ids
+                )
+                if leaked:
+                    raise RuntimeError(
+                        "a frozen opponent parameter is registered in the current optimizer"
+                    )
+
     def _begin_iteration(self) -> None:
         self._require_healthy()
         if self.iteration_status in {"running", "loading"} or self.active_iteration is not None:
@@ -360,6 +651,13 @@ class LocalTrainerBase:
         self.iteration_status = "running"
         self.active_iteration = self.iteration + 1
         self._iteration_start_learner_updates = self.learner_updates
+        # The context curriculum is a pure function of the iteration index, so it
+        # is pinned before the rollout is collected and is exactly reproduced on
+        # resume (the sampler's own state carries the same iteration number).
+        # ``curriculum_offset`` is 0 on every historical path; a fresh-import run
+        # may set it so the curriculum continues from its logical origin instead
+        # of silently replaying the early schedule.
+        self.sampler.set_curriculum_iteration(self.iteration + int(self.curriculum_offset))
 
     def _begin_load(self) -> None:
         self._require_healthy()
@@ -402,21 +700,95 @@ class LocalTrainerBase:
         started = time.perf_counter()
         rollout = self.sampler.collect(agent_model=agent_model)
         seconds = time.perf_counter() - started
-        validation = validate_complete_trajectories(rollout, require_on_policy=True)
+        validation = validate_complete_trajectories(
+            rollout, require_on_policy=self.policy_router is None,
+        )
+        if self.policy_router is not None:
+            from guandan_marvel.phase6.policy_owner import validate_pooled_trajectory
+
+            # Frozen-opponent steps are intentionally not on-policy current
+            # samples; the pool contract is validated independently and fails
+            # closed on any mixed owner/mask.
+            self.last_pool_stats = validate_pooled_trajectory(
+                rollout, num_players=int(self.cfg.game.num_players),
+            )
         terminal_infos = self.sampler.pop_terminal_infos(validation.completed_games)
         self.last_trajectory_keys = tuple(sorted(rollout.keys()))
         self.last_trajectory_num_steps = tuple(int(value) for value in rollout["num_steps"].tolist())
         return rollout, validation, terminal_infos, seconds
 
-    def _optimizer_step(self, *, loss: torch.Tensor, module: nn.Module, optimizer, name: str) -> float:
+    def _amp_autocast(self):
+        """Autocast context deliberately scoped to *model forward passes only*.
+
+        ``torch.autocast`` only redirects the eligible ops (Linear / matmul / the
+        transformer and residual-MLP graph) to the reduced precision.  Running the
+        forwards inside this context and every loss-side computation outside it
+        keeps softmax, selected log-probability, macro log-ratio, ratio, KL,
+        entropy, GAE, value targets and loss accumulation in FP32.
+
+        The norms upcast explicitly and therefore emit FP32 activations:
+        ``guandan_marvel.model.base.RMSNorm`` (used by every ``ResGatedMLP`` -
+        ``state_mlp``, ``action_mlp``, ``critic_mixer`` and ``actor_fuse.trunk``)
+        casts its input to FP32 and computes the mean of squares there, and
+        ``TransformerRMSNorm`` does the same, so no normalisation statistic is
+        ever evaluated in the reduced precision.
+        """
+        return torch.autocast(
+            device_type = self.amp_device_type,
+            dtype = self.amp_dtype,
+            enabled = self.amp_enabled,
+        )
+
+    def _forward_agent(self, rollout):
+        with self._amp_autocast():
+            return self.agent_model(rollout = rollout)
+
+    def _forward_critic(self, rollout):
+        with self._amp_autocast():
+            return self.critic_model(rollout = rollout)
+
+    def _optimizer_step(
+        self, *, loss: torch.Tensor, module: nn.Module, optimizer, name: str,
+        group_norms_out: dict[str, float] | None = None,
+    ) -> float:
         self._emit_phase("learner")
         ensure_finite_tensor(f"{name}_loss", loss)
         optimizer.zero_grad(set_to_none=True)
-        loss.backward()
-        ensure_finite_gradients(module, name=name)
-        norm = nn.utils.clip_grad_norm_(module.parameters(), self.cfg.optimizer.grad_max_norm)
-        ensure_finite_tensor(f"{name}_grad_norm", torch.as_tensor(norm))
-        optimizer.step()
+        scaler = self.grad_scaler
+        targets = _scaler_optimizers(optimizer)
+        if scaler.is_enabled():
+            # Strict AMP ordering: scale(loss).backward() -> unscale_(optimizer)
+            # -> gradient clip -> step/update.
+            scaler.scale(loss).backward()
+            for target in targets:
+                scaler.unscale_(target)
+            # A genuine fp16 overflow is a *skippable* step, not a fatal error:
+            # the update is dropped, counted and the scaler shrinks the scale.
+            non_finite = any(
+                parameter.grad is not None and not bool(torch.isfinite(parameter.grad).all())
+                for parameter in module.parameters()
+            )
+            if non_finite:
+                self.amp_skipped_steps += 1
+                for target in targets:
+                    scaler.step(target)
+                scaler.update()
+                return 0.0
+            if group_norms_out is not None:
+                group_norms_out.update(parameter_group_gradient_norms(module))
+            norm = nn.utils.clip_grad_norm_(module.parameters(), self.cfg.optimizer.grad_max_norm)
+            ensure_finite_tensor(f"{name}_grad_norm", torch.as_tensor(norm))
+            for target in targets:
+                scaler.step(target)
+            scaler.update()
+        else:
+            loss.backward()
+            ensure_finite_gradients(module, name=name)
+            if group_norms_out is not None:
+                group_norms_out.update(parameter_group_gradient_norms(module))
+            norm = nn.utils.clip_grad_norm_(module.parameters(), self.cfg.optimizer.grad_max_norm)
+            ensure_finite_tensor(f"{name}_grad_norm", torch.as_tensor(norm))
+            optimizer.step()
         self.learner_updates += 1
         return float(torch.as_tensor(norm).detach().cpu())
 
@@ -447,8 +819,20 @@ class LocalTrainerBase:
             "runtime/optimizer": "muon+adamw" if self.cfg.optimizer.use_muon else "adamw",
             "runtime/compile_enabled": self.cfg.compile.enabled,
             "runtime/amp_enabled": self.cfg.amp_enabled,
+            "runtime/amp_autocast_dtype": str(self.amp_dtype) if self.amp_enabled else "none",
+            "runtime/amp_scaler_enabled": self.amp_scaler_enabled,
+            "runtime/amp_scaler_scale": float(self.grad_scaler.get_scale()),
+            "runtime/amp_skipped_steps": int(self.amp_skipped_steps),
             "memory/sampler_bytes_per_rank_estimate": int(self.memory_budget["sampler_bytes_per_rank"]),
         })
+        if self.cfg.trim_completed_padding:
+            time_capacity = int(rollout["player_ids"].shape[1])
+            metrics.update({
+                "runtime/trim_completed_padding": True,
+                "perf/learner_time_capacity": time_capacity,
+                "perf/original_time_capacity": int(self.cfg.game.max_game_horizon),
+                "perf/removed_tail_padding_fraction": 1.0 - time_capacity / int(self.cfg.game.max_game_horizon),
+            })
         return metrics
 
     def _finish_iteration(self, *, metrics: dict[str, object], completed_games: int) -> dict[str, object]:
@@ -497,7 +881,8 @@ class LocalTrainerBase:
 
     def _checkpoint_common(self) -> dict[str, object]:
         self._require_checkpointable()
-        return {
+        sampler_state = self.sampler.state_dict()
+        payload: dict[str, object] = {
             "schema": TRAINING_CHECKPOINT_SCHEMA,
             "algorithm": self.algorithm,
             "architecture": self.cfg.model.architecture,
@@ -505,6 +890,10 @@ class LocalTrainerBase:
             "backend": self.backend_name,
             "backend_identity": self.backend_identity,
             "semantic_contract": self.semantic_contract,
+            "training_semantics_profile": self.training_semantics_profile,
+            "policy_regularizer_mode": self.policy_regularizer_mode,
+            "reward_semantics": self.cfg.reward_semantics,
+            "reward_scale": self.cfg.reward_scale,
             "source_fingerprint": self.source_fingerprint,
             "source_hash": self.source_hash,
             "execution_fingerprint": self.execution_fingerprint,
@@ -520,9 +909,22 @@ class LocalTrainerBase:
                 "total_env_steps": self.sampler.total_env_steps,
                 "total_game_steps": self.sampler.total_game_steps,
                 "completed_games_total": self.completed_games_total,
-            },
+            },            # Only present for a fresh-import run whose curriculum origin is
+            # explicit; the historical payload stays byte-identical (offset 0).
+            **(
+                {"curriculum_offset": int(self.curriculum_offset)}
+                if int(getattr(self, "curriculum_offset", 0)) else {}
+            ),
             "rng_state": capture_rng_state(),
-            "sampler_state": self.sampler.state_dict(),
+            "sampler_state": sampler_state,
+            "grad_scaler_state": self.grad_scaler.state_dict(),
+            "amp": {
+                "enabled": self.amp_enabled,
+                "device_type": self.amp_device_type,
+                "autocast_dtype": str(self.amp_dtype),
+                "scaler_enabled": self.amp_scaler_enabled,
+                "skipped_steps": self.amp_skipped_steps,
+            },
             "schedule_state": asdict(compute_agent_schedule(self.cfg, iteration=max(self.iteration, 1))),
             "merged_policy": {
                 "identity": self.merged_policy_identity,
@@ -534,6 +936,85 @@ class LocalTrainerBase:
             "training_data_provenance": self.sampler.training_data_provenance(),
             "resume_classification": "exact_resume",
         }
+        payload["opponent_pool"] = self._opponent_pool_checkpoint_block(sampler_state)
+        return payload
+
+    def _opponent_pool_checkpoint_block(self, sampler_state: Mapping[str, object]) -> dict[str, object] | None:
+        if self.policy_router is None or self.opponent_pool is None:
+            return None
+        router_state = sampler_state.get("policy_router")
+        if not isinstance(router_state, Mapping):
+            raise RuntimeError("pool-enabled sampler state is missing the router state")
+        block: dict[str, object] = {
+            "schema": OPPONENT_POOL_CHECKPOINT_SCHEMA,
+            "enabled": True,
+            "manifest_hash": self.opponent_pool.manifest_hash,
+            "manifest_path": (
+                None if self.opponent_pool_manifest_path is None
+                else str(self.opponent_pool_manifest_path)
+            ),
+            "entries": [entry.identity() for entry in self.opponent_pool.entries],
+            "sampling_seed": int(self.opponent_pool.sampling_seed),
+            "sampling_scheme": str(self.opponent_pool.sampling_scheme),
+            "assignment_scheme": str(self.opponent_pool.assignment_scheme),
+            "max_resident_policies": int(self.cfg.opponent_pool.max_resident_policies),
+            "router_state_hash": str(router_state.get("state_hash")),
+        }
+        block["hash"] = canonical_json_hash(block)
+        return block
+
+    def _verify_opponent_pool_checkpoint(self, payload: Mapping[str, object]) -> None:
+        """Reject a pool mismatch before any trainer state is modified."""
+        block = payload.get("opponent_pool")
+        if self.policy_router is None:
+            if block is not None:
+                raise CheckpointCompatibilityError(
+                    "checkpoint contains opponent-pool state but the runtime pool is disabled"
+                )
+            return
+        if self.opponent_pool is None:
+            raise RuntimeError("pool router exists without an opponent pool")
+        if not isinstance(block, Mapping):
+            raise CheckpointCompatibilityError(
+                "pool-enabled runtime requires an opponent_pool checkpoint block"
+            )
+        declared = block.get("hash")
+        if declared != canonical_json_hash(
+            {key: value for key, value in block.items() if key != "hash"}
+        ):
+            raise CheckpointCompatibilityError("opponent_pool checkpoint block hash is inconsistent")
+        if block.get("schema") != OPPONENT_POOL_CHECKPOINT_SCHEMA:
+            raise CheckpointCompatibilityError("opponent_pool checkpoint block schema mismatch")
+        if not bool(block.get("enabled", False)):
+            raise CheckpointCompatibilityError("opponent_pool checkpoint block is not enabled")
+        if str(block.get("manifest_hash")) != self.opponent_pool.manifest_hash:
+            raise CheckpointCompatibilityError(
+                "checkpoint opponent pool manifest differs from the running pool; exact resume "
+                "cannot ignore a pool change"
+            )
+        expected_entries = [entry.identity() for entry in self.opponent_pool.entries]
+        if block.get("entries") != expected_entries:
+            raise CheckpointCompatibilityError(
+                "checkpoint opponent pool entries differ from the running pool"
+            )
+        for key, expected in (
+            ("sampling_seed", self.opponent_pool.sampling_seed),
+            ("sampling_scheme", self.opponent_pool.sampling_scheme),
+            ("assignment_scheme", self.opponent_pool.assignment_scheme),
+            ("max_resident_policies", int(self.cfg.opponent_pool.max_resident_policies)),
+        ):
+            if block.get(key) != expected:
+                raise CheckpointCompatibilityError(f"opponent_pool checkpoint {key} mismatch")
+        sampler_state = payload.get("sampler_state")
+        if not isinstance(sampler_state, Mapping):
+            raise CheckpointCompatibilityError("pool-enabled checkpoint lacks sampler state")
+        router_state = sampler_state.get("policy_router")
+        if not isinstance(router_state, Mapping):
+            raise CheckpointCompatibilityError("pool-enabled checkpoint lacks router state")
+        if str(router_state.get("state_hash")) != str(block.get("router_state_hash")):
+            raise CheckpointCompatibilityError(
+                "opponent pool router state hash disagrees with the checkpoint block"
+            )
 
     def _classify_checkpoint(self, payload: Mapping[str, object], *, require_replay: bool):
         decision = classify_resume(
@@ -552,6 +1033,31 @@ class LocalTrainerBase:
             )
         return decision
 
+    def _verify_checkpoint_training_semantics(self, payload: Mapping[str, object]) -> None:
+        """Fail closed when a checkpoint carries a different training semantics.
+
+        Missing keys are treated as the legacy defaults so that pre-phase-2
+        checkpoints can still be classified honestly instead of being
+        mislabelled as macro checkpoints.
+        """
+        profile = str(payload.get("training_semantics_profile", LEGACY_TRAINING_SEMANTICS_PROFILE))
+        regularizer = str(payload.get("policy_regularizer_mode", LEGACY_POLICY_REGULARIZER_MODE))
+        if profile != self.training_semantics_profile or regularizer != self.policy_regularizer_mode:
+            raise CheckpointCompatibilityError(
+                "checkpoint training semantics do not match the runtime configuration: "
+                f"checkpoint=({profile}, {regularizer}) "
+                f"runtime=({self.training_semantics_profile}, {self.policy_regularizer_mode})"
+            )
+        # A v1.3 training recovery is never a valid v1.4 exact resume, and vice
+        # versa: the residual-fuse architecture changes the parameter set, so the
+        # checkpoint architecture must equal the runtime architecture exactly.
+        checkpoint_architecture = payload.get("architecture")
+        if checkpoint_architecture is not None and str(checkpoint_architecture) != str(self.cfg.model.architecture):
+            raise CheckpointCompatibilityError(
+                "checkpoint model architecture does not match the runtime configuration: "
+                f"checkpoint={checkpoint_architecture!r} runtime={self.cfg.model.architecture!r}"
+            )
+
     def _load_common_state(self, payload: Mapping[str, object]) -> None:
         self.iteration = int(payload["iteration"])
         self.durable_updates = int(payload["durable_updates"])
@@ -559,7 +1065,15 @@ class LocalTrainerBase:
         self.durable_learner_updates = int(payload.get("durable_learner_updates", self.learner_updates))
         counters = payload["counters"]
         self.completed_games_total = int(counters["completed_games_total"])
+        self.curriculum_offset = int(payload.get("curriculum_offset", 0))
         self.sampler.load_state_dict(payload["sampler_state"])
+        self._frozen_hashes = None
+        scaler_state = payload.get("grad_scaler_state")
+        if isinstance(scaler_state, Mapping):
+            self.grad_scaler.load_state_dict(scaler_state)
+        amp_state = payload.get("amp")
+        if isinstance(amp_state, Mapping):
+            self.amp_skipped_steps = int(amp_state.get("skipped_steps", 0) or 0)
         restore_rng_state(payload["rng_state"])
         self.iteration_status = "completed"
         self.active_iteration = None
@@ -573,8 +1087,11 @@ class IPPOTrainer(LocalTrainerBase):
 
     def __init__(self, cfg: TrainConfig, *, game: object, run_dir: str | Path) -> None:
         super().__init__(cfg, game=game, run_dir=run_dir)
-        self.agent_resume = Agent(cfg, enable_value_head=True).to(self.device)
-        self.agent_merged = Agent(cfg, enable_value_head=True).to(self.device)
+        enable_ntp = Agent.ntp_enabled_for_config(cfg)
+        self.pad_token = int(getattr(game, "pad_token", 0))
+        self.agent_resume = Agent(cfg, enable_value_head=True, enable_ntp_head=enable_ntp).to(self.device)
+        self.agent_merged = Agent(cfg, enable_value_head=True, enable_ntp_head=enable_ntp).to(self.device)
+        self._build_symmetry(self.agent_resume)
         self.merge_updater = ExponentialMovingAverageUpdater(
             model=self.agent_resume,
             merged_model=self.agent_merged,
@@ -584,9 +1101,12 @@ class IPPOTrainer(LocalTrainerBase):
         self.agent_optimizer = self.agent_resume.configure_optimizer(
             lr=cfg.ppo.base_lr, optimizer=cfg.optimizer,
         )
+        self._verify_frozen_excluded_from_optimizer(self.agent_optimizer)
         self._activate_rank_rng()
 
     def train_iteration(self) -> dict[str, object]:
+        if self.macro_semantics:
+            return self._macro_train_iteration()
         self._begin_iteration()
         stage = "collect"
         try:
@@ -596,7 +1116,7 @@ class IPPOTrainer(LocalTrainerBase):
             learner_started = time.perf_counter()
             stage = "gae"
             with torch.no_grad():
-                initial = self.agent_model(rollout=rollout)
+                initial = self._forward_agent(rollout)
                 state_values = initial.state_values.detach().float()
                 ensure_finite_tensor("ippo_state_values", state_values)
                 gae = compute_gae_from_value(
@@ -612,6 +1132,7 @@ class IPPOTrainer(LocalTrainerBase):
             first_metrics: dict[str, float] | None = None
             last_metrics: dict[str, float] | None = None
             grad_norm = 0.0
+            degenerate_target_variance_count = 0
             stage = "policy_update"
             for epoch in range(self.cfg.ppo.agent_epoch):
                 self.last_policy_epochs = epoch + 1
@@ -619,7 +1140,7 @@ class IPPOTrainer(LocalTrainerBase):
                 for start in range(0, batch_size, mini_batch_size):
                     mb_indices = indices[start:min(start + mini_batch_size, batch_size)]
                     mb = rollout[mb_indices]
-                    output = self.agent_model(rollout=mb)
+                    output = self._forward_agent(mb)
                     pg = compute_clipped_pg_loss(
                         mb,
                         clip_coef=schedule.clip_coef,
@@ -632,9 +1153,43 @@ class IPPOTrainer(LocalTrainerBase):
                         player_state_value_target=gae.player_state_value[mb_indices],
                     )
                     total = pg.pg_loss_mean + schedule.reg_coef * pg.kl_unif_mean + self.cfg.value_loss_coef * value.value_loss_mean
+                    symmetry_record: dict[str, object] = {}
+                    symmetry_out = self._symmetry_loss(mb, output)
+                    if symmetry_out is not None:
+                        total = total + self.cfg.symmetry.symmetry_weight * symmetry_out.loss
+                        symmetry_record = {
+                            "symmetry_loss": float(symmetry_out.loss.detach()),
+                            "symmetry_mean_kl": float(symmetry_out.mean_kl_global),
+                            "symmetry_token_count_global": int(
+                                symmetry_out.token_count_global
+                            ),
+                            "symmetry_candidate_count_local": int(
+                                symmetry_out.candidate_count_local
+                            ),
+                        }
+                    ntp_loss_value: float | None = None
+                    ntp_pos_rate: float | None = None
+                    if self.cfg.ntp_weight > 0.0 and output.ntp_logits is not None:
+                        ntp = compute_next_observation_token_loss(
+                            mb,
+                            ntp_logits=output.ntp_logits,
+                            pad_token=self.pad_token,
+                            pos_weight=self.cfg.ntp_pos_weight,
+                        )
+                        total = total + self.cfg.ntp_weight * ntp.ntp_loss_mean
+                        ntp_loss_value = float(ntp.ntp_loss_mean.detach())
+                        ntp_pos_rate = float(ntp.ntp_pos_rate)
+                    mb_time = torch.arange(mb["player_ids"].shape[1], device=self.device).unsqueeze(0)
+                    mb_active = (mb_time < mb["num_steps"].unsqueeze(1)) & (mb["player_ids"] >= 0)
+                    explained_variance, degenerate = _explained_variance(
+                        output.player_state_value, gae.player_state_value[mb_indices], mb_active,
+                    )
+                    degenerate_target_variance_count += degenerate
+                    group_norms: dict[str, float] = {}
                     grad_norm = self._optimizer_step(
                         loss=total, module=self.agent_resume,
                         optimizer=self.agent_optimizer, name="ippo_agent",
+                        group_norms_out=group_norms,
                     )
                     record = {
                         "pg_loss": float(pg.pg_loss_mean.detach()),
@@ -644,7 +1199,15 @@ class IPPOTrainer(LocalTrainerBase):
                         "clip_frac": float(pg.clip_frac.detach()),
                         "adv_mean": float(pg.adv_mean.detach()),
                         "adv_std": float(pg.adv_std.detach()),
+                        "value_ev": explained_variance,
+                        "value_ev_undefined": 1 if explained_variance is None else 0,
+                        **symmetry_record,
                     }
+                    for group, value_norm in group_norms.items():
+                        record[f"grad_norm/{group}"] = value_norm
+                    if ntp_loss_value is not None:
+                        record["ntp_loss"] = ntp_loss_value
+                        record["ntp_pos_rate"] = float(ntp_pos_rate)
                     if first_metrics is None:
                         first_metrics = record
                     last_metrics = record
@@ -659,8 +1222,458 @@ class IPPOTrainer(LocalTrainerBase):
                 "agent/clip_coef": schedule.clip_coef,
                 "agent/reg_coef": schedule.reg_coef,
                 "agent/grad_norm": grad_norm,
+                "value/degenerate_target_variance_count": degenerate_target_variance_count,
                 "perf/learner_seconds": learner_seconds,
             })
+            return self._finish_iteration(metrics=metrics, completed_games=validation.completed_games)
+        except BaseException as error:
+            self._poison(stage=stage, error=error)
+            raise
+
+    def _macro_train_iteration(self) -> dict[str, object]:
+        """Profile B (sequence ablation) / Profile C (macro decision) learner."""
+        self._begin_iteration()
+        stage = "collect"
+        try:
+            schedule = compute_agent_schedule(self.cfg, iteration=self.iteration + 1)
+            apply_learning_rate(self.agent_optimizer, schedule.agent_lr)
+            rollout, validation, infos, rollout_seconds = self._collect(self.agent_model)
+            learner_started = time.perf_counter()
+            stage = "macro_targets"
+            if self.policy_router is not None:
+                from guandan_marvel.phase6.policy_owner import segment_pooled_macros
+
+                segmentation = segment_pooled_macros(rollout)
+            else:
+                segmentation = segment_rollout_macros(rollout)
+            profile = self.training_semantics_profile
+            regularizer_mode = self.policy_regularizer_mode
+            macro_lambda = (
+                float(self.cfg.ppo.gae_lambda)
+                if self.macro_gae_lambda is None
+                else float(self.macro_gae_lambda)
+            )
+            with torch.no_grad():
+                initial = self._forward_agent(rollout)
+                state_values = initial.state_values.detach().float()
+                ensure_finite_tensor("macro_state_values", state_values)
+                token_gae = compute_gae_from_value(
+                    rollout,
+                    state_values,
+                    discount_gamma=self.cfg.discount_gamma,
+                    gae_lambda=self.cfg.ppo.gae_lambda,
+                )
+                token_advantage = token_gae.player_advantage.detach()
+                token_value_target = token_gae.player_state_value.detach()
+                ensure_finite_tensor("macro_token_advantage", token_advantage)
+                ensure_finite_tensor("macro_token_value_target", token_value_target)
+                if profile == MACRO_DECISION_TRAINING_SEMANTICS_PROFILE:
+                    macro_gae = compute_macro_decision_gae(
+                        rollout,
+                        state_values,
+                        segmentation=segmentation,
+                        discount_gamma=self.cfg.discount_gamma,
+                        macro_lambda=macro_lambda,
+                    )
+                    macro_advantage = macro_gae.advantage.detach()
+                    macro_value_target = macro_gae.value_target.detach()
+                    macro_ready = macro_gae.valid
+                    ensure_finite_tensor("macro_decision_advantage", macro_advantage[macro_ready])
+                    ensure_finite_tensor("macro_decision_value_target", macro_value_target[macro_ready])
+                else:
+                    macro_gae = None
+                    macro_advantage = token_advantage.gather(
+                        1, segmentation.macro_start_index.clamp(min=0),
+                    ).detach()
+                    macro_value_target = token_value_target
+                    macro_ready = segmentation.macro_valid
+                macro_advantage = macro_advantage.contiguous()
+                ensure_finite_tensor("macro_advantage", macro_advantage[macro_ready])
+            batch_size = int(rollout.batch_size[0])
+            mini_batch_size = max(1, math.ceil(batch_size / self.cfg.mini_batches))
+            first_metrics: dict[str, object] | None = None
+            last_metrics: dict[str, object] | None = None
+            grad_norm = 0.0
+            degenerate_target_variance_count = 0
+            macro_value_loss_record: float | None = None
+            # Optional macro sample-KL early stop (``ppo.target_kl``).  ``None``
+            # runs the historical loop unchanged: no extra collective, no
+            # extra metric key and no extra arithmetic on the loss path.
+            target_kl = getattr(self.cfg.ppo, "target_kl", None)
+            kl_attempted = 0
+            kl_applied = 0
+            kl_skipped = 0
+            kl_amp_skipped = 0
+            kl_total_sum = 0.0
+            kl_total_count = 0
+            kl_stop_position: dict[str, object] | None = None
+            kl_last_decision = None
+            kl_stop_requested = False
+            stage = "policy_update"
+            for epoch in range(self.cfg.ppo.agent_epoch):
+                self.last_policy_epochs = epoch + 1
+                indices = torch.randperm(batch_size, device=self.device)
+                for start in range(0, batch_size, mini_batch_size):
+                    mb_indices = indices[start:min(start + mini_batch_size, batch_size)]
+                    mb = rollout[mb_indices]
+                    view = build_macro_batch_view(segmentation, mb_indices)
+                    output = self._forward_agent(mb)
+                    if output.avail_log_probs is None:
+                        raise RuntimeError("macro training requires FP32 avail_log_probs from the agent")
+                    pg = compute_macro_pg_loss(
+                        mb,
+                        view=view,
+                        avail_log_probs_new=output.avail_log_probs,
+                        macro_advantage=macro_advantage[mb_indices],
+                        clip_coef=schedule.clip_coef,
+                        world_size=self.world_size,
+                    )
+                    if target_kl is not None:
+                        # Documented monitoring point: the macro KL of the
+                        # *pending* minibatch, measured before its update.  The
+                        # statistic is the global sum/count (never a mean of
+                        # rank means) and every rank evaluates the same
+                        # all-reduced value, so the stop decision is identical.
+                        kl_decision = macro_sample_kl_control(
+                            pg.log_ratio, pg.valid, view.macro_length,
+                            world_size=self.world_size, target_kl=float(target_kl),
+                        )
+                        kl_attempted += 1
+                        kl_last_decision = kl_decision
+                        kl_total_sum += float(kl_decision.global_sum)
+                        kl_total_count += int(kl_decision.global_count)
+                        if kl_decision.stop:
+                            kl_skipped += 1
+                            kl_stop_position = {
+                                "epoch": int(epoch),
+                                "minibatch": int(start // mini_batch_size),
+                                "epochs_total": int(self.cfg.ppo.agent_epoch),
+                                "global_sum": float(kl_decision.global_sum),
+                                "global_count": int(kl_decision.global_count),
+                                "global_mean": kl_decision.global_mean,
+                                "target_kl": float(target_kl),
+                            }
+                            kl_stop_requested = True
+                            break
+                    # Global N > 0 is guaranteed by compute_macro_pg_loss (it fails fast
+                    # when the all-reduced macro count is zero).  A rank may still hold
+                    # no local macros; spec 9.3 requires such a rank to emit finite,
+                    # model-connected zero losses instead of an empty-set NaN or a
+                    # disconnected constant that would trip find_unused_parameters=False.
+                    local_empty = pg.macro_count_local == 0
+                    regularizer = macro_regularizer_diagnostics(
+                        mb, view=view, avail_probs_new=output.avail_probs,
+                    )
+                    if regularizer_mode == MACRO_NORMALIZED_POLICY_REGULARIZER_MODE:
+                        macro_reg_term = compute_macro_normalized_kl_mean(
+                            mb,
+                            view=view,
+                            avail_probs_new=output.avail_probs,
+                            world_size=self.world_size,
+                        )
+                        legacy_kl = float(regularizer["legacy_token_kl_mean"])
+                    elif local_empty:
+                        # A rank without local macro samples must still contribute a
+                        # graph-connected zero regularizer term (spec 9.3); averaging an
+                        # empty active set through compute_clipped_pg_loss would be NaN,
+                        # and connected_zero_like(pg.pg_loss_mean) is disconnected because
+                        # the local macro loss is a fresh constant here.
+                        macro_reg_term = model_connected_zero(
+                            output.avail_log_probs, output.player_state_value,
+                        )
+                        legacy_kl = 0.0
+                    else:
+                        legacy_pg = compute_clipped_pg_loss(
+                            mb,
+                            clip_coef=schedule.clip_coef,
+                            avail_probs_new=output.avail_probs.float(),
+                            player_advantage=token_advantage[mb_indices],
+                        )
+                        macro_reg_term = legacy_pg.kl_unif_mean
+                        legacy_kl = float(legacy_pg.kl_unif_mean.detach())
+                    total = pg.pg_loss_mean + schedule.reg_coef * macro_reg_term
+                    value_record: dict[str, object] = {}
+                    if profile == MACRO_DECISION_TRAINING_SEMANTICS_PROFILE:
+                        macro_value = compute_macro_value_loss(
+                            player_state_value_pred=output.player_state_value,
+                            view=view,
+                            macro_value_target=macro_value_target[mb_indices],
+                            world_size=self.world_size,
+                        )
+                        total = total + self.cfg.value_loss_coef * macro_value.macro_value_loss_mean
+                        macro_value_loss_record = _per_sample_macro_metric(
+                            float(macro_value.macro_value_loss_mean.detach()),
+                            global_count=macro_value.macro_count_global,
+                            local_count=macro_value.macro_count_local,
+                            world_size=self.world_size,
+                        )
+                        macro_trainable = macro_trainable_mask(view)
+                        prediction = output.player_state_value.detach().gather(
+                            1, view.macro_start_index.clamp(min=0),
+                        )
+                        ev, degenerate = explain_macro_value(
+                            prediction, macro_value_target[mb_indices], macro_trainable,
+                        )
+                        degenerate_target_variance_count += degenerate
+                        value_record = {
+                            "value_loss": macro_value_loss_record,
+                            "value_ev": ev,
+                            "value_ev_undefined": 1 if ev is None else 0,
+                        }
+                    else:
+                        if local_empty:
+                            # No local acting token: F.huber_loss(empty, empty, mean) is
+                            # NaN.  Use a model-connected zero so the value path stays
+                            # graph-connected (spec 4.3); the recorded loss is exactly 0.0.
+                            token_value_term = model_connected_zero(output.player_state_value)
+                            value_record = {
+                                "value_loss": 0.0,
+                                "token_value_loss": 0.0,
+                                "value_ev": None,
+                                "value_ev_undefined": 1,
+                            }
+                        else:
+                            token_value = compute_value_loss(
+                                mb,
+                                player_state_value_pred=output.player_state_value,
+                                player_state_value_target=token_value_target[mb_indices],
+                            )
+                            token_value_term = token_value.value_loss_mean
+                            token_time = torch.arange(mb["player_ids"].shape[1], device=self.device).unsqueeze(0)
+                            token_active = (
+                                (token_time < mb["num_steps"].unsqueeze(1)) & (mb["player_ids"] >= 0)
+                            )
+                            if "policy_train_mask" in mb:
+                                token_active = token_active & mb["policy_train_mask"].to(torch.bool)
+                            token_ev, token_degenerate = _explained_variance(
+                                output.player_state_value, token_value_target[mb_indices], token_active,
+                            )
+                            degenerate_target_variance_count += token_degenerate
+                            value_record = {
+                                "value_loss": float(token_value.value_loss_mean.detach()),
+                                "token_value_loss": float(token_value.value_loss_mean.detach()),
+                                "value_ev": token_ev,
+                                "value_ev_undefined": 1 if token_ev is None else 0,
+                            }
+                        total = total + self.cfg.value_loss_coef * token_value_term
+                    symmetry_record: dict[str, object] = {}
+                    symmetry_out = self._symmetry_loss(mb, output)
+                    if symmetry_out is not None:
+                        total = total + self.cfg.symmetry.symmetry_weight * symmetry_out.loss
+                        symmetry_record = {
+                            "symmetry_loss": float(symmetry_out.loss.detach()),
+                            "symmetry_mean_kl": float(symmetry_out.mean_kl_global),
+                            "symmetry_token_count_global": int(
+                                symmetry_out.token_count_global
+                            ),
+                            "symmetry_candidate_count_local": int(
+                                symmetry_out.candidate_count_local
+                            ),
+                        }
+                    record: dict[str, object] = {
+                        # Per-rank per-sample mean (DDP loss scaling removed): the
+                        # aggregator reconstructs the global per-sample mean by
+                        # weighting with macro_count_local.  w == 1 is bitwise unchanged.
+                        "pg_loss": _per_sample_macro_metric(
+                            float(pg.pg_loss_mean.detach()),
+                            global_count=pg.macro_count_global,
+                            local_count=pg.macro_count_local,
+                            world_size=self.world_size,
+                        ),
+                        "clip_frac": pg.clip_frac,
+                        "macro_count_local": pg.macro_count_local,
+                        "macro_count_global": pg.macro_count_global,
+                        "token_count_local": int(regularizer["token_count"]),
+                        # Rank-consistent DDP aggregates (identical on every rank; the
+                        # metrics aggregator must not average them across ranks).
+                        "adv_raw_mean_global": pg.adv_raw_mean_global,
+                        "adv_raw_std_global": pg.adv_raw_std_global,
+                        "adv_norm_mean_global": pg.adv_norm_mean_global,
+                        "adv_norm_std_global": pg.adv_norm_std_global,
+                        "adv_count_global": pg.adv_count_global,
+                        "adv_raw_mean": pg.adv_raw_mean,
+                        "adv_raw_std": pg.adv_raw_std,
+                        "adv_raw_min": pg.adv_raw_min,
+                        "adv_raw_max": pg.adv_raw_max,
+                        "adv_norm_mean": pg.adv_norm_mean,
+                        "adv_norm_std": pg.adv_norm_std,
+                        "adv_norm_min": pg.adv_norm_min,
+                        "adv_norm_max": pg.adv_norm_max,
+                        "log_ratio_mean": pg.log_ratio_mean,
+                        "log_ratio_std": pg.log_ratio_std,
+                        "log_ratio_min": pg.log_ratio_min,
+                        "log_ratio_max": pg.log_ratio_max,
+                        "ratio_mean": pg.ratio_mean,
+                        "ratio_min": pg.ratio_min,
+                        "ratio_max": pg.ratio_max,
+                        "old_logprob_mean": pg.old_logprob_mean,
+                        "new_logprob_mean": pg.new_logprob_mean,
+                        "macro_length_mean": pg.macro_length_mean,
+                        "macro_length_max": pg.macro_length_max,
+                        "zero_variance_count": pg.zero_variance_count,
+                        "empty_local_batch": 1 if pg.empty_local_batch else 0,
+                        "old_logprob_crosscheck_max_abs_diff": pg.old_logprob_crosscheck_max_abs_diff,
+                        "legacy_token_kl": legacy_kl,
+                        "macro_kl": regularizer["macro_kl_mean"],
+                        # Rollout-policy sample estimate KL(old || new), not KL(pi || U).
+                        "approx_kl_old_new": (
+                            float((torch.expm1(pg.log_ratio[pg.valid].detach()) - pg.log_ratio[pg.valid].detach()).mean().item())
+                            if pg.macro_count_local else 0.0
+                        ),
+                        "raw_entropy": regularizer["raw_entropy_mean"],
+                        "normalized_entropy": regularizer["normalized_entropy_mean"],
+                        # Forced single-legal-action decisions count as zero in the
+                        # overall entropy; the non-forced mean is kept separately.
+                        "non_forced_normalized_entropy": regularizer["non_forced_normalized_entropy_mean"],
+                        "non_forced_token_count": regularizer["non_forced_token_count"],
+                        "regularizer_mode": regularizer_mode,
+                        "single_legal_token_count": regularizer["single_legal_token_count"],
+                    }
+                    record.update(value_record)
+                    record.update(symmetry_record)
+                    for bucket, value in pg.clip_frac_by_length.items():
+                        record[f"clip_frac_by_length/{bucket}"] = value
+                    if self.cfg.ntp_weight > 0.0 and output.ntp_logits is not None:
+                        ntp = compute_next_observation_token_loss(
+                            mb,
+                            ntp_logits=output.ntp_logits,
+                            pad_token=self.pad_token,
+                            pos_weight=self.cfg.ntp_pos_weight,
+                        )
+                        total = total + self.cfg.ntp_weight * ntp.ntp_loss_mean
+                        record["ntp_loss"] = float(ntp.ntp_loss_mean.detach())
+                        record["ntp_pos_rate"] = float(ntp.ntp_pos_rate)
+                    if local_empty:
+                        # Spec 4.4.2: the final total on an empty rank must additionally
+                        # carry a zero anchor built from real model outputs so that every
+                        # policy/value (and NTP, when enabled) parameter is touched by
+                        # autograd on this rank under find_unused_parameters=False.
+                        total = total + model_connected_zero(
+                            output.avail_log_probs, output.player_state_value, output.ntp_logits,
+                        )
+                    group_norms: dict[str, float] = {}
+                    updates_before = self.learner_updates
+                    grad_norm = self._optimizer_step(
+                        loss=total, module=self.agent_resume,
+                        optimizer=self.agent_optimizer, name="macro_agent",
+                        group_norms_out=group_norms,
+                    )
+                    if target_kl is not None:
+                        if self.learner_updates > updates_before:
+                            kl_applied += 1
+                        else:
+                            # A genuine fp16 overflow skip is neither an applied
+                            # update nor a KL stop; keep the two counters apart.
+                            kl_amp_skipped += 1
+                    for group, value in group_norms.items():
+                        record[f"grad_norm/{group}"] = value
+                    if first_metrics is None:
+                        first_metrics = record
+                    last_metrics = record
+                if kl_stop_requested:
+                    break
+            self.merge_updater.step(iteration=self.iteration + 1)
+            learner_seconds = time.perf_counter() - learner_started
+            metrics = self._common_metrics(rollout, validation, infos, rollout_seconds)
+            for prefix, values in (("macro_initial", first_metrics), ("macro", last_metrics)):
+                for key, value in (values or {}).items():
+                    metrics[f"{prefix}/{key}"] = value
+            metrics.update({
+                "macro/profile": profile,
+                "macro/regularizer_mode": regularizer_mode,
+                "macro/lambda": macro_lambda,
+                "macro/discount_gamma": self.cfg.discount_gamma,
+                "macro/segmentation_schema": segmentation.schema,
+                "macro/diagnostic_incomplete_count": segmentation.incomplete_count,
+                "macro/diagnostic_player_switch_violation_count": segmentation.player_switch_violation_count,
+                "macro/legacy_token_advantage": profile != MACRO_DECISION_TRAINING_SEMANTICS_PROFILE,
+                "macro/value_sample_unit": "macro_start" if profile == MACRO_DECISION_TRAINING_SEMANTICS_PROFILE else "token",
+                "macro/degenerate_target_variance_count": degenerate_target_variance_count,
+                "macro/value_loss_last": macro_value_loss_record,
+                "macro/clamp_count": 0,
+                "macro/truncated_count": 0,
+                "macro/illegal_active_action_count": 0,
+                "health/legal_single_action_tokens_last": int(
+                    (last_metrics or {}).get("single_legal_token_count", 0)
+                ),
+                "agent/learning_rate": schedule.agent_lr,
+                "agent/clip_coef": schedule.clip_coef,
+                "agent/reg_coef": schedule.reg_coef,
+                "agent/grad_norm": grad_norm,
+                "perf/learner_seconds": learner_seconds,
+            })
+            if target_kl is not None:
+                # Explicit, separately named global KL-control block.  The
+                # legacy ``macro/approx_kl_old_new`` field keeps its historical
+                # meaning (the *last minibatch*, per-rank mean) and is never
+                # relabelled as the whole-iteration final KL.
+                metrics.update({
+                    "macro/kl_control/schema": kl_last_decision.schema if kl_last_decision else None,
+                    "macro/kl_control/target_kl": float(target_kl),
+                    "macro/kl_control/stopped": bool(kl_stop_requested),
+                    "macro/kl_control/stop_position": kl_stop_position,
+                    "macro/kl_control/attempted_steps": int(kl_attempted),
+                    "macro/kl_control/applied_steps": int(kl_applied),
+                    "macro/kl_control/skipped_steps": int(kl_skipped),
+                    "macro/kl_control/amp_skipped_steps": int(kl_amp_skipped),
+                    "macro/kl_control/iteration_global_sum": float(kl_total_sum),
+                    "macro/kl_control/iteration_global_count": int(kl_total_count),
+                    "macro/kl_control/iteration_global_mean": (
+                        float(kl_total_sum / kl_total_count) if kl_total_count else None
+                    ),
+                    "macro/kl_control/last_minibatch_global_sum": (
+                        None if kl_last_decision is None else float(kl_last_decision.global_sum)
+                    ),
+                    "macro/kl_control/last_minibatch_global_count": (
+                        None if kl_last_decision is None else int(kl_last_decision.global_count)
+                    ),
+                    "macro/kl_control/last_minibatch_global_mean": (
+                        None if kl_last_decision is None else kl_last_decision.global_mean
+                    ),
+                    "macro/kl_control/last_minibatch_global_max": (
+                        None if kl_last_decision is None else float(kl_last_decision.global_max)
+                    ),
+                    "macro/kl_control/length_bucket_sums": (
+                        {} if kl_last_decision is None else dict(kl_last_decision.length_bucket_sums)
+                    ),
+                    "macro/kl_control/length_bucket_counts": (
+                        {} if kl_last_decision is None else dict(kl_last_decision.length_bucket_counts)
+                    ),
+                    "macro/kl_control/quantiles": (
+                        {} if kl_last_decision is None else dict(kl_last_decision.quantiles)
+                    ),
+                    "macro/kl_control/quantiles_approximate": (
+                        None if kl_last_decision is None else bool(kl_last_decision.quantiles_approximate)
+                    ),
+                    "macro/kl_control/formula": "expm1(log_ratio) - log_ratio; global sum / global count",
+                    "macro/kl_control/note": (
+                        "monitored before the pending minibatch update; stopping does not roll back "
+                        "an update that already happened"
+                    ),
+                })
+            metrics.update(macro_diagnostics(segmentation, prefix="macro/seg_"))
+            if self.policy_router is not None:
+                self._assert_frozen_opponents_unchanged()
+                full_view = build_macro_batch_view(
+                    segmentation, torch.arange(batch_size, device=self.device),
+                )
+                trainable = macro_trainable_mask(full_view)
+                complete = full_view.macro_valid & (full_view.macro_end_index >= 0)
+                metrics.update(self.policy_router.metrics())
+                if self.last_pool_stats is not None:
+                    metrics.update({
+                        "pool/current_token_count": int(self.last_pool_stats.current_token_count),
+                        "pool/opponent_token_count": int(self.last_pool_stats.opponent_token_count),
+                        "pool/current_assignment_count": int(
+                            self.last_pool_stats.current_assignment_count
+                        ),
+                        "pool/opponent_owner_ids": list(self.last_pool_stats.opponent_owner_ids),
+                        "pool/current_macro_count_local": int(trainable.sum().item()),
+                        "pool/opponent_macro_count_local": int(
+                            (complete & ~trainable).sum().item()
+                        ),
+                    })
+                metrics["pool/frozen_parameters_unchanged"] = True
             return self._finish_iteration(metrics=metrics, completed_games=validation.completed_games)
         except BaseException as error:
             self._poison(stage=stage, error=error)
@@ -687,6 +1700,8 @@ class IPPOTrainer(LocalTrainerBase):
         self._begin_load()
         try:
             decision = self._classify_checkpoint(payload, require_replay=False)
+            self._verify_checkpoint_training_semantics(payload)
+            self._verify_opponent_pool_checkpoint(payload)
             self.agent_resume.load_state_dict(payload["agent_resume_state_dict"], strict=True)
             self.agent_merged.load_state_dict(payload["agent_state_dict"], strict=True)
             _load_optimizer_state(self.agent_optimizer, payload["agent_optimizer_state_dict"])
@@ -710,6 +1725,7 @@ class VRPOTrainer(LocalTrainerBase):
         super().__init__(cfg, game=game, run_dir=run_dir)
         self.agent_resume = Agent(cfg, enable_value_head=False).to(self.device)
         self.agent_merged = Agent(cfg, enable_value_head=False).to(self.device)
+        self._build_symmetry(self.agent_resume)
         self.critic = CentralCritic(cfg, output_mode="qvalue").to(self.device)
         self.merge_updater = ExponentialMovingAverageUpdater(
             model=self.agent_resume, merged_model=self.agent_merged,
@@ -756,7 +1772,7 @@ class VRPOTrainer(LocalTrainerBase):
             learner_started = time.perf_counter()
             stage = "fresh_critic_forward"
             with torch.no_grad():
-                fresh_qvalues = self.critic_model(rollout=rollout).qvalues.detach().float()
+                fresh_qvalues = self._forward_critic(rollout).qvalues.detach().float()
                 ensure_finite_tensor("vrpo_fresh_qvalues", fresh_qvalues)
             self.replay_buffer.add(rollout.to(self.replay_buffer.device))
             self._validate_replay_storage()
@@ -772,7 +1788,7 @@ class VRPOTrainer(LocalTrainerBase):
                 for start in range(0, batch_size, mini_batch_size):
                     mb_indices = indices[start:min(start + mini_batch_size, batch_size)]
                     mb = rollout[mb_indices]
-                    output = self.agent_model(rollout=mb)
+                    output = self._forward_agent(mb)
                     with torch.no_grad():
                         gae = compute_gae_from_qvalue(
                             mb, fresh_qvalues[mb_indices],
@@ -788,6 +1804,20 @@ class VRPOTrainer(LocalTrainerBase):
                         player_advantage=gae.player_advantage,
                     )
                     total = pg.pg_loss_mean + schedule.reg_coef * pg.kl_unif_mean
+                    symmetry_record: dict[str, object] = {}
+                    symmetry_out = self._symmetry_loss(mb, output)
+                    if symmetry_out is not None:
+                        total = total + self.cfg.symmetry.symmetry_weight * symmetry_out.loss
+                        symmetry_record = {
+                            "symmetry_loss": float(symmetry_out.loss.detach()),
+                            "symmetry_mean_kl": float(symmetry_out.mean_kl_global),
+                            "symmetry_token_count_global": int(
+                                symmetry_out.token_count_global
+                            ),
+                            "symmetry_candidate_count_local": int(
+                                symmetry_out.candidate_count_local
+                            ),
+                        }
                     actor_grad_norm = self._optimizer_step(
                         loss=total, module=self.agent_resume,
                         optimizer=self.agent_optimizer, name="vrpo_agent",
@@ -799,6 +1829,7 @@ class VRPOTrainer(LocalTrainerBase):
                         "clip_frac": float(pg.clip_frac.detach()),
                         "adv_mean": float(pg.adv_mean.detach()),
                         "adv_std": float(pg.adv_std.detach()),
+                        **symmetry_record,
                     }
                     actor_first = record if actor_first is None else actor_first
                     actor_last = record
@@ -809,10 +1840,10 @@ class VRPOTrainer(LocalTrainerBase):
             for aux_epoch in range(self.cfg.vrpo.aux_epoch):
                 critic_sources.append("fresh" if aux_epoch == 0 else "replay")
                 validate_complete_trajectories(current, require_on_policy=True)
-                output = self.critic_model(rollout=current)
+                output = self._forward_critic(current)
                 qvalues = output.qvalues.float()
                 with torch.no_grad():
-                    policy = self.agent_model(rollout=current).avail_probs.detach().float()
+                    policy = self._forward_agent(current).avail_probs.detach().float()
                     targets = compute_gae_from_qvalue(
                         current, qvalues.detach(),
                         avail_probs_new=policy,
@@ -892,6 +1923,8 @@ class VRPOTrainer(LocalTrainerBase):
         self._begin_load()
         try:
             decision = self._classify_checkpoint(payload, require_replay=True)
+            self._verify_checkpoint_training_semantics(payload)
+            self._verify_opponent_pool_checkpoint(payload)
             self.agent_resume.load_state_dict(payload["agent_resume_state_dict"], strict=True)
             self.agent_merged.load_state_dict(payload["agent_state_dict"], strict=True)
             self.critic.load_state_dict(payload["critic_state_dict"], strict=True)
@@ -915,6 +1948,7 @@ __all__ = [
     "COMMON_RUNTIME_SOURCE_COMPONENTS", "CPP_BACKEND_SOURCE_COMPONENTS",
     "IPPOTrainer", "LocalTrainerBase", "M03_RUNTIME_SCHEMA",
     "PYTHON_BACKEND_SOURCE_COMPONENTS", "RUNTIME_SOURCE_COMPONENTS", "VRPOTrainer",
+    "WARM_START_ALLOWED_ARCHITECTURE_TRANSITIONS",
     "runtime_source_components",
     "VRPO_Q_TARGET_CONTRACT",
 ]

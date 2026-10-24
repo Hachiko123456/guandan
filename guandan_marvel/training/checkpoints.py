@@ -14,11 +14,20 @@ from typing import Any, Mapping, Sequence
 import numpy as np
 import torch
 
+from guandan_marvel.config import (
+    ENVIRONMENT_DISCOUNT_CLOCK, LEGACY_POLICY_REGULARIZER_MODE,
+    LEGACY_TRAINING_SEMANTICS_PROFILE,
+)
+from guandan_marvel.reward import (
+    RAW_REWARD_MAX, RAW_REWARD_MIN, REWARD_SEMANTICS, TRAINING_REWARD_SCALE,
+)
+
 TRAINING_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v5"
 PRE_TRAINING_PROVENANCE_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v4"
 PRE_BACKEND_IDENTITY_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v3"
 PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA = "guandan-marvel-training-checkpoint-v2"
 TRAINING_SEMANTIC_CONTRACT_SCHEMA = "guandan-marvel-training-contract-v4"
+TRAINING_SEMANTICS_SCHEMA = "guandan-marvel-training-semantics-v1"
 SEMANTIC_CONFIG_SCHEMA = "guandan-marvel-semantic-config-v1"
 SOURCE_FINGERPRINT_SCHEMA = "guandan-marvel-source-fingerprint-v1"
 EXECUTION_FINGERPRINT_SCHEMA = "guandan-marvel-execution-fingerprint-v1"
@@ -141,10 +150,31 @@ def build_semantic_configuration(config: object, *, algorithm: str) -> dict[str,
             "value_loss_coef": resolved["value_loss_coef"],
             "mini_batches": resolved["mini_batches"],
         },
+        "training_semantics": {
+            "schema": TRAINING_SEMANTICS_SCHEMA,
+            "profile": ppo.get("training_semantics_profile", LEGACY_TRAINING_SEMANTICS_PROFILE),
+            "policy_regularizer_mode": ppo.get(
+                "policy_regularizer_mode", LEGACY_POLICY_REGULARIZER_MODE,
+            ),
+            "environment_discount_clock": ENVIRONMENT_DISCOUNT_CLOCK,
+            "macro_gae_lambda": ppo.get("macro_gae_lambda"),
+            # Only present when the optional macro-KL early stop is enabled: a
+            # checkpoint can then never silently change the stop rule, while the
+            # default (None) keeps every existing semantic hash bitwise identical.
+            **(
+                {"target_kl": float(ppo["target_kl"])}
+                if ppo.get("target_kl") is not None else {}
+            ),
+        },
         "critic_update": None if algorithm == "ippo" else {
             "base_lr": vrpo["base_lr"],
             "gae_lambda": vrpo["gae_lambda"],
             "aux_epoch": vrpo["aux_epoch"],
+        },
+        "reward": {
+            "semantics": resolved.get("reward_semantics", REWARD_SEMANTICS),
+            "scale": resolved.get("reward_scale", TRAINING_REWARD_SCALE),
+            "raw_range": [RAW_REWARD_MIN, RAW_REWARD_MAX],
         },
         "optimizer": optimizer,
         "schedule": {
@@ -163,6 +193,7 @@ def build_semantic_configuration(config: object, *, algorithm: str) -> dict[str,
             "training_data_manifest_hash": resolved["training_data_manifest_hash"],
             "training_data_generator_version": resolved["training_data_generator_version"],
             "training_context_schedule": resolved.get("training_context_schedule"),
+            "training_context_curriculum": resolved.get("training_context_curriculum"),
             "rollout_batch_size": resolved["rollout_batch_size"],
             "collect_batch_size": resolved["collect_batch_size"],
             "replay_buffer_scale": resolved["replay_buffer_scale"],
@@ -173,10 +204,50 @@ def build_semantic_configuration(config: object, *, algorithm: str) -> dict[str,
             "deterministic": resolved["deterministic"],
             "deterministic_disable_tf32": resolved["deterministic_disable_tf32"],
             "amp_enabled": resolved["amp_enabled"],
+            **({"completed_trajectory_layout": "valid_prefix_v1"}
+               if resolved.get("trim_completed_padding", False) else {}),
+            **(
+                {"amp_init_scale": float(resolved["amp_init_scale"])}
+                if resolved.get("amp_init_scale") is not None else {}
+            ),
             "compile": dict(resolved["compile"]),
             "ddp": dict(resolved["ddp"]),
         },
+        # Phase-5 conditional features are semantic: flipping either flag must
+        # never be classified as an exact resume.
+        "phase5_conditionals": {
+            "symmetry_weight": float(dict(resolved.get("symmetry") or {}).get("symmetry_weight", 0.0)),
+            "augmentation": bool(dict(resolved.get("symmetry") or {}).get("augmentation", False)),
+            "belief_weight": float(dict(resolved.get("belief") or {}).get("belief_weight", 0.0)),
+            "belief_head": bool(dict(resolved.get("belief") or {}).get("build_head", False)),
+            **(
+                {
+                    "symmetry_artifact_sha256": hashlib.sha256(
+                        Path(str(dict(resolved["symmetry"])["diagnostic_artifact"])).read_bytes()
+                    ).hexdigest(),
+                    "symmetry_checkpoint_sha256": hashlib.sha256(
+                        Path(str(dict(resolved["symmetry"])["compatibility_checkpoint"])).read_bytes()
+                    ).hexdigest(),
+                }
+                if float(dict(resolved.get("symmetry") or {}).get("symmetry_weight", 0.0)) > 0.0
+                else {}
+            ),
+        },
     }
+    pool_config = dict(resolved.get("opponent_pool") or {})
+    if pool_config.get("enabled", False):
+        # The pool is semantic: entries, weights, sampling seed and assignment
+        # scheme must never be silently swapped under an "exact resume".
+        semantic["phase6_opponent_pool"] = {
+            "schema": "guandan-marvel-phase6-semantic-pool-v1",
+            "enabled": True,
+            "manifest_path": pool_config.get("manifest_path"),
+            "entries": pool_config.get("entries"),
+            "sampling_seed": int(pool_config.get("sampling_seed", 0)),
+            "sampling_scheme": str(pool_config.get("sampling_scheme")),
+            "assignment_scheme": str(pool_config.get("assignment_scheme")),
+            "max_resident_policies": int(pool_config.get("max_resident_policies", 1)),
+        }
     return {**semantic, "hash": canonical_json_hash(semantic)}
 
 
@@ -331,7 +402,13 @@ def restore_rng_state(state: Mapping[str, object]) -> None:
     if cuda_state is not None:
         if not torch.cuda.is_available():
             raise CheckpointCompatibilityError("checkpoint contains CUDA RNG but CUDA is unavailable")
-        torch.cuda.set_rng_state_all(list(cuda_state))
+        # ``TrainingCheckpointStore.load`` maps every storage to the training
+        # device, so a CUDA checkpoint hands back CUDA byte tensors.  Generator
+        # ``set_state`` requires a CPU ``torch.ByteTensor``; cast exactly like the
+        # CPU state above instead of relying on the loader's device mapping.
+        torch.cuda.set_rng_state_all([
+            torch.as_tensor(value, dtype=torch.uint8).cpu() for value in cuda_state
+        ])
 
 
 def classify_resume(
@@ -507,7 +584,7 @@ __all__ = [
     "PRE_REPAIR_TRAINING_CHECKPOINT_SCHEMA",
     "RESUME_KINDS", "ResumeDecision", "SEMANTIC_CONFIG_SCHEMA",
     "SOURCE_FINGERPRINT_SCHEMA", "TRAINING_CHECKPOINT_SCHEMA",
-    "TRAINING_SEMANTIC_CONTRACT_SCHEMA", "TrainingCheckpointStore",
+    "TRAINING_SEMANTIC_CONTRACT_SCHEMA", "TRAINING_SEMANTICS_SCHEMA", "TrainingCheckpointStore",
     "build_backend_identity", "build_execution_fingerprint",
     "build_semantic_configuration",
     "build_semantic_contract", "canonical_json_hash", "capture_rng_state",

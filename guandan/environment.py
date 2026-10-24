@@ -16,7 +16,7 @@ from .environment_types import (
     SERIALIZATION_VERSION, BatchObservation, BatchStepResult, CommittedAction,
     GameConfig, Observation, ObservationSpec, StepResult, strict_int,
 )
-from .state import EpisodeTerminatedError, IllegalActionError, Phase, PreviousHandResult, RoundState, StateInvariantError, TEAM_OF
+from .state import EpisodeTerminatedError, IllegalActionError, Phase, PreviousHandResult, RoundState, StateInvariantError, TEAM_OF, rank_point_reward
 from .round import enumerate_legal_actions
 from .combos import CombinationKind, recognize_combinations
 
@@ -238,9 +238,10 @@ class GuandanEnv:
         state = protocol.round_state
         if state.done:
             expected = PreviousHandResult(state.ranking, state.winner_team, state.outcome_class)
+            team_points = rank_point_reward(expected.outcome_class, expected.winner_team)
             if (state.finish_token_step != protocol.token_step
                     or state.finish_committed_step != protocol.committed_step
-                    or tuple(state.team_rewards) != tuple(1.0 if t == expected.winner_team else -1.0 for t in range(2))):
+                    or tuple(state.team_rewards) != (team_points[0], team_points[1])):
                 raise StateInvariantError("terminal metadata/rewards disagree with episode clocks")
 
     def reset(self, *, seed: int | None = None, initial_state: bytes | None = None) -> Observation:

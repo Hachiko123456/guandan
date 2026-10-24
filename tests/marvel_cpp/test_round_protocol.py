@@ -148,7 +148,7 @@ def test_pass_chain_contact_and_double_down_terminal_reward():
         step = batch.step(_row_for_token(step, token)[None, :])
 
     assert bool(step.is_terminal[0])
-    np.testing.assert_array_equal(step.rewards[0], np.asarray([1, -1, 1, -1], np.float32))
+    np.testing.assert_array_equal(step.rewards[0], np.asarray([3, -3, 3, -3], np.float32))
     info = step.infos[0]
     assert info["outcome_class"] == "DOUBLE_DOWN"
     assert info["ranking"][0] == 1 and info["ranking"][2] == 2  # ranking is indexed by seat

@@ -19,8 +19,9 @@ def game(opponent="random", group=0, rotation=0, win=True):
         "done": True, "truncated": False,
         "ranking": [1, 3, 2, 4] if winner == 0 else [3, 1, 4, 2],
         "winner_team": winner,
-        "rewards": [1 if seat % 2 == winner else -1 for seat in range(4)],
-        "team_rewards": [1 if team == winner else -1 for team in range(2)],
+        "outcome_class": "DOUBLE_DOWN",
+        "rewards": [3 if seat % 2 == winner else -3 for seat in range(4)],
+        "team_rewards": [3 if team == winner else -3 for team in range(2)],
         "token_steps": 20 + rotation, "committed_steps": 10,
         "base_deal_sha256": hashlib.sha256(str(group).encode()).hexdigest(),
         "seed": 100 + group,
@@ -127,9 +128,9 @@ def test_win_reward_is_candidate_team_not_always_team_zero():
     record = game(rotation=3, win=True)
     summary = summarize_games([record])["per_opponent"]["random"]
     assert record["winner_team"] == 1
-    assert summary["wins"] == 1 and summary["mean_team_reward"] == 1
+    assert summary["wins"] == 1 and summary["mean_team_reward"] == 3
     summary = summarize_games([game(rotation=2, win=False)])["per_opponent"]["random"]
-    assert summary["losses"] == 1 and summary["mean_team_reward"] == -1
+    assert summary["losses"] == 1 and summary["mean_team_reward"] == -3
 
 
 def test_empty_input_returns_zero_counts_and_no_interval_or_estimate():

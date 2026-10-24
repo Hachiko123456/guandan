@@ -560,7 +560,7 @@ def test_A04_029_terminal_commit_has_shared_zero_sum_reward_and_ranking(api):
     result = _play_single(env, _card(Rank.ACE).card_id)
     _check_result(api, result)
     assert result.done and not result.truncated and result.is_commit
-    np.testing.assert_array_equal(result.rewards, np.array([1, -1, 1, -1], np.float32))
+    np.testing.assert_array_equal(result.rewards, np.array([3, -3, 3, -3], np.float32))
     assert float(result.rewards.sum()) == 0.0
     assert (result.token_step, result.committed_step) == (7, 3)
     state = env.full_state()["round_state"]
@@ -568,7 +568,7 @@ def test_A04_029_terminal_commit_has_shared_zero_sum_reward_and_ranking(api):
     assert state["winner_team"] == 0 and state["outcome_class"] == "DOUBLE_DOWN"
     assert result.info["ranking"] == (1, 4, 2, 3)
     assert result.info["winner_team"] == 0 and result.info["outcome_class"] == "DOUBLE_DOWN"
-    assert result.info["team_reward"] == (1.0, -1.0)
+    assert result.info["team_reward"] == (3.0, -3.0)
     assert result.info["finish_token_step"] == state["finish_token_step"] == 7
     assert result.info["finish_committed_step"] == state["finish_committed_step"] == 3
     assert env.full_state()["protocol"]["prefix_tokens"] == []
