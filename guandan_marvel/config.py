@@ -16,6 +16,12 @@ import torch
 from guandan_marvel.context_schedule import (
     validate_context_schedule, validate_context_curriculum,
 )
+from guandan_marvel.dmc import (
+    DMC_ACTION_FEATURE_VERSION,
+    DMC_CHECKPOINT_SCHEMA,
+    DMC_TRAINING_SEMANTICS_PROFILE,
+    DMCRuntimeConfig,
+)
 from guandan_marvel.phase6.config_types import OpponentPoolConfig
 from guandan_marvel.reward import REWARD_SEMANTICS, TRAINING_REWARD_SCALE
 
@@ -38,6 +44,10 @@ TRAINING_SEMANTICS_PROFILES = (
     LEGACY_TRAINING_SEMANTICS_PROFILE,
     SEQUENCE_ABLATION_TRAINING_SEMANTICS_PROFILE,
     MACRO_DECISION_TRAINING_SEMANTICS_PROFILE,
+    # DMC is a candidate-level Q-learning route, not a policy-gradient profile.
+    # It is registered explicitly so ``algo_name="dmc"`` can never silently
+    # borrow PPO/macro semantics.
+    DMC_TRAINING_SEMANTICS_PROFILE,
 )
 LEGACY_POLICY_REGULARIZER_MODE = "legacy_token_kl_uniform_v1"
 MACRO_NORMALIZED_POLICY_REGULARIZER_MODE = "macro_normalized_kl_uniform_v1"
@@ -141,8 +151,10 @@ class PPOConfig:
         validate_training_semantics(self, algorithm=None)
 
 
-def validate_training_semantics(ppo: "PPOConfig", *, algorithm: str | None) -> None:
-    """Strictly validate the phase-2 training-semantics matrix.
+def validate_training_semantics(
+    ppo: "PPOConfig", *, algorithm: str | None, opponent_pool_enabled: bool = False,
+) -> None:
+    """Strictly validate the phase-2/DMC training-semantics matrix.
 
     The matrix is deliberately explicit so that no ad-hoc boolean combination
     can silently select an undefined estimator:
@@ -154,6 +166,13 @@ def validate_training_semantics(ppo: "PPOConfig", *, algorithm: str | None) -> N
         independent per-macro normalized uniform-KL regularizer.
     ``(legacy_token_v1, macro_normalized_kl_uniform_v1)``
         undefined: token PPO with a macro regularizer is rejected.
+    ``(dmc_v1, legacy_token_kl_uniform_v1)``
+        DMC candidate-level Q learning (``algo_name="dmc"``).  DMC does not
+        read ``PPOConfig`` at all: there is no policy-gradient estimator,
+        regularizer or macro-KL early stop, so the profile is only accepted
+        with the structurally inert default regularizer and
+        ``target_kl=None``, and it is rejected for every other algorithm.
+        ``opponent_pool`` is likewise undefined for DMC.
 
     VRPO keeps its legacy Q-critic semantics; requesting any macro profile for
     ``algo_name=vrpo`` must fail fast instead of silently degrading to token or
@@ -171,6 +190,26 @@ def validate_training_semantics(ppo: "PPOConfig", *, algorithm: str | None) -> N
             f"unsupported policy_regularizer_mode {regularizer!r}; expected one of "
             f"{', '.join(POLICY_REGULARIZER_MODES)}"
         )
+    if profile == DMC_TRAINING_SEMANTICS_PROFILE:
+        # DMC never reads PPOConfig.  ``legacy_token_kl_uniform_v1`` is only the
+        # inert placeholder every PPOConfig carries by default; any other mode
+        # means the caller expects PPO regularizer semantics DMC does not have.
+        if regularizer != LEGACY_POLICY_REGULARIZER_MODE:
+            raise ValueError(
+                "training_semantics_profile='dmc_v1' does not use policy_regularizer_mode; "
+                f"expected the inert default {LEGACY_POLICY_REGULARIZER_MODE!r}, "
+                f"got {regularizer!r}"
+            )
+        if getattr(ppo, "target_kl", None) is not None:
+            raise ValueError(
+                "ppo.target_kl is a macro PPO-KL stop rule and is undefined for "
+                "training_semantics_profile='dmc_v1'"
+            )
+        if opponent_pool_enabled:
+            raise ValueError(
+                "opponent_pool requires algo_name=ippo; DMC has no owner-masked "
+                "current-sample unit"
+            )
     if profile == LEGACY_TRAINING_SEMANTICS_PROFILE and regularizer != LEGACY_POLICY_REGULARIZER_MODE:
         raise ValueError(
             "legacy_token_v1 only supports the legacy_token_kl_uniform_v1 regularizer; "
@@ -194,6 +233,16 @@ def validate_training_semantics(ppo: "PPOConfig", *, algorithm: str | None) -> N
                 "ppo.target_kl requires a macro training_semantics_profile "
                 f"({sorted(MACRO_TRAINING_SEMANTICS_PROFILES)}); got {profile!r}"
             )
+    if algorithm == "dmc" and profile != DMC_TRAINING_SEMANTICS_PROFILE:
+        raise ValueError(
+            "algo_name=dmc requires training_semantics_profile="
+            f"{DMC_TRAINING_SEMANTICS_PROFILE!r}; got {profile!r}"
+        )
+    if algorithm is not None and algorithm != "dmc" and profile == DMC_TRAINING_SEMANTICS_PROFILE:
+        raise ValueError(
+            "training_semantics_profile='dmc_v1' is only defined for algo_name='dmc'; "
+            f"got algo_name={algorithm!r}"
+        )
     if algorithm == "vrpo" and profile != LEGACY_TRAINING_SEMANTICS_PROFILE:
         raise ValueError(
             "algo_name=vrpo keeps legacy token semantics; macro training profiles are "
@@ -477,6 +526,11 @@ class TrainConfig:
     # from the serialized resolved config so a phase-5 checkpoint remains an
     # exact resume of the unchanged default training semantics.
     opponent_pool: OpponentPoolConfig = field(default_factory=OpponentPoolConfig)
+    # DMC runtime block (stage 1: configuration/validation only; no DMC trainer
+    # exists yet).  It is used only by ``algo_name="dmc"``; for every other
+    # algorithm the default block is omitted from the serialized config so
+    # pre-existing unsaved/resolved configs stay bitwise identical.
+    dmc: DMCRuntimeConfig = field(default_factory=DMCRuntimeConfig)
 
     def __post_init__(self) -> None:
         if not isinstance(self.trim_completed_padding, bool):
@@ -489,9 +543,15 @@ class TrainConfig:
             self.game = GameSpec(**dict(self.game))
         if not isinstance(self.game, GameSpec):
             self.game = GameSpec.from_game(self.game)
-        validate_training_semantics(self.ppo, algorithm=str(self.algo_name))
+        validate_training_semantics(
+            self.ppo,
+            algorithm=str(self.algo_name),
+            opponent_pool_enabled=bool(getattr(self.opponent_pool, "enabled", False)),
+        )
         if not isinstance(self.opponent_pool, OpponentPoolConfig):
             raise TypeError("TrainConfig.opponent_pool must be an OpponentPoolConfig")
+        if not isinstance(self.dmc, DMCRuntimeConfig):
+            raise TypeError("TrainConfig.dmc must be a DMCRuntimeConfig")
         if self.opponent_pool.enabled:
             if str(self.algo_name) != "ippo":
                 raise ValueError(
@@ -615,6 +675,10 @@ class TrainConfig:
             payload.pop("opponent_pool", None)
         if payload.get("amp_init_scale") is None:
             payload.pop("amp_init_scale", None)
+        if str(self.algo_name) != "dmc" and payload.get("dmc") == asdict(DMCRuntimeConfig()):
+            # The DMC block is inert for ippo/vrpo: dropping the default keeps
+            # every pre-existing resolved config/hash unchanged.
+            payload.pop("dmc", None)
         ppo_payload = payload.get("ppo")
         if isinstance(ppo_payload, dict) and ppo_payload.get("target_kl") is None:
             # ``target_kl=None`` is the production default: it must not change
@@ -683,6 +747,7 @@ def deserialize_train_config(payload: Any) -> TrainConfig | None:
         "symmetry": (SymmetryConfig, {}),
         "belief": (BeliefConfig, {}),
         "opponent_pool": (OpponentPoolConfig, {}),
+        "dmc": (DMCRuntimeConfig, {}),
     }
     kwargs: dict[str, Any] = {"game": game}
     train_fields = {item.name for item in fields(TrainConfig)}
@@ -698,6 +763,8 @@ def deserialize_train_config(payload: Any) -> TrainConfig | None:
 
 __all__ = [
     "CORE_CONFIG_SCHEMA", "BeliefConfig", "CompileConfig", "DDPConfig",
+    "DMC_ACTION_FEATURE_VERSION", "DMC_CHECKPOINT_SCHEMA",
+    "DMC_TRAINING_SEMANTICS_PROFILE", "DMCRuntimeConfig",
     "ENVIRONMENT_DISCOUNT_CLOCK", "GameSpec", "LEGACY_POLICY_REGULARIZER_MODE",
     "LEGACY_TRAINING_SEMANTICS_PROFILE", "MACRO_DECISION_TRAINING_SEMANTICS_PROFILE",
     "MACRO_NORMALIZED_POLICY_REGULARIZER_MODE", "MACRO_TRAINING_SEMANTICS_PROFILES",
