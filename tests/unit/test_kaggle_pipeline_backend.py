@@ -744,28 +744,14 @@ def test_real_sdk_dataset_details_include_privacy_and_version(installed_backend,
     assert listed_versions == [1]
 
 
-def test_real_sdk_blob_put_is_single_attempt(installed_backend, monkeypatch, tmp_path):
-    import requests
+def test_upload_complete_is_the_sdk_original_not_an_override(installed_backend):
+    """Live diagnosis 2026-10-25: a custom single-PUT upload_complete (no
+    resume, timeout, no redirects) hung to timeout against the real blob
+    endpoint and deadlocked retries via persisted upload state.  The adapter
+    must keep kaggle 2.2.5's own resumable implementation."""
     api = installed_backend._api
-    blob = tmp_path / "payload.zip"
-    blob.write_bytes(b"synthetic payload")
-    attempts = []
-    class Session:
-        def __enter__(self):
-            return self
-        def __exit__(self, *args):
-            pass
-        def put(self, url, **kwargs):
-            attempts.append(kwargs)
-            assert kwargs["data"].read() == b"synthetic payload"
-            raise requests.Timeout(KEY)
-    monkeypatch.setattr(requests, "Session", Session)
-    with pytest.raises(b.BackendError):
-        with installed_backend._operation("create_dataset"):
-            api.upload_complete(blob, "https://example.invalid/not-requested", quiet=True)
-    assert len(attempts) == 1
-    assert attempts[0]["allow_redirects"] is False
-    assert attempts[0]["timeout"] == 300
+    assert "upload_complete" not in vars(type(api))
+    assert callable(api.upload_complete)
 
 
 @pytest.mark.parametrize("auth_mode", ["legacy", "api_token"])

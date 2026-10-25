@@ -210,17 +210,15 @@ def _new_api(username: str, key: str, api_token: str | None = None):
                     raise
                 raise BackendError("create_dataset", _status_code(exc)) from None
 
-        def upload_complete(self, path, url, quiet, resume=False):
-            # SDK implementation retries PUT ten times and swallows exceptions.
-            # One streaming PUT, no resume/retry, and no swallowed failures.
-            if resume:
-                raise ValueError("Upload resume disabled")
-            with open(path, "rb") as source, sdk.requests.Session() as session:
-                response = session.put(url, data=source, timeout=300, allow_redirects=False)
-                response.raise_for_status()
-                if not self._is_upload_successful(response):
-                    raise ValueError("Incomplete upload")
-            return sdk.ResumableUploadResult.COMPLETE
+        # upload_complete is deliberately NOT overridden: kaggle 2.2.5's own
+        # implementation carries the resumable-upload protocol (308 ranges,
+        # 503 backoff, retry adapter) that the blob endpoint expects.  An
+        # earlier override (single PUT, timeout=300, resume forbidden) hung
+        # until timeout on the real endpoint (2026-10-25 live diagnosis) and
+        # deadlocked retries through persisted upload state.  Failures inside
+        # the SDK path still surface: exceptions reach this adapter's
+        # BackendError wrapper, and semantic failures make dataset_create_new
+        # return an error response, which create_dataset below rejects.
 
     api = ExplicitApi()
     api.args = []  # Do not inherit SDK class-level CLI/verbose settings.
