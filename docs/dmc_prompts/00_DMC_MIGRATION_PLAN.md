@@ -45,7 +45,7 @@
 | 5 | **Gate L：Kaggle 小规模信号验证**（~4h T4×2，含上传管线 DMC 适配） | 首跑结果已归档：**FAIL**（vs rule 59.8%<60%线、吞吐 0.711<0.85 局/s；health/Q校准/vs random 96.1% 三项 PASS） | 见 05 与 `runs/kaggle_pipeline/dmc-gate-l-*/gate_l_results_manual.zip` | 已完成（2026-10-25） |
 | **07A** | **吞吐修复**：双卡采集/训练重叠、envs↑、cycle↑，目标 ≥1.5 局/s | `docs/dmc_prompts/07A_gate_l_repair_throughput.md` | 本机 ≥2x 基线；学习语义零改动 | 1~2 会话 |
 | **07B** | **效率修复**：观测窗口 head+tail(128+896)、梯度累积 4×256=1024 | `docs/dmc_prompts/07B_gate_l_repair_window_batch.md` | 等价性/组成/确定性测试全绿 | 1 会话 |
-| 5' | Gate L 重跑（07A+07B 合并，新身份，门槛数字不变） | 新结果包 | 05 门槛全 PASS；前 1000 局 <1.2 局/s 则早停 | 1 session |
+| 5' | Gate L 重跑（07A+07B+07C 合并） | **PASS（2026-10-26）**：vs rule **65.2%≥65%** 且 56.3→65.2 上升；random 89.1%；qz_r2 0.193 上升；12,289 局 @1.024 局/s（早停外推 12,316>12,000 正确未触发） | 已完成 |
 | 6 | **Gate A：Kaggle 方向验证**（9h session，≥10 万局 ≈ 800 万样本） | 结果包 + 与 m09-iter2000 h2h | 对 rule ≥ 75% 且 h2h m09 ≥ 60% | 1~2（操作型） |
 | 7 | 规模化 + 增强（**仅大纲，Gate A 通过后再细化**） | 吞吐工程、belief、冠军池、多局实战 | 见 07 文件 | 事后 |
 
