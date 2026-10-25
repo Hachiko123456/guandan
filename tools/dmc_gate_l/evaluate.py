@@ -18,6 +18,12 @@ head+tail window of ``max_obs_tokens`` — stage 07B's 128/896 split), so the Q
 values scored here are the same function the sampler trains; every window trim
 is counted, never silent.
 
+Since stage 07C the lanes run on the **same** driver the collector trains on
+(``dmc.env_fast.DMCEnvBatch``, ``expose_action_rows=True`` so the row-selecting
+rule/random opponents keep their row surface): training and evaluation must see
+one observation distribution, and the fast driver's byte-level equivalence to
+``EnvBatch`` is enforced by the stage-07C differential suite.
+
 Failure policy is fail-loud: an illegal row, a horizon overrun or a non-finite
 Q value raises instead of being absorbed into a counter, so a clean summary
 implies ``illegal = truncated = nonfinite = 0`` by construction.
@@ -37,6 +43,7 @@ from guandan_marvel.dmc.candidates import (
     encode_action_features,
     enumerate_candidates,
 )
+from guandan_marvel.dmc.env_fast import DMCEnvBatch
 from guandan_marvel.dmc.learner import DMCNonFiniteError
 from guandan_marvel.dmc.sampler import DEFAULT_OBS_HEAD_TOKENS, trim_obs_window
 from guandan_marvel.evaluation.agents import (
@@ -238,8 +245,10 @@ def play_eval_games(
         raise ValueError("games must be positive")
     game = get_game_backend("python_reference")
     horizon = int(game.max_game_horizon) if max_horizon is None else int(max_horizon)
-    env = game.EnvBatch(
-        1, backend="python_reference", auto_reset=False, max_horizon=horizon,
+    # Stage 07C: same driver as the collector; rows stay exposed because the
+    # opponent agents select one legal row by index.
+    env = DMCEnvBatch(
+        1, auto_reset=False, max_horizon=horizon, expose_action_rows=True,
     )
     opponent = RuleV2Agent() if kind == "rule" else RandomV2Agent(seed=int(base_seed))
     device_t = torch.device(device)

@@ -6,6 +6,7 @@
   "seed": 0,
   "env_seed": 0,
   "num_envs": 64,
+  "env_driver": "fast",
   "total_games": 20000,
   "games_per_cycle": 512,
   "gradient_replay_ratio": 1.0,

@@ -23,12 +23,22 @@ contract referenced by the locked migration table — there is no other knob:
   by three (``TRAINING_REWARD_SCALE``), with ``gamma = 1`` and no discounting:
   the final-outcome regression target of Deep Monte-Carlo.
 
-Environment driving reuses the shipped Python-reference V2 adapter
-(``guandan_marvel.game.EnvBatch`` with the explicit ``python_reference``
-backend — never a silent switch) and the accepted stage-2 enumerator
+Environment driving reuses the accepted stage-2 enumerator
 (``dmc.candidates.enumerate_candidates``) on the live protocol.  Chosen
-candidates are committed through the adapter's legal action rows one token per
-batch step, exactly like the FableDan guest driver.  Per-seat observation
+candidates are committed one token per batch step, exactly like the FableDan
+guest driver.  Two drivers implement that contract:
+
+* ``env_driver="fast"`` (default, stage 07C) — :class:`dmc.env_fast.DMCEnvBatch`,
+  the DMC-only thin driver that submits **tokens** (``step_tokens``) and encodes
+  only the acting seat's channels.  Its byte-level equivalence to the reference
+  is enforced by the differential suite in
+  ``tests/dmc/test_env_fast_differential.py``;
+* ``env_driver="reference"`` — the shipped Python-reference V2 adapter
+  (``guandan_marvel.game.EnvBatch`` with the explicit ``python_reference``
+  backend), which submits complete V2 action rows.
+
+Both drivers observe the same game; only the redundant validation differs.
+Per-seat observation
 token rows are the *cumulative* event stream of the acting seat within the
 current game (the V2 event vocabulary, one event token per position),
 windowed to ``max_obs_tokens`` as **head 128 + tail 896** (stage 07B): the
@@ -65,6 +75,7 @@ from guandan_marvel.dmc.candidates import (
     encode_action_features,
     enumerate_candidates,
 )
+from guandan_marvel.dmc.env_fast import DMCEnvBatch
 from guandan_marvel.dmc.learner import DMCNonFiniteError
 from guandan_marvel.dmc.replay import DMCReplay
 from guandan_marvel.reward import TRAINING_REWARD_SCALE
@@ -210,6 +221,11 @@ class DMCSamplerConfig:
     env_seed: int = 0
     seed: int | None = None
     backend: str = "python_reference"
+    #: Stage 07C: ``"fast"`` drives ``dmc.env_fast.DMCEnvBatch`` (token
+    #: submission, acting-seat channels only); ``"reference"`` drives the
+    #: shipped ``EnvBatch`` row adapter.  Both are byte-equivalent (differential
+    #: suite); this is an execution path, not a learning-semantics knob.
+    env_driver: str = "fast"
     max_horizon: int | None = None
     max_obs_tokens: int = 1024
     obs_head_tokens: int = DEFAULT_OBS_HEAD_TOKENS
@@ -223,6 +239,12 @@ class DMCSamplerConfig:
             raise ValueError("num_envs must be a positive integer")
         if self.seed is not None and isinstance(self.seed, bool):
             raise TypeError("seed must be an integer or None")
+        driver = str(self.env_driver)
+        if driver not in ("fast", "reference"):
+            raise ValueError(
+                f"env_driver must be 'fast' or 'reference', got {self.env_driver!r}"
+            )
+        object.__setattr__(self, "env_driver", driver)
         if self.max_horizon is not None and int(self.max_horizon) <= 0:
             raise ValueError("max_horizon must be positive when provided")
         if int(self.max_obs_tokens) < MIN_OBS_WINDOW:
@@ -339,7 +361,6 @@ class DMCSampler:
         self._rng = np.random.default_rng(config.seed)
 
         kwargs: dict[str, Any] = {
-            "backend": "python_reference",
             "auto_reset": True,
             "max_horizon": self._max_horizon,
         }
@@ -349,7 +370,17 @@ class DMCSampler:
             self._context_schedule = schedule
         else:
             self._context_schedule = None
-        self.envs = self._game.EnvBatch(int(config.num_envs), **kwargs)
+        if config.env_driver == "fast":
+            self._driver_cls = DMCEnvBatch
+            self.envs = DMCEnvBatch(int(config.num_envs), **kwargs)
+        else:
+            self._driver_cls = self._game.EnvBatch
+            self.envs = self._game.EnvBatch(
+                int(config.num_envs), backend="python_reference", **kwargs,
+            )
+        #: ``True`` when the driver takes token sequences directly (stage 07C):
+        #: the sampler then never rebuilds V2 action rows to submit one token.
+        self._token_submission = bool(getattr(self.envs, "accepts_token_submission", False))
         if self._context_schedule is not None:
             expanded = expand_context_schedule(self._context_schedule)
             self.envs.configure_context_schedule(expanded, offset=0)
@@ -417,6 +448,7 @@ class DMCSampler:
             "obs_tail_drops": self.obs_tail_drops,
             "obs_head_tokens": self._obs_head_tokens,
             "obs_window_tokens": self._max_obs_tokens,
+            "env_driver": str(self._config.env_driver),
             "replay_size": len(self._replay),
             "failed": self._failed,
         }
@@ -550,12 +582,19 @@ class DMCSampler:
         if requests:
             self._score_and_select(requests)
 
-        action_width = int(self._current_step.available_actions.tokens.shape[-1])
-        rows = np.zeros((num_envs, action_width), dtype=np.int64)
-        for batch_index, slot in enumerate(self._slots):
-            rows[batch_index] = self._action_row_for(batch_index, slot.pending[0])
-
-        step = self.envs.step(rows)
+        if self._token_submission:
+            # Stage 07C fast path: the pending token *is* the submission; no V2
+            # action row is rebuilt and no row is matched back to a token.
+            tokens = np.empty(num_envs, dtype=np.int64)
+            for batch_index, slot in enumerate(self._slots):
+                tokens[batch_index] = slot.pending[0]
+            step = self.envs.step_tokens(tokens)
+        else:
+            action_width = int(self._current_step.available_actions.tokens.shape[-1])
+            rows = np.zeros((num_envs, action_width), dtype=np.int64)
+            for batch_index, slot in enumerate(self._slots):
+                rows[batch_index] = self._action_row_for(batch_index, slot.pending[0])
+            step = self.envs.step(rows)
         self._current_step = step
         for batch_index, slot in enumerate(self._slots):
             token = slot.pending.pop(0)
@@ -740,6 +779,7 @@ class DMCSampler:
             "device_type": self._device.type,
             "env_seed": int(self._config.env_seed),
             "backend": str(self._config.backend),
+            "env_driver": str(self._config.env_driver),
             "max_horizon": int(self._max_horizon),
             "max_obs_tokens": int(self._max_obs_tokens),
             "obs_head_tokens": int(self._obs_head_tokens),
@@ -807,12 +847,21 @@ class DMCSampler:
         for key, value in expected.items():
             if state.get(key) != value:
                 raise ValueError(f"DMC sampler state {key} mismatch")
+        # ``env_driver`` is provenance, not a layout field: the serialized
+        # environment payload is byte-identical between the two drivers (proven
+        # by the stage-07C differential suite), so either driver restores either
+        # checkpoint.  A state written before 07C carries no key at all.
+        recorded_driver = state.get("env_driver", "reference")
+        if recorded_driver not in ("fast", "reference"):
+            raise ValueError(
+                f"DMC sampler state env_driver {recorded_driver!r} is not a known driver"
+            )
         raw_schedule = state.get("context_schedule")
         if (raw_schedule is None) != (self._context_schedule is None):
             raise ValueError("DMC sampler state context_schedule mismatch")
         if raw_schedule is not None and dict(raw_schedule) != dict(self._context_schedule):
             raise ValueError("DMC sampler state context_schedule mismatch")
-        envs = self._game.EnvBatch.deserialize(bytes(state["envs"]))
+        envs = self._driver_cls.deserialize(bytes(state["envs"]))
         raw_slots = state.get("slots")
         if not isinstance(raw_slots, list) or len(raw_slots) != int(self._config.num_envs):
             raise ValueError("DMC sampler state slots mismatch")

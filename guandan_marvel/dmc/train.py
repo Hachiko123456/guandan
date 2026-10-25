@@ -91,6 +91,11 @@ class DMCRunConfig:
     seed: int = 0
     env_seed: int = 0
     num_envs: int = 8
+    #: Stage 07C environment driver: ``"fast"`` (DMC-only thin driver, token
+    #: submission) or ``"reference"`` (shipped ``EnvBatch`` row adapter).  Both
+    #: are byte-equivalent (differential suite); the choice is an execution
+    #: path, never a learning-semantics knob.
+    env_driver: str = "fast"
     total_games: int = 200
     games_per_cycle: int = 256
     gradient_replay_ratio: float = 1.0
@@ -166,6 +171,10 @@ class DMCRunConfig:
         if device not in ("auto", "cuda", "cpu"):
             raise DMCConfigError("device must be one of auto/cuda/cpu")
         self.device = device
+        driver = str(self.env_driver).strip().lower()
+        if driver not in ("fast", "reference"):
+            raise DMCConfigError("env_driver must be 'fast' or 'reference'")
+        self.env_driver = driver
         if self.max_wall_seconds is not None:
             seconds = float(self.max_wall_seconds)
             if not math.isfinite(seconds) or seconds <= 0.0:
@@ -323,6 +332,7 @@ class DMCTrainer:
                 device=str(self.device),
                 env_seed=run_config.env_seed,
                 seed=run_config.seed,
+                env_driver=run_config.env_driver,
                 max_obs_tokens=run_config.max_obs_tokens,
                 obs_head_tokens=run_config.obs_head_tokens,
                 epsilon_start=run_config.epsilon_start,
@@ -560,6 +570,7 @@ def train_from_config(
         f"(micro={trainer.learner.micro_batch_size}x{run_config.accumulation_steps}) "
         f"obs_window={run_config.max_obs_tokens}"
         f"({run_config.obs_head_tokens}+{run_config.max_obs_tokens - run_config.obs_head_tokens}) "
+        f"env_driver={run_config.env_driver} "
         f"channel_dim={trainer.replay.channel_dim}")
 
     if resume_path is not None:
@@ -674,6 +685,7 @@ def train_from_config(
         "channel_dim": trainer.replay.channel_dim,
         "max_obs_tokens": trainer.replay.max_obs_tokens,
         "obs_head_tokens": run_config.obs_head_tokens,
+        "env_driver": run_config.env_driver,
         "effective_batch_size": trainer.learner.effective_batch_size,
         "accumulation_steps": run_config.accumulation_steps,
         "replay_reset": trainer.replay_reset,
@@ -740,9 +752,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                         help="explicit collector inference device for --parallel "
                              "(for example cuda:1); default: second GPU when present, "
                              "else the learner's device")
+    parser.add_argument("--env-driver", choices=("fast", "reference"), default=None,
+                        help="override the environment driver (stage 07C): 'fast' is "
+                             "the DMC-only thin driver, 'reference' the shipped "
+                             "EnvBatch row adapter; both are byte-equivalent")
     args = parser.parse_args(argv)
 
     raw = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    if args.env_driver is not None:
+        raw = dict(raw)
+        raw["env_driver"] = args.env_driver
     run_config = load_run_config(raw)
     if args.parallel:
         # Imported lazily so the serial path never loads the module.

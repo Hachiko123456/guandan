@@ -84,6 +84,21 @@ BOUNDARIES = {
     "opponent_pool": "DISABLED",
     "formal_production_promotion": False,
 }
+#: Stage 07C: the delivery declares *which* environment driver the run uses and
+#: the differential suite that gates it.  Both are hashed into ``plan_hash``, so
+#: a run can never quietly fall back to the slow adapter (or claim an
+#: equivalence it did not execute).
+ENV_DRIVER = {
+    "name": "dmc_env_fast",
+    "module": "guandan_marvel/dmc/env_fast.py",
+    "version": "dmc-env-fast-v1",
+    "status": "ENABLED",
+    "scope": "collection and embedded evaluation (tools/dmc_gate_l/evaluate.py)",
+    "reference_driver": "guandan_marvel.game.EnvBatch (python_reference)",
+    "differential_suite": "dmc-env-fast-differential-v1",
+    "differential_games": 200,
+    "differential_equivalence": "byte-exact, no tolerance, no state sampling",
+}
 DEVIATIONS = [
     "batch_size=1024 with accumulation_steps=4 (micro-batch 256, stage 07B): the lock "
     "table's batch is the optimizer-step batch; the 256-row micro-batch is the T4 memory "
@@ -93,6 +108,13 @@ DEVIATIONS = [
     "(BOS/level card, first play, tribute/return records) is pinned instead of being "
     "tail-truncated; tokens between the two segments are dropped and counted as "
     "obs_tail_drops (obs_head_drops stays 0 by construction)",
+    "environment driving uses the stage-07C DMC-only thin driver "
+    "(guandan_marvel/dmc/env_fast.py) instead of EnvBatch: it encodes only the acting "
+    "seat's 512 channels, submits tokens without rebuilding V2 action rows, and validates "
+    "at sequence boundaries instead of per token. guandan/ and EnvBatch are unmodified; "
+    "the driver is gated by the byte-exact differential suite "
+    "dmc-env-fast-differential-v1 (>=200 random games, no tolerance), and the embedded "
+    "evaluation runs the same driver so train and eval share one distribution",
     "checkpoint cadence is 512 games = 2 cycles of the locked 256-game cycle "
     "(prompt wording 'every 500 games' rounded to a whole cycle multiple)",
     "the payload/notebook filenames are the unchanged pipeline's serial-compare transport "
@@ -177,6 +199,7 @@ def build_plan(repo: Path, git_commit: str) -> dict:
         "schedule": {**{key: value for key, value in SCHEDULE.items()}},
         "gates": json.loads(json.dumps(GATES)),
         "boundaries": dict(BOUNDARIES),
+        "env_driver": dict(ENV_DRIVER),
         "deviations": list(DEVIATIONS),
     }
     plan["plan_hash"] = canonical({key: value for key, value in plan.items() if key != "plan_hash"})

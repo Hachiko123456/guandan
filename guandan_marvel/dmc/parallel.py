@@ -522,6 +522,7 @@ def _actor_process_main(
                 device=collector_device,
                 env_seed=run_config.env_seed,
                 seed=run_config.seed,
+                env_driver=run_config.env_driver,
                 max_obs_tokens=run_config.max_obs_tokens,
                 obs_head_tokens=run_config.obs_head_tokens,
                 epsilon_start=run_config.epsilon_start,
@@ -1157,6 +1158,7 @@ def train_from_config_parallel(
             "torch_version": torch.__version__,
             "channel_dim": int(final_learner_part["replay_stats"]["channel_dim"]),
             "max_obs_tokens": int(final_learner_part["replay_stats"]["max_obs_tokens"]),
+            "env_driver": run_config.env_driver,
             "replay_reset": trainer.replay_reset,
             "totals": {
                 "cycles": trainer.cycles,

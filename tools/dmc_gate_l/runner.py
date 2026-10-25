@@ -494,6 +494,8 @@ def run_notebook(
     result = {
         "schema": RESULT_SCHEMA,
         "plan_hash": plan["plan_hash"],
+        # Stage 07C: echo the declared environment driver (None for a pre-07C plan).
+        "env_driver": plan.get("env_driver"),
         "status": stop_reason,
         "training": {
             "games_completed": games_completed,
