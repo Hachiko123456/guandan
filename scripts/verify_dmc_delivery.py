@@ -3,13 +3,18 @@
 
 Decodes the real ``.bin`` into an isolated directory and verifies the payload /
 manifest / per-file hashes, the plan (schema, hash, **budget fields**, the
-**pre-declared gate table** and boundaries), the pinned Gate L training config,
-the bound Notebook constants, and byte-identity of the shipped overlay / driver
-/ config against the current workspace.
+**pre-declared gate table**, boundaries, the stage-07C ``env_driver``
+declaration and the stage-07A corrected ``early_stop`` rule), the pinned Gate L
+training config, the bound Notebook constants, and byte-identity of the shipped
+overlay / driver / config against the current workspace.
 
 The gate thresholds and budgets below are an independent restatement of
 ``docs/dmc_prompts/05_gate_l_local.md`` (they are deliberately NOT imported
-from the builder, so a wrong constant cannot pass both).  The budget check
+from the builder, so a wrong constant cannot pass both).  The operational
+parameters (``EXPECTED_CONFIG_VALUES``) track the accepted repair stages 07A
+(envs 64 / cycle 512), 07B (batch 1024 = 4x256 accumulation, head+tail window)
+and 07C (fast driver): those knobs are explicitly allowed to move, while the
+gate table above must not.  The budget check
 implements the platform convention of ``tools/kaggle_pipeline/core.py``
 (``prepare`` rejects a plan whose ``total_seconds + 300`` exceeds the platform
 timeout): ``budgets.total_seconds <= timeout - 300``.
@@ -74,14 +79,22 @@ EXPECTED_BOUNDARIES = {
     "opponent_pool": "DISABLED",
     "formal_production_promotion": False,
 }
+#: Operational parameters track the accepted repair stages (07A: envs 32->64 and
+#: cycle 256->512; 07B: batch 256->1024 with 4x256 accumulation + the 128/896
+#: observation window; 07C: the fast driver).  The *gate thresholds* above stay
+#: byte-identical to 05_gate_l_local.md — 07A's prompt explicitly allows these
+#: operational knobs and forbids touching the locked table.
 EXPECTED_CONFIG_VALUES = {
     "schema": "guandan-marvel-dmc-train-config-v1",
     "device": "cuda",
-    "num_envs": 32,
+    "num_envs": 64,
+    "env_driver": "fast",
     "total_games": 20000,
-    "games_per_cycle": 256,
+    "games_per_cycle": 512,
     "gradient_replay_ratio": 1.0,
-    "batch_size": 256,
+    "batch_size": 1024,
+    "accumulation_steps": 4,
+    "obs_head_tokens": 128,
     "buffer_capacity": 500000,
     "max_obs_tokens": 1024,
     "epsilon_start": 0.10,
@@ -91,6 +104,24 @@ EXPECTED_CONFIG_VALUES = {
     "weight_decay": 0.0,
     "grad_clip_norm": 1.0,
     "checkpoint_interval_cycles": 2,
+}
+#: Stage 07C declaration: the delivery must name the driver and the differential
+#: suite that gates it (a delivery cannot silently fall back to EnvBatch).
+EXPECTED_ENV_DRIVER = {
+    "name": "dmc_env_fast",
+    "module": "guandan_marvel/dmc/env_fast.py",
+    "version": "dmc-env-fast-v1",
+    "status": "ENABLED",
+    "differential_suite": "dmc-env-fast-differential-v1",
+    "differential_games": 200,
+}
+#: Stage 07A corrected early-stop rule (progress extrapolation).  The obsolete
+#: "< 1.2 games/s -> stop" line must never reappear in a rerun plan.
+EXPECTED_EARLY_STOP = {
+    "rule": "progress_extrapolation",
+    "after_games": 1000,
+    "min_extrapolated_games": 12000,
+    "extrapolation_budget_seconds": 14400,
 }
 REQUIRED_OVERLAY = (
     "guandan/action_state.py",
@@ -106,7 +137,9 @@ REQUIRED_OVERLAY = (
     "guandan_marvel/reward.py",
     "guandan_marvel/dmc/__init__.py",
     "guandan_marvel/dmc/candidates.py",
+    "guandan_marvel/dmc/env_fast.py",
     "guandan_marvel/dmc/learner.py",
+    "guandan_marvel/dmc/parallel.py",
     "guandan_marvel/dmc/q_agent.py",
     "guandan_marvel/dmc/replay.py",
     "guandan_marvel/dmc/sampler.py",
@@ -271,6 +304,24 @@ def verify(
         _require(plan.get("gates") == EXPECTED_GATES, "plan gates drifted from the pre-declared table (not allowed)")
         _require(plan.get("boundaries") == EXPECTED_BOUNDARIES, "plan boundaries drifted from the pre-declared values")
         _require(isinstance(plan.get("deviations"), list) and plan["deviations"], "plan carries no deviation notes")
+
+        # ---- stage 07A/07C declarations (hashed, so they cannot be dropped) ----
+        driver = plan.get("env_driver")
+        _require(isinstance(driver, dict), "plan declares no env_driver block (stage 07C)")
+        for field, expected in EXPECTED_ENV_DRIVER.items():
+            _require(
+                driver.get(field) == expected,
+                f"plan env_driver.{field} drifted: {driver.get(field)!r} != {expected!r}",
+            )
+        early_stop = plan.get("early_stop")
+        _require(isinstance(early_stop, dict), "plan declares no early_stop block (stage 07A rule)")
+        for field, expected in EXPECTED_EARLY_STOP.items():
+            _require(
+                early_stop.get(field) == expected,
+                f"plan early_stop.{field} drifted: {early_stop.get(field)!r} != {expected!r}",
+            )
+        record["env_driver"] = driver["version"]
+        record["early_stop_rule"] = early_stop["rule"]
 
         config_bytes = (decoded / "gate_l_config.json").read_bytes()
         config = json.loads(config_bytes)

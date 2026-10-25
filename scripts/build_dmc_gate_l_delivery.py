@@ -99,6 +99,32 @@ ENV_DRIVER = {
     "differential_games": 200,
     "differential_equivalence": "byte-exact, no tolerance, no state sampling",
 }
+#: Stage 07A's corrected early-stop rule (``07A_gate_l_repair_throughput.md``
+#: tail, 2026-10-25): the obsolete "< 1.2 games/s -> stop" line is void.  The
+#: rule extrapolates the *sustained* rate after ``after_games`` and stops only
+#: when the projection cannot reach the throughput gate's own game floor within
+#: the throughput gate's own budget — i.e. exactly when the run is already
+#: incapable of passing ``gates.throughput``.
+EARLY_STOP = {
+    "rule": "progress_extrapolation",
+    "source": "docs/dmc_prompts/07A_gate_l_repair_throughput.md (Gate L 重跑附加规则, 2026-10-25 修正)",
+    "after_games": 1000,
+    "extrapolation_budget_seconds": 14400,
+    "min_extrapolated_games": 12000,
+    "supersedes": "the earlier '< 1.2 games/s -> early stop' line is void",
+    "on_trigger": (
+        "stop training at the next cycle boundary, record stop_reason="
+        "early_stop_extrapolation, still run the pre-declared evaluations"
+    ),
+    "note": (
+        "extrapolated_games = games_completed / elapsed_seconds * "
+        "extrapolation_budget_seconds; the horizon equals gates.throughput."
+        "budget_seconds and the floor equals gates.throughput.min_games_in_budget, "
+        "so the stop line is the throughput gate itself (12000/14400 = 0.833 "
+        "games/s). 07A's parenthetical '~0.95 games/s' assumed a 12632 s horizon; "
+        "this delivery pins the horizon to the hashed gate budget instead."
+    ),
+}
 DEVIATIONS = [
     "batch_size=1024 with accumulation_steps=4 (micro-batch 256, stage 07B): the lock "
     "table's batch is the optimizer-step batch; the 256-row micro-batch is the T4 memory "
@@ -200,6 +226,7 @@ def build_plan(repo: Path, git_commit: str) -> dict:
         "gates": json.loads(json.dumps(GATES)),
         "boundaries": dict(BOUNDARIES),
         "env_driver": dict(ENV_DRIVER),
+        "early_stop": json.loads(json.dumps(EARLY_STOP)),
         "deviations": list(DEVIATIONS),
     }
     plan["plan_hash"] = canonical({key: value for key, value in plan.items() if key != "plan_hash"})

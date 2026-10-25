@@ -24,17 +24,19 @@ import sys
 import zipfile
 from pathlib import Path
 
+import pytest
 import torch
 
 from guandan_marvel.backends import get_game_backend
 from guandan_marvel.config import ModelConfig, PPOConfig, TrainConfig
 from guandan_marvel.dmc.q_agent import DMCAgent
-from scripts.build_dmc_gate_l_delivery import BOUNDARIES, GATES
+from scripts.build_dmc_gate_l_delivery import BOUNDARIES, GATES, build_plan
 from tools.dmc_gate_l.evaluate import play_eval_games
 from tools.dmc_gate_l.runner import (
     PLAN_SCHEMA,
     RESULTS_ZIP_NAME,
     canonical,
+    progress_extrapolation,
     run_notebook,
 )
 
@@ -62,7 +64,10 @@ def _tiny_agent() -> DMCAgent:
     ))
 
 
-def _tiny_dataset(tmp_path: Path, *, total_games: int = 6, games_per_cycle: int = 2) -> Path:
+def _tiny_dataset(
+    tmp_path: Path, *, total_games: int = 6, games_per_cycle: int = 2,
+    early_stop: dict | None = None,
+) -> Path:
     config = {
         "schema": "guandan-marvel-dmc-train-config-v1",
         "run_name": "dmc_gate_l_tiny",
@@ -113,12 +118,68 @@ def _tiny_dataset(tmp_path: Path, *, total_games: int = 6, games_per_cycle: int 
         "boundaries": dict(BOUNDARIES),
         "deviations": ["tiny test plan"],
     }
+    if early_stop is not None:
+        plan["early_stop"] = dict(early_stop)
     plan["plan_hash"] = canonical({key: value for key, value in plan.items() if key != "plan_hash"})
     dataset = tmp_path / "input"
     dataset.mkdir()
     (dataset / "plan.json").write_text(json.dumps(plan, indent=2), encoding="utf-8")
     (dataset / "gate_l_config.json").write_text(json.dumps(config, indent=2), encoding="utf-8")
     return dataset
+
+
+# ---------------------------------------------------------------------------
+# Stage 07A corrected early stop (progress extrapolation)
+# ---------------------------------------------------------------------------
+def test_progress_extrapolation_is_the_throughput_gate_line() -> None:
+    """The stop line is the throughput gate itself: 12,000 games in 14,400 s."""
+    below = progress_extrapolation(
+        games_completed=1_000, elapsed_seconds=1_250.0, budget_seconds=14_400.0,
+    )
+    assert below["rate_games_per_second"] == pytest.approx(0.8)
+    assert below["extrapolated_games"] == pytest.approx(11_520.0)
+    assert below["extrapolated_games"] < 12_000
+
+    on_track = progress_extrapolation(
+        games_completed=1_000, elapsed_seconds=1_000.0, budget_seconds=14_400.0,
+    )
+    assert on_track["rate_games_per_second"] == pytest.approx(1.0)
+    assert on_track["extrapolated_games"] == pytest.approx(14_400.0)
+    assert on_track["extrapolated_games"] >= 12_000
+
+    # 0.90 games/s projects to 12,960 games: 07A's intent is to keep running,
+    # which is exactly what the floor does (the void 1.2 line would have stopped).
+    keeps_running = progress_extrapolation(
+        games_completed=900, elapsed_seconds=1_000.0, budget_seconds=14_400.0,
+    )
+    assert keeps_running["extrapolated_games"] == pytest.approx(12_960.0)
+    assert keeps_running["extrapolated_games"] >= 12_000
+
+    for bad in (
+        {"games_completed": 0, "elapsed_seconds": 1.0, "budget_seconds": 1.0},
+        {"games_completed": 10, "elapsed_seconds": 0.0, "budget_seconds": 1.0},
+        {"games_completed": 10, "elapsed_seconds": 1.0, "budget_seconds": 0.0},
+    ):
+        with pytest.raises(ValueError):
+            progress_extrapolation(**bad)
+
+
+def test_delivery_plan_declares_driver_and_early_stop() -> None:
+    repo = Path(__file__).resolve().parents[2]
+    plan = build_plan(repo, "TESTCOMMIT")
+    driver = plan["env_driver"]
+    assert driver["status"] == "ENABLED"
+    assert driver["version"] == "dmc-env-fast-v1"
+    assert driver["differential_suite"] == "dmc-env-fast-differential-v1"
+    assert driver["differential_games"] >= 200
+    early = plan["early_stop"]
+    assert early["rule"] == "progress_extrapolation"
+    assert early["after_games"] == 1_000
+    assert early["min_extrapolated_games"] == 12_000
+    assert early["extrapolation_budget_seconds"] == plan["gates"]["throughput"]["budget_seconds"]
+    assert early["min_extrapolated_games"] == plan["gates"]["throughput"]["min_games_in_budget"]
+    assert "1.2" in early["supersedes"]  # the void line is named as superseded
+    assert plan["plan_hash"] == canonical({k: v for k, v in plan.items() if k != "plan_hash"})
 
 
 # ---------------------------------------------------------------------------
@@ -213,6 +274,48 @@ def test_run_notebook_end_to_end_tiny(tmp_path: Path) -> None:
     recovery = json.loads((run_root / "artifacts" / "recovery_index.json").read_text(encoding="utf-8"))
     assert recovery["replay_reset_expected"] is True
     assert any(Path(row["path"]).name == "checkpoint_final.pt" for row in recovery["checkpoints"])
+    # No early_stop block in the plan -> the stage-07A check stays inert.
+    assert result["early_stop"] is None
+
+
+def test_run_notebook_honours_the_early_stop_rule(tmp_path: Path) -> None:
+    """A plan whose projected games miss the floor stops training, keeps evals.
+
+    ``min_extrapolated_games`` is set absurdly high so the rule must fire on the
+    first check: this pins the shipped runner behaviour, not the arithmetic
+    (``test_progress_extrapolation_is_the_throughput_gate_line`` covers that).
+    """
+    dataset = _tiny_dataset(
+        tmp_path, total_games=6, games_per_cycle=2,
+        early_stop={
+            "rule": "progress_extrapolation",
+            "after_games": 1,
+            "min_extrapolated_games": 10**9,
+            "extrapolation_budget_seconds": 14400,
+        },
+    )
+    run_root = tmp_path / "run_root"
+    result = run_notebook(dataset=dataset, run_root=run_root, log=lambda text: None)
+
+    assert result["status"] == "early_stop_extrapolation"
+    record = result["early_stop"]
+    assert record["triggered"] is True
+    assert record["rule"] == "progress_extrapolation"
+    assert record["games_completed"] >= 1
+    assert record["threshold_games"] == 10**9
+    assert record["extrapolated_games"] < record["threshold_games"]
+    # Training stopped at the check cycle boundary instead of running to 6 games.
+    assert result["training"]["games_completed"] == 2
+    assert result["training"]["cycles"] == 1
+    # The pre-declared evaluations still ran and the gates were still scored.
+    assert result["evaluations"]["final_vs_rule"]["games"] == 2
+    assert result["evaluations"]["final_vs_random"]["games"] == 2
+    assert "throughput" in result["gates"]
+    stored = json.loads((run_root / "artifacts" / "RESULT.json").read_text(encoding="utf-8"))
+    assert stored["early_stop"] == record
+    assert stored["status"] == "early_stop_extrapolation"
+    early_stop_file = json.loads((run_root / "run" / "early_stop.json").read_text(encoding="utf-8"))
+    assert early_stop_file["triggered"] is True
 
 
 # ---------------------------------------------------------------------------

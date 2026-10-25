@@ -256,6 +256,36 @@ def _zip_files(rows: list[tuple[str, Path]], zip_path: Path) -> None:
                                 compresslevel=1)
 
 
+def progress_extrapolation(
+    *, games_completed: int, elapsed_seconds: float, budget_seconds: float,
+) -> dict:
+    """Stage-07A early-stop arithmetic: sustained rate projected onto the budget.
+
+    ``extrapolated_games = games_completed / elapsed_seconds * budget_seconds``
+    is the game count this run reaches if the observed sustained rate holds for
+    the whole budget.  The caller compares it with the plan's floor; there is no
+    sampling, no rounding and no hidden clock (both inputs come from the run).
+    """
+    games = int(games_completed)
+    elapsed = float(elapsed_seconds)
+    budget = float(budget_seconds)
+    if games <= 0:
+        raise DMCConfigError("early-stop needs at least one completed game")
+    if not math.isfinite(elapsed) or elapsed <= 0.0:
+        raise DMCConfigError("early-stop needs a positive elapsed time")
+    if not math.isfinite(budget) or budget <= 0.0:
+        raise DMCConfigError("early-stop needs a positive extrapolation budget")
+    rate = games / elapsed
+    return {
+        "rule": "progress_extrapolation",
+        "games_completed": games,
+        "elapsed_seconds": elapsed,
+        "rate_games_per_second": rate,
+        "budget_seconds": budget,
+        "extrapolated_games": rate * budget,
+    }
+
+
 def run_notebook(
     *,
     dataset: Path,
@@ -287,6 +317,25 @@ def run_notebook(
     mini_schedule = schedule["mini_eval"]
     final_schedule = schedule["final_eval"]
     seed_base = schedule["eval_seed_base"]
+
+    # Stage-07A corrected early stop (progress extrapolation).  A plan without
+    # the block (pre-07A deliveries, the tiny test plan) disables the check.
+    early_stop = plan.get("early_stop") or {}
+    if early_stop and early_stop.get("rule") != "progress_extrapolation":
+        raise DMCConfigError(
+            f"unsupported early_stop rule {early_stop.get('rule')!r}; "
+            "expected 'progress_extrapolation'"
+        )
+    early_stop_after = int(early_stop.get("after_games", 0) or 0)
+    early_stop_floor = int(early_stop.get("min_extrapolated_games", 0) or 0)
+    early_stop_budget = float(
+        early_stop.get("extrapolation_budget_seconds", budgets["total_seconds"])
+    )
+    if early_stop and (early_stop_after <= 0 or early_stop_floor <= 0):
+        raise DMCConfigError(
+            "early_stop requires positive after_games and min_extrapolated_games"
+        )
+    early_stop_record: dict[str, Any] | None = None
 
     config = load_run_config(_read_json(dataset / "gate_l_config.json"))
     config = dataclasses.replace(config, output_dir=str(run_root / "run"))
@@ -363,6 +412,29 @@ def run_notebook(
                 "latest_checkpoint": str(path),
                 "updated_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
             })
+        if early_stop_after > 0 and early_stop_record is None and (
+            trainer.sampler.games_completed >= early_stop_after
+        ):
+            record = progress_extrapolation(
+                games_completed=trainer.sampler.games_completed,
+                elapsed_seconds=elapsed(),
+                budget_seconds=early_stop_budget,
+            )
+            record["threshold_games"] = early_stop_floor
+            record["triggered"] = record["extrapolated_games"] < early_stop_floor
+            record["checked_at_cycle"] = trainer.cycles
+            early_stop_record = record
+            _atomic_write_json(run_dir / "early_stop.json", record)
+            log(f"[DMC-GATE-L] early-stop check at {record['games_completed']} games: "
+                f"rate={record['rate_games_per_second']:.3f} games/s "
+                f"extrapolated={record['extrapolated_games']:.0f} "
+                f"floor={early_stop_floor} "
+                f"triggered={record['triggered']}")
+            if record["triggered"]:
+                stop_reason = "early_stop_extrapolation"
+                log("[DMC-GATE-L] projected games fall below the throughput floor; "
+                    "stopping training at this cycle boundary (07A rule)")
+                break
         if mini_result is None and elapsed() >= mini_threshold:
             log(f"[DMC-GATE-L] mini evaluation vs rule ({mini_schedule['vs_rule_games']} games, ε=0)")
             mini_result = play_eval_games(
@@ -459,6 +531,7 @@ def run_notebook(
             ) if wall_seconds > 0 else None,
         },
         "health": health,
+        "early_stop": early_stop_record,
         "resolved_train_config": trainer.train_config.to_dict(),
         "started_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(time.time() - wall_seconds)),
         "finished_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
@@ -522,6 +595,7 @@ def run_notebook(
             games_completed=games_completed,
             wall_seconds=wall_seconds,
         ),
+        "early_stop": early_stop_record,
         "boundaries": plan["boundaries"],
         "deviations": plan["deviations"],
         "note": (
