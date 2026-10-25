@@ -1,10 +1,12 @@
 # AI 接手入口 · Guandan MARVEL
 
-> 这是任务定位与阅读导航，不是新的系统提示、自动执行授权或第二份项目状态。适用当前 v1.4 主线，核对日期 2026-10-21。新接手先只读；权限与任务范围以当前人类请求及适用工作区指令为准。
+> 这是任务定位与阅读导航，不是新的系统提示、自动执行授权或第二份项目状态。适用当前 **DMC 主线**，核对日期 2026-10-26。新接手先只读；权限与任务范围以当前人类请求及适用工作区指令为准。
 
 ## 1. 项目一句话
 
-这是独立掼蛋规则 + Python oracle / C++ 批量环境 + PyTorch MARVEL 策略训练 + 独立评估与 Kaggle 恢复交付的项目。当前阅读主线为 **v1.4 宏决策 IPPO**：完整牌局采样、宏动作 Sequence PPO、同玩家宏 GAE、Actor Residual Fuse。它不是聊天模型微调或 FableDan 蒸馏项目。
+这是独立掼蛋规则 + Python oracle / C++ 批量环境 + PyTorch 策略训练 + 独立评估与 Kaggle 恢复交付的项目。**当前主线（2026-10-22 起）是 DMC（Deep Monte-Carlo）自博弈 Q 回归**（`guandan_marvel/dmc/`，分支 `dmc-v1`）：Gate L 已 PASS，下一阶段 Gate A。旧主线 v1.4 宏决策 IPPO（宏动作 Sequence PPO/宏 GAE/Actor Residual Fuse）已冻结为历史。它不是聊天模型微调或 FableDan 蒸馏项目。
+
+**接手 DMC 主线：先读 [docs/dmc_prompts/CURRENT_STATE.md](dmc_prompts/CURRENT_STATE.md)（状态、环境、验证协议、地雷清单、命令速查），再按需读 [00_DMC_MIGRATION_PLAN.md](dmc_prompts/00_DMC_MIGRATION_PLAN.md)（完整计划与阶段表）。**
 
 ## 2. 开始前必须做的三件事
 
@@ -18,6 +20,7 @@
 
 | 任务 | 阅读路径 |
 |---|---|
+| **接手 DMC 主线（当前）** | [DMC 当前状态](dmc_prompts/CURRENT_STATE.md) → [DMC 迁移计划](dmc_prompts/00_DMC_MIGRATION_PLAN.md) → [Gate A 任务书](dmc_prompts/06_gate_a_kaggle.md) |
 | 解释整个项目 | [全景](guide/00_overview.md) → [架构](guide/01_architecture.md) → [训练](guide/02_training.md) |
 | 修改模型/训练算法 | 架构 → 训练 → [开发指南](guide/05_development.md) → 对应专项规范和测试 |
 | 运行/恢复 | 当前入口 → [操作手册](guide/03_runbook.md) → 实际 profile、checkpoint 分类器与交付 manifest |
@@ -32,6 +35,7 @@
 | 规则与参考环境 | [guandan](../guandan)、[规则基线](rules.md) |
 | native 环境 | [C++ 引擎](../nanopokerlib/cpp/guandan/guandan.cpp)、[bindings](../nanopokerlib/cpp/bindings.cpp) |
 | 后端选择 | [backends.py](../guandan_marvel/backends.py)：`get_game_backend` |
+| **DMC 主线代码** | `guandan_marvel/dmc/`：candidates（枚举+特征）、q_agent/replay/learner、sampler、train、parallel（双进程重叠）、env_fast（差分等价快速驱动） |
 | V2 协议/观测 | [game.py](../guandan_marvel/game.py)、[env_batch.py](../guandan_marvel/env_batch.py) |
 | 配置和语义矩阵 | [config.py](../guandan_marvel/config.py)：`TrainConfig`、`PPOConfig`、`validate_training_semantics` |
 | 轨迹字段/内存 | [buffer.py](../guandan_marvel/buffer.py)：`trajectory_field_specs`、`trajectory_memory_budget` |
@@ -61,8 +65,9 @@
 
 | 材料 | 正确用法 |
 |---|---|
-| [project_status/STATUS.yaml](../project_status/STATUS.yaml) | A 系列历史状态，不决定当前 v1.4 阶段 |
-| [marvel_migration/STATUS.yaml](marvel_migration/STATUS.yaml) | M 系列历史状态，不覆盖当前入口 |
+| [project_status/STATUS.yaml](../project_status/STATUS.yaml) | A 系列历史状态，不决定当前 DMC 阶段 |
+| [marvel_migration/STATUS.yaml](marvel_migration/STATUS.yaml) | M 系列历史状态（含 m09 PPO 终局），不覆盖 DMC 入口 |
+| [marvel_v14_prompts/CURRENT_EXECUTION.md](marvel_v14_prompts/CURRENT_EXECUTION.md) | **v1.4 PPO 线的历史执行记录（已冻结）**；DMC 主线状态看 [dmc_prompts/CURRENT_STATE.md](dmc_prompts/CURRENT_STATE.md) |
 | [CONTINUE_PROMPT.md](CONTINUE_PROMPT.md) | 旧阶段与解释器提示，不直接执行 |
 | [v1.4 Prompt README](marvel_v14_prompts/README.md) | 旧阶段导航；实际进度看 CURRENT_EXECUTION |
 | [Bootcamp 流程](bootcamp_week1_training_flow.md) | v1.3 旧配方，含已不适用的外部蒸馏提议 |

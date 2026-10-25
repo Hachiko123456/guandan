@@ -1,5 +1,7 @@
 # MARVEL Guandan — Claude Code 项目规则
 
+> **当前主线（2026-10-22 起）为 DMC**：接手先读 `docs/dmc_prompts/CURRENT_STATE.md`（状态/环境/验证协议/地雷清单）。下文的 v1.4 阶段协调流程同样适用于 DMC 阶段 prompt 的实施。本文件描述的 `marvel_v14_prompts/` 内容已冻结为历史。
+
 ## 适用范围
 
 本文件用于 Claude Code。现有 `.opencode/` 和 `opencode.jsonc` 是可独立使用的 OpenCode 配置，必须保留，两个系统不得互相覆盖。
