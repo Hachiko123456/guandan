@@ -40,6 +40,7 @@ from __future__ import annotations
 import hashlib
 import math
 import time
+from abc import ABC, abstractmethod
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Any, Mapping
@@ -76,6 +77,36 @@ _GAME_RECORD_HISTORY = 4096
 
 class DMCSamplerFailedStateError(RuntimeError):
     """The sampler observed a non-transactional failure and cannot continue."""
+
+
+class DMCSampleSink(ABC):
+    """Push target for finished games' sample batches.
+
+    A sink exposes the same read-side layout attributes as :class:`DMCReplay`
+    (``channel_dim``, ``action_feature_dim``, ``pad_token``, ``num_tokens``,
+    ``num_players``, ``max_obs_tokens``) so the sampler's layout checks run
+    unchanged, plus ``push_batch`` and ``__len__``.  The default sink is the
+    replay itself; the parallel trainer (``dmc.parallel``) forwards batches to
+    the learner process through one instead of keeping a second full buffer
+    in the collector.  Rejection semantics are unchanged either way: a batch
+    the sink cannot accept fails the collection loop exactly like a replay
+    push would.
+    """
+
+    channel_dim: int
+    action_feature_dim: int
+    pad_token: int
+    num_tokens: int | None
+    num_players: int
+    max_obs_tokens: int
+
+    @abstractmethod
+    def push_batch(self, samples) -> int:
+        """Accept one finished game's batch; return the accepted row count."""
+
+    @abstractmethod
+    def __len__(self) -> int:
+        """Rows currently accepted (for ``health`` reporting)."""
 
 
 def linear_epsilon(samples_pushed: int, *, start: float, final: float, decay_samples: int) -> float:
@@ -194,8 +225,8 @@ class DMCSampler:
     ) -> None:
         if not isinstance(q_agent, torch.nn.Module) or not hasattr(q_agent, "q_values"):
             raise TypeError("q_agent must be a torch.nn.Module exposing q_values(...)")
-        if not isinstance(replay, DMCReplay):
-            raise TypeError("replay must be a DMCReplay")
+        if not isinstance(replay, (DMCReplay, DMCSampleSink)):
+            raise TypeError("replay must be a DMCReplay or a DMCSampleSink")
         if not isinstance(config, DMCSamplerConfig):
             raise TypeError("config must be a DMCSamplerConfig")
         self._config = config
@@ -757,6 +788,7 @@ class DMCSampler:
 
 
 __all__ = [
+    "DMCSampleSink",
     "DMCSampler",
     "DMCSamplerConfig",
     "DMCSamplerFailedStateError",

@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 import numpy as np
 
@@ -413,13 +413,175 @@ class DMCReplay:
             )
         return tokens, channels, action_feats, z, seat, game_id
 
+    def _try_push_batched_arrays(self, samples) -> int | None:
+        """Vectorised validation for batched-numpy pushes; ``None`` = fall back.
+
+        Handles exactly the layout the sampler pushes (2-D integer token rows
+        with explicit lengths, plus per-field arrays).  Every precondition that
+        cannot be checked vectorised returns ``None`` so :meth:`_normalise`
+        raises its canonical error instead.  Value-level rejections replicate
+        the per-row messages, and with several defective rows the reported
+        error is the row-major-first one, matching the per-row scan order.
+        """
+        if not isinstance(samples, Mapping):
+            return None
+        try:
+            token_array = samples["obs_tokens"]
+            lengths = samples["obs_token_lengths"]
+            if "obs_channels" not in samples or "action_feats" not in samples \
+                    or "z" not in samples or "seat" not in samples or "game_id" not in samples:
+                return None
+            if not isinstance(token_array, np.ndarray) or token_array.ndim != 2 \
+                    or token_array.dtype == np.bool_ \
+                    or not np.issubdtype(token_array.dtype, np.integer):
+                return None
+            if not isinstance(lengths, np.ndarray) or lengths.shape != (token_array.shape[0],) \
+                    or lengths.dtype == np.bool_ \
+                    or not np.issubdtype(lengths.dtype, np.integer) \
+                    or lengths.dtype == np.uint64:
+                return None
+            channels = np.asarray(samples["obs_channels"])
+            feats = np.asarray(samples["action_feats"])
+            z = np.asarray(samples["z"])
+            seat = np.asarray(samples["seat"])
+            game_id = np.asarray(samples["game_id"])
+            batch = int(token_array.shape[0])
+            width = int(token_array.shape[1])
+            if channels.shape != (batch, self.channel_dim) or channels.dtype == np.bool_ \
+                    or not np.issubdtype(channels.dtype, np.integer):
+                return None
+            if feats.shape != (batch, self.action_feature_dim) \
+                    or not np.issubdtype(feats.dtype, np.floating):
+                return None
+            if z.shape != (batch,) or not np.issubdtype(z.dtype, np.floating):
+                return None
+            if seat.shape != (batch,) or seat.dtype == np.bool_ \
+                    or not np.issubdtype(seat.dtype, np.integer) or seat.dtype == np.uint64:
+                return None
+            if game_id.shape != (batch,) or game_id.dtype == np.bool_ \
+                    or not np.issubdtype(game_id.dtype, np.integer) \
+                    or game_id.dtype == np.uint64:
+                return None
+        except (TypeError, KeyError, IndexError):
+            return None
+        if batch == 0:
+            return 0
+        if batch > self.capacity:
+            raise ValueError(
+                f"cannot push {batch} rows into capacity {self.capacity}"
+            )
+
+        # Row-major-first defect selection: each field reports its first bad
+        # row; the smallest such row wins, ties broken by the per-row scan
+        # order, so a single-defect batch raises the identical message.
+        defects: list[tuple[int, int, Callable[[], ValueError]]] = []
+
+        length_values = lengths.astype(np.int64, copy=False)
+        bad_width = np.flatnonzero((length_values < 1) | (length_values > width))
+        if bad_width.size:
+            row = int(bad_width[0])
+            defects.append((row, 0, lambda: ValueError(
+                f"obs_token_lengths[{row}]={int(length_values[row])} must lie in 1..{width}"
+            )))
+        bad_window = np.flatnonzero(length_values > self.max_obs_tokens)
+        if bad_window.size:
+            row = int(bad_window[0])
+            defects.append((row, 1, lambda: ValueError(
+                f"obs_tokens length {int(length_values[row])} must lie in "
+                f"1..{self.max_obs_tokens}"
+            )))
+
+        upper = self.num_tokens if self.num_tokens is not None else 2**31
+        upper = min(upper, int(np.iinfo(OBS_TOKENS_DTYPE).max) + 1)
+        prefixes = np.arange(width, dtype=np.int64)[None, :] < length_values[:, None]
+        with np.errstate(invalid="ignore"):
+            bad_tokens = prefixes & ((token_array < 0) | (token_array >= upper))
+        bad_token_flat = np.flatnonzero(bad_tokens)
+        if bad_token_flat.size:
+            row, col = (int(bad_token_flat[0] // width), int(bad_token_flat[0] % width))
+            defects.append((row, 2, lambda: ValueError(
+                f"obs_tokens[{col}]={int(token_array[row, col])} must lie in 0..{upper - 1}"
+            )))
+
+        bad_channels = np.flatnonzero((channels < 0).any(axis=1) | (channels > 255).any(axis=1))
+        if bad_channels.size:
+            defects.append((int(bad_channels[0]), 3, lambda: ValueError(
+                "obs_channels values must lie in 0..255"
+            )))
+
+        if not bool(np.isfinite(feats).all()):
+            bad_feats = np.flatnonzero(~np.isfinite(feats).all(axis=1))
+            defects.append((int(bad_feats[0]), 4, lambda: ValueError(
+                "action_feats must be finite"
+            )))
+        else:
+            narrowed = feats.astype(ACTION_FEATS_DTYPE, copy=False)
+            if not bool(np.isfinite(narrowed).all()):
+                bad_feats = np.flatnonzero(~np.isfinite(narrowed).all(axis=1))
+                defects.append((int(bad_feats[0]), 4, lambda: ValueError(
+                    "action_feats must be representable in float32"
+                )))
+
+        if not bool(np.isfinite(z).all()):
+            defects.append((0, 5, lambda: ValueError("z must be a finite number")))
+        else:
+            z_narrowed = z.astype(Z_DTYPE, copy=False)
+            if not bool(np.isfinite(z_narrowed).all()):
+                defects.append((0, 5, lambda: ValueError(
+                    "z must be representable in float32"
+                )))
+
+        seat_values = seat.astype(np.int64, copy=False)
+        bad_seats = np.flatnonzero((seat_values < 0) | (seat_values >= self.num_players))
+        if bad_seats.size:
+            row = int(bad_seats[0])
+            defects.append((row, 6, lambda: ValueError(
+                f"seat {int(seat_values[row])} must lie in 0..{self.num_players - 1}"
+            )))
+
+        gid_values = game_id.astype(np.int64, copy=False)
+        bad_gid = np.flatnonzero(gid_values < 0)
+        if bad_gid.size:
+            defects.append((int(bad_gid[0]), 7, lambda: ValueError(
+                "game_id must be non-negative"
+            )))
+
+        if defects:
+            defects.sort(key=lambda item: (item[0], item[1]))
+            raise defects[0][2]()
+
+        for row in range(batch):
+            index = self._write_index
+            row_buffer = self._obs_tokens[index]
+            row_buffer[:] = self.pad_token
+            length = int(length_values[row])
+            row_buffer[:length] = token_array[row, :length]
+            self._obs_token_lengths[index] = length
+            self._obs_channels[index] = channels[row]
+            self._action_feats[index] = feats[row].astype(ACTION_FEATS_DTYPE, copy=False)
+            self._z[index] = z[row]
+            self._seat[index] = seat[row]
+            self._game_id[index] = gid_values[row]
+            self._write_index = (index + 1) % self.capacity
+            self._size = min(self.capacity, self._size + 1)
+        self._total_pushed += batch
+        return batch
+
     def push_batch(self, samples) -> int:
         """Append a batch of decisions; returns the number of rows written.
 
         Every row is validated before anything is written, so a malformed batch
         leaves the buffer untouched.  When the ring is full the oldest rows are
         overwritten (FIFO).
+
+        The sampler's batched-numpy pushes take a vectorised validation path
+        (:meth:`_try_push_batched_arrays`) whose accept/reject set and error
+        messages are identical to the per-row path; anything it does not
+        recognise falls back to :meth:`_normalise` unchanged.
         """
+        fast = self._try_push_batched_arrays(samples)
+        if fast is not None:
+            return fast
         transitions = self._normalise(samples)
         if not transitions:
             return 0

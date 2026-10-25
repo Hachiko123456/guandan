@@ -688,17 +688,37 @@ def main(argv: Sequence[str] | None = None) -> int:
                         help="override the config total game count (explicit, logged)")
     parser.add_argument("--resume", default=None,
                         help="path to a dmc-v1 full training checkpoint to resume")
+    parser.add_argument("--parallel", action="store_true",
+                        help="run the 07A two-process collector/learner topology "
+                             "(on a single device the collector shares it, logged)")
+    parser.add_argument("--collector-device", default=None,
+                        help="explicit collector inference device for --parallel "
+                             "(for example cuda:1); default: second GPU when present, "
+                             "else the learner's device")
     args = parser.parse_args(argv)
 
     raw = json.loads(Path(args.config).read_text(encoding="utf-8"))
     run_config = load_run_config(raw)
-    summary = train_from_config(
-        run_config,
-        device_override=args.device,
-        resume_path=args.resume,
-        output_dir_override=args.output_dir,
-        total_games_override=args.total_games,
-    )
+    if args.parallel:
+        # Imported lazily so the serial path never loads the module.
+        from guandan_marvel.dmc.parallel import train_from_config_parallel
+
+        summary = train_from_config_parallel(
+            run_config,
+            device_override=args.device,
+            collector_device_override=args.collector_device,
+            resume_path=args.resume,
+            output_dir_override=args.output_dir,
+            total_games_override=args.total_games,
+        )
+    else:
+        summary = train_from_config(
+            run_config,
+            device_override=args.device,
+            resume_path=args.resume,
+            output_dir_override=args.output_dir,
+            total_games_override=args.total_games,
+        )
     return 0 if summary["stop_reason"] == "complete" else 2
 
 
