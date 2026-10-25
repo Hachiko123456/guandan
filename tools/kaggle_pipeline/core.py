@@ -403,9 +403,16 @@ def submit(config: dict, run_id: str | None = None, *, backend=None, username=No
                           details={"kernel_ref": state.get("kernel_ref"), "version": state.get("kernel_version")})
                 return state
             operation = "dataset_reconciliation"
-            info = backend.dataset_info(state["dataset_ref"])
-            if info is not None and not state["dataset_attempted"]:
-                raise PipelineError("Dataset slug collision; prepare a new run")
+            # Kaggle's dataset-detail endpoint returns 403 for non-existent
+            # datasets (live-API verified 2026-10-25), so absence is probed
+            # via the account listing first; the detail endpoint is only
+            # queried for datasets that are known to exist.
+            if backend.dataset_slug_exists(state["dataset_ref"]):
+                info = backend.dataset_info(state["dataset_ref"])
+                if not state["dataset_attempted"]:
+                    raise PipelineError("Dataset slug collision; prepare a new run")
+            else:
+                info = None
             if info is None:
                 if state["dataset_attempted"]:
                     raise PipelineError("previous Dataset upload outcome is unknown; retry later to reconcile, no automatic duplicate upload")
@@ -455,7 +462,13 @@ def submit(config: dict, run_id: str | None = None, *, backend=None, username=No
             save(folder, state)
             log.console("DATASET_READY", details={"version": info["version"]})
             operation = "kernel_reconciliation"
-            remote = backend.kernel_info(state["kernel_ref"])
+            # Same 403-for-absent behaviour as the dataset detail endpoint:
+            # probe the account listing before querying kernel details.
+            remote = (
+                backend.kernel_info(state["kernel_ref"])
+                if backend.kernel_slug_exists(state["kernel_ref"])
+                else None
+            )
             if state["kernel_attempted"]:
                 log.event("kernel_submission", "reconciliation_started", details={"kernel_ref": state["kernel_ref"]})
                 if not remote:

@@ -101,6 +101,38 @@ def prepare(sample):
     return core.prepare(config, delivery, verifier=lambda d: {"status": "PASS"})
 
 
+def test_submit_tolerates_detail_endpoint_403_for_absent_slugs(sample):
+    """Live-API behaviour (verified 2026-10-25): Kaggle's dataset/kernel detail
+    endpoints answer HTTP 403 for *non-existent* slugs.  Absence must be probed
+    via the account listing; the detail endpoints are then only used for
+    resources that exist, so a first-time upload still succeeds."""
+    from tools.kaggle_pipeline.backend import BackendError
+
+    state = prepare(sample)
+    backend = FakeBackend(sample[0], state)
+    wrapped_dataset_info = backend.dataset_info
+    wrapped_kernel_info = backend.kernel_info
+
+    def strict_dataset_info(ref):
+        if backend.dataset is None:
+            raise BackendError("dataset_info", 403)
+        return wrapped_dataset_info(ref)
+
+    def strict_kernel_info(ref):
+        if backend.kernel is None:
+            raise BackendError("kernel_info", 403)
+        return wrapped_kernel_info(ref)
+
+    backend.dataset_info = strict_dataset_info
+    backend.kernel_info = strict_kernel_info
+    submitted = submit(sample, backend, state)
+    assert submitted["status"] == "SUBMITTED"
+    assert backend.count("create_dataset") == 1
+    assert backend.count("push_kernel") == 1
+    assert backend.count("dataset_slug_exists") >= 1
+    assert backend.count("kernel_slug_exists") >= 1
+
+
 class LostResponse(RuntimeError):
     pass
 
@@ -125,6 +157,14 @@ class FakeBackend:
     def dataset_info(self, ref):
         self.calls.append(("dataset_info", ref))
         return None if self.dataset is None else dict(self.dataset)
+
+    def dataset_slug_exists(self, ref):
+        self.calls.append(("dataset_slug_exists", ref))
+        return self.dataset is not None
+
+    def kernel_slug_exists(self, ref):
+        self.calls.append(("kernel_slug_exists", ref))
+        return self.kernel is not None
 
     def create_dataset(self, folder):
         self.calls.append(("create_dataset", folder))

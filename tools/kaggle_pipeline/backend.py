@@ -310,6 +310,53 @@ class KaggleBackend:
                     "dataset_read": True, "datasets_visible": len(datasets),
                     "kernel_read": True, "kernels_visible": len(kernels)}
 
+    def dataset_slug_exists(self, ref: str) -> bool:
+        """Definitive membership probe for one of this account's datasets.
+
+        Kaggle's dataset-detail endpoint answers HTTP 403 both for foreign and
+        for *non-existent* datasets (verified against the live API on
+        2026-10-25), so absence cannot be distinguished from an authorization
+        failure there.  The account listing includes private datasets and
+        answers membership definitively; it is the correct existence probe
+        before ``create_dataset``.
+        """
+        with self._operation("dataset_info") as api:
+            owner, _slug = _ref(ref)
+            if owner != self._username:
+                return False
+            page_token: str | None = None
+            seen: set[str] = set()
+            while True:
+                response = api.dataset_list_with_response(
+                    user=self._username, page_size=100, page_token=page_token,
+                )
+                for item in _field(response, "datasets") or []:
+                    if _field(item, "ref") == ref or _field(item, "id") == ref:
+                        return True
+                page_token = _field(response, "next_page_token")
+                if not page_token or (page_token in seen):
+                    return False
+                seen.add(page_token)
+
+    def kernel_slug_exists(self, ref: str) -> bool:
+        """Membership probe for one of this account's kernels (same rationale).
+
+        The listing is single-page (accounts with >100 kernels must extend
+        pagination before a false absence could trigger a fail-closed create
+        collision, never a silent duplicate).
+        """
+        with self._operation("kernel_info") as api:
+            owner, _slug = _ref(ref)
+            if owner != self._username:
+                return False
+            kernels = api.kernels_list(user=self._username, page_size=100)
+            if not isinstance(kernels, list):
+                raise ValueError("Invalid kernel listing")
+            return any(
+                _field(item, "ref") == ref or _field(item, "id") == ref
+                for item in kernels
+            )
+
     def dataset_info(self, ref: str) -> dict | None:
         with self._operation("dataset_info") as api:
             owner, slug = _ref(ref)
