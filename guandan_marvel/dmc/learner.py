@@ -1,16 +1,25 @@
 # SPDX-License-Identifier: MIT
-"""DMC regression learner (stage 3).
+"""DMC regression learner (stage 3, gradient accumulation in stage 07B).
 
-One ``train_step`` is exactly:
+One ``train_step`` is exactly **one optimizer step** over one effective batch:
 
 .. code-block:: text
 
     batch  = replay.sample(batch_size, rng)               # uniform, no replacement
-    q      = Q(s, a_chosen)                               # one candidate per row
-    loss   = MSE(q, z)  (+ ntp_weight * BCE(ntp_logits, ntp_targets))
-    step   = AdamW(lr=1e-4, weight_decay=0)               # no target network
-    clip   = clip_grad_norm_(1.0)
+    for each micro-batch of the batch (stage 07B):
+        q      = Q(s, a_chosen)                           # one candidate per row
+        loss   = MSE(q, z)  (+ ntp_weight * BCE(ntp_logits, ntp_targets))
+        scaled = scaler.scale(loss * rows/total); scaled.backward()
+    unscale_ -> clip_grad_norm_(1.0) -> scaler.step -> scaler.update
     amp    = fp16 autocast + GradScaler on CUDA; fp32 on CPU
+
+The effective batch is ``batch_size`` (locked table: 1024) and
+``accumulation_steps`` only decides how many micro-batches it is split into
+(stage 07B: 4 x 256, so the T4 memory ceiling of a 256-row forward is kept
+while the optimizer step still sees 1024 samples).  The batch is drawn **once**
+and sliced into contiguous micro-batches, so the accumulated gradient is the
+exact full-batch mean gradient (each micro loss is weighted by its row share);
+sampling four independent micro-batches would not be equivalent.
 
 There is deliberately no target network, no GAE, no ratio/clip and no KL
 regulariser: ``z`` is the undiscounted team rank score already divided by three
@@ -20,7 +29,10 @@ regulariser: ``z`` is the undiscounted team rank score already divided by three
 logits).  A positive count fails closed before any optimizer step.  A fp16
 GradScaler overflow is *not* counted: skipping that update is the scaler's
 contract, and it is reported as ``step_skipped=True`` with the reduced
-``scaler_scale`` instead of being silently turned into a NaN update.
+``scaler_scale`` instead of being silently turned into a NaN update.  With
+accumulation the scaler sees one ``unscale_``/``step`` per optimizer step, so a
+single overflowing micro-batch skips the whole step (the accumulated gradient
+carries the overflow and ``unscale_`` records it).
 """
 
 from __future__ import annotations
@@ -41,6 +53,53 @@ from guandan_marvel.dmc.replay import DMCReplay, DMCReplayBatch
 
 class DMCNonFiniteError(RuntimeError):
     """Raised when a DMC forward pass or unscaled gradient becomes non-finite."""
+
+
+def optimizer_steps_for_samples(
+    new_samples: int, *, ratio: float, effective_batch_size: int,
+) -> int:
+    """Optimizer steps for ``new_samples`` at the locked gradient/data ratio.
+
+    ``ratio`` is the locked "sample passes per new sample" (1.0).  The step
+    count is measured in **optimizer** steps, so it divides by the effective
+    batch (``batch_size * accumulation_steps``), never by the micro-batch —
+    otherwise gradient accumulation would silently multiply the gradient/data
+    ratio by ``accumulation_steps``.
+    """
+    samples = int(new_samples)
+    ratio = float(ratio)
+    batch = int(effective_batch_size)
+    if samples < 0:
+        raise ValueError("new_samples must be non-negative")
+    if not math.isfinite(ratio) or ratio < 0.0:
+        raise ValueError("ratio must be finite and non-negative")
+    if batch <= 0:
+        raise ValueError("effective_batch_size must be positive")
+    return int(round(samples * ratio / batch))
+
+
+def _micro_batch_sizes(total: int, parts: int) -> list[int]:
+    """Contiguous chunk sizes: ``total`` rows split into ``parts`` (>= 1 each).
+
+    The remainder is spread over the first chunks, so ``sum(sizes) == total``
+    exactly; the row-share weighting in ``train_step`` makes uneven chunks
+    equivalent to the full-batch mean too.
+    """
+    base, extra = divmod(int(total), int(parts))
+    return [base + (1 if index < extra else 0) for index in range(int(parts))]
+
+
+def _slice_batch(batch: DMCReplayBatch, start: int, stop: int) -> DMCReplayBatch:
+    """Row slice of a sampled batch (views; the caller owns the parent arrays)."""
+    return DMCReplayBatch(
+        obs_tokens=batch.obs_tokens[start:stop],
+        obs_token_lengths=batch.obs_token_lengths[start:stop],
+        obs_channels=batch.obs_channels[start:stop],
+        action_feats=batch.action_feats[start:stop],
+        z=batch.z[start:stop],
+        seat=batch.seat[start:stop],
+        game_id=batch.game_id[start:stop],
+    )
 
 
 def qz_r2(q, z) -> float:
@@ -78,6 +137,7 @@ class DMCLearner:
         device: torch.device | str | None = None,
         config: DMCRuntimeConfig | None = None,
         batch_size: int | None = None,
+        accumulation_steps: int | None = None,
         learning_rate: float | None = None,
         weight_decay: float | None = None,
         grad_clip_norm: float | None = None,
@@ -122,13 +182,29 @@ class DMCLearner:
         self.q_agent = q_agent.to(self.device)
 
         self.replay = replay
+        # ``batch_size`` is the optimizer-step batch (the locked 1024); stage
+        # 07B splits it into ``accumulation_steps`` micro-batches so the
+        # forward/backward peak memory stays at one micro-batch (4 x 256).
         self.batch_size = int(runtime.batch_size if batch_size is None else batch_size)
+        self.accumulation_steps = int(
+            runtime.accumulation_steps if accumulation_steps is None else accumulation_steps
+        )
+        self.effective_batch_size = self.batch_size
         self.learning_rate = float(runtime.learning_rate if learning_rate is None else learning_rate)
         self.weight_decay = float(runtime.weight_decay if weight_decay is None else weight_decay)
         self.grad_clip_norm = float(runtime.grad_clip_norm if grad_clip_norm is None else grad_clip_norm)
         self.ntp_weight = float(0.0 if ntp_weight is None else ntp_weight)
         if self.batch_size <= 0:
             raise ValueError("batch_size must be positive")
+        if self.accumulation_steps <= 0:
+            raise ValueError("accumulation_steps must be positive")
+        if self.accumulation_steps > self.batch_size:
+            raise ValueError(
+                "accumulation_steps cannot exceed batch_size (every micro-batch "
+                "needs at least one row)"
+            )
+        self.micro_batch_sizes = _micro_batch_sizes(self.batch_size, self.accumulation_steps)
+        self.micro_batch_size = max(self.micro_batch_sizes)
         if self.learning_rate <= 0.0 or not math.isfinite(self.learning_rate):
             raise ValueError("learning_rate must be finite and positive")
         if self.weight_decay < 0.0 or not math.isfinite(self.weight_decay):
@@ -245,28 +321,62 @@ class DMCLearner:
     # Train step
     # ------------------------------------------------------------------
     def train_step(self, *, ntp_targets: torch.Tensor | None = None) -> dict[str, Any]:
-        """Sample one batch, apply one MSE regression update, return metrics."""
-        batch = self.replay.sample(self.batch_size, self.rng)
-        tensors = self._to_torch(batch)
+        """One optimizer step over ``batch_size`` rows, split into micro-batches.
+
+        The batch is drawn once (uniform, no replacement) and split into
+        ``accumulation_steps`` contiguous micro-batches.  Each micro loss is
+        weighted by its row share before ``backward()``, so the accumulated
+        gradient is exactly the full-batch mean gradient in exact arithmetic.
+        """
+        total_rows = self.batch_size
+        batch = self.replay.sample(total_rows, self.rng)
+        if len(batch) != total_rows:  # pragma: no cover - replay.sample contract
+            raise ValueError(
+                f"replay returned {len(batch)} rows for a batch of {total_rows}"
+            )
         self.optimizer.zero_grad(set_to_none=True)
 
-        q, ntp_loss, loss, z = self._forward(tensors, ntp_targets=ntp_targets)
-        nonfinite = self._nonfinite_count(q, z, loss, ntp_loss)
-        if nonfinite:
-            raise DMCNonFiniteError(
-                "non-finite DMC forward value(s): "
-                f"q={int((~torch.isfinite(q)).sum())}, "
-                f"z={int((~torch.isfinite(z)).sum())}, "
-                f"loss={int((~torch.isfinite(loss)).sum())}, "
-                f"ntp={0 if ntp_loss is None else int((~torch.isfinite(ntp_loss)).sum())}"
-            )
+        q_parts: list[torch.Tensor] = []
+        z_parts: list[torch.Tensor] = []
+        loss_value = 0.0
+        ntp_value = 0.0
+        ntp_seen = False
+        start = 0
+        for index, rows in enumerate(self.micro_batch_sizes):
+            stop = start + rows
+            micro = _slice_batch(batch, start, stop)
+            tensors = self._to_torch(micro)
+            micro_targets = None if ntp_targets is None else ntp_targets[start:stop]
+            q, ntp_loss, loss, z = self._forward(tensors, ntp_targets=micro_targets)
+            nonfinite = self._nonfinite_count(q, z, loss, ntp_loss)
+            if nonfinite:
+                raise DMCNonFiniteError(
+                    "non-finite DMC forward value(s) in micro-batch "
+                    f"{index}/{self.accumulation_steps}: "
+                    f"q={int((~torch.isfinite(q)).sum())}, "
+                    f"z={int((~torch.isfinite(z)).sum())}, "
+                    f"loss={int((~torch.isfinite(loss)).sum())}, "
+                    f"ntp={0 if ntp_loss is None else int((~torch.isfinite(ntp_loss)).sum())}"
+                )
+            # Row-share weighting: sum(micro means * share) == full-batch mean.
+            # The weight is applied in fp32 so an uneven split cannot lose
+            # precision to fp16 rounding.
+            weight = rows / total_rows
+            self.scaler.scale(loss.float() * weight).backward()
+            loss_value += float(loss.detach().float().item()) * weight
+            if ntp_loss is not None:
+                ntp_seen = True
+                ntp_value += float(ntp_loss.detach().float().item()) * weight
+            q_parts.append(q.detach().float())
+            z_parts.append(z.detach().float())
+            start = stop
 
         scaler_enabled = bool(self.scaler.is_enabled())
         old_scale = float(self.scaler.get_scale()) if scaler_enabled else 1.0
-        self.scaler.scale(loss).backward()
         if scaler_enabled:
-            # ``unscale_`` records per-optimizer inf/NaN so ``step`` skips the
-            # update even though clipping may then turn inf gradients into NaN.
+            # One ``unscale_`` per optimizer step: any overflowing micro-batch
+            # has already poisoned the accumulated gradient, and ``unscale_``
+            # records that inf/NaN so ``step`` skips the whole update.
             self.scaler.unscale_(self.optimizer)
         grad_norm = torch.nn.utils.clip_grad_norm_(
             [p for p in self.q_agent.parameters() if p.grad is not None],
@@ -289,11 +399,11 @@ class DMCLearner:
             step_skipped = False
             scaler_scale = 1.0
 
-        q_detached = q.detach().float()
-        z_detached = z.detach().float()
+        q_detached = torch.cat(q_parts) if len(q_parts) > 1 else q_parts[0]
+        z_detached = torch.cat(z_parts) if len(z_parts) > 1 else z_parts[0]
         metrics: dict[str, Any] = {
             "step": self.step_count,
-            "loss": float(loss.detach().float().item()),
+            "loss": float(loss_value),
             "q_mean": float(q_detached.mean().item()),
             "q_std": float(q_detached.std(unbiased=False).item()),
             "z_mean": float(z_detached.mean().item()),
@@ -301,11 +411,14 @@ class DMCLearner:
             "qz_r2": qz_r2(q_detached, z_detached),
             "grad_norm": grad_norm_value,
             "scaler_scale": scaler_scale,
-            "nonfinite_count": nonfinite,
+            "nonfinite_count": 0,
             "step_skipped": bool(step_skipped),
+            "accumulation_steps": self.accumulation_steps,
+            "effective_batch_size": total_rows,
+            "micro_batch_size": self.micro_batch_size,
         }
-        if ntp_loss is not None:
-            metrics["ntp_loss"] = float(ntp_loss.detach().float().item())
+        if ntp_seen:
+            metrics["ntp_loss"] = float(ntp_value)
 
         self.step_count += 1
         if self.log_path is not None:
@@ -320,4 +433,4 @@ class DMCLearner:
         return metrics
 
 
-__all__ = ["DMCLearner", "DMCNonFiniteError", "qz_r2"]
+__all__ = ["DMCLearner", "DMCNonFiniteError", "optimizer_steps_for_samples", "qz_r2"]

@@ -85,11 +85,14 @@ BOUNDARIES = {
     "formal_production_promotion": False,
 }
 DEVIATIONS = [
-    "batch_size=256, not the lock table's 1024: stage-4 measured ~9.8GiB at (256, T=1024), "
-    "which does not fit a 16GB T4; gradient accumulation is not used (gradient ratio 1.0)",
-    "observation window 1024 tail truncation is the accepted stage-4 semantics; the median "
-    "sample being truncated and a non-zero truncation counter are expected (level-card "
-    "information is carried by the channels); head+tail variants are deferred to stage 7",
+    "batch_size=1024 with accumulation_steps=4 (micro-batch 256, stage 07B): the lock "
+    "table's batch is the optimizer-step batch; the 256-row micro-batch is the T4 memory "
+    "ceiling measured in stage 4, and the gradient/data ratio stays 1.0 (optimizer steps "
+    "divide by the 1024-row batch, never by a micro-batch)",
+    "observation window 1024 = head 128 + tail 896 (stage 07B): the opening history "
+    "(BOS/level card, first play, tribute/return records) is pinned instead of being "
+    "tail-truncated; tokens between the two segments are dropped and counted as "
+    "obs_tail_drops (obs_head_drops stays 0 by construction)",
     "checkpoint cadence is 512 games = 2 cycles of the locked 256-game cycle "
     "(prompt wording 'every 500 games' rounded to a whole cycle multiple)",
     "the payload/notebook filenames are the unchanged pipeline's serial-compare transport "

@@ -14,8 +14,9 @@ Lane semantics, pre-declared in ``docs/dmc_prompts/05_gate_l_local.md``:
   clock — it must not perturb the training run it is embedded in.
 
 Observation streams mirror ``DMCSampler`` (cumulative per-seat event rows,
-tail window of ``max_obs_tokens``), so the Q values scored here are the same
-function the sampler trains; every window trim is counted, never silent.
+head+tail window of ``max_obs_tokens`` — stage 07B's 128/896 split), so the Q
+values scored here are the same function the sampler trains; every window trim
+is counted, never silent.
 
 Failure policy is fail-loud: an illegal row, a horizon overrun or a non-finite
 Q value raises instead of being absorbed into a counter, so a clean summary
@@ -37,6 +38,7 @@ from guandan_marvel.dmc.candidates import (
     enumerate_candidates,
 )
 from guandan_marvel.dmc.learner import DMCNonFiniteError
+from guandan_marvel.dmc.sampler import DEFAULT_OBS_HEAD_TOKENS, trim_obs_window
 from guandan_marvel.evaluation.agents import (
     ACTION_TOKEN_COLUMN,
     RandomV2Agent,
@@ -74,6 +76,7 @@ class _EvalGame:
         game_seed: int,
         max_obs_tokens: int,
         pad_token: int,
+        obs_head_tokens: int = DEFAULT_OBS_HEAD_TOKENS,
     ) -> None:
         self.env = env
         self.q_agent = q_agent
@@ -83,6 +86,7 @@ class _EvalGame:
         self.dmc_seats = dmc_seats
         self.game_seed = int(game_seed)
         self.max_obs_tokens = int(max_obs_tokens)
+        self.obs_head_tokens = int(obs_head_tokens)
         self.pad_token = int(pad_token)
 
     def run(self) -> dict[str, Any]:
@@ -92,7 +96,8 @@ class _EvalGame:
         ]
         pending: list[int] | None = []
         action_tokens: list[int] = []
-        truncations = 0
+        head_drops = 0
+        tail_drops = 0
         steps = 0
         while True:
             if not pending:
@@ -135,15 +140,23 @@ class _EvalGame:
                     # first DMC seat's reward is the team result (±3/±2/±1).
                     "dmc_team_reward": float(rewards[self.dmc_seats[0]]),
                     "win": bool(rewards[self.dmc_seats[0]] > 0),
-                    "obs_window_truncations": truncations,
+                    # Kept for the pre-existing Gate L row schema: the total
+                    # window trim, now split into its two stage-07B parts.
+                    "obs_window_truncations": head_drops + tail_drops,
+                    "obs_head_drops": head_drops,
+                    "obs_tail_drops": tail_drops,
                     "action_sha256": _action_digest(action_tokens),
                 }
             for seat in range(4):
                 stream = streams[seat]
                 stream.extend(_event_row(step.observations.tokens[0][seat]))
-                if len(stream) > self.max_obs_tokens:
-                    del stream[: len(stream) - self.max_obs_tokens]
-                    truncations += 1
+                dropped_head, dropped_tail = trim_obs_window(
+                    stream,
+                    max_tokens=self.max_obs_tokens,
+                    head_tokens=self.obs_head_tokens,
+                )
+                head_drops += dropped_head
+                tail_drops += dropped_tail
 
     def _row_for_token(self, step: Any, token: int) -> np.ndarray:
         rows = step.available_actions.tokens[0]
@@ -206,6 +219,7 @@ def play_eval_games(
     base_seed: int,
     device: str = "cpu",
     max_obs_tokens: int = 1024,
+    obs_head_tokens: int = DEFAULT_OBS_HEAD_TOKENS,
     max_horizon: int | None = None,
     log: Callable[[str], None] | None = None,
 ) -> dict[str, Any]:
@@ -246,6 +260,7 @@ def play_eval_games(
             game_seed=deal_seed,
             max_obs_tokens=max_obs_tokens,
             pad_token=pad_token,
+            obs_head_tokens=obs_head_tokens,
         ).run()
         row.update({
             "game_index": index,
@@ -276,6 +291,8 @@ def play_eval_games(
         "truncated": 0,
         "nonfinite": 0,
         "obs_window_truncations": sum(int(row["obs_window_truncations"]) for row in rows),
+        "obs_head_drops": sum(int(row["obs_head_drops"]) for row in rows),
+        "obs_tail_drops": sum(int(row["obs_tail_drops"]) for row in rows),
         "median_steps": ordered_steps[len(ordered_steps) // 2] if rows else None,
         "wall_seconds": elapsed,
         "games_per_second": (len(rows) / elapsed) if elapsed > 0 else None,

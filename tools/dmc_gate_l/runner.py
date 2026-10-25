@@ -372,6 +372,7 @@ def run_notebook(
                 base_seed=int(seed_base["mini_vs_rule"]),
                 device=eval_device,
                 max_obs_tokens=int(config.max_obs_tokens),
+                obs_head_tokens=int(config.obs_head_tokens),
                 log=log,
             )
             _append_jsonl(eval_dir / "mini_vs_rule.rows.jsonl", mini_result["summary"])
@@ -395,6 +396,7 @@ def run_notebook(
         base_seed=int(seed_base["final_vs_rule"]),
         device=eval_device,
         max_obs_tokens=int(config.max_obs_tokens),
+        obs_head_tokens=int(config.obs_head_tokens),
         log=log,
     )
     log(f"[DMC-GATE-L] final evaluation vs random ({final_schedule['vs_random_games']} games, ε=0)")
@@ -405,6 +407,7 @@ def run_notebook(
         base_seed=int(seed_base["final_vs_random"]),
         device=eval_device,
         max_obs_tokens=int(config.max_obs_tokens),
+        obs_head_tokens=int(config.obs_head_tokens),
         log=log,
     )
     for name, result in (("final_vs_rule", final_rule), ("final_vs_random", final_random)):

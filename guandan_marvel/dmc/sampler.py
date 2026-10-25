@@ -30,9 +30,14 @@ backend — never a silent switch) and the accepted stage-2 enumerator
 candidates are committed through the adapter's legal action rows one token per
 batch step, exactly like the FableDan guest driver.  Per-seat observation
 token rows are the *cumulative* event stream of the acting seat within the
-current game (the V2 event vocabulary, one event token per position, tail-
-windowed to ``max_obs_tokens``); observation channels are the adapter's
-512-wide actor channels for the acting seat.
+current game (the V2 event vocabulary, one event token per position),
+windowed to ``max_obs_tokens`` as **head 128 + tail 896** (stage 07B): the
+opening history — BOS/level card, the first play event, the resolved tribute
+and return records — is pinned by the head segment while the tail keeps the
+most recent events.  Tokens between the two segments are dropped and counted
+in ``obs_tail_drops`` (``obs_head_drops`` stays zero unless the head budget is
+configured away, which is the invariant the split guarantees).  Observation
+channels are the adapter's 512-wide actor channels for the acting seat.
 """
 
 from __future__ import annotations
@@ -65,7 +70,13 @@ from guandan_marvel.dmc.replay import DMCReplay
 from guandan_marvel.reward import TRAINING_REWARD_SCALE
 from guandan_marvel.evaluation.agents import ACTION_TOKEN_COLUMN
 
-SAMPLER_STATE_SCHEMA = "guandan-marvel-dmc-sampler-state-v1"
+SAMPLER_STATE_SCHEMA = "guandan-marvel-dmc-sampler-state-v2"
+
+#: Stage 07B observation window: the head segment keeps the opening history
+#: (BOS/level card, first play, tribute/return records); the tail keeps the
+#: most recent events.  ``max_obs_tokens`` (1024) is unchanged, so the split
+#: costs no extra memory — it only decides *which* tokens survive.
+DEFAULT_OBS_HEAD_TOKENS = 128
 
 #: A single event row is at most ``4 + max_action_tokens + 1`` tokens and the
 #: adapter's own observation capacity is 48; a window below that would clip
@@ -107,6 +118,43 @@ class DMCSampleSink(ABC):
     @abstractmethod
     def __len__(self) -> int:
         """Rows currently accepted (for ``health`` reporting)."""
+
+
+def trim_obs_window(
+    stream: list[int], *, max_tokens: int, head_tokens: int,
+) -> tuple[int, int]:
+    """Trim ``stream`` **in place** to the head+tail window; return drop counts.
+
+    The window is ``stream[:head_tokens] + stream[-tail:]`` where
+    ``tail = max_tokens - head_tokens``; a stream that already fits is left
+    untouched.  Tokens are therefore only ever dropped from the *middle*,
+    between the pinned head and the retained tail.
+
+    Returns ``(head_drops, tail_drops)``:
+
+    * ``head_drops`` — tokens lost at the **front of the stream**, i.e. opening
+      history.  Structurally ``0`` whenever ``head_tokens > 0``: the head pins
+      the opening, which is exactly the stage-07B fix.  A configured
+      ``head_tokens == 0`` reproduces the legacy tail-only window and charges
+      every dropped token here.
+    * ``tail_drops`` — tokens evicted from the front of the retained tail
+      segment, i.e. the middle of the stream (the tail-only window's eviction
+      point when no head is pinned is the stream front, counted above).
+    """
+    limit = int(max_tokens)
+    head = int(head_tokens)
+    if limit <= 0:
+        raise ValueError("max_tokens must be positive")
+    if head < 0 or head > limit:
+        raise ValueError("head_tokens must satisfy 0 <= head_tokens <= max_tokens")
+    overflow = len(stream) - limit
+    if overflow <= 0:
+        return 0, 0
+    if head == 0:
+        del stream[:overflow]
+        return overflow, 0
+    del stream[head : head + overflow]
+    return 0, overflow
 
 
 def linear_epsilon(samples_pushed: int, *, start: float, final: float, decay_samples: int) -> float:
@@ -164,6 +212,7 @@ class DMCSamplerConfig:
     backend: str = "python_reference"
     max_horizon: int | None = None
     max_obs_tokens: int = 1024
+    obs_head_tokens: int = DEFAULT_OBS_HEAD_TOKENS
     epsilon_start: float = 0.10
     epsilon_final: float = 0.02
     epsilon_decay_samples: int = 5_000_000
@@ -179,6 +228,14 @@ class DMCSamplerConfig:
         if int(self.max_obs_tokens) < MIN_OBS_WINDOW:
             raise ValueError(
                 f"max_obs_tokens must be >= {MIN_OBS_WINDOW} so one event row always fits"
+            )
+        if isinstance(self.obs_head_tokens, bool) or int(self.obs_head_tokens) < 0:
+            raise ValueError("obs_head_tokens must be a non-negative integer")
+        if int(self.obs_head_tokens) > int(self.max_obs_tokens) - MIN_OBS_WINDOW:
+            raise ValueError(
+                "obs_head_tokens must leave at least "
+                f"{MIN_OBS_WINDOW} tail tokens (obs_head_tokens <= "
+                f"max_obs_tokens - {MIN_OBS_WINDOW})"
             )
         if int(self.epsilon_decay_samples) <= 0:
             raise ValueError("epsilon_decay_samples must be positive")
@@ -271,6 +328,7 @@ class DMCSampler:
         self._amp = self._device.type == "cuda"
         self._replay = replay
         self._max_obs_tokens = int(config.max_obs_tokens)
+        self._obs_head_tokens = int(config.obs_head_tokens)
         self._max_horizon = (
             int(self._game.max_game_horizon)
             if config.max_horizon is None
@@ -307,7 +365,11 @@ class DMCSampler:
         self.argmax_hits = 0
         self.illegal_count = 0
         self.nonfinite_count = 0
-        self.obs_window_truncations = 0
+        #: Stage 07B split counters, replacing the single ambiguous truncation
+        #: counter: tokens lost at the stream front (opening history) and
+        #: tokens evicted from the front of the retained tail (the middle).
+        self.obs_head_drops = 0
+        self.obs_tail_drops = 0
         self.truncated_count = 0
         self._failed = False
         self._failure_info: dict[str, Any] | None = None
@@ -351,7 +413,10 @@ class DMCSampler:
             "illegal": self.illegal_count,
             "truncated": self.truncated_count,
             "nonfinite": self.nonfinite_count,
-            "obs_window_truncations": self.obs_window_truncations,
+            "obs_head_drops": self.obs_head_drops,
+            "obs_tail_drops": self.obs_tail_drops,
+            "obs_head_tokens": self._obs_head_tokens,
+            "obs_window_tokens": self._max_obs_tokens,
             "replay_size": len(self._replay),
             "failed": self._failed,
         }
@@ -393,11 +458,15 @@ class DMCSampler:
         for seat in range(4):
             stream = slot.streams[seat]
             stream.extend(self._event_row(token_rows[seat]))
-            if len(stream) > self._max_obs_tokens:
-                # Keep the most recent window; the drop is counted, never
-                # silent, and the stored sample stays inside the buffer layout.
-                del stream[: len(stream) - self._max_obs_tokens]
-                self.obs_window_truncations += 1
+            # Head+tail window: the drop is counted, never silent, and the
+            # stored sample stays inside the buffer layout.
+            head_drops, tail_drops = trim_obs_window(
+                stream,
+                max_tokens=self._max_obs_tokens,
+                head_tokens=self._obs_head_tokens,
+            )
+            self.obs_head_drops += head_drops
+            self.obs_tail_drops += tail_drops
 
     def _require_healthy(self) -> None:
         if self._failed:
@@ -673,6 +742,7 @@ class DMCSampler:
             "backend": str(self._config.backend),
             "max_horizon": int(self._max_horizon),
             "max_obs_tokens": int(self._max_obs_tokens),
+            "obs_head_tokens": int(self._obs_head_tokens),
             "epsilon_start": float(self._config.epsilon_start),
             "epsilon_final": float(self._config.epsilon_final),
             "epsilon_decay_samples": int(self._config.epsilon_decay_samples),
@@ -690,7 +760,8 @@ class DMCSampler:
             "argmax_hits": self.argmax_hits,
             "illegal_count": self.illegal_count,
             "nonfinite_count": self.nonfinite_count,
-            "obs_window_truncations": self.obs_window_truncations,
+            "obs_head_drops": self.obs_head_drops,
+            "obs_tail_drops": self.obs_tail_drops,
             "truncated_count": self.truncated_count,
             "slots": [
                 {
@@ -728,6 +799,7 @@ class DMCSampler:
             "backend": str(self._config.backend),
             "max_horizon": int(self._max_horizon),
             "max_obs_tokens": int(self._max_obs_tokens),
+            "obs_head_tokens": int(self._obs_head_tokens),
             "epsilon_start": float(self._config.epsilon_start),
             "epsilon_final": float(self._config.epsilon_final),
             "epsilon_decay_samples": int(self._config.epsilon_decay_samples),
@@ -781,13 +853,15 @@ class DMCSampler:
         self.argmax_hits = int(state["argmax_hits"])
         self.illegal_count = int(state["illegal_count"])
         self.nonfinite_count = int(state["nonfinite_count"])
-        self.obs_window_truncations = int(state["obs_window_truncations"])
+        self.obs_head_drops = int(state["obs_head_drops"])
+        self.obs_tail_drops = int(state["obs_tail_drops"])
         self.truncated_count = int(state["truncated_count"])
         self._failed = False
         self._failure_info = None
 
 
 __all__ = [
+    "DEFAULT_OBS_HEAD_TOKENS",
     "DMCSampleSink",
     "DMCSampler",
     "DMCSamplerConfig",
@@ -795,4 +869,5 @@ __all__ = [
     "SAMPLER_STATE_SCHEMA",
     "linear_epsilon",
     "select_candidate_index",
+    "trim_obs_window",
 ]

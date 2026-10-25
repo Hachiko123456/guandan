@@ -353,6 +353,10 @@ def test_parallel_run_cycle1_identity_and_determinism(tmp_path):
             assert row["train_steps"] == int(
                 round(row["samples_pushed"] * 1.0 / 16)
             ) or row["low_buffer_skips"] > 0
+            # Stage 07B: batch_size stays the optimizer-step batch; accumulation
+            # only splits it into micro-batches.
+            assert row["effective_batch_size"] == 16
+            assert row["accumulation_steps"] == 4
             assert row["loss_mean"] is None or row["loss_mean"] == row["loss_mean"]
             assert row["weight_version_used"] == max(0, row["cycle"] - 2)
             assert row["weight_probe_match"] is True, "fp32 Q probe must match"

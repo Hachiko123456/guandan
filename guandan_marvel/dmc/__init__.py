@@ -31,6 +31,12 @@ class DMCRuntimeConfig:
 
     buffer_capacity: int = 500_000
     batch_size: int = 1024
+    #: Stage 07B: ``batch_size`` is the optimizer-step batch (locked 1024);
+    #: ``accumulation_steps`` splits it into that many micro-batches (4 x 256)
+    #: so the forward peak memory stays at one micro-batch.
+    accumulation_steps: int = 4
+    #: Stage 07B observation window split: head 128 + tail 896 = 1024 tokens.
+    obs_head_tokens: int = 128
     games_per_cycle: int = 256
     gradient_replay_ratio: float = 1.0
     epsilon_start: float = 0.10

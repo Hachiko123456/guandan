@@ -43,6 +43,8 @@ GAME = GameSpec(
 DMC_DEFAULT_VALUES = {
     "buffer_capacity": 500_000,
     "batch_size": 1024,
+    "accumulation_steps": 4,
+    "obs_head_tokens": 128,
     "games_per_cycle": 256,
     "gradient_replay_ratio": 1.0,
     "epsilon_start": 0.10,

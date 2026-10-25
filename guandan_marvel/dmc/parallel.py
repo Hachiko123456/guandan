@@ -69,7 +69,7 @@ from guandan_marvel.dmc import (
     DMC_TRAINING_SEMANTICS_PROFILE,
     DMCRuntimeConfig,
 )
-from guandan_marvel.dmc.learner import DMCLearner
+from guandan_marvel.dmc.learner import DMCLearner, optimizer_steps_for_samples
 from guandan_marvel.dmc.q_agent import DMCAgent
 from guandan_marvel.dmc.replay import DMCReplay
 from guandan_marvel.dmc.sampler import DMCSampleSink, DMCSampler, DMCSamplerConfig
@@ -118,6 +118,8 @@ def _build_train_config(run_config: DMCRunConfig, device: str) -> TrainConfig:
         dmc=DMCRuntimeConfig(
             buffer_capacity=run_config.buffer_capacity,
             batch_size=run_config.batch_size,
+            accumulation_steps=run_config.accumulation_steps,
+            obs_head_tokens=run_config.obs_head_tokens,
             games_per_cycle=run_config.games_per_cycle,
             gradient_replay_ratio=run_config.gradient_replay_ratio,
             epsilon_start=run_config.epsilon_start,
@@ -280,6 +282,7 @@ def _learner_process_main(
         agent = DMCAgent(train_config)
         learner = DMCLearner(
             agent, replay, device=device, config=train_config.dmc,
+            accumulation_steps=run_config.accumulation_steps,
             seed=run_config.seed + 1,
         )
 
@@ -400,17 +403,20 @@ def _learner_process_main(
                     f"collector declared {declared} rows, learner accepted {received}"
                 )
             received = 0
-            # Locked stage-4 gradient arithmetic (mirror of train.py).
-            desired_steps = int(round(
-                declared * run_config.gradient_replay_ratio / run_config.batch_size
-            ))
+            # Locked stage-4 gradient arithmetic (mirror of train.py); stage
+            # 07B keeps dividing by the optimizer-step batch, never a micro-batch.
+            desired_steps = optimizer_steps_for_samples(
+                declared,
+                ratio=run_config.gradient_replay_ratio,
+                effective_batch_size=learner.effective_batch_size,
+            )
             train_steps = 0
             losses: list[float] = []
             qz_r2_last = None
             grad_norms: list[float] = []
             scaler_scale_last = None
             if desired_steps > 0:
-                if len(replay) < run_config.batch_size:
+                if len(replay) < learner.effective_batch_size:
                     low_buffer_skips += desired_steps
                 else:
                     for _ in range(desired_steps):
@@ -432,6 +438,8 @@ def _learner_process_main(
                 "cycle": cycle,
                 "desired_train_steps": desired_steps,
                 "train_steps": train_steps,
+                "effective_batch_size": learner.effective_batch_size,
+                "accumulation_steps": run_config.accumulation_steps,
                 "low_buffer_skips": low_buffer_skips,
                 "loss_mean": (sum(losses) / len(losses)) if losses else None,
                 "loss_last": losses[-1] if losses else None,
@@ -515,6 +523,7 @@ def _actor_process_main(
                 env_seed=run_config.env_seed,
                 seed=run_config.seed,
                 max_obs_tokens=run_config.max_obs_tokens,
+                obs_head_tokens=run_config.obs_head_tokens,
                 epsilon_start=run_config.epsilon_start,
                 epsilon_final=run_config.epsilon_final,
                 epsilon_decay_samples=run_config.epsilon_decay_samples,
@@ -827,6 +836,8 @@ class DMCParallelTrainer:
             "cycle": self.cycles,
             "desired_train_steps": int(learner_stats["desired_train_steps"]),
             "train_steps": int(learner_stats["train_steps"]),
+            "effective_batch_size": int(learner_stats["effective_batch_size"]),
+            "accumulation_steps": int(learner_stats["accumulation_steps"]),
             "low_buffer_skips": self.low_buffer_skips,
             "loss_mean": learner_stats["loss_mean"],
             "loss_last": learner_stats["loss_last"],

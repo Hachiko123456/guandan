@@ -4,7 +4,8 @@
 One cycle is exactly the locked contract::
 
     collect ``games_per_cycle`` ε-greedy games  ->  push replay (sampler)
-    gradient steps = round(new_samples * gradient_replay_ratio / batch_size)
+    optimizer steps = round(new_samples * gradient_replay_ratio / effective_batch)
+    effective_batch = batch_size * accumulation_steps (stage 07B: 4 x 256 = 1024)
     AdamW(lr=1e-4, weight_decay=0), MSE(Q, z), fp16 autocast + GradScaler on CUDA
 
 Everything else in this module is bookkeeping around that contract:
@@ -55,10 +56,15 @@ from guandan_marvel.dmc import (
     DMC_TRAINING_SEMANTICS_PROFILE,
     DMCRuntimeConfig,
 )
-from guandan_marvel.dmc.learner import DMCLearner
+from guandan_marvel.dmc.learner import DMCLearner, optimizer_steps_for_samples
 from guandan_marvel.dmc.q_agent import DMCAgent
 from guandan_marvel.dmc.replay import DMCReplay
-from guandan_marvel.dmc.sampler import DMCSampler, DMCSamplerConfig
+from guandan_marvel.dmc.sampler import (
+    DEFAULT_OBS_HEAD_TOKENS,
+    MIN_OBS_WINDOW,
+    DMCSampler,
+    DMCSamplerConfig,
+)
 
 DMC_TRAIN_CONFIG_SCHEMA = "guandan-marvel-dmc-train-config-v1"
 DMC_METRICS_SCHEMA = "guandan-marvel-dmc-metrics-v1"
@@ -89,6 +95,13 @@ class DMCRunConfig:
     games_per_cycle: int = 256
     gradient_replay_ratio: float = 1.0
     batch_size: int = 1024
+    #: Stage 07B: ``batch_size`` is the optimizer-step batch (the locked 1024);
+    #: ``accumulation_steps`` splits it into that many micro-batches (4 x 256)
+    #: so the forward peak memory stays at one micro-batch.  The gradient/data
+    #: ratio keeps dividing by ``batch_size``.
+    accumulation_steps: int = 4
+    #: Stage 07B observation window split (head 128 + tail 896 of 1024).
+    obs_head_tokens: int = DEFAULT_OBS_HEAD_TOKENS
     buffer_capacity: int = 500_000
     max_obs_tokens: int = 1024
     epsilon_start: float = 0.10
@@ -106,12 +119,28 @@ class DMCRunConfig:
     def __post_init__(self) -> None:
         for name in (
             "num_envs", "total_games", "games_per_cycle", "batch_size",
-            "buffer_capacity", "max_obs_tokens", "epsilon_decay_samples",
+            "accumulation_steps", "buffer_capacity", "max_obs_tokens",
+            "epsilon_decay_samples",
         ):
             value = getattr(self, name)
             if isinstance(value, bool) or int(value) <= 0:
                 raise DMCConfigError(f"{name} must be a positive integer")
             object.__setattr__(self, name, int(value))
+        if int(self.accumulation_steps) > int(self.batch_size):
+            raise DMCConfigError(
+                "accumulation_steps cannot exceed batch_size (every micro-batch "
+                "needs at least one row)"
+            )
+        # The observation window split must leave one event row in the tail.
+        if isinstance(self.obs_head_tokens, bool) or int(self.obs_head_tokens) < 0:
+            raise DMCConfigError("obs_head_tokens must be a non-negative integer")
+        object.__setattr__(self, "obs_head_tokens", int(self.obs_head_tokens))
+        if int(self.obs_head_tokens) > int(self.max_obs_tokens) - MIN_OBS_WINDOW:
+            raise DMCConfigError(
+                "obs_head_tokens must leave at least "
+                f"{MIN_OBS_WINDOW} tail tokens (obs_head_tokens <= "
+                f"max_obs_tokens - {MIN_OBS_WINDOW})"
+            )
         # 0 disables intermediate checkpoints (the final one is always saved).
         if isinstance(self.checkpoint_interval_cycles, bool) or int(self.checkpoint_interval_cycles) < 0:
             raise DMCConfigError("checkpoint_interval_cycles must be a non-negative integer")
@@ -261,6 +290,8 @@ class DMCTrainer:
             dmc=DMCRuntimeConfig(
                 buffer_capacity=run_config.buffer_capacity,
                 batch_size=run_config.batch_size,
+                accumulation_steps=run_config.accumulation_steps,
+                obs_head_tokens=run_config.obs_head_tokens,
                 games_per_cycle=run_config.games_per_cycle,
                 gradient_replay_ratio=run_config.gradient_replay_ratio,
                 epsilon_start=run_config.epsilon_start,
@@ -281,6 +312,7 @@ class DMCTrainer:
             self.replay,
             device=self.device,
             config=self.train_config.dmc,
+            accumulation_steps=run_config.accumulation_steps,
             seed=run_config.seed + 1,
         )
         self.sampler = DMCSampler(
@@ -292,6 +324,7 @@ class DMCTrainer:
                 env_seed=run_config.env_seed,
                 seed=run_config.seed,
                 max_obs_tokens=run_config.max_obs_tokens,
+                obs_head_tokens=run_config.obs_head_tokens,
                 epsilon_start=run_config.epsilon_start,
                 epsilon_final=run_config.epsilon_final,
                 epsilon_decay_samples=run_config.epsilon_decay_samples,
@@ -437,17 +470,20 @@ class DMCTrainer:
         stats = self.sampler.collect_games(cycle_games, progress_callback=progress_callback)
 
         new_samples = int(stats["samples_pushed"])
-        desired_steps = int(round(new_samples * self.run_config.gradient_replay_ratio
-                                  / self.run_config.batch_size))
+        desired_steps = optimizer_steps_for_samples(
+            new_samples,
+            ratio=self.run_config.gradient_replay_ratio,
+            effective_batch_size=self.learner.effective_batch_size,
+        )
         train_steps = 0
         losses: list[float] = []
         qz_r2_last = None
         grad_norms: list[float] = []
         scaler_scale_last = None
         if desired_steps > 0:
-            if len(self.replay) < self.run_config.batch_size:
+            if len(self.replay) < self.learner.effective_batch_size:
                 # The learner cannot sample without replacement below one
-                # batch; the skipped updates are counted, never silent.
+                # effective batch; the skipped updates are counted, never silent.
                 self.low_buffer_skips += desired_steps
             else:
                 for _ in range(desired_steps):
@@ -466,6 +502,8 @@ class DMCTrainer:
             "cycle": self.cycles,
             "desired_train_steps": desired_steps,
             "train_steps": train_steps,
+            "effective_batch_size": self.learner.effective_batch_size,
+            "accumulation_steps": self.run_config.accumulation_steps,
             "low_buffer_skips": self.low_buffer_skips,
             "loss_mean": (sum(losses) / len(losses)) if losses else None,
             "loss_last": losses[-1] if losses else None,
@@ -517,7 +555,11 @@ def train_from_config(
     if device_override is not None:
         log(f"[DMC] device override: {device_override} -> {device}")
     log(f"[DMC] device={device} envs={run_config.num_envs} games={run_config.total_games} "
-        f"buffer={run_config.buffer_capacity} batch={run_config.batch_size} "
+        f"buffer={run_config.buffer_capacity} "
+        f"batch={run_config.batch_size}"
+        f"(micro={trainer.learner.micro_batch_size}x{run_config.accumulation_steps}) "
+        f"obs_window={run_config.max_obs_tokens}"
+        f"({run_config.obs_head_tokens}+{run_config.max_obs_tokens - run_config.obs_head_tokens}) "
         f"channel_dim={trainer.replay.channel_dim}")
 
     if resume_path is not None:
@@ -631,6 +673,9 @@ def train_from_config(
         "torch_version": torch.__version__,
         "channel_dim": trainer.replay.channel_dim,
         "max_obs_tokens": trainer.replay.max_obs_tokens,
+        "obs_head_tokens": run_config.obs_head_tokens,
+        "effective_batch_size": trainer.learner.effective_batch_size,
+        "accumulation_steps": run_config.accumulation_steps,
         "replay_reset": trainer.replay_reset,
         "totals": {
             "cycles": trainer.cycles,
