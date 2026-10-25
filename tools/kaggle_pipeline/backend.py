@@ -196,11 +196,17 @@ def _new_api(username: str, key: str, api_token: str | None = None):
             return func
 
         def dataset_status(self, *args, **kwargs):
-            # SDK create catches all HTTPError as absence; preserve ONLY 404.
+            # SDK create uses this probe to detect an existing dataset by
+            # catching HTTPError as absence.  Live-API verified 2026-10-25:
+            # Kaggle answers 404 *or 403* here for a dataset this token
+            # cannot see — including one that does not exist.  Both must pass
+            # through as the original HTTPError so the SDK proceeds to the
+            # create request; any other status still fails closed as a
+            # BackendError the SDK cannot swallow.
             try:
                 return super().dataset_status(*args, **kwargs)
             except Exception as exc:
-                if _status_code(exc) == 404:
+                if _status_code(exc) in (403, 404):
                     raise
                 raise BackendError("create_dataset", _status_code(exc)) from None
 
@@ -397,9 +403,38 @@ class KaggleBackend:
             return {"status": state, "ready": state == "ready", "version": version,
                     "files": files, "is_private": private if type(private) is bool else None}
 
+    @staticmethod
+    def _purge_resumable_upload_state(folder: Path) -> None:
+        """Remove kaggle 2.2.5 resumable-upload state for this folder's files.
+
+        The SDK persists upload state under the per-user temp directory and
+        deliberately keeps it after a failure, then requests ``resume=True`` on
+        the next attempt.  This adapter's ``upload_complete`` refuses resume
+        (every create is a deliberate full upload), so stale state from a
+        failed attempt would otherwise abort every retry with "Upload resume
+        disabled".  State file names mirror the upload path exactly as the
+        SDK derives them, for both the relative and absolute spelling.
+        """
+        state_dir = os.path.join(tempfile.gettempdir(), ".kaggle-uploads")
+        roots = dict.fromkeys([Path(folder), Path(folder).resolve()])
+        for root in roots:
+            for path in root.rglob("*"):
+                if not path.is_file():
+                    continue
+                for spelling in (str(path), str(path.resolve())):
+                    name = "%s.json" % spelling.replace(os.path.sep, "_").replace(":", "_")
+                    try:
+                        os.unlink(os.path.join(state_dir, name))
+                    except FileNotFoundError:
+                        pass
+                    except OSError as exc:
+                        raise BackendError("create_dataset") from None
+
     def create_dataset(self, folder: Path) -> dict:
         with self._operation("create_dataset") as api:
-            metadata = json.loads((Path(folder) / "dataset-metadata.json").read_text(encoding="utf-8"))
+            folder = Path(folder).resolve()
+            self._purge_resumable_upload_state(folder)
+            metadata = json.loads((folder / "dataset-metadata.json").read_text(encoding="utf-8"))
             ref = metadata["id"]
             _ref(ref)
             response = api.dataset_create_new(str(folder), public=False, quiet=True,

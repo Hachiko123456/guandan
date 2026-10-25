@@ -343,6 +343,25 @@ def test_private_creation_and_no_raw_response(harness):
     assert call[2] == {"public": False, "quiet": True, "convert_to_csv": False, "dir_mode": "zip"}
 
 
+def test_create_purges_stale_resumable_upload_state(harness, monkeypatch, tmp_path):
+    """Stale SDK upload state must not deadlock retries ("Upload resume disabled")."""
+    import tempfile
+    backend, api, folder = harness
+    state_dir = tmp_path / ".kaggle-uploads"
+    state_dir.mkdir()
+    monkeypatch.setattr(tempfile, "gettempdir", lambda: str(tmp_path))
+    stale = []
+    for spelling in (str(folder), str(Path(folder).resolve())):
+        for name in Path(folder).rglob("*"):
+            if name.is_file():
+                info = state_dir / ("%s.json" % (str(name) if spelling == str(folder) else str(name.resolve())).replace(os.path.sep, "_").replace(":", "_"))
+                info.write_text("{}", encoding="utf-8")
+                stale.append(info)
+    assert stale
+    backend.create_dataset(folder)
+    assert all(not info.exists() for info in stale)
+
+
 @pytest.mark.parametrize("mutation", ["create_dataset", "push_kernel"])
 @pytest.mark.parametrize("failure", ["exception", "body_error", "empty_response"])
 def test_mutation_failures_are_redacted_and_not_retried(harness, mutation, failure):
@@ -670,8 +689,8 @@ def test_real_sdk_push_pull_status_output_all_use_official_fields(installed_back
     assert [request.version_label for request in pages] == ["v7", "v7"]
 
 
-@pytest.mark.parametrize("preflight_code,expected_commits", [(404, 1), (403, 0), (500, 0)])
-def test_real_sdk_create_does_not_retry_or_treat_403_as_absent(installed_backend, monkeypatch, tmp_path, preflight_code, expected_commits):
+@pytest.mark.parametrize("preflight_code,expected_commits", [(404, 1), (403, 1), (500, 0)])
+def test_real_sdk_create_treats_404_and_403_preflight_as_absent(installed_backend, monkeypatch, tmp_path, preflight_code, expected_commits):
     import requests
     backend = installed_backend
     api = backend._api
