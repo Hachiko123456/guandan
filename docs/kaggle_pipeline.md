@@ -70,6 +70,8 @@
 
 `configs/kaggle_pipeline.json` 已设置私有 Dataset/Notebook、T4×2、Internet 关闭、15000 秒平台请求上限、30 秒查询间隔与 1800 秒 Dataset 处理等待。15000 秒覆盖现有 14400 秒实验预算并留余量，不改包内预算；具体设备与平台限制由 Kaggle 决定。
 
+**代理要求（2026-10-25 实测）**：Dataset 上传的 blob 走 `www.googleapis.com`，直连大体积 PUT 会无限挂起。执行 `run/prepare/watch/fetch` 前必须设置 `https_proxy`（本机代理，如 `http://127.0.0.1:7897`；注意只设 `http_proxy` 不够，https 流量看 `https_proxy`）。
+
 账号从唯一的 local 文件读取，不要求你配置系统环境变量。`runs/kaggle_pipeline/<run-id>/` 保存原始输入副本、验证证据、run.json、staging、结果与验证结论，不保存密钥。
 
 首版适配**当前 serial_compare 构建器的交付格式**。新包如改用其他业务入口，需要代理增加对应适配，不能把任意 ZIP 当作兼容包。
