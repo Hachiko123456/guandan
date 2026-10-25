@@ -9,6 +9,31 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.kaggle_pipeline import core
 
+DMC_PLAN_SCHEMA = "guandan-dmc-gate-l-plan-v1"
+
+
+def verifier_for(delivery: Path | None):
+    """Dispatch the offline delivery verifier by the delivery's plan schema.
+
+    The pipeline core keeps its serial-compare default (``core.verify_delivery``);
+    a DMC delivery carries its own plan schema and verifies with the DMC QA
+    script instead.  ``tools/kaggle_pipeline`` itself stays untouched (stage-5
+    前置任务 A3: reuse prepare/run/watch/fetch, never modify pipeline code).
+    """
+    if delivery is None:
+        return None
+    try:
+        schema = json.loads(
+            (Path(delivery) / "plan.json").read_text(encoding="utf-8-sig"),
+        ).get("schema")
+    except (OSError, ValueError):
+        return None
+    if schema != DMC_PLAN_SCHEMA:
+        return None
+    from scripts.verify_dmc_delivery import verify
+
+    return verify
+
 
 def emit(value: dict) -> None:
     print(json.dumps(value, ensure_ascii=False, indent=2), flush=True)
@@ -63,9 +88,10 @@ def main(argv: list[str] | None = None) -> int:
                 raise core.PipelineError("choose exactly one of --build, --delivery, or --current")
             if args.action == "run" and args.run_id and (args.build or args.delivery or args.current):
                 raise core.PipelineError("--run-id cannot be combined with new delivery/build/current")
+            verifier = verifier_for(args.delivery)
             if args.dry_run:
                 result = core.prepare_published(config, dry_run=True) if args.current else core.prepare(
-                    config, args.delivery, dry_run=True,
+                    config, args.delivery, dry_run=True, verifier=verifier,
                 )
                 emit(result)
                 return 0
@@ -73,7 +99,8 @@ def main(argv: list[str] | None = None) -> int:
                 core.build_delivery(config) if args.build else args.delivery
             )
             prepared = core.prepare_published(config) if args.current else (
-                core.prepare(config, delivery) if delivery is not None or args.action == "prepare" else None
+                core.prepare(config, delivery, verifier=verifier)
+                if delivery is not None or args.action == "prepare" else None
             )
             if args.action == "prepare":
                 emit(prepared)
