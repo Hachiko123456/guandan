@@ -9,7 +9,10 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.kaggle_pipeline import core
 
-DMC_PLAN_SCHEMA = "guandan-dmc-gate-l-plan-v1"
+DMC_PLAN_SCHEMAS = {
+    "guandan-dmc-gate-l-plan-v1": "scripts.verify_dmc_delivery",
+    "guandan-dmc-gate-a-plan-v1": "scripts.verify_dmc_gate_a_delivery",
+}
 
 
 def verifier_for(delivery: Path | None):
@@ -17,8 +20,9 @@ def verifier_for(delivery: Path | None):
 
     The pipeline core keeps its serial-compare default (``core.verify_delivery``);
     a DMC delivery carries its own plan schema and verifies with the DMC QA
-    script instead.  ``tools/kaggle_pipeline`` itself stays untouched (stage-5
-    前置任务 A3: reuse prepare/run/watch/fetch, never modify pipeline code).
+    script for that stage instead.  ``tools/kaggle_pipeline`` itself stays
+    untouched (stage-5 前置任务 A3: reuse prepare/run/watch/fetch, never modify
+    pipeline code).
     """
     if delivery is None:
         return None
@@ -28,11 +32,12 @@ def verifier_for(delivery: Path | None):
         ).get("schema")
     except (OSError, ValueError):
         return None
-    if schema != DMC_PLAN_SCHEMA:
+    module_name = DMC_PLAN_SCHEMAS.get(schema)
+    if module_name is None:
         return None
-    from scripts.verify_dmc_delivery import verify
+    from importlib import import_module
 
-    return verify
+    return import_module(module_name).verify
 
 
 def emit(value: dict) -> None:
